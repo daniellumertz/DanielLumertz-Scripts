@@ -14,10 +14,7 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Added sharp/flat toggle
---    + Improved behavior on Preset Overwrite
---    + Updating no longer overwrites user's settings
---    + Exported presets now have 'MST_' as a prefix in Actions List
+
 
 script_version = "0.52"
 ------------------------------
