@@ -3,6 +3,7 @@
 @author Daniel Lumertz
 @version 1.0
 @about MIDI Transfer
+]]
 --    [main=MIDI Transfer] .
 --    [nomain] Table to string.lua
 --    [nomain] Core.lua
@@ -17,7 +18,7 @@
 --    + Improved behavior on Preset Overwrite
 --    + Updating no longer overwrites user's settings
 --    + Exported presets now have 'MST_' as a prefix in Actions List
-]]
+
 script_version = "0.52"
 ------------------------------
 info = debug.getinfo(1,'S')
