@@ -1,21 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="c68ae7cdaa200c9919d5d44c96556a1e695eb8c4">
-  <category name="MIDI Transfer">
-    <reapack name="MIDI Transfer.lua" type="script" desc="MIDI Transfer">
-      <metadata>
-        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
-{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
-\widowctrl\hyphauto
-
-{\pard \ql \f0 \sa180 \li0 \fi0 MIDI Transfer @provides [main=MIDI Transfer] . [nomain] Table to string.lua [nomain] Core.lua [nomain] General Functions.lua [nomain] GUI.lua [nomain] main.lua [nomain] map_func.lua [nomain] Modules/{\i .lua [nomain] Classes/}.lua\par}
-}
-]]></description>
-      </metadata>
-      <version name="1.0" author="Daniel Lumertz" time="2021-01-12T22:36:44Z">
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c68ae7cdaa200c9919d5d44c96556a1e695eb8c4/MIDI%20Transfer/MIDI%20Transfer.lua</source>
-      </version>
-    </reapack>
-  </category>
+<index version="1" name="Daniel Lumertz Scripts" commit="38060be217c4a39006459851e1449024c26baf4d">
   <metadata>
     <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
