@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="9c1395a2ac0609c03a3e8b82ca01917bba0830b6">
+<index version="1" name="Daniel Lumertz Scripts" commit="849285275e9406111fef6a71a83f324fee108d27">
   <category name="Example">
     <reapack name="cfillion_Hello world.lua" type="script" desc="Hello world">
       <metadata>
@@ -28,12 +28,16 @@ Markdown
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
 \widowctrl\hyphauto
 
-{\pard \ql \f0 \sa180 \li0 \fi0 MIDI Transfer.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 MIDI Transfer\par}
 }
 ]]></description>
       </metadata>
-      <version name="1.0" author="Daniel Lumertz" time="2021-01-12T18:15:31Z">
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f918595d79cc1fecfafa7994dbf891eb9034374f/MIDI%20Transfer/MIDI%20Transfer.lua</source>
+      <version name="1.0" author="Daniel Lumertz" time="2021-01-12T22:03:53Z">
+        <changelog><![CDATA[+ Added sharp/flat toggle
++ Improved behavior on Preset Overwrite
++ Updating no longer overwrites user's settings
++ Exported presets now have 'MST_' as a prefix in Actions List]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/849285275e9406111fef6a71a83f324fee108d27/MIDI%20Transfer/MIDI%20Transfer.lua</source>
       </version>
     </reapack>
   </category>
