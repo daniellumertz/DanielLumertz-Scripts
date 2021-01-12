@@ -2,7 +2,7 @@
 @description MIDI Transfer
 @author Daniel Lumertz
 @version 1.0
-@about A tool to make faster MIDI transfer Between Softwares and REAPER.
+@about MIDI Transfer.
 ]]
 script_version = "0.52"
 ------------------------------
