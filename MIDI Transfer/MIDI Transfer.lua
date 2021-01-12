@@ -2,7 +2,7 @@
 --@author Daniel Lumertz
 --@version 1.0
 --@about MIDI Transfer
--- @provides
+--@provides
 --    [main=MIDI Transfer] .
 --    [nomain] Table to string.lua
 --    [nomain] Core.lua
