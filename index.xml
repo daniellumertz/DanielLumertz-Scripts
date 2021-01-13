@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="38060be217c4a39006459851e1449024c26baf4d">
+<index version="1" name="Daniel Lumertz Scripts" commit="4cdd9e5afe50cdaf889d497ff950a114004d1490">
+  <category name="MIDI Transfer">
+    <reapack name="MIDI Transfer.lua" type="script">
+      <version name="1.52" author="Daniel Lumertz" time="2021-01-13T03:18:24Z">
+        <changelog><![CDATA[+ Beta release]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/MIDI%20Transfer.lua</source>
+        <source file="Table to string.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Table%20to%20string.lua</source>
+        <source file="Core.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Core.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/General%20Functions.lua</source>
+        <source file="GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/GUI.lua</source>
+        <source file="main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/main.lua</source>
+        <source file="map_func.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/map_func.lua</source>
+        <source file="Modules/Window - GetUserInputs.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Modules/Window%20-%20GetUserInputs.lua</source>
+        <source file="Classes/Class - Button.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Button.lua</source>
+        <source file="Classes/Class - Label.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Label.lua</source>
+        <source file="Classes/Class - Menubar.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Menubar.lua</source>
+        <source file="Classes/Class - Menubox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Menubox.lua</source>
+        <source file="Classes/Class - Options.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Options.lua</source>
+        <source file="Classes/Class - Tabs.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Tabs.lua</source>
+        <source file="Classes/Class - TextEditor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20TextEditor.lua</source>
+        <source file="Classes/Class - Textbox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4cdd9e5afe50cdaf889d497ff950a114004d1490/MIDI%20Transfer/Classes/Class%20-%20Textbox.lua</source>
+      </version>
+    </reapack>
+  </category>
   <metadata>
     <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
