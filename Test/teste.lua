@@ -1,6 +1,6 @@
--- @version 1.0
+-- @version 1.2
 -- @author Daniel Lumertz
 -- @changelog
 --    + Beta release
 
-reaper.ShowConsoleMsg('This is a test')
+reaper.ShowConsoleMsg('This is a testeaeaeaea')
