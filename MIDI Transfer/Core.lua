@@ -21,16 +21,17 @@ GUI = {}
 GUI.script_path, GUI.script_name = ({reaper.get_action_context()})[2]:match("(.-)([^/\\]+).lua$")
 
 
-GUI.lib_path = reaper.GetExtState("Lokasenna_GUI", "lib_path_v2")
-if not GUI.lib_path or GUI.lib_path == "" then
+--GUI.lib_path = reaper.GetExtState("Lokasenna_GUI", "lib_path_v2")
+-- DL Removed for don't require Lokasenna
+--[[ if not GUI.lib_path or GUI.lib_path == "" then
     reaper.MB("Couldn't load the Lokasenna_GUI library. Please install 'Lokasenna's GUI library v2 for Lua', available on ReaPack, then run the 'Set Lokasenna_GUI v2 library path.lua' script in your Action List.", "Whoops!", 0)
     return
-end
+end ]]
 
 
 GUI.get_version = function()
 
-    local file = GUI.lib_path .. "/Core.lua"
+    local file = GUI.script_path .. "/Core.lua" -- DL Change It used to be GUI.lib_path 
     if not reaper.ReaPack_GetOwner then
         return "(" .. "ReaPack not found" .. ")"
     else
