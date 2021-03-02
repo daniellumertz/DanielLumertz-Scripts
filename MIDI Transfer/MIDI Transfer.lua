@@ -1,4 +1,4 @@
--- @version 1.01
+-- @version 1.02
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,12 +10,9 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Added the Option to not Transfer CC and Program Changes 
---    + Initial Release
---    + Added Help Menu Manual
---    + Beta release
+--    + Removed Bug Related to Requiring Lokasenna GUI Needed to be Instaled 
 
-script_version = "1.01"
+script_version = "1.02"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
