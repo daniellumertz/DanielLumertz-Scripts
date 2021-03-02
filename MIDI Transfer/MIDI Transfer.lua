@@ -1,4 +1,4 @@
--- @version 1
+-- @version 1.02
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,7 +10,10 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Removed Bug Related to Requiring Lokasenna GUI Needed to be Instaled 
+--    + Added the Option to not Transfer CC and Program Changes 
+--    + Initial Release
+--    + Added Help Menu Manual
+--    + Beta release
 
 script_version = "1.02"
 ------------------------------
