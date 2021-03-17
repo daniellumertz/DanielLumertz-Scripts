@@ -1,5 +1,3 @@
-  
-  
 -- @version 1.2
 -- @author Daniel Lumertz
 -- @changelog
