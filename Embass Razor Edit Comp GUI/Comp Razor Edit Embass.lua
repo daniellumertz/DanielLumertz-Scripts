@@ -3,15 +3,6 @@
 -- @author Embass mod Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
--- @changelog
---    + Embass Mode And DSL Mode 
---    + Add Loop to copy to all Dest Tracks
---    + Remake the Copy function
---    + Restore the user previous state 
---    + Changes in Main script to work with the GUI 
---    + Changes in the Main Script to not change Mouse Mod
---    + Add ReaImGUI
---    + Release Embass
 
 ----------------------
 --Script info
