@@ -1,5 +1,5 @@
 -- @version 1.2
--- @author Embass
+-- @author Daniel Lumertz
 -- @changelog
 --    + Beta release
 -- @provides
