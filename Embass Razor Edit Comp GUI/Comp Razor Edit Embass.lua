@@ -1,6 +1,6 @@
   
 -- @version 1.0
--- @author Embass, Daniel Lumertz
+-- @author Embass mod Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 -- @changelog
