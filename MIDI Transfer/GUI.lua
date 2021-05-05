@@ -121,70 +121,82 @@
         mnu_file = {}
         mnu_file.new = function ()Msg('Place Holder') end
         mnu_file.delout = function ()  --  Options > Auto Delete > Delete Outside Track
-            if GUI.elms.Bar.menus[2].options[2][1] == '!'..gui_opts_menu[1] then 
-                GUI.elms.Bar.menus[2].options[2][1] = gui_opts_menu[1] 
+            if GUI.elms.Bar.menus[1].options[2][1] == '!'..gui_opts_menu[1] then 
+                GUI.elms.Bar.menus[1].options[2][1] = gui_opts_menu[1] 
                 map[GUI.Val('Font_box')].delete_outside_track = 0 
             else
-                GUI.elms.Bar.menus[2].options[2][1] = '!'..gui_opts_menu[1] 
+                GUI.elms.Bar.menus[1].options[2][1] = '!'..gui_opts_menu[1] 
                 map[GUI.Val('Font_box')].delete_outside_track = 1
             end
         end
 
         mnu_file.odd_tr = function ()  --  Options > Auto Delete > Delete Outside Track > Auto Delete Odds on Choosen Tracks
-            if GUI.elms.Bar.menus[2].options[4][1] == '!'..gui_opts_menu[2] then 
-                GUI.elms.Bar.menus[2].options[4][1] = gui_opts_menu[2] 
+            if GUI.elms.Bar.menus[1].options[4][1] == '!'..gui_opts_menu[2] then 
+                GUI.elms.Bar.menus[1].options[4][1] = gui_opts_menu[2] 
                 map[GUI.Val('Font_box')].auto_delete_odd = 0 
             else
-                GUI.elms.Bar.menus[2].options[4][1] = '!'..gui_opts_menu[2] 
+                GUI.elms.Bar.menus[1].options[4][1] = '!'..gui_opts_menu[2] 
                 map[GUI.Val('Font_box')].auto_delete_odd = 1
 
                 if map[GUI.Val('Font_box')].auto_delete_odds_project == 1 then  -- Turn Off project Odds
-                    GUI.elms.Bar.menus[2].options[5][1] = gui_opts_menu[3] 
+                    GUI.elms.Bar.menus[1].options[5][1] = gui_opts_menu[3] 
                     map[GUI.Val('Font_box')].auto_delete_odds_project = 0 
                 end
             end
         end
 
         mnu_file.odd_proj = function ()  --  Options > Auto Delete > Delete Outside Track > Auto Delete Odds on Choosen Tracks
-            if GUI.elms.Bar.menus[2].options[5][1] == '!'..gui_opts_menu[3] then 
-                GUI.elms.Bar.menus[2].options[5][1] = gui_opts_menu[3] 
+            if GUI.elms.Bar.menus[1].options[5][1] == '!'..gui_opts_menu[3] then 
+                GUI.elms.Bar.menus[1].options[5][1] = gui_opts_menu[3] 
                 map[GUI.Val('Font_box')].auto_delete_odds_project = 0 
             else
-                GUI.elms.Bar.menus[2].options[5][1] = '!'..gui_opts_menu[3] 
+                GUI.elms.Bar.menus[1].options[5][1] = '!'..gui_opts_menu[3] 
                 map[GUI.Val('Font_box')].auto_delete_odds_project = 1
 
                 if map[GUI.Val('Font_box')].auto_delete_odd == 1 then -- Turn Off tracks Odds
-                    GUI.elms.Bar.menus[2].options[4][1] = gui_opts_menu[2] 
+                    GUI.elms.Bar.menus[1].options[4][1] = gui_opts_menu[2] 
                     map[GUI.Val('Font_box')].auto_delete_odd = 0 
                 end
             end
         end
 
         mnu_file.cc = function ()  --  Options > Auto Delete > Delete Outside Track > Auto Delete Odds on Choosen Tracks
-            if GUI.elms.Bar.menus[2].options[6][1] == '!'..gui_opts_menu[4]  then 
-                GUI.elms.Bar.menus[2].options[6][1] = gui_opts_menu[4] 
+            if GUI.elms.Bar.menus[1].options[6][1] == '!'..gui_opts_menu[4]  then 
+                GUI.elms.Bar.menus[1].options[6][1] = gui_opts_menu[4] 
                 map[GUI.Val('Font_box')].impCC = 0 
             else
-                GUI.elms.Bar.menus[2].options[6][1] = '!'..gui_opts_menu[4] 
+                GUI.elms.Bar.menus[1].options[6][1] = '!'..gui_opts_menu[4] 
                 map[GUI.Val('Font_box')].impCC = 1
             end
         end
 
         mnu_file.reset = function()
-            map = {} 
-            map[1] = CreateMap() 
-            GUI.Val('Font_box', 1 )
-            
-            while #GUI.elms.Font_box.opts ~= 3 
-            do
-                table.remove(GUI.elms.Font_box.opts, #GUI.elms.Font_box.opts-2)
+            if defer ~= true then 
+                map = {} 
+                map[1] = CreateMap() 
+                GUI.Val('Font_box', 1 )
+                
+                while #GUI.elms.Font_box.opts ~= 3 
+                do
+                    table.remove(GUI.elms.Font_box.opts, #GUI.elms.Font_box.opts-2)
+                end
+                
+                UpdatesAllConfigs(GUI.Val('Font_box'))
+            else
+                reaper.ShowMessageBox('Stop the Transfer Before Reseting !!!', 'MIDI Transfer', 0)
             end
-            
-            UpdatesAllConfigs(GUI.Val('Font_box'))
         end
 
         mnu_file.manual = function()
             open_url('https://docs.google.com/document/d/1b0z6HQJBL4x7614b0SngNarXH__VO_ExzrAoxpOOoAI/edit?usp=sharing')
+        end
+
+        mnu_file.forum = function()
+            open_url('https://forum.cockos.com/showthread.php?p=2395944&fbclid=IwAR0SmqwDCE6g5RjEFBsFbuhCOR8dUPep06KUpX99V2io24ybKA2DUEXrjoc#post2395944')
+        end
+
+        mnu_file.donate = function()
+            open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
         end
     --
     gui_opts_menu = {'Delete Outside Track' , 'Auto Delete Odds on Choosen Tracks', '<Auto Delete Odds on Project', 'Transfer CC'}
@@ -196,11 +208,6 @@
         w = GUI.w, 
         h = 25,
         menus = {           
-            {title = "Preset", options = {
-                {"Save",mnu_file.new},
-                {"Open",mnu_file.new},
-                {"Reset",mnu_file.reset}
-            }},
             {title = 'Options', options = {
                 {'>Auto Delete'},
                     {gui_opts_menu[1], mnu_file.delout},
@@ -208,13 +215,15 @@
                     {gui_opts_menu[2],mnu_file.odd_tr},
                     {gui_opts_menu[3], mnu_file.odd_proj},
                     --{'<', mnu_file.keep_running  }, -- In case you find some bug remove < on gui_opts_menu and add that line.
-                {gui_opts_menu[4],  mnu_file.cc }
+                {gui_opts_menu[4],  mnu_file.cc },
+                {"Reset",mnu_file.reset}
 
                 }},
             {title = "Help", options = {
-                {"Forum",mnu_file.new},
+                {"Forum",mnu_file.forum},
                 {"Video",mnu_file.new},
                 {"Manual",mnu_file.manual},
+                {"Donate!",mnu_file.donate},
             }}
         }
     })

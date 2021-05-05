@@ -1,4 +1,4 @@
--- @version 1.02
+-- @version 1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,12 +10,14 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Added the Option to not Transfer CC and Program Changes 
---    + Initial Release
---    + Added Help Menu Manual
---    + Beta release
+--    + Faster handling of MIDI notes.
+--    + Corrected Bug concerning huge MIDI files: MIDI Transfer was trying to open it before it was done.
+--    + Presets Menu Removed 
+--    + ADD forum and Donate button
+--    + Support to Import Time Signature in MIDI Track MODE
 
-script_version = "1.02"
+
+script_version = "1.1"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

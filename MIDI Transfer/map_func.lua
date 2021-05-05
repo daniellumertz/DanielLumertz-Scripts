@@ -54,6 +54,19 @@ function Validate(i)
         end
     end
 
+    if map[i].track_order == 1 and map[i].source == "" then -- If user use a MIDI File embeded into reaper project
+        local msg = 
+        [[
+        Error: Could not update! 
+        Your Item Source Nº]]..i..[[ Don't have a .mid Source File
+        Use MIDI CH Instead!
+        Midi Transfer Will keep Running :)
+        ]]
+        reaper.ShowMessageBox(msg, 'MIDI Transfer', 0)
+        val = false
+        return
+    end 
+
     return val  
 end
 
@@ -126,10 +139,28 @@ function ValidateStart()
                 end
             end
         end
+        -- Validate if not(Item is not a Mid File and is in MIDI Track mode)
+        if map[i].track_order == 1 and map[i].source == "" then -- If user use a MIDI File embeded into reaper project
+            local msg = 
+            [[
+            Error: Could not Start!  
+            Your Item Source Nº]]..i..[[ Don't have a .mid Source File
+            Use MIDI CH Instead!
+            Midi Transfer Will keep Running :)
+            ]]
+            reaper.ShowMessageBox(msg, 'MIDI Transfer', 0)
+            val = false
+            return
+        end 
     end
     
     return val
 end 
+
+function ValidadeOnline(i) -- Check if Item is online
+    local bol = reaper.CF_GetMediaSourceOnline( map[i].font_PCM )
+    return bol
+end
 
 function SetseltoFonts() -- return a table with font info
     local list = {}
@@ -138,8 +169,8 @@ function SetseltoFonts() -- return a table with font info
         list[i+1] = {}
         list[i+1].font_item = reaper.GetSelectedMediaItem(0, i)
         list[i+1].font_take = reaper.GetMediaItemTake(list[i+1].font_item, 0)
-        local font_PCM = reaper.GetMediaItemTake_Source( list[i+1].font_take )
-        list[i+1].source = reaper.GetMediaSourceFileName( font_PCM, '0' )
+        list[i+1].font_PCM  = reaper.GetMediaItemTake_Source( list[i+1].font_take )
+        list[i+1].source = reaper.GetMediaSourceFileName( list[i+1].font_PCM, '0' )
         retval, list[i+1].font_name = reaper.GetSetMediaItemTakeInfo_String( list[i+1].font_take, 'P_NAME', '', false )
         ------------ Renames Font 
         local init,_,_ = string.find( list[i+1].font_name,"!Font " )
@@ -160,8 +191,8 @@ function SetFonts(list) -- Set all fonts info. please insert map list
     if ValidateSelFont() == false then return end
     list.font_item = reaper.GetSelectedMediaItem(0, 0)
     list.font_take = reaper.GetMediaItemTake(list.font_item, 0)
-    local font_PCM = reaper.GetMediaItemTake_Source( list.font_take )
-    list.source = reaper.GetMediaSourceFileName( font_PCM, '0' )
+    list.font_PCM = reaper.GetMediaItemTake_Source( list.font_take )
+    list.source = reaper.GetMediaSourceFileName( list.font_PCM, '0' )
     retval, list.font_name = reaper.GetSetMediaItemTakeInfo_String( list.font_take, 'P_NAME', '', false )
     ------------ Renames Font 
     local init,_,_ = string.find( list.font_name,"!Font " )
@@ -262,9 +293,9 @@ function UpdateMenuConfig(y)
     for i = 1, #options do
         local val = map[y][options[i]]
         if val == 1 then 
-            GUI.elms.Bar.menus[2].options[menu_num[i]][1] = '!'..gui_opts_menu[i]
+            GUI.elms.Bar.menus[1].options[menu_num[i]][1] = '!'..gui_opts_menu[i]
         else
-            GUI.elms.Bar.menus[2].options[menu_num[i]][1] = gui_opts_menu[i]
+            GUI.elms.Bar.menus[1].options[menu_num[i]][1] = gui_opts_menu[i]
         end
     end
 end

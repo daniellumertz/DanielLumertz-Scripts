@@ -141,7 +141,6 @@ function CopyMediaItem(y, track, ch, first_new , last_new, n_tracks_imported ) -
             for k, v in pairs(old_list[#old_list]) do
                 if type(k) == 'string' then
                     if  k == 'POOLID' and old_list[#old_list].IS_POOLID == true then 
-                        Msg(k)
                         local  _, str = reaper.GetItemStateChunk( new_item[1], '', false )
                         local str = string.gsub( str,'POOLEDEVTS %b{}','POOLEDEVTS '..v, 1 )
                         reaper.SetItemStateChunk(new_item[1], str, false)
@@ -169,34 +168,47 @@ function CopyMediaItem(y, track, ch, first_new , last_new, n_tracks_imported ) -
 end
 
 function SoloChannel(take, ch) 
-    local retval, notecnt, ccevtcnt, textsyxevtcnt = reaper.MIDI_CountEvts( take )
-    --NOTES
-    for i = notecnt, 1, -1  do
-        local retval, selected, muted, startppqpos, endppqpos, chan, pitch, vel = reaper.MIDI_GetNote(take, i-1)
-        if ch ~= 0 and chan ~= (ch-1) then
-            reaper.MIDI_DeleteNote(take, i-1)
-        end
+    if ch ~= 0 then -- ch 0 is omni
+        local retval, MIDIstring = reaper.MIDI_GetAllEvts(take, "") 
+        local MIDIlen = MIDIstring:len()
+        local tableEvents = {}
+        local stringPos = 1
+        --local pos=0 
+        while stringPos < MIDIlen do 
+            offset, flags, ms, stringPos = string.unpack("i4Bs4", MIDIstring, stringPos) -- Unpack the MIDI[stringPos] event 
+            --pos=pos+offset -- For keeping track of the Postion of the notes in Ticks
+            if ms:len() == 3 then -- if ms:len == 3 means it have 3 messages(Notes, CC,Poly Aftertouch, Pitchbend )  (ms:byte(1)>>4 == 9 or ms:byte(1)>>4 == 8) note on or off
+                local channel = ms:byte(1)&0x0F -- 0x0F = 0000 1111 in binary . ms is decimal. & is an and bitwise operation "have to have 1 in both to be 1". Will return channel as a decimal number
+                if channel ~= ch-1 then ms="" end 
+            end 
+            table.insert(tableEvents, string.pack("i4Bs4", offset, flags, ms))
+        end 
+        reaper.MIDI_SetAllEvts(take, table.concat(tableEvents)) 
     end
-    --CC
-    for i = ccevtcnt, 1, -1  do
-        local retval, selected, muted, ppqpos, chanmsg, chan, msg2, msg3 = reaper.MIDI_GetCC( take, i-1 )
-        if ch ~= 0 and chan ~= (ch-1) then
-            reaper.MIDI_DeleteCC( take, i-1 )
-        end
-    end
-end
+end 
 
-function DeleteCC(take)
-    local retval, notecnt, ccevtcnt, textsyxevtcnt = reaper.MIDI_CountEvts( take )
-    for i = ccevtcnt, 1, -1  do
-        reaper.MIDI_DeleteCC( take, i-1 )
-    end
-end
+function DeleteCC(take, ch) 
+    local retval, MIDIstring = reaper.MIDI_GetAllEvts(take, "") 
+    local MIDIlen = MIDIstring:len()
+    local tableEvents = {}
+    local stringPos = 1
+    --local pos=0 
+    while stringPos < MIDIlen do 
+        offset, flags, ms, stringPos = string.unpack("i4Bs4", MIDIstring, stringPos) -- Unpack the MIDI[stringPos] event 
+        --pos=pos+offset -- For keeping track of the Postion of the notes in Ticks
+        if ms:len() == 3 and ms:byte(1)>>4 == 11 and ms:byte(2) <= 120 then -- if ms:len == 3 means it have 3 messages(Notes, CC,Poly Aftertouch, Pitchbend ) ms:byte(1)>>4 == 11 see if the 4 first digits are 1011 (CC)
+            ms=""
+        end 
+        table.insert(tableEvents, string.pack("i4Bs4", offset, flags, ms))
+    end 
+    reaper.MIDI_SetAllEvts(take, table.concat(tableEvents)) 
+end 
 
-function ImportMIDI(path, time)
+function ImportMIDI(path, start)
     --------------Get Info That Will be changed
     local items_fold = SaveSelectedItems()
     local tracks_fold = SaveSelectedTracks()
+    local last_cursor =  reaper.GetCursorPosition()
     local last = reaper.GetLastTouchedTrack() 
     if not last then 
         last_num = reaper.CountTracks(0)
@@ -205,6 +217,8 @@ function ImportMIDI(path, time)
         if last_num == -1 then last_num = reaper.CountTracks(0) end
     end
     --------------Import and Get Info
+    reaper.SetEditCurPos( start, false, false )
+
     reaper.InsertMedia(path, 1) -- Insert Item to copy
     
     local new_last = reaper.GetLastTouchedTrack() 
@@ -216,6 +230,7 @@ function ImportMIDI(path, time)
     if last then reaper.SetOnlyTrackSelected(last) end
     reaper.Main_OnCommand(40914, 0)-- Track: Set first selected track as last touched track 40914
     -----
+    reaper.SetEditCurPos( last_cursor, false, false )
     LoadSelectedItems(items_fold)
     LoadSelectedTracks(tracks_fold)
     return last_num+1, new_last_num, n_tracks_imported -- First Track with the new Midi Items, Last Track with the new MIDI Items, N of tracks
@@ -223,42 +238,43 @@ end
 
 function main_tr()
     for i = 1, #map do 
-        local _, _, _, lastmod, _, _, _, _, _, _, _, _ = reaper.JS_File_Stat(map[i].source)
-        if lastmod ~= map[i].old or manual_up == true then -- just execute if the file was mod
-            if map[i].update_on_start == 1 or map[i].old  then  -- If update on start is on It doesn't matter if there is old or not If it is off It just matter if map[i].old is not nil
-                if Validate(i) == true then  -- Validates if it is ok to run (Must still have fonts, and tracks set)
-                    reaper.Undo_BeginBlock2(0)
-                    reaper.PreventUIRefresh(1)
-                    GetMapTime(i)
-                    if map[i].track_order == 1 then -- Set to MIDI Tracks
-                        first_new, last_new, n_tracks_imported = ImportMIDI(map[i].source, start)
-                    end
-                    for k, v in pairs(map[i]) do-- Do for all Channels/MIDI Tracks set in map
-                        if type(k) == 'number' then -- If k == number this means is refering to a channel 
-                            for map_tr = 1, #map[i][k] do -- Do for all Reaper Tracks inside the table of channel. map_tr == The n order of tracks set in the table 
-                                CopyMediaItem(i, map[i][k][map_tr], k, first_new , last_new, n_tracks_imported )
+        if map[i].track_order == 0 or map[i].track_order == 1 and ValidadeOnline(i) then -- If in MIDI Ch mode just go without waiting get online to track order check it first.
+            local _, _, _, lastmod, _, _, _, _, _, _, _, _ = reaper.JS_File_Stat(map[i].source)
+            if lastmod ~= map[i].old or manual_up == true then -- just execute if the file was mod
+                if map[i].update_on_start == 1 or map[i].old  then  -- If update on start is on It doesn't matter if there is old or not If it is off It just matter if map[i].old is not nil
+                    if Validate(i) == true then  -- Validates if it is ok to run (Must still have fonts, and tracks set)
+                        reaper.Undo_BeginBlock2(0)
+                        reaper.PreventUIRefresh(1)
+                        GetMapTime(i)
+                        if map[i].track_order == 1 then -- Set to MIDI Tracks
+                            first_new, last_new, n_tracks_imported = ImportMIDI(map[i].source, map[i].start)
+                        end
+                        for k, v in pairs(map[i]) do-- Do for all Channels/MIDI Tracks set in map
+                            if type(k) == 'number' then -- If k == number this means is refering to a channel 
+                                for map_tr = 1, #map[i][k] do -- Do for all Reaper Tracks inside the table of channel. map_tr == The n order of tracks set in the table 
+                                    CopyMediaItem(i, map[i][k][map_tr], k, first_new , last_new, n_tracks_imported )
+                                end
                             end
                         end
-                    end
-                    if map[i].track_order == 1 then -- Delete the tracks added Importing
-                        for i = last_new, first_new, - 1 do
-                            local imp_track = reaper.GetTrack(0, i-1)
-                            reaper.DeleteTrack( imp_track )
+                        if map[i].track_order == 1 then -- Delete the tracks added Importing
+                            for i = last_new, first_new, - 1 do
+                                local imp_track = reaper.GetTrack(0, i-1)
+                                reaper.DeleteTrack( imp_track )
+                            end
                         end
+                        if map[i].auto_delete_odds_project == 1 then 
+                            DeleteOddAllTracks(i)
+                        else
+                            -- Do nothing This Item Is From the same Font, but auto delete odds is off
+                        end
+                        reaper.PreventUIRefresh(-1)
+                        reaper.Undo_EndBlock2(0, "MIDI Transfer: Update", -1)
+                        reaper.UpdateArrange()
                     end
-                    if map[i].auto_delete_odds_project == 1 then 
-                        DeleteOddAllTracks(i)
-                    else
-                        -- Do nothing This Item Is From the same Font, but auto delete odds is off
-                    end
-                    reaper.PreventUIRefresh(-1)
-                    reaper.Undo_EndBlock2(0, "MIDI Transfer: Update", -1)
-                    reaper.UpdateArrange()
                 end
             end
+            map[i].old = lastmod
         end
-        map[i].old = lastmod
-
     end
     if manual_up == true then manual_up = false end -- To execute just one time the manual update
 
