@@ -1,4 +1,4 @@
--- @version 1.3
+-- @version 1.31
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -17,7 +17,7 @@
 --    + Support to Import Time Signature in MIDI Track MODE
 
 
-script_version = "1.1"
+script_version = "1.31"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
