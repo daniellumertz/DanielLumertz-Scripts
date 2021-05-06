@@ -1,4 +1,4 @@
--- @version 1.1
+-- @version 1.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
