@@ -1,12 +1,13 @@
--- @version 1.0
+-- @version 1.1
 -- @author Daniel Lumertz
 -- @changelog
---    + Work only in Volume/Gain/dB envelopes
---    + Initial Release
+--    + Undo points optional
+--    + Check if mouse is over envelope
 
 -- User Configs
 local dB_change = -0.5 
 local points_shape = 0
+local undo_points = true
 
 function print(...)
     for k,v in ipairs({...}) do
@@ -56,8 +57,12 @@ end
 -- Get Env info
 local window, segment, details = reaper.BR_GetMouseCursorContext()
 local envelope, _ = reaper.BR_GetMouseCursorContext_Envelope()
-local _, envname = reaper.GetEnvelopeName( envelope )
-local isvol = string.match(envname, "Volume")
+if not envelope then return end
+--local _, envname = reaper.GetEnvelopeName( envelope )
+--local isvol = string.match(envname, "Volume")
+
+if undo_points then reaper.Undo_BeginBlock() end
+reaper.PreventUIRefresh(1)
 
 -- Get Time pos
 local time1, time4 = reaper.GetSet_LoopTimeRange2(0, false, false, 0, 0, false)
@@ -93,3 +98,11 @@ reaper.InsertEnvelopePoint( envelope, time4, value_before4, points_shape, 0, fal
 
 
 reaper.Envelope_SortPoints( envelope )
+reaper.PreventUIRefresh(-1)
+reaper.UpdateArrange()
+
+if undo_points then 
+    reaper.Undo_EndBlock("Create 4 Points Inside Time Selection Using Grid Values", -1) 
+else 
+    reaper.defer(function() end )
+end
