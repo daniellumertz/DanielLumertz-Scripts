@@ -1,8 +1,9 @@
--- @version 1.1
+-- @version 1.2
 -- @author Daniel Lumertz
 -- @changelog
---    + Undo points optional
---    + Check if mouse is over envelope
+--    + Only 3 points if need
+--    + return if no time selection
+
 
 -- User Configs
 local dB_change = -0.5 
@@ -61,13 +62,14 @@ if not envelope then return end
 --local _, envname = reaper.GetEnvelopeName( envelope )
 --local isvol = string.match(envname, "Volume")
 
-if undo_points then reaper.Undo_BeginBlock() end
-reaper.PreventUIRefresh(1)
-
 -- Get Time pos
 local time1, time4 = reaper.GetSet_LoopTimeRange2(0, false, false, 0, 0, false)
 local time2 = reaper.BR_GetNextGridDivision( time1 ) -- You can set another time offset here I am using grid
 local time3 = reaper.BR_GetPrevGridDivision( time4 ) -- You can set another time offset here I am using grid
+if time1 == time4 then return end -- if no TS
+
+if undo_points then reaper.Undo_BeginBlock() end
+reaper.PreventUIRefresh(1)
 
 -- Get Value info where will add points
 local retval, value_before1, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( envelope, time1, reaper.format_timestr_pos( 1, '', 4 ), 1 )
@@ -79,6 +81,9 @@ local retval, value_before4, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( env
 --if isvol then
 local new_value2 = AddDBinLinear(value_before2, dB_change)
 local new_value3 = AddDBinLinear(value_before3, dB_change)
+--[[ local scaling_mode = reaper.GetEnvelopeScalingMode( envelope )
+local value_before2_linear = reaper.ScaleFromEnvelopeMode( 1, value_before2 )
+print(value_before2) ]]
 
 -- To delete points at same time position
 reaper.DeleteEnvelopePointRange( envelope, time1-(10^-10), time1+(10^-10))
@@ -92,10 +97,10 @@ SetEvelopePointInRange(envelope,dB_change,time1,time4)
 -- Insert New Points
 reaper.InsertEnvelopePoint( envelope, time1, value_before1, points_shape, 0, false, true )
 reaper.InsertEnvelopePoint( envelope, time2, new_value2, points_shape, 0, false, true )
-reaper.InsertEnvelopePoint( envelope, time3, new_value3, points_shape, 0, false, true )
+if time2 ~= time3 then 
+    reaper.InsertEnvelopePoint( envelope, time3, new_value3, points_shape, 0, false, true )
+end
 reaper.InsertEnvelopePoint( envelope, time4, value_before4, points_shape, 0, false, true )
-
-
 
 reaper.Envelope_SortPoints( envelope )
 reaper.PreventUIRefresh(-1)
