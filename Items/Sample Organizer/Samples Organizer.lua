@@ -1,7 +1,7 @@
 -- @version 1.0
 -- @author Daniel Lumertz
 -- @provides
---    [nomain] General Functions.lua
+--    [nomain] General Function.lua
 -- @changelog
 --    + First Release
 
