@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="d0a5114f51fd5e455b83403ffd1b292e04d23f5f">
+<index version="1" name="Daniel Lumertz Scripts" commit="6bc5d541585a4c7d21fe7fab4639de0ed3792c5d">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
         <changelog><![CDATA[+ Beta release]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/9be8ef739054d46555b27494f67bedb0311ea909/Embass%20Razor%20Edit%20Comp%20GUI/Comp%20Razor%20Edit%20Embass.lua</source>
         <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/9be8ef739054d46555b27494f67bedb0311ea909/Embass%20Razor%20Edit%20Comp%20GUI/General%20Functions.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="Items/Sample Organizer">
+    <reapack name="Samples Organizer.lua" type="script">
+      <version name="1.0" author="Daniel Lumertz" time="2021-07-06T07:44:47Z">
+        <changelog><![CDATA[+ First Release]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6bc5d541585a4c7d21fe7fab4639de0ed3792c5d/Items/Sample%20Organizer/Samples%20Organizer.lua</source>
+        <source file="General Function.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6bc5d541585a4c7d21fe7fab4639de0ed3792c5d/Items/Sample%20Organizer/General%20Function.lua</source>
       </version>
     </reapack>
   </category>
