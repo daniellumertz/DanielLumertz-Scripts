@@ -3,7 +3,7 @@
 -- @provides
 --    [nomain] General Function.lua
 -- @changelog
---    + First Release
+--    + One unecessary line
 
 
 ----------------------
@@ -185,7 +185,6 @@ end
 ----------------------
 local ctx = reaper.ImGui_CreateContext('S.Organizer')
 
-local ctx = reaper.ImGui_CreateContext('My script')
 local size = reaper.GetAppVersion():match('OSX') and 12 or 14
 local font = reaper.ImGui_CreateFont('sans-serif', size) -- Create the fonts you need
 reaper.ImGui_AttachFont(ctx, font)-- Attach the fonts you need
@@ -277,6 +276,7 @@ function loop()
         if reaper.ImGui_Button(ctx, ' Copy/Paste ',192,115) then
             Paste()
         end
+        
         reaper.ImGui_End(ctx)
 
     end
