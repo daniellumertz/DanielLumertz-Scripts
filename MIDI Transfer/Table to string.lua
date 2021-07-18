@@ -1,4 +1,3 @@
--- @noindex
 --[[
   Save Table to File/Stringtable
   Load Table from File/Stringtable

@@ -1,4 +1,3 @@
--- @noindex
 ------------------
 ------------------
 -----LOAD BASIC
@@ -196,6 +195,10 @@
             open_url('https://forum.cockos.com/showthread.php?p=2395944&fbclid=IwAR0SmqwDCE6g5RjEFBsFbuhCOR8dUPep06KUpX99V2io24ybKA2DUEXrjoc#post2395944')
         end
 
+        mnu_file.video = function()
+            open_url('https://youtu.be/oaZSoyqpcoA')
+        end
+
         mnu_file.donate = function()
             open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
         end
@@ -222,7 +225,7 @@
                 }},
             {title = "Help", options = {
                 {"Forum",mnu_file.forum},
-                {"Video",mnu_file.new},
+                {"Video",mnu_file.video},
                 {"Manual",mnu_file.manual},
                 {"Donate!",mnu_file.donate},
             }}

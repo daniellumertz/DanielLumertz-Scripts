@@ -1,4 +1,3 @@
--- @noindex
 ------------------------------
 ------------Functions:
 ------------------------------
@@ -76,16 +75,16 @@ function CopyMIDI(item, track)-- Copy an Item to Track
         local retval, chunk = reaper.GetItemStateChunk( item, "", false )
         local chunk = bfut_ResetAllChunkGuids(chunk, "IGUID")
         local chunk = bfut_ResetAllChunkGuids(chunk, "GUID")
-    
+        --local chunk = bfut_ResetAllChunkGuids(chunk, "POOLEDEVTS")
         local new_item = reaper.CreateNewMIDIItemInProj( track, 3, 0.1 )
         reaper.SetItemStateChunk( new_item, chunk, false )
-    
+            
         local items_list = SaveSelectedItems()
     
         reaper.SetMediaItemSelected( new_item, true )
         reaper.Main_OnCommand(40684, 0) -- Convert active take MIDI to in-project MIDI source data
         reaper.Main_OnCommand(41613, 0) -- Item: Remove active take from MIDI source data pool (AKA un-pool, un-ghost, make unique) 
-        LoadSelectedItems(items_list)
+        LoadSelectedItems(items_list) 
     return new_item
 end
 

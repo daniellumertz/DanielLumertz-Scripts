@@ -1,4 +1,4 @@
--- @version 1.31
+-- @version 1.32
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,11 +10,8 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Faster handling of MIDI notes.
---    + Corrected Bug concerning huge MIDI files: MIDI Transfer was trying to open it before it was done.
---    + Presets Menu Removed 
---    + ADD forum and Donate button
---    + Support to Import Time Signature in MIDI Track MODE
+--    + Add Video button
+--    + Saves MIDI Transfer changes when you close, set a source item or change the tracks.
 
 
 script_version = "1.31"

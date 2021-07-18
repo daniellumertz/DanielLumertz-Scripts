@@ -1,4 +1,3 @@
--- @noindex
 function CreateMap()
     local defaultab = {}
     defaultab.update_on_start = 1 -- Update Items on start of script
@@ -206,7 +205,7 @@ function SetFonts(list) -- Set all fonts info. please insert map list
 
     local retval, ignoreProjTempo, bpm, num, den = reaper.BR_GetMidiTakeTempoInfo( list.font_take )
     list.IG_TEMPO = {ignoreProjTempo = ignoreProjTempo, bpm=bpm, num = num, den = den} 
-
+    SaveMT() --Saves Midi transfer into project 
     return list
 end
 
@@ -242,6 +241,8 @@ function SetMapTracks(y, t_tracks)
         end
     end
     map[y].negative = NegativeList2(map[y])
+
+    SaveMT()
 end
 
 function ClearMapLines(y)
@@ -549,7 +550,7 @@ function SaveMapToMap(save)
     return map
 end
 
-function MapToSaveMap(map)
+function MapToSaveMap(map) 
     local save = {}
     for i , _ in pairs(map) do
         save[i] = {}
@@ -581,4 +582,11 @@ function MapToSaveMap(map)
         end
     end
     return save
+end
+
+function SaveMT() --Saves MIDI Transfer into the project
+    local save = MapToSaveMap(map)
+    local save = table.save(save)
+    reaper.SetProjExtState( 0, 'MTr', 'Map', save)
+    reaper.SetProjExtState( 0, 'MTr', 'Page', GUI.Val('Font_box'))
 end

@@ -1,4 +1,4 @@
--- @noindex
+-- NoIndex: true
 
 --[[
 
@@ -365,12 +365,12 @@ GUI.Main_Update_State = function()
                                 or  GUI.escape_bypass))
             or GUI.char == -1
             or GUI.quit == true then
-        
-        save = MapToSaveMap(map)
+        --DL save map
+--[[         save = MapToSaveMap(map)
         save = table.save(save)
         reaper.SetProjExtState( 0, 'MTr', 'Map', save)
-        reaper.SetProjExtState( 0, 'MTr', 'Page', GUI.Val('Font_box'))
-
+        reaper.SetProjExtState( 0, 'MTr', 'Page', GUI.Val('Font_box')) ]]
+        SaveMT()        
         GUI.cleartooltip()
         return 0
     else
