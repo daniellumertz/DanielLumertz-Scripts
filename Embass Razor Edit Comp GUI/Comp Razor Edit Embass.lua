@@ -1,15 +1,15 @@
--- @version 1.2
--- @author Daniel Lumertz
--- @changelog
---    + Beta release
+-- @version 1.3
+-- @author Embass, Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
+-- @changelog
+--    + Updated to IMGUI v0.5
 
 ----------------------
 --Script info
 ----------------------
 
-script_version = "1.0"
+script_version = "1.3"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
@@ -276,79 +276,93 @@ function ToolTip(text)
 end
 
 function GuiLoop()
+
+--[[ 
     if reaper.ImGui_IsCloseRequested(ctx) then
         is_on = "OFF"
         reaper.JS_WindowMessage_ReleaseAll()
         reaper.ImGui_DestroyContext(ctx)
         return
-    end
+    end ]]
     
-    local window_flags = reaper.ImGui_WindowFlags_MenuBar() |
-                     reaper.ImGui_WindowFlags_NoDecoration()
-    reaper.ImGui_SetNextWindowPos(ctx, 0, 0)
-    reaper.ImGui_SetNextWindowSize(ctx, reaper.ImGui_GetDisplaySize(ctx))
-    reaper.ImGui_Begin(ctx, 'Window', nil, window_flags)
+    local window_flags = reaper.ImGui_WindowFlags_MenuBar()
+                       | reaper.ImGui_WindowFlags_NoResize()
+                    -- | reaper.ImGui_WindowFlags_NoDecoration()
+    --reaper.ImGui_SetNextWindowPos(ctx, 100, 100)
+    reaper.ImGui_SetNextWindowSize(ctx, 210, 120, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+
+    --reaper.ImGui_SetNextWindowSize(ctx, reaper.ImGui_GetDisplaySize(ctx))
+    local visible, open  = reaper.ImGui_Begin(ctx, 'Comp Razor Edit '..script_version, true, window_flags)
 
 
     --- GUI HERE
-
-    if reaper.ImGui_BeginMenuBar(ctx) then
-        if reaper.ImGui_BeginMenu(ctx, 'Mode') then
-          if reaper.ImGui_MenuItem(ctx, 'DSL', nil, dsl_mode) then
-            dsl_mode = true
-          end
-          ToolTip("DSL mode: Will Comp using\n RE Options.\n Will Comp Silence")
-          if reaper.ImGui_MenuItem(ctx, 'embass',nil, not dsl_mode) then
-            dsl_mode = false
-          end
-          ToolTip("embass mode: Will\n Comp Items only,\n not silence, not envelopes")
-          reaper.ImGui_EndMenu(ctx)
-        end
-        
-
-        if reaper.ImGui_BeginMenu(ctx, 'Embass Mode Options') then
-            if reaper.ImGui_MenuItem(ctx, 'Trim Behind', nil, _trim_behind) then
-                _trim_behind = not _trim_behind
+    if visible then
+        if reaper.ImGui_BeginMenuBar(ctx) then
+            if reaper.ImGui_BeginMenu(ctx, 'Mode') then
+            if reaper.ImGui_MenuItem(ctx, 'DSL', nil, dsl_mode) then
+                dsl_mode = true
             end
-          reaper.ImGui_EndMenu(ctx)
+            ToolTip("DSL mode: Will Comp using\n RE Options.\n Will Comp Silence")
+            if reaper.ImGui_MenuItem(ctx, 'embass',nil, not dsl_mode) then
+                dsl_mode = false
+            end
+            ToolTip("embass mode: Will\n Comp Items only,\n not silence, not envelopes")
+            reaper.ImGui_EndMenu(ctx)
+            end
+            
+
+            if reaper.ImGui_BeginMenu(ctx, 'Embass Mode Options') then
+                if reaper.ImGui_MenuItem(ctx, 'Trim Behind', nil, _trim_behind) then
+                    _trim_behind = not _trim_behind
+                end
+            reaper.ImGui_EndMenu(ctx)
+            end
+            reaper.ImGui_EndMenuBar(ctx)
         end
-        reaper.ImGui_EndMenuBar(ctx)
-    end
 
-    ---------------- SOURCE BUTTON
-    if reaper.ImGui_Button(ctx, ' Dest ') then
-        SetDest()
-    end
-    ToolTip('Define Destination Tracks')
+        ---------------- SOURCE BUTTON
+        if reaper.ImGui_Button(ctx, ' Dest ') then
+            SetDest()
+        end
+        ToolTip('Define Destination Tracks')
 
-    if dest_folder then 
-        dest_number = "Folder Track" 
-    else -- User set some track
-        dest_number = NumDest() 
-    end 
-
-    reaper.ImGui_SameLine(ctx)
-    _, _ = reaper.ImGui_InputText(ctx, '', dest_number,reaper.ImGui_InputTextFlags_ReadOnly())
-    ToolTip('Show Dest Tracks')
-   
-    -------------- Do It
-
-    --SetColor(4)
-
-    if reaper.ImGui_Button(ctx, is_on ,196,40) then
-        if is_on == 'OFF' then
-            -- Turn ON
-            is_on = 'ON' 
-            reaper.Main_OnCommand(42406, 0) -- Razor edit: Clear all areas
-            main()
-        else 
-            -- Turn OFF
-            is_on = 'OFF'
+        if dest_folder then 
+            dest_number = "Folder Track" 
+        else -- User set some track
+            dest_number = NumDest() 
         end 
+
+        reaper.ImGui_SameLine(ctx)
+        reaper.ImGui_PushItemWidth( ctx,  -1) -- Set the input text size to match the window
+        _, _ = reaper.ImGui_InputText(ctx, '', dest_number,reaper.ImGui_InputTextFlags_ReadOnly())
+        ToolTip('Show Dest Tracks')
+    
+        -------------- Do It
+
+        --SetColor(4)
+
+        if reaper.ImGui_Button(ctx, is_on ,-1,40) then
+            if is_on == 'OFF' then
+                -- Turn ON
+                is_on = 'ON' 
+                reaper.Main_OnCommand(42406, 0) -- Razor edit: Clear all areas
+                main()
+            else 
+                -- Turn OFF
+                is_on = 'OFF'
+            end 
+        end
+        reaper.ImGui_End(ctx)
     end
 
-    reaper.ImGui_End(ctx)
-    reaper.defer(GuiLoop)
+    
+    if open then
+        reaper.defer(GuiLoop)
+    else
+        is_on = "OFF"
+        reaper.JS_WindowMessage_ReleaseAll()
+        reaper.ImGui_DestroyContext(ctx)
+    end
 end
 
 
@@ -368,10 +382,10 @@ function init()
     dest_folder = true
     is_on = 'OFF'
 
-    ctx = reaper.ImGui_CreateContext('RE Comp '..script_version, 210, 98)
+    ctx = reaper.ImGui_CreateContext('RE Comp '..script_version)
 end
 
-
+-- 210 , 98
 init()
 GuiLoop()
 
