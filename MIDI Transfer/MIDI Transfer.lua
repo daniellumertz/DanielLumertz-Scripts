@@ -1,4 +1,4 @@
--- @version 1.32
+-- @version 1.32.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -14,7 +14,7 @@
 --    + Saves MIDI Transfer changes when you close, set a source item or change the tracks.
 
 
-script_version = "1.31"
+script_version = "1.32.2"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

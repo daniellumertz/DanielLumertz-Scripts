@@ -1,3 +1,4 @@
+-- @noindex
 function CreateMap()
     local defaultab = {}
     defaultab.update_on_start = 1 -- Update Items on start of script
