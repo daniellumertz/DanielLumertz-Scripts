@@ -1,3 +1,6 @@
+-- @version 1.0
+-- @author Daniel Lumertz
+
 -- Thanks to rxi for the lua and JSON functions
 -- Thanks to gxray for teaching how to use it. 
 
