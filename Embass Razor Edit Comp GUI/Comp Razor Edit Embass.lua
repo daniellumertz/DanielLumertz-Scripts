@@ -1,15 +1,15 @@
--- @version 1.3
+-- @version 1.4
 -- @author Embass, Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 -- @changelog
---    + Updated to IMGUI v0.5
+--    + Add Option to keep track colors
 
 ----------------------
 --Script info
 ----------------------
 
-script_version = "1.3"
+script_version = "1.4"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
@@ -88,7 +88,7 @@ function on_right_down(p1,p2,p3,p4)
 	-- clear_area_sel()
 end
 
-function OnRightUp()
+function OnRightUp() --DSL
     
     --Get AS INFO
     local ok, re_start, re_end = get_area_sel_info(_track)
@@ -124,6 +124,16 @@ function OnRightUp()
                 reaper.Main_OnCommand(42398,0) -- Paste 
 
         end
+
+        if keep_track_colors == true then
+            local color = reaper.GetTrackColor( _track )
+            local count_items =  reaper.CountSelectedMediaItems( 0 )
+            for i = 0, count_items-1 do
+                local item_loop = reaper.GetSelectedMediaItem(0, i)
+                reaper.SetMediaItemInfo_Value( item_loop, 'I_CUSTOMCOLOR', color )
+            end 
+        end
+        
         --ERASE AS
         reaper.Main_OnCommand(42406, 0)--Razor edit: Clear all areas
         --RESTORE INFO
@@ -132,7 +142,7 @@ function OnRightUp()
             reaper.Main_OnCommand(40914,0) -- Set first selected track as last touched
         end
         reaper.SetEditCurPos( cursor_pos, false, false )
-        LoadSelectedItems(items_list)
+        --LoadSelectedItems(items_list)
         LoadSelectedTracks(tracks_list)
 
         reaper.Undo_EndBlock("RE Comp", -1)
@@ -142,10 +152,10 @@ function OnRightUp()
 
 end
 
-function on_right_up()
+function on_right_up() -- Embass
 	-- print("RIGHT UP")
 	if _track == nil then return end -- exit
-	local track, _track = _track, nil
+	local track  = _track
 	local ok, str_start_time, str_end_time = get_area_sel_info(track)
 	if not ok then return end -- exit
 	local start_time, end_time = tonumber(str_start_time), tonumber(str_end_time)
@@ -174,6 +184,15 @@ function on_right_up()
 		local str_area = string.format([[%s %s '']], str_start_time, str_end_time)
 		reaper.GetSetMediaTrackInfo_String(track, "P_RAZOREDITS", str_area, true)
 		copy_media_items_to_track(dest_track, start_time, _trim_behind)
+    end
+
+    if keep_track_colors == true then
+        local color = reaper.GetTrackColor( _track )
+        local count_items =  reaper.CountSelectedMediaItems( 0 )
+        for i = 0, count_items-1 do
+            local item_loop = reaper.GetSelectedMediaItem(0, i)
+            reaper.SetMediaItemInfo_Value( item_loop, 'I_CUSTOMCOLOR', color )
+        end 
     end
 
 	reaper.Undo_EndBlock("Copy media items to dest track", -1)
@@ -311,10 +330,15 @@ function GuiLoop()
             end
             
 
-            if reaper.ImGui_BeginMenu(ctx, 'Embass Mode Options') then
-                if reaper.ImGui_MenuItem(ctx, 'Trim Behind', nil, _trim_behind) then
+            if reaper.ImGui_BeginMenu(ctx, 'Options') then
+                if reaper.ImGui_MenuItem(ctx, 'Trim Behind (Embass)', nil, _trim_behind) then
                     _trim_behind = not _trim_behind
                 end
+
+                if reaper.ImGui_MenuItem(ctx, 'Keep Track Colors', nil, keep_track_colors) then
+                    keep_track_colors = not keep_track_colors
+                end
+
             reaper.ImGui_EndMenu(ctx)
             end
             reaper.ImGui_EndMenuBar(ctx)
@@ -376,6 +400,7 @@ function init()
 
     _trim_behind = true
     dsl_mode = true
+    keep_track_colors = true
 
     --SetDest()
     dest_table = {"Folder"}
