@@ -10,7 +10,7 @@
 --    + Change V number on GUI
 
 
-local version = 1.1.1
+local version = '1.1.1'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
 
