@@ -1,4 +1,4 @@
--- @version 1.1.1
+-- @version 1.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -10,7 +10,7 @@
 --    + Change V number on GUI
 
 
-local version = '1.1.1'
+local version = '1.1.2'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
 
