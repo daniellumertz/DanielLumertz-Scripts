@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="b94fe776669815186900e6cbc207adb2543dfd5b">
+<index version="1" name="Daniel Lumertz Scripts" commit="50136008235538b61abf106e2e78d550a8f62c00">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -49,6 +49,15 @@
         <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/General%20Functions.lua</source>
         <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/presets.lua</source>
         <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/utils/json.lua</source>
+      </version>
+      <version name="1.1.2" author="Daniel Lumertz" time="2022-02-19T18:06:05Z">
+        <changelog><![CDATA[+ Add Presets
++ Change Default settings
++ Change V number on GUI]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/Item%20Sampler%20MIDI.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/General%20Functions.lua</source>
+        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/presets.lua</source>
+        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/utils/json.lua</source>
       </version>
     </reapack>
   </category>
