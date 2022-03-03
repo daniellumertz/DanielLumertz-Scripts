@@ -4,7 +4,7 @@
 --    [nomain] utils/*.lua
 --    [nomain] Clipboard Functions.lua
 --    [nomain] General Functions.lua
---    [nomain] presets.lua
+--    [nomain] preset.lua
 --    [nomain] Serialize Table.lua
 --    Clipboard Copy.lua
 
