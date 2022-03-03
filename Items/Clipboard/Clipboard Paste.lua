@@ -6,7 +6,7 @@
 --    [nomain] General Functions.lua
 --    [nomain] preset.lua
 --    [nomain] Serialize Table.lua
---    Clipboard Copy.lua
+--    [main] Clipboard Copy.lua
 
 -- @changelog
 --    + Initial Release
