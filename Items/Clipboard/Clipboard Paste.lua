@@ -1,4 +1,4 @@
--- @version 1.0
+-- @version 1.0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -12,7 +12,7 @@
 --    + Initial Release
 
 local name = 'Clipboard '
-local version = '1.0'
+local version = '1.0.1'
 
 -- Configs
 
