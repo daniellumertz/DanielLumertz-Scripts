@@ -1,4 +1,4 @@
--- @version 1.1
+-- @version 1.1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -12,7 +12,7 @@
 --    + Add AutoPaste Option
 
 local name = 'Clipboard '
-local version = '1.1'
+local version = '1.1.1'
 
 -- Configs
 

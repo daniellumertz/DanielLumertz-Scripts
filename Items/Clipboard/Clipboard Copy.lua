@@ -1,7 +1,7 @@
 -- @noindex
 reaper.Main_OnCommand(40057, 0) --40057
 
-
+if reaper.GetCursorContext() ~= 1 then return end
 --
 local version = '1.0'
 local info = debug.getinfo(1, 'S');
