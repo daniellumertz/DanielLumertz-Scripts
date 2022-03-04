@@ -1,4 +1,4 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -12,7 +12,7 @@
 --    + Initial Release
 
 local name = 'Clipboard '
-local version = '1.0.1'
+local version = '1.0.2'
 
 -- Configs
 
@@ -53,7 +53,7 @@ function loop()
             reaper.ImGui_PushID(ctx, k)
             if ColorList[k] then reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  ColorList[k]) end
             if reaper.ImGui_Button(ctx, NamesList[k], -1) then
-                if not reaper.ImGui_IsKeyDown( ctx, 17 ) then -- is ctrl down? 
+                if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 0 then -- is ctrl down? 
                     PasteList(items)
                     if Configs.AutoExit == true then open = false end
                 else
