@@ -61,4 +61,13 @@ function rgba2num(red, green, blue, alpha)
 	return red + green + blue + alpha
 end
 
-  
+function ToolTip(text)
+    if reaper.ImGui_IsItemHovered(ctx) then
+        reaper.ImGui_BeginTooltip(ctx)
+        reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 35.0)
+        reaper.ImGui_PushTextWrapPos(ctx, 200)
+        reaper.ImGui_Text(ctx, text)
+        reaper.ImGui_PopTextWrapPos(ctx)
+        reaper.ImGui_EndTooltip(ctx)
+    end
+end

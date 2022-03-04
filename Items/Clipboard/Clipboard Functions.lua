@@ -22,8 +22,8 @@ function PasteList(list)
     if #list <= 0 then return end
     
     reaper.Undo_BeginBlock()
-    reaper.Main_OnCommand(40289, 0)--Item: Unselect all items
     reaper.PreventUIRefresh(1)
+    reaper.Main_OnCommand(40289, 0)--Item: Unselect all items
     -- Load Items
     LoadSelectedItems(list)
     -- Copy
@@ -36,6 +36,26 @@ function PasteList(list)
     reaper.UpdateArrange()
     reaper.PreventUIRefresh(-1)
     reaper.Undo_EndBlock2(0, 'Clipboard: Paste', -1)
+end
+
+function CopyList(list)
+    -- Checks
+    if #list <= 0 then return end
+
+    reaper.Undo_BeginBlock()
+    reaper.PreventUIRefresh(1)
+    -- Save current Selection
+    local old_item_list = SaveSelectedItems()
+    reaper.Main_OnCommand(40289, 0)--Item: Unselect all items
+    -- Copy
+    LoadSelectedItems(list)
+    reaper.Main_OnCommand(40057, 0)--Edit: Copy items/tracks/envelope points (depending on focus) ignoring time selection
+    -- Load Selection
+    reaper.Main_OnCommand(40289, 0)--Item: Unselect all items
+    LoadSelectedItems(old_item_list)
+    -- 
+    reaper.PreventUIRefresh(-1)
+    reaper.Undo_EndBlock2(0, 'Clipboard: Copy Item', -1)
 end
 
 

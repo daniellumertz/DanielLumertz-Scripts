@@ -39,7 +39,8 @@ function LoadConfigs(script_path, file_name)
         Configs = {
             Max = 10,
             AutoExit = true,
-            AutoUpdate = false
+            AutoUpdate = false,
+            AutoPaste = true
         }
         save_json(script_path, file_name, Configs)
     else
