@@ -1,4 +1,4 @@
--- @version 1.1.1
+-- @version 1.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -9,10 +9,10 @@
 --    [main] Clipboard Copy.lua
 
 -- @changelog
---    + Add AutoPaste Option
+--    + Correct GUID functions
 
 local name = 'Clipboard '
-local version = '1.1.1'
+local version = '1.1.2'
 
 -- Configs
 
@@ -39,7 +39,7 @@ function loop()
     --local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
     reaper.ImGui_SetNextWindowSize(ctx, 385, 385, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     reaper.ImGui_PushFont(ctx, FONT) -- Says you want to start using a specific font
-    local gui_w , gui_h = reaper.ImGui_GetContentRegionAvail(ctx)
+    --local gui_w , gui_h = reaper.ImGui_GetContentRegionAvail(ctx)
 
     local visible, open  = reaper.ImGui_Begin(ctx, name..version, true, window_flags)
 
@@ -84,8 +84,8 @@ function loop()
             Configs.AutoUpdate = not Configs.AutoUpdate
             save_json(script_path, configs_filename, Configs)
         end
-        ToolTip(gui_w..gui_h)
-        --ToolTip('Auto Update Clipboard for new copies')
+        
+        ToolTip('Auto Update Clipboard for new copies')
 
         reaper.ImGui_SameLine(ctx)
 
