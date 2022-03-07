@@ -1,4 +1,4 @@
--- @version 1.0
+-- @version 1.0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -8,13 +8,12 @@
 --    [nomain] GUI Functions.lua
 --    [nomain] Serialize Table.lua
 --    [nomain] Track Snapshot Functions.lua
---    [nomain] Serialize Table.lua
 
 -- @changelog
 --    + Initial Release
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0'
+version = '1.0.1'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
