@@ -316,8 +316,9 @@ function PassThorugh() -- Actions to pass though GUI
         end
 
         if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
-            reaper.Main_OnCommand(40030, 0) -- Edit: Redo
-
+            if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
+                reaper.Main_OnCommand(40030, 0) -- Edit: Redo
+            end
         end
     end
 end
