@@ -1,4 +1,4 @@
--- @version 1.0.3
+-- @version 1.0.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -10,10 +10,10 @@
 --    [nomain] Track Snapshot Functions.lua
 
 -- @changelog
---    + Small fix passing Redo Action to main2
+--    + Change KeyDown To KeyPressed
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0.3'
+version = '1.0.4'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -94,7 +94,7 @@ function loop()
                     if Snapshot[i].Shortcut and not Configs.PreventShortcut then 
                         WriteShortkey(Snapshot[i].Shortcut,255,255,255,100)
                         local keycode = GetKeycode(Snapshot[i].Shortcut)
-                        if reaper.ImGui_IsKeyDown(ctx, keycode) then 
+                        if reaper.ImGui_IsKeyPressed(ctx, keycode, false) then 
                             SetSnapshot(i)
                         end
                     end
