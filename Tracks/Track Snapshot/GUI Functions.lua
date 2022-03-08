@@ -304,21 +304,22 @@ function GuiLoadChunkOption()
     end
 end
 
-function PassThorugh() -- Actions to pass though GUI
+function PassThorugh() -- Actions to pass though GUI. Find a better way
     if reaper.ImGui_IsKeyPressed(ctx, 32, false) then-- Space
         
         reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
     end
 
-    if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 1 then 
+    local ctrl = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 1
+    local shift = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2
+
+    if ctrl and shift then 
+        if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
+            reaper.Main_OnCommand(40030, 0) -- Edit: Redo
+        end
+    elseif ctrl then 
         if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
             reaper.Main_OnCommand(40029, 0) -- Edit: Undo
-        end
-
-        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
-            if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
-                reaper.Main_OnCommand(40030, 0) -- Edit: Redo
-            end
         end
     end
 end

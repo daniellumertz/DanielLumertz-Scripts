@@ -1,4 +1,4 @@
--- @version 1.0.2
+-- @version 1.0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -10,10 +10,10 @@
 --    [nomain] Track Snapshot Functions.lua
 
 -- @changelog
---    + Small fix passing Redo Action to main
+--    + Small fix passing Redo Action to main2
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0.2'
+version = '1.0.3'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
