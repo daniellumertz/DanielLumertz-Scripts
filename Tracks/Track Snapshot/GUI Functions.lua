@@ -77,6 +77,51 @@ function ToolTip(text)
     end
 end
 
+function BeginForcePreventShortcuts() --Change and Store Configs.PreventShortcut
+    TempPreventShortCut = Configs.PreventShortcut
+    Configs.PreventShortcut = true
+end
+
+function CloseForcePreventShortcuts() -- Restore Configs.PreventShortcut configs
+    Configs.PreventShortcut = TempPreventShortCut
+    TempPreventShortCut = nil
+end
+
+function RenamePopup(i)
+    if reaper.ImGui_BeginPopupModal(ctx, 'Rename###RenamePopup', nil, reaper.ImGui_WindowFlags_AlwaysAutoResize()) then
+        if not TempFirstTime then reaper.ImGui_SetKeyboardFocusHere(ctx); TempFirstTime = true end
+        
+        _, Snapshot[i].Name = reaper.ImGui_InputText(ctx, "##Rename"..i, Snapshot[i].Name)
+        
+        if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, 13) then
+            if Snapshot[i].Name == '' then Snapshot[i].Name = 'Snapshot '..i end -- If Name == '' Is difficult to see in the GUI
+            CloseForcePreventShortcuts()
+            TempPopup_i = nil
+            TempFirstTime = nil -- Need to set focus on Text input first time run this modal pop up 
+            reaper.ImGui_CloseCurrentPopup(ctx) 
+        end
+        reaper.ImGui_EndPopup(ctx)
+    end     
+end
+
+function OpenPopups(i) -- Need This function to be called outside a menu (else it wouldnt run the popup every loop)... i =  TempPopup_i. Need to TempPopup_i = nil when closing a popup. TempPopup_i = Snaphot[i] that called a popup rename/shortcut
+    if i then
+        if TempRenamePopup then
+            BeginForcePreventShortcuts()
+            reaper.ImGui_OpenPopup(ctx, 'Rename###RenamePopup')
+            TempRenamePopup = nil
+        end
+        RenamePopup(i)
+
+        if TempLearnPopup then
+            BeginForcePreventShortcuts()
+            reaper.ImGui_OpenPopup(ctx, 'Learn')
+            TempLearnPopup = nil
+        end
+        LearnWindow(i)
+    end
+end
+
 function SnapshotRightClickPopUp(i) 
     if reaper.ImGui_BeginPopupContextItem(ctx) then -- use last item id as popup id
 
@@ -96,21 +141,17 @@ function SnapshotRightClickPopUp(i)
             goto endpopup
         end
 
-        --Rename 
-        if reaper.ImGui_BeginMenu(ctx, 'Rename') then
-            _, Snapshot[i].Name = reaper.ImGui_InputText(ctx, "###Rename", Snapshot[i].Name)
-            if reaper.ImGui_IsKeyDown(ctx, 13) then
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-            reaper.ImGui_EndMenu(ctx)
+        --Rename
+
+        if reaper.ImGui_MenuItem(ctx, 'Rename') then
+            TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
+            TempPopup_i = i
         end
 
-        
-            --Shortcut 
-        if reaper.ImGui_BeginMenu(ctx, 'Shortcut') then
-            LearnWindow(i)
-            reaper.ImGui_EndMenu(ctx)
-        end 
+        if reaper.ImGui_MenuItem(ctx, 'Shortcut') then
+            TempLearnPopup = true -- If true open Learn Popup at  OpenPopups(i) --> LearnWindow(i)
+            TempPopup_i = i
+        end
 
         reaper.ImGui_Separator(ctx)------------------------------------------------------------
 
@@ -211,13 +252,7 @@ function SnapshotRightClickPopUp(i)
 end
 
 function LearnWindow(i)
-    if reaper.ImGui_Button(ctx, 'LEARN') then
-        reaper.ImGui_OpenPopup(ctx, 'Learn')
-        TempPreventShortCut = Configs.PreventShortcut -- Store User Option (Need To change)
-    end
-
     if reaper.ImGui_BeginPopupModal(ctx, 'Learn', nil, reaper.ImGui_WindowFlags_AlwaysAutoResize()) then
-        Configs.PreventShortcut = true
         reaper.ImGui_Text(ctx, 'Key: '..(Snapshot[i].Shortcut or ''))
         
 
@@ -230,20 +265,22 @@ function LearnWindow(i)
                         check = false
                     end
                 end
-
+                
                 if check then 
                     Snapshot[i].Shortcut = char
-                    Configs.PreventShortcut = TempPreventShortCut
-                    TempPreventShortCut = nil
+                    CloseForcePreventShortcuts()
+                    TempPopup_i = nil 
                     reaper.ImGui_CloseCurrentPopup(ctx)
-                else
+                else -- Key Clicked is in Use
                     print('Key Already Used In Snapshot')
                 end
             end
         end
+
         if reaper.ImGui_Button(ctx, 'REMOVE', 120, 0) then 
             Snapshot[i].Shortcut = false
-            Configs.PreventShortcut = TempPreventShortCut
+            CloseForcePreventShortcuts()
+            TempPopup_i = nil 
             reaper.ImGui_CloseCurrentPopup(ctx) 
         end
         reaper.ImGui_EndPopup(ctx)
@@ -331,13 +368,19 @@ function ConfigsMenu()
             Configs.ShowAll = not Configs.ShowAll
         end
 
-        if reaper.ImGui_MenuItem(ctx, 'Prevet Snapshot Shortcuts',"",  Configs.PreventShortcut) then
+        if reaper.ImGui_MenuItem(ctx, 'Prevent Snapshot Shortcuts',"",  Configs.PreventShortcut) then
             Configs.PreventShortcut = not  Configs.PreventShortcut
+        end
+
+        if reaper.ImGui_MenuItem(ctx, 'Prompt Snapshot Name When Saving',"",  Configs.PromptName) then
+            Configs.PromptName = not  Configs.PromptName
         end
 
         if reaper.ImGui_MenuItem(ctx, 'Show Tooltips',"",  Configs.ToolTips) then
             Configs.ToolTips = not  Configs.ToolTips
         end
+
+        reaper.ImGui_Separator(ctx)
 
         --Delete All
         if reaper.ImGui_MenuItem(ctx, 'Delete All Snapshots') then

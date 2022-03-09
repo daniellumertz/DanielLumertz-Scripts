@@ -317,6 +317,7 @@ function LoadConfigs()
         Configs.ShowAll = false -- Show All Snapshots Not only the selected tracks (Name on GUI is the opposite (Show selected tracks only))
         Configs.PreventShortcut = false -- Prevent Shortcuts
         Configs.ToolTips = false -- Show ToolTips
+        Configs.PromptName = true
 
         ----Load Chunk options
         Configs.Chunk = {}

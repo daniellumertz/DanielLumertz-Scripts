@@ -1,4 +1,4 @@
--- @version 1.0.4
+-- @version 1.0.5
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -10,10 +10,13 @@
 --    [nomain] Track Snapshot Functions.lua
 
 -- @changelog
---    + Change KeyDown To KeyPressed
+--    + Fix Typo
+--    + Change Rename to modal popup
+--    + Change Shortcut to one click
+--    + Add Option to promt for a Snapshot name. true as default
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0.4'
+version = '1.0.5'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -66,6 +69,10 @@ function loop()
 
         if reaper.ImGui_Button(ctx, 'Save Snapshot',-1) then
             SaveSnapshot()
+            if Configs.PromptName then
+                TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
+                TempPopup_i = #Snapshot
+            end
         end
 
 
@@ -110,12 +117,16 @@ function loop()
             reaper.ImGui_EndListBox(ctx)
         end
 
+        OpenPopups(TempPopup_i)
+
 
         --------
         reaper.ImGui_End(ctx)
     end 
 
-    PassThorugh()
+    if not Configs.PreventShortcut then 
+        PassThorugh()
+    end
 
     reaper.ImGui_PopFont(ctx) -- Pop Font
 
