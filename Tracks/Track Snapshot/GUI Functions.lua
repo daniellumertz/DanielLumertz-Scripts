@@ -95,6 +95,7 @@ function RenamePopup(i)
         
         if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, 13) then
             if Snapshot[i].Name == '' then Snapshot[i].Name = 'Snapshot '..i end -- If Name == '' Is difficult to see in the GUI
+            if Snapshot[i].Name == 'Stevie' then PrintStevie() end -- =) 
             CloseForcePreventShortcuts()
             TempPopup_i = nil
             TempFirstTime = nil -- Need to set focus on Text input first time run this modal pop up 

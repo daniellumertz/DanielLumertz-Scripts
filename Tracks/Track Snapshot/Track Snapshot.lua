@@ -1,4 +1,4 @@
--- @version 1.0.5
+-- @version 1.0.6
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -9,14 +9,11 @@
 --    [nomain] Serialize Table.lua
 --    [nomain] Track Snapshot Functions.lua
 
--- @changelog
---    + Fix Typo
---    + Change Rename to modal popup
---    + Change Shortcut to one click
---    + Add Option to promt for a Snapshot name. true as default
+-- @changelogd
+--    + Stevie
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0.5'
+version = '1.0.6'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
