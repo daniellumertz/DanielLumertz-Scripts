@@ -95,7 +95,8 @@ function RenamePopup(i)
         
         if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, 13) then
             if Snapshot[i].Name == '' then Snapshot[i].Name = 'Snapshot '..i end -- If Name == '' Is difficult to see in the GUI
-            if Snapshot[i].Name == 'Stevie' then PrintStevie() end -- =) 
+            if Snapshot[i].Name == 'Stevie' then PrintStevie() end -- =)
+            SaveSnapshotConfig() 
             CloseForcePreventShortcuts()
             TempPopup_i = nil
             TempFirstTime = nil -- Need to set focus on Text input first time run this modal pop up 
@@ -270,7 +271,8 @@ function LearnWindow(i)
                 if check then 
                     Snapshot[i].Shortcut = char
                     CloseForcePreventShortcuts()
-                    TempPopup_i = nil 
+                    TempPopup_i = nil
+                    SaveSnapshotConfig()
                     reaper.ImGui_CloseCurrentPopup(ctx)
                 else -- Key Clicked is in Use
                     print('Key Already Used In Snapshot')
@@ -281,7 +283,8 @@ function LearnWindow(i)
         if reaper.ImGui_Button(ctx, 'REMOVE', 120, 0) then 
             Snapshot[i].Shortcut = false
             CloseForcePreventShortcuts()
-            TempPopup_i = nil 
+            TempPopup_i = nil
+            SaveSnapshotConfig() 
             reaper.ImGui_CloseCurrentPopup(ctx) 
         end
         reaper.ImGui_EndPopup(ctx)
@@ -299,19 +302,24 @@ function GuiLoadChunkOption()
         reaper.ImGui_PushItemWidth(ctx, 100)
 
         if reaper.ImGui_Checkbox(ctx, 'Load All', Configs.Chunk.All) then
-            Configs.Chunk.All = not Configs.Chunk.All 
+            Configs.Chunk.All = not Configs.Chunk.All
+            SaveConfig() 
         end
+
         if not Configs.Chunk.All then 
             reaper.ImGui_Separator(ctx)
 
             if reaper.ImGui_Checkbox(ctx, 'Items', Configs.Chunk.Items) then
-                Configs.Chunk.Items = not Configs.Chunk.Items 
+                Configs.Chunk.Items = not Configs.Chunk.Items
+                SaveConfig() 
             end
             if reaper.ImGui_Checkbox(ctx, 'FX', Configs.Chunk.Fx) then
-                Configs.Chunk.Fx = not Configs.Chunk.Fx 
+                Configs.Chunk.Fx = not Configs.Chunk.Fx
+                SaveConfig() 
             end
             if reaper.ImGui_Checkbox(ctx, 'Track Envelopes', Configs.Chunk.Env.Bool) then
-                Configs.Chunk.Env.Bool = not Configs.Chunk.Env.Bool 
+                Configs.Chunk.Env.Bool = not Configs.Chunk.Env.Bool
+                SaveConfig() 
             end
             if Configs.ToolTips then ToolTip("Right Click For More Options") end
 
@@ -319,7 +327,8 @@ function GuiLoadChunkOption()
             if reaper.ImGui_BeginPopupContextItem(ctx) then
                 for i, value in pairs(Configs.Chunk.Env.Envelope) do
                     if reaper.ImGui_Checkbox(ctx, Configs.Chunk.Env.Envelope[i].Name, Configs.Chunk.Env.Envelope[i].Bool) then
-                        Configs.Chunk.Env.Envelope[i].Bool = not Configs.Chunk.Env.Envelope[i].Bool 
+                        Configs.Chunk.Env.Envelope[i].Bool = not Configs.Chunk.Env.Envelope[i].Bool
+                        SaveConfig()
                     end
                 end
 
@@ -330,7 +339,8 @@ function GuiLoadChunkOption()
 
             for i, value in pairs(Configs.Chunk.Misc) do
                 if reaper.ImGui_Checkbox(ctx, Configs.Chunk.Misc[i].Name, Configs.Chunk.Misc[i].Bool) then
-                    Configs.Chunk.Misc[i].Bool = not Configs.Chunk.Misc[i].Bool 
+                    Configs.Chunk.Misc[i].Bool = not Configs.Chunk.Misc[i].Bool
+                    SaveConfig()
                 end
             end
         end
@@ -342,7 +352,7 @@ function GuiLoadChunkOption()
     end
 end
 
-function PassThorugh() -- Actions to pass though GUI. Find a better way
+function PassThorugh() -- Actions to pass keys though GUI to REAPER. Find a better way
     if reaper.ImGui_IsKeyPressed(ctx, 32, false) then-- Space
         
         reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
@@ -367,27 +377,61 @@ function ConfigsMenu()
 
         if reaper.ImGui_MenuItem(ctx, 'Only Show Selected Tracks Snapshots',"", not Configs.ShowAll) then
             Configs.ShowAll = not Configs.ShowAll
+            SaveConfig()
         end
 
         if reaper.ImGui_MenuItem(ctx, 'Prevent Snapshot Shortcuts',"",  Configs.PreventShortcut) then
             Configs.PreventShortcut = not  Configs.PreventShortcut
+            SaveConfig()
         end
 
         if reaper.ImGui_MenuItem(ctx, 'Prompt Snapshot Name When Saving',"",  Configs.PromptName) then
             Configs.PromptName = not  Configs.PromptName
+            SaveConfig()
         end
+        
+        if reaper.ImGui_MenuItem(ctx, 'Delete Automation Items When Saving Snapshots',"", Configs.AutoDeleteAI) then
+            Configs.AutoDeleteAI = not Configs.AutoDeleteAI
+            SaveConfig()
+        end
+        
+        if Configs.ToolTips then ToolTip('(DEFAULT AND RECOMMENDED)\nThis remove all automation items preserving the points before saving the snapshot\nThis create an Undo Point!') end
 
+        
         if reaper.ImGui_MenuItem(ctx, 'Show Tooltips',"",  Configs.ToolTips) then
             Configs.ToolTips = not  Configs.ToolTips
+            SaveConfig()
         end
+
 
         reaper.ImGui_Separator(ctx)
 
         --Delete All
         if reaper.ImGui_MenuItem(ctx, 'Delete All Snapshots') then
             Snapshot = {}
+            SaveSnapshotConfig()
         end
 
         reaper.ImGui_EndMenu(ctx)
     end
 end
+
+function AboutMenu()
+    if reaper.ImGui_BeginMenu(ctx, 'About') then
+
+        if reaper.ImGui_MenuItem(ctx, 'Donate!') then
+            open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
+        end
+
+        if reaper.ImGui_MenuItem(ctx, 'Forum Thread') then
+            open_url('https://forum.cockos.com/showthread.php?t=264124')
+        end
+
+        if reaper.ImGui_MenuItem(ctx, 'Video') then
+            open_url('https://youtu.be/-y8TsehRYzo')
+        end
+        reaper.ImGui_EndMenu(ctx)
+
+    end
+end
+

@@ -13,6 +13,7 @@ function SaveSnapshot() -- Set Snapshot table, Save State
     -- Set Chunk in Snapshot[i][track]
     Snapshot[i].Chunk = {} 
     for k , track in pairs(Snapshot[i].Tracks) do
+        AutomationItemsPreferences(track) 
         local retval, chunk = reaper.GetTrackStateChunk( track, '', false )
         if retval then
             Snapshot[i].Chunk[track] = chunk
@@ -25,37 +26,45 @@ function SaveSnapshot() -- Set Snapshot table, Save State
     Snapshot[i].Selected = true 
     Snapshot[i].Name = 'New Snapshot '..i
 
+    if Configs.PromptName then
+        TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
+        TempPopup_i = i
+    end
+
     --SoloSelect(i) If selection
-    SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true) 
+    --SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true) 
+    SaveSnapshotConfig()
 end
 
 function OverwriteSnapshot(i)
     for k,track in pairs(Snapshot[i].Tracks) do 
         if reaper.ValidatePtr2(0, track, 'MediaTrack*') then -- Edit if I add a check 
+            AutomationItemsPreferences(track)
             local retval, chunk = reaper.GetTrackStateChunk( track, '', false )
             if retval then
                 Snapshot[i].Chunk[track] = chunk
             end
         end
-    end  
+    end
+    SaveSnapshotConfig()  
 end
 
-function LoadSnapshot()
-    local Snapshot = LoadExtStateTable(ScriptName, 'SnapshotTable', true)
+function AutomationItemsPreferences(track) -- depreciated!!! not used in the code
+    if Configs.AutoDeleteAI then -- remove AI. Not very resourcefull
+        RemoveAutomationItems(track)
+    --[[ elseif Configs.StoreAI then --This tries to store AI in hidden tracks, I think I won't support this (to turn on uncomment this three lines and at LoadConfigs())
+        CheckHiddenTrack()
+        StoreAIinHiddenTrack(track)  ]]
+    end 
+end
 
-    if Snapshot == false then
-        Snapshot = {}  
-    end
-
-    for i, value in pairs(Snapshot) do-- For catching Snapshots that lost Tracks while script want running
-        for key, track in pairs(Snapshot[i].Tracks) do
-            if  type(track) == 'string' and Snapshot[i].MissTrack == false then 
-                Snapshot[i].MissTrack  = true
-            end 
-        end
-    end
-
-    return Snapshot
+function CheckHiddenTrack() -- Check if there is Hidden Track to save AI  depreciated!!! 
+    if not Configs.HiddenTrack or not reaper.ValidatePtr2(0, Configs.HiddenTrack, 'MediaTrack*') then 
+        local hidden_track = CreateHiddenTrack('Snapshot_Hidden Store AI')
+        CreateEnvelopeInTrack(hidden_track,'WIDTHENV2') -- Could be any envelope
+        -- Store it
+        Configs.HiddenTrack = hidden_track
+    end    
 end
 
 function SetSnapshot(i)
@@ -242,10 +251,10 @@ function SubstituteTrack(i,track, new_track, undo)
             Snapshot[i].Tracks[k] = new_track
         end
     end
-
     SetSnapshotForTrack(i,new_track,false)
 
-    if undo then 
+    if undo then -- will be true when is executed only once via user 
+        SaveSnapshotConfig() 
         EndUndo('Snapshot: Substitute Track'..Snapshot[i].Name)
     end
 end
@@ -257,7 +266,7 @@ function SubstituteTrackAll(track)
     for i, value in pairs(Snapshot) do
         SubstituteTrack(i,track, new_track,false)
     end 
-    SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true)
+    SaveSnapshotConfig()
     EndUndo('Snapshot: Substitute Track in All Snapshot')
 end
 
@@ -267,7 +276,7 @@ function SubstituteTrackWithNew(i, track)
     reaper.InsertTrackAtIndex(cnt, false)
     local new_track = reaper.GetTrack(0, cnt)
     SubstituteTrack(i,track,new_track,false)
-
+    SaveSnapshotConfig()
     EndUndo('Snapshot: Substitute Track With a New in Snapshot '..Snapshot[i].Name)
 end
 
@@ -280,12 +289,13 @@ function SubstituteTrackWithNewAll(i, track)
     for i, value in pairs(Snapshot) do
         SubstituteTrack(i,track,new_track,false)
     end 
-
+    SaveSnapshotConfig()
     EndUndo('Snapshot: Substitute Track With a New in All Snapshot')
 end
 
 function DeleteSnapshot(i)
     Snapshot[i] = nil
+    SaveSnapshotConfig()
 end
 
 function RemoveTrackFromSnapshot(i, track)
@@ -295,18 +305,49 @@ function RemoveTrackFromSnapshot(i, track)
         end
         Snapshot[i].Chunk[track] = nil
     end
+    SaveSnapshotConfig()
 end
 
 function RemoveTrackFromSnapshotAll(track)
     for i , v in pairs(Snapshot) do
         RemoveTrackFromSnapshot(i, track)  
     end
+    SaveSnapshotConfig()
 end
 
 function SelectSnapshotTracks(i)
     BeginUndo()
     LoadSelectedTracks(Snapshot[i].Tracks)
     EndUndo('Snapshot: Select Tracks Snapshot: '..Snapshot[i].Name)
+end
+
+function CheckProjChange()
+    local current_proj = reaper.EnumProjects(-1)
+    if OldProj then  -- Not First run
+        if OldProj ~= current_proj then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
+            Snapshot = LoadSnapshot()
+            Configs = LoadConfigs()
+        end
+    end 
+    OldProj = current_proj        
+end
+
+function LoadSnapshot()
+    local Snapshot = LoadExtStateTable(ScriptName, 'SnapshotTable', true)
+
+    if Snapshot == false then
+        Snapshot = {} 
+    end
+
+    for i, value in pairs(Snapshot) do-- For catching Snapshots that lost Tracks while script want running
+        for key, track in pairs(Snapshot[i].Tracks) do
+            if  type(track) == 'string' and Snapshot[i].MissTrack == false then 
+                Snapshot[i].MissTrack  = true
+            end 
+        end
+    end
+
+    return Snapshot
 end
 
 function LoadConfigs()
@@ -318,6 +359,8 @@ function LoadConfigs()
         Configs.PreventShortcut = false -- Prevent Shortcuts
         Configs.ToolTips = false -- Show ToolTips
         Configs.PromptName = true
+        Configs.AutoDeleteAI = true -- Automatically Delete Automation Items (have preference over StoreAI)
+        --Configs.StoreAI = false -- Saves AI in a Hidden Track (descontinued for now) (To enable uncomment this line and at SaveSnapshot Function)
 
         ----Load Chunk options
         Configs.Chunk = {}
@@ -375,7 +418,11 @@ function LoadConfigs()
     return Configs
 end
 
-function saida()
-    SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy(Snapshot), true)
+function SaveSnapshotConfig()
+    SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true)
+    SaveExtStateTable(ScriptName, 'ConfigTable',table_copy(Configs), false) 
+end
+
+function SaveConfig()
     SaveExtStateTable(ScriptName, 'ConfigTable',table_copy(Configs), false) 
 end

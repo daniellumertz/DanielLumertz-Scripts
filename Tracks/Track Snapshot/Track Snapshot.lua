@@ -1,5 +1,6 @@
--- @version 1.0.6
+-- @version 1.1
 -- @author Daniel Lumertz
+-- @license MIT
 -- @provides
 --    [nomain] utils/*.lua
 --    [nomain] Chunk Functions.lua
@@ -10,10 +11,12 @@
 --    [nomain] Track Snapshot Functions.lua
 
 -- @changelogd
---    + Stevie
+--    + MIT License
+--    + Add option to erase automation items
+--    + Check current project
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.0.6'
+version = '1.1'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -44,6 +47,8 @@ function Init()
 end
 
 function loop()
+    CheckProjChange()
+    
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
     reaper.ImGui_SetNextWindowSize(ctx, 200, 420, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     reaper.ImGui_PushFont(ctx, FONT) -- Says you want to start using a specific font
@@ -56,6 +61,7 @@ function loop()
         -------
         if reaper.ImGui_BeginMenuBar(ctx) then
             ConfigsMenu()
+            AboutMenu()
             reaper.ImGui_EndMenuBar(ctx)
         end
 
@@ -66,10 +72,6 @@ function loop()
 
         if reaper.ImGui_Button(ctx, 'Save Snapshot',-1) then
             SaveSnapshot()
-            if Configs.PromptName then
-                TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
-                TempPopup_i = #Snapshot
-            end
         end
 
 
@@ -137,4 +139,4 @@ end
 
 Init()
 loop()
-reaper.atexit(saida)
+reaper.atexit(SaveSnapshotConfig)

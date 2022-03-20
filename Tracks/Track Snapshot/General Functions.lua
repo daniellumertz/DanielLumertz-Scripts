@@ -7,21 +7,27 @@ function print( ...)
     reaper.ShowConsoleMsg( table.concat( t, "\n" ) .. "\n" )
 end
 
-function printtable(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
+function tprint (tbl, indent)
+    if not indent then indent = 0 end
+    for k, v in pairs(tbl) do
+      formatting = string.rep("  ", indent) .. tostring(k) .. ": "
+      if type(v) == "table" then
+        print(formatting)
+        tprint(v, indent+1)
+      elseif type(v) == 'boolean' then
+        print(formatting .. tostring(v))      
+      else
+        print(formatting .. tostring(v))
+      end
     end
 end
 
 function GetProjectPath()
     return reaper.GetProjectPath(0 , '' ):gsub("(.*)\\.*$","%1")  .. "\\"
+end
+
+function GetFullProjectPath() -- with projct Name. with .rpp at the end
+    return reaper.GetProjectPath(0 , '' ):gsub("(.*)\\.*$","%1")  .. reaper.GetProjectName(0)
 end
 
 function IsMasterTrack(track)
@@ -121,6 +127,76 @@ function GetTrackByGUID(GUID) --
     return track
 end
 
+function UnselectAllAutomationItemsInProject()
+    local cnt_tr = reaper.CountTracks(0)
+    for it = 0, cnt_tr-1 do -- Loop by track
+        local track = reaper.GetTrack(0, it)
+        local cnt_env = reaper.CountTrackEnvelopes( track )
+        for ie = 0, cnt_env-1 do  -- Loop by envelope
+            local env = reaper.GetTrackEnvelope( track, ie )
+            local cnt_ai = reaper.CountAutomationItems( env )
+            for iai = 0, cnt_ai-1 do  -- Loop by AI
+                reaper.GetSetAutomationItemInfo( env, iai, 'D_UISEL', 0, true )
+            end
+        end
+    end
+end
+
+function RemoveAutomationItems(track) -- Remove all Automation Items in a track and preserve points
+    UnselectAllAutomationItemsInProject()
+    local cnt_env = reaper.CountTrackEnvelopes( track )
+    for ie = 0, cnt_env-1 do 
+        local env = reaper.GetTrackEnvelope( track, ie )
+        local cnt_ai = reaper.CountAutomationItems( env )
+        for iai = 0, cnt_ai-1 do 
+            reaper.GetSetAutomationItemInfo( env, iai, 'D_UISEL', 1, true )
+        end
+    end
+    reaper.Main_OnCommand(42088, 0) -- Envelope: Delete automation items, preserve points
+end
+
+function CreateHiddenTrack(name)
+    -- Create Track
+    local idx = reaper.CountTracks( proj )
+    reaper.InsertTrackAtIndex( idx, true )
+    local hidden_track = reaper.GetTrack(0, idx)
+    local retval, chunk = reaper.GetTrackStateChunk(hidden_track, '', false)
+
+    --Name It
+    reaper.GetSetMediaTrackInfo_String( hidden_track, 'P_NAME' , name, true )
+
+    -- Hide it
+    chunk  = ChangeChunkVal2(chunk, 'SHOWINMIX', '0 0.6667 0.5 0 0.5 -1 -1 -1') -- Default Hidden
+    print(chunk)
+    reaper.SetTrackStateChunk(hidden_track, chunk, false)
+    return hidden_track   
+end
+
+function CreateEnvelopeInTrack(track, envname)
+    local retval, chunk = reaper.GetTrackStateChunk(track, '', false)
+
+    local new_env = '<'..envname..'\nEGUID '..reaper.genGuid(gGUID)..'\nACT 1 -1\nVIS 1 1 1\nLANEHEIGHT 0 0\nARM 1\nDEFSHAPE 0 -1 -1\nPT 0 1 0\n>' -- Envelope Chunk Section created
+    chunk = AddSectionToChunk(chunk, new_env)
+
+    reaper.SetTrackStateChunk(track, chunk, false)
+end
+
+function StoreAIinHiddenTrack(track)
+    local cnt_env = reaper.CountTrackEnvelopes( track )
+    for ie = 0, cnt_env-1 do  
+        local env = reaper.GetTrackEnvelope( track, ie )
+        local cnt_ai = reaper.CountAutomationItems( env )
+        for iai = 0, cnt_ai-1 do 
+            local len = reaper.GetSetAutomationItemInfo( env, iai, 'D_LENGTH', 0, false )
+            local pool_id = reaper.GetSetAutomationItemInfo( env, iai, 'D_POOL_ID', 0, false )
+
+            local hidden_envelope = reaper.GetTrackEnvelope(Configs.HiddenTrack, 0)
+            reaper.InsertAutomationItem( hidden_envelope, pool_id, 0, len )
+        end
+    end
+    
+end
+
 function BeginUndo()
     reaper.Undo_BeginBlock2(0)
     reaper.PreventUIRefresh(1)
@@ -130,6 +206,15 @@ function EndUndo(str)
     reaper.UpdateArrange()
     reaper.PreventUIRefresh(-1)
     reaper.Undo_EndBlock2(0, str, -1)
+end
+
+function open_url(url)
+    local OS = reaper.GetOS()
+    if OS == "OSX32" or OS == "OSX64" then
+      os.execute('open "" "' .. url .. '"')
+    else
+      os.execute('start "" "' .. url .. '"')
+    end
 end
 
 function GetKeycode(char)
