@@ -420,7 +420,7 @@ end
 
 function SaveSnapshotConfig()
     SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true)
-    SaveExtStateTable(ScriptName, 'ConfigTable',table_copy(Configs), false) 
+    SaveConfig() 
 end
 
 function SaveConfig()

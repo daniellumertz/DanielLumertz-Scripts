@@ -1,4 +1,4 @@
--- @version 1.1
+-- @version 1.2
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -10,13 +10,12 @@
 --    [nomain] Serialize Table.lua
 --    [nomain] Track Snapshot Functions.lua
 
--- @changelogd
---    + MIT License
---    + Add option to erase automation items
---    + Check current project
+-- @changelog
+--    + Correct Imgui Context Name
+--    + Add button to Dock 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.1'
+version = '1.2'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -33,7 +32,7 @@ Configs = {}
 Configs.ShowAll = false
 
 function GuiInit()
-    ctx = reaper.ImGui_CreateContext('Item Sequencer') -- Add VERSION TODO
+    ctx = reaper.ImGui_CreateContext('Track Snapshot',reaper.ImGui_ConfigFlags_DockingEnable()) 
     FONT = reaper.ImGui_CreateFont('sans-serif', 15) -- Create the fonts you need
     font_mini = reaper.ImGui_CreateFont('sans-serif', 13) -- Create the fonts you need
     reaper.ImGui_AttachFont(ctx, FONT)-- Attach the fonts you need
@@ -53,15 +52,26 @@ function loop()
     reaper.ImGui_SetNextWindowSize(ctx, 200, 420, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     reaper.ImGui_PushFont(ctx, FONT) -- Says you want to start using a specific font
 
+    if SetDock then
+        reaper.ImGui_SetNextWindowDockID(ctx, SetDock)
+        if SetDock== 0 then
+            reaper.ImGui_SetNextWindowSize(ctx, 200, 420)
+        end
+        SetDock = nil
+    end
+
+
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..version, true, window_flags)
 
     if visible then
+
         -------
         --MENU
         -------
         if reaper.ImGui_BeginMenuBar(ctx) then
             ConfigsMenu()
             AboutMenu()
+            DockBtn()
             reaper.ImGui_EndMenuBar(ctx)
         end
 

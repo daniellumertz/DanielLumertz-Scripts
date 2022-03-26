@@ -35,17 +35,6 @@ function rgba2num(red, green, blue, alpha)
 	return red + green + blue + alpha
 end
 
-function ToolTip(text)
-    if reaper.ImGui_IsItemHovered(ctx) then
-        reaper.ImGui_BeginTooltip(ctx)
-        reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 35.0)
-        reaper.ImGui_PushTextWrapPos(ctx, 200)
-        reaper.ImGui_Text(ctx, text)
-        reaper.ImGui_PopTextWrapPos(ctx)
-        reaper.ImGui_EndTooltip(ctx)
-    end
-end
-
 function ResetStyleCount()
     reaper.ImGui_PopStyleColor(ctx,CounterStyle) -- Reset The Styles (NEED FOR IMGUI TO WORK)
     CounterStyle = 0
@@ -397,14 +386,16 @@ function ConfigsMenu()
         
         if Configs.ToolTips then ToolTip('(DEFAULT AND RECOMMENDED)\nThis remove all automation items preserving the points before saving the snapshot\nThis create an Undo Point!') end
 
-        
+
+        reaper.ImGui_Separator(ctx)
+
         if reaper.ImGui_MenuItem(ctx, 'Show Tooltips',"",  Configs.ToolTips) then
             Configs.ToolTips = not  Configs.ToolTips
             SaveConfig()
         end
 
-
         reaper.ImGui_Separator(ctx)
+
 
         --Delete All
         if reaper.ImGui_MenuItem(ctx, 'Delete All Snapshots') then
@@ -432,6 +423,19 @@ function AboutMenu()
         end
         reaper.ImGui_EndMenu(ctx)
 
+    end
+end
+
+function DockBtn()
+    local reval_dock =  reaper.ImGui_IsWindowDocked(ctx)
+    local dock_text =  reval_dock and  'Undock' or 'Dock'
+
+    if reaper.ImGui_Button(ctx,dock_text ) then
+        if reval_dock then -- Already Docked
+            SetDock = 0
+        else -- Not docked
+            SetDock = -3 -- Dock to the right 
+        end
     end
 end
 
