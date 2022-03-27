@@ -19,11 +19,13 @@ function WriteShortkey(key, r,g,b,a)
     reaper.ImGui_DrawList_AddText(draw_list, maxx-text_w-pad, miny, color, key)    
 end
 
-function SoloSelect(solo_key) -- list:list \n solo_key:string or number
-    for k, v in pairs(Snapshot) do
-        Snapshot[k].Selected = false
+function SoloSelect(i_solo) -- list:list \n solo_key:string or number
+    for i, v in pairs(Snapshot) do
+        if i_solo ~= i and TableValuesCompareNoOrder(Snapshot[i].Tracks,Snapshot[i_solo].Tracks) then -- Check if is the same group of tracks
+            Snapshot[i].Selected = false
+        end       
     end
-    Snapshot[solo_key].Selected = true
+    Snapshot[i_solo].Selected = true
 end
 
 function rgba2num(red, green, blue, alpha)
@@ -77,10 +79,27 @@ function CloseForcePreventShortcuts() -- Restore Configs.PreventShortcut configs
 end
 
 function RenamePopup(i)
+    -- Set Rename Popup Position first time it runs 
+    if TempRename_x then
+        reaper.ImGui_SetNextWindowPos(ctx, TempRename_x-125, TempRename_y-30)
+        TempRename_x = nil
+        TempRename_y = nil
+    end
+
     if reaper.ImGui_BeginPopupModal(ctx, 'Rename###RenamePopup', nil, reaper.ImGui_WindowFlags_AlwaysAutoResize()) then
-        if not TempFirstTime then reaper.ImGui_SetKeyboardFocusHere(ctx); TempFirstTime = true end
+        -- Colors
+        reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_FrameBg(),        0x2E2E2EFF)
+        reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),         0xC8C8C83A)
+        reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_TextSelectedBg(), 0x68C5FE66)
+
+        --Body
+        if reaper.ImGui_IsWindowAppearing(ctx) then -- First Run
+            reaper.ImGui_SetKeyboardFocusHere(ctx)
+            TempRename_x, TempRename_y = reaper.GetMousePosition()
+            local guid
+        end
         
-        _, Snapshot[i].Name = reaper.ImGui_InputText(ctx, "##Rename"..i, Snapshot[i].Name)
+        _, Snapshot[i].Name = reaper.ImGui_InputText(ctx, "##Rename"..i, Snapshot[i].Name, reaper.ImGui_InputTextFlags_AutoSelectAll())
         
         if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, 13) then
             if Snapshot[i].Name == '' then Snapshot[i].Name = 'Snapshot '..i end -- If Name == '' Is difficult to see in the GUI
@@ -88,11 +107,12 @@ function RenamePopup(i)
             SaveSnapshotConfig() 
             CloseForcePreventShortcuts()
             TempPopup_i = nil
-            TempFirstTime = nil -- Need to set focus on Text input first time run this modal pop up 
             reaper.ImGui_CloseCurrentPopup(ctx) 
         end
+        --End
+        reaper.ImGui_PopStyleColor(ctx, 3)
         reaper.ImGui_EndPopup(ctx)
-    end     
+    end    
 end
 
 function OpenPopups(i) -- Need This function to be called outside a menu (else it wouldnt run the popup every loop)... i =  TempPopup_i. Need to TempPopup_i = nil when closing a popup. TempPopup_i = Snaphot[i] that called a popup rename/shortcut
@@ -243,7 +263,18 @@ function SnapshotRightClickPopUp(i)
 end
 
 function LearnWindow(i)
+    if TempLearn_x then
+        reaper.ImGui_SetNextWindowPos(ctx, TempLearn_x-50, TempLearn_y-30)
+        TempLearn_x = nil
+        TempLearn_y = nil
+    end
+
     if reaper.ImGui_BeginPopupModal(ctx, 'Learn', nil, reaper.ImGui_WindowFlags_AlwaysAutoResize()) then
+        -- First run
+        if reaper.ImGui_IsWindowAppearing(ctx) then -- First Run
+            TempLearn_x, TempLearn_y = reaper.GetMousePosition()
+        end
+
         reaper.ImGui_Text(ctx, 'Key: '..(Snapshot[i].Shortcut or ''))
         
 
@@ -313,6 +344,7 @@ function GuiLoadChunkOption()
             if Configs.ToolTips then ToolTip("Right Click For More Options") end
 
             -- Right Click Track Envelopes
+            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_PopupBg(), 0x464646FF)
             if reaper.ImGui_BeginPopupContextItem(ctx) then
                 for i, value in pairs(Configs.Chunk.Env.Envelope) do
                     if reaper.ImGui_Checkbox(ctx, Configs.Chunk.Env.Envelope[i].Name, Configs.Chunk.Env.Envelope[i].Bool) then
@@ -323,6 +355,8 @@ function GuiLoadChunkOption()
 
                 reaper.ImGui_EndPopup(ctx)
             end
+            reaper.ImGui_PopStyleColor(ctx)
+            -------
 
             reaper.ImGui_Spacing(ctx)
 
@@ -369,6 +403,25 @@ function ConfigsMenu()
             SaveConfig()
         end
 
+        if not Configs.VersionMode then
+            if reaper.ImGui_MenuItem(ctx, 'Highlight Last Loaded Snapshot',"", Configs.Select) then
+                Configs.Select = not Configs.Select
+                SaveConfig()
+            end
+        end
+
+        if reaper.ImGui_MenuItem(ctx, 'Track Version Mode (beta)',"", Configs.VersionMode) then
+            Configs.VersionMode = not Configs.VersionMode
+            SaveConfig()
+        end
+
+        if reaper.ImGui_MenuItem(ctx, 'Delete Automation Items When Saving Snapshots',"", Configs.AutoDeleteAI) then
+            Configs.AutoDeleteAI = not Configs.AutoDeleteAI
+            SaveConfig()
+        end
+        
+        reaper.ImGui_Separator(ctx)
+
         if reaper.ImGui_MenuItem(ctx, 'Prevent Snapshot Shortcuts',"",  Configs.PreventShortcut) then
             Configs.PreventShortcut = not  Configs.PreventShortcut
             SaveConfig()
@@ -376,11 +429,6 @@ function ConfigsMenu()
 
         if reaper.ImGui_MenuItem(ctx, 'Prompt Snapshot Name When Saving',"",  Configs.PromptName) then
             Configs.PromptName = not  Configs.PromptName
-            SaveConfig()
-        end
-        
-        if reaper.ImGui_MenuItem(ctx, 'Delete Automation Items When Saving Snapshots',"", Configs.AutoDeleteAI) then
-            Configs.AutoDeleteAI = not Configs.AutoDeleteAI
             SaveConfig()
         end
         
@@ -430,7 +478,7 @@ function DockBtn()
     local reval_dock =  reaper.ImGui_IsWindowDocked(ctx)
     local dock_text =  reval_dock and  'Undock' or 'Dock'
 
-    if reaper.ImGui_Button(ctx,dock_text ) then
+    if reaper.ImGui_MenuItem(ctx,dock_text ) then
         if reval_dock then -- Already Docked
             SetDock = 0
         else -- Not docked

@@ -20,33 +20,63 @@ function SaveSnapshot() -- Set Snapshot table, Save State
         end
     end
 
+    VersionModeOverwrite(i) -- If Version mode on it will save last selected snapshot before saving this one
     --Snapshot[i].Shortcut = nil
     Snapshot[i].MissTrack = false
     Snapshot[i].Visible = true 
-    Snapshot[i].Selected = true 
+    SoloSelect(i) --set Snapshot[i].Selected
     Snapshot[i].Name = 'New Snapshot '..i
 
     if Configs.PromptName then
         TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
         TempPopup_i = i
     end
-
-    --SoloSelect(i) If selection
-    --SaveExtStateTable(ScriptName, 'SnapshotTable',table_copy_regressive(Snapshot), true) 
+    
     SaveSnapshotConfig()
 end
 
-function OverwriteSnapshot(i)
+function OverwriteSnapshot(i) -- Only Called via user UI
+    VersionModeOverwrite(i) -- Should I VersionModeOverwrite(i) when overwriting? ->yes) duplicate current snapshot no) current progress is saved only in the the overwrited snap 
     for k,track in pairs(Snapshot[i].Tracks) do 
         if reaper.ValidatePtr2(0, track, 'MediaTrack*') then -- Edit if I add a check 
             AutomationItemsPreferences(track)
             local retval, chunk = reaper.GetTrackStateChunk( track, '', false )
+
             if retval then
                 Snapshot[i].Chunk[track] = chunk
             end
         end
     end
+    SoloSelect(i)
     SaveSnapshotConfig()  
+end
+
+function VersionModeOverwrite(i) -- i to check which tracks group is using
+    -- Track Versions mode
+    -- Get last selected Snapshot for this group of tracks
+    -- If there is then 
+    -- OverwriteSnapshotVersionMode(last selected Snapshot i) that with current configs
+    if Configs.VersionMode then
+        local last_i = GetLastSelectedSnapshotForGroupOfTracks(Snapshot[i].Tracks)
+        if i ~= last_i then
+            if last_i then
+                for k,track in pairs(Snapshot[last_i].Tracks) do 
+                    if reaper.ValidatePtr2(0, track, 'MediaTrack*') then -- Edit if I add a check 
+                        AutomationItemsPreferences(track)
+                        local retval, chunk = reaper.GetTrackStateChunk( track, '', false )
+            
+                        if not Configs.Chunk.All then -- Change what will be saved on the chunk
+                            chunk = ChunkSwap(chunk , Snapshot[last_i].Chunk[track])
+                        end
+            
+                        if retval then
+                            Snapshot[last_i].Chunk[track] = chunk
+                        end
+                    end
+                end 
+            end
+        end
+    end
 end
 
 function AutomationItemsPreferences(track) -- depreciated!!! not used in the code
@@ -70,6 +100,8 @@ end
 function SetSnapshot(i)
     -- Undo and refresh
     BeginUndo()
+
+    VersionModeOverwrite(i)
     -- Check if the all tracks exist if no ask if the user want to assign a new track to it Show Last Name.  Currently it wont load missed tracks and load the rest
     for k,track in pairs(Snapshot[i].Tracks) do 
         -- Add loading bar (?) Could be cool 
@@ -81,7 +113,21 @@ function SetSnapshot(i)
             reaper.SetTrackStateChunk(track, chunk, false)
         end
     end
-    EndUndo('Snapshot: Set Snapshot: '..Snapshot[i].Name)   
+
+    SoloSelect(i)
+    --SaveSnapshotConfig() -- Need because of SoloSelect OR Just Save when Script closes
+    EndUndo('Snapshot: Set Snapshot: '..Snapshot[i].Name)
+end
+
+function GetLastSelectedSnapshotForGroupOfTracks(group_list) -- return i or false
+    for i, v in pairs(Snapshot) do
+        if TableValuesCompareNoOrder(Snapshot[i].Tracks,group_list) then
+            if Snapshot[i].Selected then
+                return i
+            end
+        end
+    end
+    return false
 end
 
 function SetSnapshotForTrack(i,track, undo)
@@ -119,7 +165,13 @@ function CreateTrackWithChunk(i,chunk,idx, new_guid)
 end
 
 function ChunkSwap(chunk, track) -- Use Configs To change current track_chunk with section from chunk(arg1)
-    local retval, track_chunk = reaper.GetTrackStateChunk(track, '', false)
+    local retval, track_chunk
+    if type(track) == 'string' then
+        track_chunk = track
+    else 
+        retval, track_chunk = reaper.GetTrackStateChunk(track, '', false)
+    end
+
     if Configs.Chunk.Items then
         track_chunk = SwapChunkSection('ITEM',chunk,track_chunk) -- chunk -> track_chunk
     end
@@ -227,13 +279,19 @@ end
 function SubstituteTrack(i,track, new_track, undo)
     local new_track = new_track or reaper.GetSelectedTrack(0, 0)
     if not new_track then print('👨< Please Select Some Tracks ❤️)') return end 
-    -- Check if Already in Snapshot
+    -- Check if Already in Snapshot and  Check if track is in the list of tracks
+    local bol = false
     for k ,v in pairs(Snapshot[i].Tracks) do
         if new_track== v then 
             print('Track Already In The Snapshot '..Snapshot[i].Name)
-            return 
+            return
+        end
+        if v == track then -- Track is in this snapshot
+            bol = true
         end
     end
+    if not bol then print('Track Not in this Snapshot') return end -- debug remove
+
     if undo then 
         BeginUndo()
     end
@@ -360,6 +418,8 @@ function LoadConfigs()
         Configs.ToolTips = false -- Show ToolTips
         Configs.PromptName = true
         Configs.AutoDeleteAI = true -- Automatically Delete Automation Items (have preference over StoreAI)
+        Configs.Select = false -- Show Last Snapshot Loaded per group of tracks
+        Configs.VersionMode = false -- Show Last Snapshot Loaded per group of tracks
         --Configs.StoreAI = false -- Saves AI in a Hidden Track (descontinued for now) (To enable uncomment this line and at SaveSnapshot Function)
 
         ----Load Chunk options

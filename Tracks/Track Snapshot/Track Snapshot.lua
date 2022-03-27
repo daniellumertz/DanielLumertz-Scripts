@@ -1,4 +1,4 @@
--- @version 1.2
+-- @version 1.3
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -9,13 +9,21 @@
 --    [nomain] GUI Functions.lua
 --    [nomain] Serialize Table.lua
 --    [nomain] Track Snapshot Functions.lua
-
+--    [nomain] theme.lua
+--    [nomain] Style Editor.lua
 -- @changelog
---    + Correct Imgui Context Name
---    + Add button to Dock 
+--    + Beta release of Track Version
+--    + Add Option to show last selected snapshot
+--    + Correct small carret inconvinence when renaming window open
+--    + Correct a Bug when loading deleted tracks from snapshots
+--    + Clean code at Rename Window
+--    + Open Rename popup at mouse
+--    + Open Learn popup at mouse
+--    + New Theme! Who is this good looking script
+
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.2'
+version = '1.3'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -26,6 +34,8 @@ dofile(script_path .. 'Track Snapshot Functions.lua') -- Functions to this scrip
 dofile(script_path .. 'General Functions.lua') -- General Functions needed
 dofile(script_path .. 'GUI Functions.lua') -- General Functions needed
 dofile(script_path .. 'Chunk Functions.lua') -- General Functions needed
+dofile(script_path .. 'theme.lua') -- General Functions needed
+--dofile(script_path .. 'Style Editor.lua') -- Remember to remove
 
 --- configs
 Configs = {}
@@ -46,6 +56,9 @@ function Init()
 end
 
 function loop()
+    PushTheme()
+    --StyleLoop()
+    --PushStyle()
     CheckProjChange()
     
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
@@ -60,11 +73,9 @@ function loop()
         SetDock = nil
     end
 
-
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..version, true, window_flags)
 
     if visible then
-
         -------
         --MENU
         -------
@@ -72,6 +83,12 @@ function loop()
             ConfigsMenu()
             AboutMenu()
             DockBtn()
+            if Configs.VersionMode then
+                reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Text(),   0xFF4848FF)
+                reaper.ImGui_Text(ctx, 'V.')
+                reaper.ImGui_PopStyleColor(ctx, 1)
+                if Configs.ToolTips then ToolTip('Track Version Mode ON') end
+            end
             reaper.ImGui_EndMenuBar(ctx)
         end
 
@@ -97,8 +114,9 @@ function loop()
             for i, v in pairs(Snapshot) do
                 if Snapshot[i].Visible == true or Configs.ShowAll == true then 
                     reaper.ImGui_PushID(ctx, i)
-                    local click = reaper.ImGui_Selectable(ctx, Snapshot[i].Name..'###'..i, false)
-                    if click then -- or Snapshot[i].Selected instead of false
+                    local selected = (Configs.Select or Configs.VersionMode) and Snapshot[i].Selected -- If Configs.Select  or Configs.VersionMode is false then false. If one is true then Snaphot[i].Selected
+                    local click = reaper.ImGui_Selectable(ctx, Snapshot[i].Name..'###'..i, selected) 
+                    if click then
                         if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then 
                         -- Load Chunk in tracks
                             SetSnapshot(i)
@@ -127,11 +145,12 @@ function loop()
         end
 
         OpenPopups(TempPopup_i)
-
-
         --------
         reaper.ImGui_End(ctx)
-    end 
+    end
+    --PopStyle()
+    PopTheme()
+ 
 
     if not Configs.PreventShortcut then 
         PassThorugh()
