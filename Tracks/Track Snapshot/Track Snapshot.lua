@@ -1,4 +1,4 @@
--- @version 1.3.1
+-- @version 1.3.2
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -12,15 +12,11 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Add esc key to close script
---    + Add More key to set Shortcuts
---    + Better Passthough shortcuts to reaper
---    + Add Record & Monitor Mode to Load Snapshot Options (only will show in projects after 1.3.1)
-
+--    + Correct a bug when opening a project with GUI open
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.3.1'
+ScriptVersion = '1.3.2'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

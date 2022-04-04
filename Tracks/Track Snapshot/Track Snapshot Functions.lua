@@ -379,14 +379,16 @@ function SelectSnapshotTracks(i)
     EndUndo('Snapshot: Select Tracks Snapshot: '..Snapshot[i].Name)
 end
 
-function CheckProjChange()
+function CheckProjChange() 
     local current_proj = reaper.EnumProjects(-1)
-    if OldProj then  -- Not First run
-        if OldProj ~= current_proj then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
+    local current_path = GetFullProjectPath()
+    if OldProj or OldPath  then  -- Not First run
+        if OldProj ~= current_proj or OldPath ~= current_path then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
             Snapshot = LoadSnapshot()
             Configs = LoadConfigs()
         end
     end 
+    OldPath = current_path
     OldProj = current_proj        
 end
 
