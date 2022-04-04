@@ -66,7 +66,7 @@ function literalizepercent(str)
 end
 
 function ChangeChunkVal2(chunk, key, new_value) -- probably faster ?
-    local new_value = literalizepercent(new_value)
+    local new_value = literalizepercent(tostring(new_value))
     while chunk:match('%s('..key..')') do
       chunk = chunk:gsub('%s('..key..')%s+.-[\r]-[%\n]', "\ntemp%1 "..new_value.."\n", 1)
     end

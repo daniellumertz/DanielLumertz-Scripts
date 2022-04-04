@@ -458,6 +458,7 @@ function LoadConfigs()
 
         local misc = { -- Add here things to be on the Misc List [Chunk def = Button name]
             {'VOLPAN',  'Volume & Pan'},
+            {'REC',  'Rec & Monitor Modes'},
             {'MUTESOLO', 'Mute & Solo'},
             {'IPHASE', 'Phase'},
             {'NAME', 'Name'},

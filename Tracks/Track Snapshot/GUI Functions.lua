@@ -71,11 +71,13 @@ end
 function BeginForcePreventShortcuts() --Change and Store Configs.PreventShortcut
     TempPreventShortCut = Configs.PreventShortcut
     Configs.PreventShortcut = true
+    PreventPassKeys = true
 end
 
 function CloseForcePreventShortcuts() -- Restore Configs.PreventShortcut configs
     Configs.PreventShortcut = TempPreventShortCut
     TempPreventShortCut = nil
+    PreventPassKeys = nil
 end
 
 function RenamePopup(i)
@@ -375,7 +377,7 @@ function GuiLoadChunkOption()
     end
 end
 
-function PassThorugh() -- Actions to pass keys though GUI to REAPER. Find a better way
+function PassThorughOld() -- Actions to pass keys though GUI to REAPER. Find a better way
     if reaper.ImGui_IsKeyPressed(ctx, 32, false) then-- Space
         
         reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
@@ -393,6 +395,51 @@ function PassThorugh() -- Actions to pass keys though GUI to REAPER. Find a bett
             reaper.Main_OnCommand(40029, 0) -- Edit: Undo
         end
     end
+end
+
+function FilterPassThorugh(key_name)
+    for i,v in pairs(Snapshot) do 
+        if Snapshot[i].Shortcut == key_name then return true end
+    end
+    return false
+end
+
+
+function PassThorugh() -- Might be a little tough on resource
+    --Get keys pressed
+    local keycodes = KeyCodeList()
+    local active_keys = {}
+    for key_name, key_val in pairs(keycodes) do
+        if FilterPassThorugh(key_name) then goto continue end 
+        if reaper.ImGui_IsKeyPressed(ctx, key_val, true) then -- true so holding will perform many times
+            active_keys[#active_keys+1] = key_val
+        end
+        ::continue::
+    end
+
+    -- mods
+    local mods = reaper.ImGui_GetKeyMods(ctx)
+    if (mods & reaper.ImGui_KeyModFlags_Ctrl()) ~= 0 then active_keys[#active_keys+1] = 17 end -- ctrl
+    if (mods & reaper.ImGui_KeyModFlags_Shift()) ~= 0 then active_keys[#active_keys+1] = 16 end -- Shift
+    if (mods & reaper.ImGui_KeyModFlags_Alt()) ~= 0 then active_keys[#active_keys+1] = 18 end -- Alt (NOT WORKING)
+
+
+    --Send Message
+    if LastWindowFocus then 
+        if #active_keys > 0  then
+            for k, key_val in pairs(active_keys) do
+                PostKey(LastWindowFocus, key_val)
+            end
+        end
+    end
+
+    -- Get focus window (if not == Script Title)
+    local win_focus = reaper.JS_Window_GetFocus()
+    local win_name = reaper.JS_Window_GetTitle( win_focus )
+
+    if LastWindowFocus ~= win_focus and (win_name == 'trackview' or win_name == 'midiview')  then -- focused win title is different from script title? INSERT HERE HOW YOU NAME THE SCRIPT
+        LastWindowFocus = win_focus
+    end    
 end
 
 function ConfigsMenu()

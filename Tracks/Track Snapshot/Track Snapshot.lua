@@ -1,4 +1,4 @@
--- @version 1.3
+-- @version 1.3.1
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -12,18 +12,15 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Beta release of Track Version
---    + Add Option to show last selected snapshot
---    + Correct small carret inconvinence when renaming window open
---    + Correct a Bug when loading deleted tracks from snapshots
---    + Clean code at Rename Window
---    + Open Rename popup at mouse
---    + Open Learn popup at mouse
---    + New Theme! Who is this good looking script
+--    + Add esc key to close script
+--    + Add More key to set Shortcuts
+--    + Better Passthough shortcuts to reaper
+--    + Add Record & Monitor Mode to Load Snapshot Options (only will show in projects after 1.3.1)
+
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-version = '1.3'
+ScriptVersion = '1.3.1'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -56,7 +53,11 @@ function Init()
 end
 
 function loop()
-    PushTheme()
+    if not PreventPassKeys then -- Passthrough keys
+        PassThorugh()
+    end
+
+    PushTheme() -- Theme
     --StyleLoop()
     --PushStyle()
     CheckProjChange()
@@ -73,7 +74,7 @@ function loop()
         SetDock = nil
     end
 
-    local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..version, true, window_flags)
+    local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..ScriptVersion, true, window_flags)
 
     if visible then
         -------
@@ -152,13 +153,10 @@ function loop()
     PopTheme()
  
 
-    if not Configs.PreventShortcut then 
-        PassThorugh()
-    end
 
     reaper.ImGui_PopFont(ctx) -- Pop Font
 
-    if open then
+    if open and reaper.ImGui_IsKeyPressed(ctx, 27) == false then
         reaper.defer(loop)
     else
         reaper.ImGui_DestroyContext(ctx)
