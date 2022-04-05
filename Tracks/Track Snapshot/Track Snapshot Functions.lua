@@ -413,7 +413,6 @@ function CheckProjChange()
     local current_path = GetFullProjectPath()
     if OldProj or OldPath  then  -- Not First run
         if OldProj ~= current_proj or OldPath ~= current_path then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
-            print('here')
             Snapshot = LoadSnapshot()
             Configs = LoadConfigs()
         end

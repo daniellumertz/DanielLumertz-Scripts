@@ -19,7 +19,6 @@ function SaveSend(i)
             --print(#Snapshot[i].Sends[track][dest_track])
             for chunk_line in string.gmatch(chunk,'AUXRECV '..send_idx..' '..'.-\n') do
                 table.insert(Snapshot[i].Sends[track][dest_track],chunk_line)
-                print(chunk_line)
             end
             ::continue2::
         end
@@ -29,11 +28,6 @@ end
 
 --- Set!
 function RemakeSends(i, track, new_track)
-    print(Snapshot[i].Name) -- Debug
-    print('Snapshot[i].Sends')
-    tprint(Snapshot[i].Sends)
-    print('Snapshot[i].Receives')
-    tprint(Snapshot[i].Receives)
     local track_change = new_track or track
 
     if not reaper.ValidatePtr2(0, track_change, 'MediaTrack*') then return end
@@ -91,7 +85,6 @@ function SaveReceive(i)
 
         local retval, chunk = reaper.GetTrackStateChunk(track, '', false)
         for chunk_line in string.gmatch(chunk,'AUXRECV .-\n') do
-            print('chunk_line',chunk_line)
             local track_idx = string.match(chunk_line,'AUXRECV '.."(%d+)")
             local source_track = reaper.GetTrack(0, track_idx)
             if not Snapshot[i].Receives[track][source_track] then
