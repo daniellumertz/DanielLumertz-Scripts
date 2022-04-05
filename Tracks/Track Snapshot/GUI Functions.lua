@@ -199,11 +199,7 @@ function SnapshotRightClickPopUp(i)
 
                     
                     if reaper.ImGui_MenuItem(ctx, 'Substitute This Track With Track Selected') then -- Hold Shift For Substituing in all Snapshots 
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then
-                            SubstituteTrack(i,track)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
-                            SubstituteTrackAll(track)
-                        end
+                        SubstituteTrackAll(track)
                     end
                     if Configs.ToolTips then ToolTip("Use first selected track as the target when loading this snapshot. Hold shift to apply to all snapshots that use track: "..name) end
 
@@ -221,21 +217,13 @@ function SnapshotRightClickPopUp(i)
                     ChangeColorText(0,0,1,1) -- White Text
 
                     if reaper.ImGui_MenuItem(ctx, 'Substitute This Track With Track Selected') then -- Hold Shift For Substituing in all Snapshots 
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then
-                            SubstituteTrack(i,track)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
-                            SubstituteTrackAll(track)
-                        end
+                        SubstituteTrackAll(track)
                     end
                     if Configs.ToolTips then ToolTip("Use first selected track as the target when loading this snapshot. Hold shift to apply to all snapshots that use track: "..name) end
 
 
                     if reaper.ImGui_MenuItem(ctx, 'Create New Track For The Track Missing') then
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then
-                            SubstituteTrackWithNew(i,track)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
-                            SubstituteTrackWithNewAll(i,track)
-                        end
+                        SubstituteTrackWithNew(i,track)
                     end
                     if Configs.ToolTips then ToolTip("Create a new track and use it as the target when loading this Snapshot. Hold shift to apply to all snapshots that use track: "..name) end
 
@@ -343,6 +331,17 @@ function GuiLoadChunkOption()
                 Configs.Chunk.Env.Bool = not Configs.Chunk.Env.Bool
                 SaveConfig() 
             end
+
+            if reaper.ImGui_Checkbox(ctx, 'Sends', Configs.Chunk.Sends) then
+                Configs.Chunk.Sends = not Configs.Chunk.Sends
+                SaveConfig() 
+            end
+
+            if reaper.ImGui_Checkbox(ctx, 'Receives', Configs.Chunk.Receive) then
+                Configs.Chunk.Receive = not Configs.Chunk.Receive
+                SaveConfig() 
+            end
+
             if Configs.ToolTips then ToolTip("Right Click For More Options") end
 
             -- Right Click Track Envelopes
@@ -457,7 +456,7 @@ function ConfigsMenu()
             end
         end
 
-        if reaper.ImGui_MenuItem(ctx, 'Track Version Mode (beta)',"", Configs.VersionMode) then
+        if reaper.ImGui_MenuItem(ctx, 'Track Version Mode',"", Configs.VersionMode) then
             Configs.VersionMode = not Configs.VersionMode
             SaveConfig()
         end

@@ -1,4 +1,4 @@
--- @version 1.3.2
+-- @version 1.4pre1
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -9,14 +9,20 @@
 --    [nomain] GUI Functions.lua
 --    [nomain] Serialize Table.lua
 --    [nomain] Track Snapshot Functions.lua
+--    [nomain] Track Snapshot Send Functions.lua
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Correct a bug when opening a project with GUI open
+--    + Save and Recall Send/Receives
+--    + New Save and Recall system will only work with 1.4v+ Snapshots. But still can load Snapshot taken in earlier versions
+--    + request JS SWS and ImGUI at the start
+--    + Remove Track Versions beta warning. Haven't found bugs so far
+--    + Remove Shift click in Create New Track for track missing and substitute track with track selected. Always apply to all snapshot using that track
+
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.3.2'
+ScriptVersion = '1.4pre1'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -28,7 +34,10 @@ dofile(script_path .. 'General Functions.lua') -- General Functions needed
 dofile(script_path .. 'GUI Functions.lua') -- General Functions needed
 dofile(script_path .. 'Chunk Functions.lua') -- General Functions needed
 dofile(script_path .. 'theme.lua') -- General Functions needed
+dofile(script_path .. 'Track Snapshot Send Functions.lua') -- General Functions needed
 --dofile(script_path .. 'Style Editor.lua') -- Remember to remove
+
+if not CheckRequirements() then return end
 
 --- configs
 Configs = {}

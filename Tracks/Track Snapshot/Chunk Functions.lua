@@ -46,6 +46,10 @@ function GetChunkVal(chunk,key)
     return string.match(chunk,key..' '..'(.-)\n')
 end
 
+function GetChunkLine(chunk,key,idx) -- Basically GetChunkVal but return with the key 
+    return string.match(chunk,key..' '..'.-\n',idx)
+end
+
 function ChangeChunkVal(chunk, key, new_value) -- Thanks Sexan 🐱
     local chunk_tbl = split_by_line(chunk)
     for i = 1, #chunk_tbl do
@@ -162,8 +166,8 @@ function SwapChunkValue(key,chunk1,chunk2) -- Move a value (key) from chunk1 -> 
     return ChangeChunkVal2(chunk2, key, new_value) 
 end
 
-function AddSectionToChunk(chunk, section_chunk)
-    return string.gsub(chunk, '<TRACK', '<TRACK\n'..section_chunk)
+function AddSectionToChunk(chunk, section_chunk) -- Track Chunks
+    return string.gsub(chunk, '<TRACK', '<TRACK\n'..section_chunk) -- I think I need to literalize this ? 
 end
 
 function AddSectionToChunkAfterKey(after_key, new_chunk, new_section) -- If after_key haves a < like <ITEM them input in the string. Just this function haves it

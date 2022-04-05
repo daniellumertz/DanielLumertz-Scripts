@@ -26,6 +26,8 @@ function SaveSnapshot() -- Set Snapshot table, Save State
     Snapshot[i].Visible = true 
     SoloSelect(i) --set Snapshot[i].Selected
     Snapshot[i].Name = 'New Snapshot '..i
+    SaveSend(i) -- set Snapshot[i].Sends[SnapshotSendTrackGUID] = {RTrack = ReceiveGUID, Chunk = ‘ChunkLine’},...} -- table each item is a track it sends 
+    SaveReceive(i)
 
     if Configs.PromptName then
         TempRenamePopup = true -- If true open Rename Popup at  OpenPopups(i) --> RenamePopup(i)
@@ -47,6 +49,9 @@ function OverwriteSnapshot(i) -- Only Called via user UI
             end
         end
     end
+    SaveSend(i)
+    SaveReceive(i)
+
     SoloSelect(i)
     SaveSnapshotConfig()  
 end
@@ -74,6 +79,8 @@ function VersionModeOverwrite(i) -- i to check which tracks group is using
                         end
                     end
                 end 
+                SaveSend(i)
+                SaveReceive(i)
             end
         end
     end
@@ -112,9 +119,15 @@ function SetSnapshot(i)
             end 
             reaper.SetTrackStateChunk(track, chunk, false)
         end
+        if Configs.Chunk.All or Configs.Chunk.Receive then
+            RemakeReceive(i, track)
+        end
+        if Configs.Chunk.All or Configs.Chunk.Sends then
+            RemakeSends(i,track)
+        end
     end
-
     SoloSelect(i)
+    
     --SaveSnapshotConfig() -- Need because of SoloSelect OR Just Save when Script closes
     EndUndo('Snapshot: Set Snapshot: '..Snapshot[i].Name)
 end
@@ -143,6 +156,13 @@ function SetSnapshotForTrack(i,track, undo)
         end 
         reaper.SetTrackStateChunk(track, chunk, false)
 
+        if Configs.Chunk.All or Configs.Chunk.Receive then
+            RemakeReceive(i, track)
+        end
+        if Configs.Chunk.All or Configs.Chunk.Sends then
+            RemakeSends(i,track)
+        end
+
         if undo then 
             EndUndo('Snapshot: Set Track Snapshot: '..Snapshot[i].Name)
         end
@@ -162,6 +182,7 @@ function CreateTrackWithChunk(i,chunk,idx, new_guid)
     end 
 
     reaper.SetTrackStateChunk(new_track, chunk, false)
+    return new_track
 end
 
 function ChunkSwap(chunk, track) -- Use Configs To change current track_chunk with section from chunk(arg1)
@@ -223,7 +244,13 @@ function SetSnapshotForTrackInNewTracks(i, track, undo)
         new_track_index =  reaper.CountTracks(0) -- This is 1 Based (In the end dont need to add +1 )
     end
 
-    CreateTrackWithChunk(i, chunk, new_track_index, true) -- This is 0 Based
+    local new_track = CreateTrackWithChunk(i, chunk, new_track_index, true) -- This is 0 Based
+        if Configs.Chunk.All or Configs.Chunk.Receive then
+            RemakeReceive(i, track, new_track)
+        end
+        if Configs.Chunk.All or Configs.Chunk.Sends then
+            RemakeSends(i, track, new_track)
+        end
     
     if undo then 
         EndUndo('Snapshot: Set Track Snapshot: '..Snapshot[i].Name)
@@ -283,14 +310,14 @@ function SubstituteTrack(i,track, new_track, undo)
     local bol = false
     for k ,v in pairs(Snapshot[i].Tracks) do
         if new_track== v then 
-            print('Track Already In The Snapshot '..Snapshot[i].Name)
+            --print('Track Already In The Snapshot '..Snapshot[i].Name) -- Catch if track already in this snapshot, still working I just removed the print I used to debug
             return
         end
         if v == track then -- Track is in this snapshot
             bol = true
         end
     end
-    if not bol then print('Track Not in this Snapshot') return end -- debug remove
+    if not bol then return end -- Catch Snapshots without this track (this function might be using to iterate every snapshot)
 
     if undo then 
         BeginUndo()
@@ -323,7 +350,8 @@ function SubstituteTrackAll(track)
     BeginUndo() 
     for i, value in pairs(Snapshot) do
         SubstituteTrack(i,track, new_track,false)
-    end 
+    end
+    SubstituteSendsReceives(track, new_track)
     SaveSnapshotConfig()
     EndUndo('Snapshot: Substitute Track in All Snapshot')
 end
@@ -334,6 +362,7 @@ function SubstituteTrackWithNew(i, track)
     reaper.InsertTrackAtIndex(cnt, false)
     local new_track = reaper.GetTrack(0, cnt)
     SubstituteTrack(i,track,new_track,false)
+    SubstituteSendsReceives(track, new_track)
     SaveSnapshotConfig()
     EndUndo('Snapshot: Substitute Track With a New in Snapshot '..Snapshot[i].Name)
 end
@@ -384,6 +413,7 @@ function CheckProjChange()
     local current_path = GetFullProjectPath()
     if OldProj or OldPath  then  -- Not First run
         if OldProj ~= current_proj or OldPath ~= current_path then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
+            print('here')
             Snapshot = LoadSnapshot()
             Configs = LoadConfigs()
         end
@@ -454,6 +484,9 @@ function LoadConfigs()
             Configs.Chunk.Env.Envelope[i].Name = table[1] 
             Configs.Chunk.Env.Envelope[i].ChunkKey = table[2]  
         end
+
+        Configs.Chunk.Sends = false
+        Configs.Chunk.Receive = false
 
 
         Configs.Chunk.Misc = {}
