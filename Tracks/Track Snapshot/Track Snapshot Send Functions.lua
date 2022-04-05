@@ -1,3 +1,4 @@
+-- @noindex
 function SaveSend(i)
     Snapshot[i].Sends = {}
     for index, track in pairs(Snapshot[i].Tracks) do
