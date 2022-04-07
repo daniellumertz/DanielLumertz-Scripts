@@ -175,7 +175,6 @@ function CreateHiddenTrack(name)
 
     -- Hide it
     chunk  = ChangeChunkVal2(chunk, 'SHOWINMIX', '0 0.6667 0.5 0 0.5 -1 -1 -1') -- Default Hidden
-    print(chunk)
     reaper.SetTrackStateChunk(hidden_track, chunk, false)
     return hidden_track   
 end

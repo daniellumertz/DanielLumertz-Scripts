@@ -1,4 +1,4 @@
--- @version 1.4pre2
+-- @version 1.4
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -18,11 +18,12 @@
 --    + request JS SWS and ImGUI at the start
 --    + Remove Track Versions beta warning. Haven't found bugs so far
 --    + Remove Shift click in Create New Track for track missing and substitute track with track selected. Always apply to all snapshot using that track
+--    + Fix when saving a open a new project to reload track snapshot
 
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4pre2'
+ScriptVersion = '1.4'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

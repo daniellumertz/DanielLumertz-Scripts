@@ -332,6 +332,21 @@ function GuiLoadChunkOption()
                 SaveConfig() 
             end
 
+            -- Right Click Track Envelopes
+            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_PopupBg(), 0x464646FF)
+            if reaper.ImGui_BeginPopupContextItem(ctx) then
+
+                for i, value in pairs(Configs.Chunk.Env.Envelope) do
+                    if reaper.ImGui_Checkbox(ctx, Configs.Chunk.Env.Envelope[i].Name, Configs.Chunk.Env.Envelope[i].Bool) then
+                        Configs.Chunk.Env.Envelope[i].Bool = not Configs.Chunk.Env.Envelope[i].Bool
+                        SaveConfig()
+                    end
+                end
+
+                reaper.ImGui_EndPopup(ctx)
+            end
+            reaper.ImGui_PopStyleColor(ctx)
+
             if reaper.ImGui_Checkbox(ctx, 'Sends', Configs.Chunk.Sends) then
                 Configs.Chunk.Sends = not Configs.Chunk.Sends
                 SaveConfig() 
@@ -344,19 +359,7 @@ function GuiLoadChunkOption()
 
             if Configs.ToolTips then ToolTip("Right Click For More Options") end
 
-            -- Right Click Track Envelopes
-            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_PopupBg(), 0x464646FF)
-            if reaper.ImGui_BeginPopupContextItem(ctx) then
-                for i, value in pairs(Configs.Chunk.Env.Envelope) do
-                    if reaper.ImGui_Checkbox(ctx, Configs.Chunk.Env.Envelope[i].Name, Configs.Chunk.Env.Envelope[i].Bool) then
-                        Configs.Chunk.Env.Envelope[i].Bool = not Configs.Chunk.Env.Envelope[i].Bool
-                        SaveConfig()
-                    end
-                end
 
-                reaper.ImGui_EndPopup(ctx)
-            end
-            reaper.ImGui_PopStyleColor(ctx)
             -------
 
             reaper.ImGui_Spacing(ctx)

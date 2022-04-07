@@ -79,8 +79,8 @@ function VersionModeOverwrite(i) -- i to check which tracks group is using
                         end
                     end
                 end 
-                SaveSend(i)
-                SaveReceive(i)
+                SaveSend(last_i)
+                SaveReceive(last_i)
             end
         end
     end
