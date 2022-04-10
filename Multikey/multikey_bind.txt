@@ -1,0 +1,15 @@
+-- @noindex
+--Syntax
+--context: keys order with space = commands list
+--Syntax exemple
+--main: A B C F1 = 4004 4005
+--You can execute multiple actions
+--If your action have mod keys put them in this order SHIFT CTRL ALT. Exemples : 
+--main: SHIFT A B = 4005
+--main: SHIFT CTRL ALT A C = _SWSSNAPSHOT_OPEN 4005
+--To check all possible keys and key_codes check Functions/General Functions at the KeyCodeList function. Try to put keys names as in the function. All in Uppper case.  
+
+--Script: Edit Multikey Shortcut.lua
+main: A A A  = _RS806f0627d49b5fce8d63d0299e9910fc4f24ce48
+--Add a track
+main: a b c  = 40001
