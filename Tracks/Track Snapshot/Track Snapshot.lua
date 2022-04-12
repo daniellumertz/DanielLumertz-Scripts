@@ -1,4 +1,4 @@
--- @version 1.4
+-- @version 1.4.1
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -13,17 +13,12 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Save and Recall Send/Receives
---    + New Save and Recall system will only work with 1.4v+ Snapshots. But still can load Snapshot taken in earlier versions
---    + request JS SWS and ImGUI at the start
---    + Remove Track Versions beta warning. Haven't found bugs so far
---    + Remove Shift click in Create New Track for track missing and substitute track with track selected. Always apply to all snapshot using that track
---    + Fix when saving a open a new project to reload track snapshot
+--    + Fix type Send Bug 
 
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4'
+ScriptVersion = '1.4.1'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

@@ -6,17 +6,18 @@ function SaveSend(i)
         local cnt_sends = reaper.GetTrackNumSends( track, 0 ) -- category is <0 for receives, 0=sends, >0 for hardware outputs
         if cnt_sends < 1 then goto continue end -- continue
         local send_idx = reaper.GetMediaTrackInfo_Value(track, 'IP_TRACKNUMBER') - 1
+        send_idx = tostring(math.floor(send_idx))
 
-        for send_i = 0, cnt_sends-1 do 
+        for send_i = 0, cnt_sends-1 do
             local dest_track = reaper.GetTrackSendInfo_Value( track, 0, send_i, 'P_DESTTRACK' )
             if not Snapshot[i].Sends[track][dest_track] then
                 Snapshot[i].Sends[track][dest_track] = {} -- May have more than one send between two tracks so need to be a table
             else
                 goto continue2
             end
-            
+
             local retval, chunk = reaper.GetTrackStateChunk(dest_track, '', false)
-            --print(#Snapshot[i].Sends[track][dest_track])
+
             for chunk_line in string.gmatch(chunk,'AUXRECV '..send_idx..' '..'.-\n') do
                 table.insert(Snapshot[i].Sends[track][dest_track],chunk_line)
             end
@@ -41,6 +42,7 @@ function RemakeSends(i, track, new_track)
 
     if Snapshot[i].Sends[track] then
         local send_idx = reaper.GetMediaTrackInfo_Value(track_change, 'IP_TRACKNUMBER') - 1
+        send_idx = tostring(math.floor(send_idx))
         for dest_track, t2 in pairs(Snapshot[i].Sends[track])do
             if not reaper.ValidatePtr2(0, dest_track, 'MediaTrack*') then goto continue end
 
@@ -113,6 +115,7 @@ function RemakeReceive(i, track, new_track)
         for source_track, t2 in pairs(Snapshot[i].Receives[track])do
             if not reaper.ValidatePtr2(0, source_track, 'MediaTrack*') then goto continue end
             local send_idx = reaper.GetMediaTrackInfo_Value(source_track, 'IP_TRACKNUMBER') - 1
+            send_idx = tostring(math.floor(send_idx))
 
             --Create Sends
             for k, chunk_line in pairs(Snapshot[i].Receives[track][source_track])do
