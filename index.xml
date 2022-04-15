@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="61b54dce6bdddaddbad0aab12ff62c262930bbad">
+<index version="1" name="Daniel Lumertz Scripts" commit="ae553f1f38e17b126e026444d40b5baae7150442">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -82,40 +82,6 @@
         <source file="preset.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5ba9322721312d0b3b60781aa7b1bfa61888956c/Items/Clipboard/preset.lua</source>
         <source file="Serialize Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5ba9322721312d0b3b60781aa7b1bfa61888956c/Items/Clipboard/Serialize%20Table.lua</source>
         <source main="main" file="Clipboard Copy.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5ba9322721312d0b3b60781aa7b1bfa61888956c/Items/Clipboard/Clipboard%20Copy.lua</source>
-      </version>
-    </reapack>
-  </category>
-  <category name="Items/Item Sampler">
-    <reapack name="Item Sampler MIDI.lua" type="script">
-      <version name="1.0" author="Daniel Lumertz" time="2022-02-09T19:55:54Z">
-        <changelog><![CDATA[+ Initial Release]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0cfb7791f7402184fcba01718ea6d91b6eb8d1d1/Items/Item%20Sampler/Item%20Sampler%20MIDI.lua</source>
-      </version>
-      <version name="1.1" author="Daniel Lumertz" time="2022-02-19T17:50:06Z">
-        <changelog><![CDATA[+ Add Presets
-+ Change Default settings]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7982e4c2e98b737a57877d58bfc02932d3f3d245/Items/Item%20Sampler/Item%20Sampler%20MIDI.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7982e4c2e98b737a57877d58bfc02932d3f3d245/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7982e4c2e98b737a57877d58bfc02932d3f3d245/Items/Item%20Sampler/presets.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7982e4c2e98b737a57877d58bfc02932d3f3d245/Items/Item%20Sampler/utils/json.lua</source>
-      </version>
-      <version name="1.1.1" author="Daniel Lumertz" time="2022-02-19T17:56:55Z">
-        <changelog><![CDATA[+ Add Presets
-+ Change Default settings
-+ Change V number on GUI]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/Item%20Sampler%20MIDI.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/presets.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b94fe776669815186900e6cbc207adb2543dfd5b/Items/Item%20Sampler/utils/json.lua</source>
-      </version>
-      <version name="1.1.2" author="Daniel Lumertz" time="2022-02-19T18:06:05Z">
-        <changelog><![CDATA[+ Add Presets
-+ Change Default settings
-+ Change V number on GUI]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/Item%20Sampler%20MIDI.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/presets.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/50136008235538b61abf106e2e78d550a8f62c00/Items/Item%20Sampler/utils/json.lua</source>
       </version>
     </reapack>
   </category>
