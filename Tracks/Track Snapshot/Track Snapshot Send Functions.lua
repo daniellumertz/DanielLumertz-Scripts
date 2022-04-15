@@ -49,7 +49,7 @@ function RemakeSends(i, track, new_track)
             local retval, chunk = reaper.GetTrackStateChunk(dest_track, '', false)
             --Create Sends
             for k, chunk_line in pairs(Snapshot[i].Sends[track][dest_track])do
-                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d', 'AUXRECV '..send_idx) -- Change track IDX
+                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
                 chunk = AddSectionToChunk(chunk, chunk_line)
             end
             reaper.SetTrackStateChunk(dest_track, chunk, false)
@@ -119,7 +119,7 @@ function RemakeReceive(i, track, new_track)
 
             --Create Sends
             for k, chunk_line in pairs(Snapshot[i].Receives[track][source_track])do
-                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d', 'AUXRECV '..send_idx) -- Change track IDX
+                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
                 chunk = AddSectionToChunk(chunk, chunk_line)
             end
             ::continue::

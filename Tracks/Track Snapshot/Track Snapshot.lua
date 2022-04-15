@@ -1,4 +1,4 @@
--- @version 1.4.1
+-- @version 1.4.2
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -13,12 +13,12 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Fix type Send Bug 
+--    + Fix send %d to %d+ bugs
 
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.1'
+ScriptVersion = '1.4.2'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
