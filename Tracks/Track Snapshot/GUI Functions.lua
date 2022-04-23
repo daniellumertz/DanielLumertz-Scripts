@@ -189,9 +189,9 @@ function SnapshotRightClickPopUp(i)
                     reaper.ImGui_Separator(ctx)
 
                     if reaper.ImGui_MenuItem(ctx, 'Remove Track From Snapshot') then
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then
+                        if not reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift())then
                             RemoveTrackFromSnapshot(i, track)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
+                        elseif reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then
                             RemoveTrackFromSnapshotAll(track)
                         end
                     end
@@ -229,9 +229,9 @@ function SnapshotRightClickPopUp(i)
 
 
                     if reaper.ImGui_MenuItem(ctx, 'Remove Track From Snapshot') then
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then
+                        if not reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then
                             RemoveTrackFromSnapshot(i, track)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
+                        elseif reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then
                             RemoveTrackFromSnapshotAll(track)
                         end
                     end
@@ -385,8 +385,8 @@ function PassThorughOld() -- Actions to pass keys though GUI to REAPER. Find a b
         reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
     end
 
-    local ctrl = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 1
-    local shift = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2
+    local ctrl = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl())
+    local shift = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift())
 
     if ctrl and shift then 
         if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
@@ -421,9 +421,9 @@ function PassThorugh() -- Might be a little tough on resource
 
     -- mods
     local mods = reaper.ImGui_GetKeyMods(ctx)
-    if (mods & reaper.ImGui_KeyModFlags_Ctrl()) ~= 0 then active_keys[#active_keys+1] = 17 end -- ctrl
-    if (mods & reaper.ImGui_KeyModFlags_Shift()) ~= 0 then active_keys[#active_keys+1] = 16 end -- Shift
-    if (mods & reaper.ImGui_KeyModFlags_Alt()) ~= 0 then active_keys[#active_keys+1] = 18 end -- Alt (NOT WORKING)
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then active_keys[#active_keys+1] = 17 end -- ctrl
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then active_keys[#active_keys+1] = 16 end -- Shift
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModAlt()) then active_keys[#active_keys+1] = 18 end -- Alt (NOT WORKING)
 
 
     --Send Message

@@ -1,4 +1,4 @@
--- @version 1.3
+-- @version 1.3.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -8,10 +8,7 @@
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + Add Presets
---    + Change Default settings
---    + Change V number on GUI
---    + Pass Keys
+--    + Update to the new imgui system
 
 
 
@@ -436,8 +433,6 @@ function loop()
     local gui_w , gui_h = reaper.ImGui_GetContentRegionAvail(ctx)
     local gui_x, gui_y = reaper.ImGui_GetWindowPos(ctx)
 
-    --local ctrl = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 1
-    --local shift = (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2
 
     --- GUI HERE
 

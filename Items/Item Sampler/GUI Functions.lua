@@ -14,13 +14,13 @@ function PassThorugh() -- Might be a little tough on resource. Also set Ctrl Shi
     
     -- mods
     local mods = reaper.ImGui_GetKeyMods(ctx)
-    if (mods & reaper.ImGui_KeyModFlags_Ctrl()) ~= 0 then 
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then 
         active_keys[#active_keys+1] = 17 
     end -- ctrl
-    if (mods & reaper.ImGui_KeyModFlags_Shift()) ~= 0 then
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then
         active_keys[#active_keys+1] = 16 
     end -- Shift
-    if (mods & reaper.ImGui_KeyModFlags_Alt()) ~= 0 then
+    if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModAlt()) then
         active_keys[#active_keys+1] = 18
     end -- Alt
 
@@ -46,9 +46,9 @@ end
 function GetModKeys()
     -- mods
     local mods = reaper.ImGui_GetKeyMods(ctx)
-    Ctrl =  (mods & reaper.ImGui_KeyModFlags_Ctrl()) ~= 0
-    Shift = (mods & reaper.ImGui_KeyModFlags_Shift()) ~= 0
-    Alt =  (mods & reaper.ImGui_KeyModFlags_Alt()) ~= 0
+    Ctrl =  reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl())
+    Shift = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift())
+    Alt =   reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModAlt())
     return Ctrl, Shift, Alt
 end
 

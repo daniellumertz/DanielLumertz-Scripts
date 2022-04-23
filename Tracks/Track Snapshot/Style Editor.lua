@@ -190,7 +190,7 @@ function ShowStyleEditorBody()
       export('Col', 'StyleColor', StyleEditor_app.style_editor.style.colors, StyleEditor_app.style_editor.ref.colors,
         function(a, b) return a == b end, function(val) return ('0x%08X'):format(val & 0xffffffff) end)
     end
-    r.ImGui_SameLine(ctx); r.ImGui_SetNextItemWidth(ctx, 120); rv,StyleEditor_app.style_editor.output_dest = r.ImGui_Combo(ctx, '##output_type', StyleEditor_app.style_editor.output_dest, 'To Clipboard\31To TTY\31')
+    r.ImGui_SameLine(ctx); r.ImGui_SetNextItemWidth(ctx, 120); rv,StyleEditor_app.style_editor.output_dest = r.ImGui_Combo(ctx, '##output_type', StyleEditor_app.style_editor.output_dest, 'To Clipboard\0To TTY\0')
     r.ImGui_SameLine(ctx); rv,StyleEditor_app.style_editor.output_only_modified = r.ImGui_Checkbox(ctx, 'Only Modified', StyleEditor_app.style_editor.output_only_modified)
   
     r.ImGui_Separator(ctx)

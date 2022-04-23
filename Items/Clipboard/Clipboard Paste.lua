@@ -1,4 +1,4 @@
--- @version 1.1.2
+-- @version 1.1.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -9,7 +9,7 @@
 --    [main] Clipboard Copy.lua
 
 -- @changelog
---    + Correct GUID functions
+--    + Update to the new Imgui System
 
 local name = 'Clipboard '
 local version = '1.1.2'
@@ -53,7 +53,7 @@ function loop()
             reaper.ImGui_PushID(ctx, k)
             if ColorList[k] then reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  ColorList[k]) end
             if reaper.ImGui_Button(ctx, NamesList[k], -1) then
-                if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Ctrl()) == 0 then -- is ctrl down? 
+                if not reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then -- is ctrl down? 
                     if Configs.AutoPaste == true then
                         PasteList(items)
                         if Configs.AutoExit == true then open = false end

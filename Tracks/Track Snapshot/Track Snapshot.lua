@@ -1,4 +1,4 @@
--- @version 1.4.2
+-- @version 1.4.3
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -13,7 +13,7 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Fix send %d to %d+ bugs
+--    + Update to the new Imgui System
 
 
 
@@ -119,10 +119,10 @@ function loop()
                     local selected = (Configs.Select or Configs.VersionMode) and Snapshot[i].Selected -- If Configs.Select  or Configs.VersionMode is false then false. If one is true then Snaphot[i].Selected
                     local click = reaper.ImGui_Selectable(ctx, Snapshot[i].Name..'###'..i, selected) 
                     if click then
-                        if (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 0 then 
+                        if not reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then 
                         -- Load Chunk in tracks
                             SetSnapshot(i)
-                        elseif (reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_KeyModFlags_Shift()) == 2 then
+                        elseif reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then
                             SetSnapshotInNewTracks(i)
                         end
                     end
