@@ -1,4 +1,4 @@
--- @version 1.4.3
+-- @version 1.4.4
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -18,7 +18,7 @@
 
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.2'
+ScriptVersion = '1.4.4'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

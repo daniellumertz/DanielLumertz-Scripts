@@ -1,4 +1,4 @@
--- @version 1.3.1
+-- @version 1.3.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -11,12 +11,11 @@
 --    + Update to the new imgui system
 
 
-
 --TODOs
 -- Update header require
 
 
-local version = '1.3'
+local version = '1.3.2'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 

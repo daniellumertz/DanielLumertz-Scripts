@@ -1,4 +1,4 @@
--- @version 1.1.3
+-- @version 1.1.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] utils/*.lua
@@ -12,7 +12,7 @@
 --    + Update to the new Imgui System
 
 local name = 'Clipboard '
-local version = '1.1.2'
+local version = '1.1.4'
 
 -- Configs
 
