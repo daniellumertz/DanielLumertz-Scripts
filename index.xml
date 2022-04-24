@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5">
+<index version="1" name="Daniel Lumertz Scripts" commit="e9869a1fdbb0cf31328ea172c7663d3724493384">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -16,6 +16,11 @@
         <changelog><![CDATA[+ Add Option to keep track colors]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b5e06d85da0428fbf053bd4c008ffdee00b873f4/Embass%20Razor%20Edit%20Comp%20GUI/Comp%20Razor%20Edit%20Embass.lua</source>
         <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b5e06d85da0428fbf053bd4c008ffdee00b873f4/Embass%20Razor%20Edit%20Comp%20GUI/General%20Functions.lua</source>
+      </version>
+      <version name="1.4.1" author="Embass, Daniel Lumertz" time="2022-04-24T00:17:51Z">
+        <changelog><![CDATA[+ Add Option to keep track colors]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/e9869a1fdbb0cf31328ea172c7663d3724493384/Embass%20Razor%20Edit%20Comp%20GUI/Comp%20Razor%20Edit%20Embass.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/e9869a1fdbb0cf31328ea172c7663d3724493384/Embass%20Razor%20Edit%20Comp%20GUI/General%20Functions.lua</source>
       </version>
     </reapack>
   </category>
