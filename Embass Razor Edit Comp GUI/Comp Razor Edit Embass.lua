@@ -1,4 +1,4 @@
--- @version 1.4
+-- @version 1.4.1
 -- @author Embass, Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -9,8 +9,8 @@
 --Script info
 ----------------------
 
-script_version = "1.4"
----
+script_version = "1.4.1"
+
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 --- Loading
