@@ -1,4 +1,4 @@
--- @version 1.1.3
+-- @version 1.1.5
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua
@@ -6,6 +6,7 @@
 --    [main] Test with Luasocket functions.lua
 --    [nomain] socket module/socket/core.dll
 --    [nomain] socket module/socket/core.so
+--    [nomain] socket module/socket/core.so.linux
 --    [nomain] socket module/*.lua
 -- @changelog
 --    + Initial Release
