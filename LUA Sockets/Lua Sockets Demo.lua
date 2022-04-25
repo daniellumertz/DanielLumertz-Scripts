@@ -6,7 +6,6 @@
 --    [main] Test with Luasocket functions.lua
 --    [nomain] socket module/socket/core.dll
 --    [nomain] socket module/socket/core.so
---    [nomain] socket module/socket/core.so.linux > socket/core.so
 --    [nomain] socket module/*.lua
 -- @changelog
 --    + Initial Release
