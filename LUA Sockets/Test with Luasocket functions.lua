@@ -1,3 +1,4 @@
+-- @noindex
 -- Test Using Other .lua Sockets functions like url.lua
 -- If you wont use the others .lua functions you can remove it!
 -- HTTP is not working it seems to require another module for HTTPS: luasec

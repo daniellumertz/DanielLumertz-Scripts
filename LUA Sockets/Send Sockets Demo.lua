@@ -1,4 +1,4 @@
-
+-- @noindex
 function print(val)
   reaper.ShowConsoleMsg(tostring(val)..'\n')
 end
