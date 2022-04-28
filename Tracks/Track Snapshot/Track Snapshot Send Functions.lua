@@ -17,9 +17,8 @@ function SaveSend(i)
             end
 
             local retval, chunk = reaper.GetTrackStateChunk(dest_track, '', false)
-
-            for chunk_line in string.gmatch(chunk,'AUXRECV '..send_idx..' '..'.-\n') do
-                table.insert(Snapshot[i].Sends[track][dest_track],chunk_line)
+            for k,send_chunk in pairs(GetSendChunk(chunk, send_idx)) do -- I need to insert all Send Envelope Together here
+                table.insert(Snapshot[i].Sends[track][dest_track],send_chunk)
             end
             ::continue2::
         end
@@ -48,36 +47,15 @@ function RemakeSends(i, track, new_track)
 
             local retval, chunk = reaper.GetTrackStateChunk(dest_track, '', false)
             --Create Sends
-            for k, chunk_line in pairs(Snapshot[i].Sends[track][dest_track])do
-                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
-                chunk = AddSectionToChunk(chunk, chunk_line)
+            for k, send_chunk in pairs(Snapshot[i].Sends[track][dest_track])do
+                local send_chunk = string.gsub(send_chunk, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
+                chunk = AddSectionToChunk(chunk, send_chunk)
             end
             reaper.SetTrackStateChunk(dest_track, chunk, false)
             ::continue::
         end
     end
 end
---
---[[ function RemakeSendsInOtherTrack(i, track, new_track) -- Remove if not used
-    if not reaper.ValidatePtr2(0, new_track, 'MediaTrack*') then return end
-    if not Snapshot[i].Sends then return end
-
-    if Snapshot[i].Sends[track] then
-        local send_idx = reaper.GetMediaTrackInfo_Value(new_track, 'IP_TRACKNUMBER') - 1
-        for dest_track, t2 in pairs(Snapshot[i].Sends[track])do
-            if not reaper.ValidatePtr2(0, dest_track, 'MediaTrack*') then goto continue end
-
-            local retval, chunk = reaper.GetTrackStateChunk(dest_track, '', false)
-            --Create Sends
-            for k, chunk_line in pairs(Snapshot[i].Sends[track][dest_track])do
-                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d', 'AUXRECV '..send_idx) -- Change track IDX
-                chunk = AddSectionToChunk(chunk, chunk_line)
-            end
-            reaper.SetTrackStateChunk(dest_track, chunk, false)
-            ::continue::
-        end
-    end
-end ]]
 
 --- Receives
 function SaveReceive(i)
@@ -86,13 +64,13 @@ function SaveReceive(i)
         Snapshot[i].Receives[track] = {}
 
         local retval, chunk = reaper.GetTrackStateChunk(track, '', false)
-        for chunk_line in string.gmatch(chunk,'AUXRECV .-\n') do
-            local track_idx = string.match(chunk_line,'AUXRECV '.."(%d+)")
+        for k, send_chunk in pairs(GetSendChunk(chunk, send_idx)) do
+            local track_idx = string.match(send_chunk,'AUXRECV '.."(%d+)")
             local source_track = reaper.GetTrack(0, track_idx)
             if not Snapshot[i].Receives[track][source_track] then
                 Snapshot[i].Receives[track][source_track] = {}
             end
-            table.insert(Snapshot[i].Receives[track][source_track],chunk_line)
+            table.insert(Snapshot[i].Receives[track][source_track],send_chunk)
         end
     end
 end
@@ -118,9 +96,9 @@ function RemakeReceive(i, track, new_track)
             send_idx = tostring(math.floor(send_idx))
 
             --Create Sends
-            for k, chunk_line in pairs(Snapshot[i].Receives[track][source_track])do
-                local chunk_line = string.gsub(chunk_line, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
-                chunk = AddSectionToChunk(chunk, chunk_line)
+            for k, send_chunk in pairs(Snapshot[i].Receives[track][source_track])do
+                local send_chunk = string.gsub(send_chunk, 'AUXRECV %d+', 'AUXRECV '..send_idx) -- Change track IDX
+                chunk = AddSectionToChunk(chunk, send_chunk)
             end
             ::continue::
         end

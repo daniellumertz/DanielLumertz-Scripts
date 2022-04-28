@@ -224,6 +224,17 @@ function open_url(url)
     end
 end
 
+function match_n(string, pattern, n)
+    local i = 0
+    local last_value
+    for match in string.gmatch(string, pattern) do
+        if i == n then return match end
+        last_value = match
+        i = i + 1
+    end
+    return last_value or false
+end
+
 function GetKeycode(char)
     local char = string.upper(char)
     local Keycode = KeyCodeList()

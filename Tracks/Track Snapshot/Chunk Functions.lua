@@ -188,3 +188,28 @@ function AddSectionToChunkAfterKey(after_key, new_chunk, new_section) -- If afte
 
     return table.concat(tab_chunk,'\n')
 end
+
+function GetSendChunk(chunk, send_idx) -- send_idx can be nil to get all send chunks
+    if not send_idx then 
+        send_idx = ''
+    end
+
+    local chunk_table = {}
+    local i = 0
+    for send_chunk in string.gmatch(chunk,'AUXRECV '..send_idx..'.-\n') do
+        while true do
+            --local next_line = string.match(chunk,literalize(send_chunk)..'(.-\n)')
+            print(send_chunk)
+            local next_line = match_n(chunk, literalize(send_chunk)..'(.-\n)', i)
+            if string.match(next_line,'<AUX') then
+                --send_chunk = string.match(chunk, literalize(send_chunk)..literalize(next_line)..'.-\n>\n')
+                send_chunk = match_n(chunk, literalize(send_chunk)..literalize(next_line)..'.-\n>\n', i)
+            else 
+                break
+            end
+        end
+        table.insert(chunk_table, send_chunk)
+        i = i + 1
+    end
+    return chunk_table
+end

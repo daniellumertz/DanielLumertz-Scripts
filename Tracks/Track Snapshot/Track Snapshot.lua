@@ -1,4 +1,4 @@
--- @version 1.4.4
+-- @version 1.4.5
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -13,12 +13,12 @@
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
 -- @changelog
---    + Update to the new Imgui System
+--    + Add Send Envelopes to Snapshots
 
-
+--dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.4'
+ScriptVersion = '1.4.5'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
