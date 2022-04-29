@@ -171,6 +171,16 @@
             end
         end
 
+        mnu_file.program = function ()  --
+            if GUI.elms.Bar.menus[1].options[7][1] == '!'..gui_opts_menu[5]  then 
+                GUI.elms.Bar.menus[1].options[7][1] = gui_opts_menu[5] 
+                map[GUI.Val('Font_box')].impProgram = 0 
+            else
+                GUI.elms.Bar.menus[1].options[7][1] = '!'..gui_opts_menu[5] 
+                map[GUI.Val('Font_box')].impProgram = 1
+            end
+        end
+
         mnu_file.reset = function()
             if defer ~= true then 
                 map = {} 
@@ -204,7 +214,7 @@
             open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
         end
     --
-    gui_opts_menu = {'Delete Outside Track' , 'Auto Delete Odds on Choosen Tracks', '<Auto Delete Odds on Project', 'Transfer CC'}
+    gui_opts_menu = {'Delete Outside Track' , 'Auto Delete Odds on Choosen Tracks', '<Auto Delete Odds on Project', 'Transfer CC', 'Transfer Program Change'}
     -- You can add more Options In the Options tab just add at the end not at  the start please! 
     GUI.New('Bar','Menubar',{
         z = 1,
@@ -221,6 +231,7 @@
                     {gui_opts_menu[3], mnu_file.odd_proj},
                     --{'<', mnu_file.keep_running  }, -- In case you find some bug remove < on gui_opts_menu and add that line.
                 {gui_opts_menu[4],  mnu_file.cc },
+                {gui_opts_menu[5],  mnu_file.program },
                 {"Reset",mnu_file.reset}
 
                 }},
@@ -299,6 +310,7 @@
 
     --Amagalma Mods:
     function GUI.TextEditor:drawtext()
+        
         GUI.font(self.font_b)
         local digits = #tostring(#self.retval)
         self.digits = digits > 2 and digits or 2

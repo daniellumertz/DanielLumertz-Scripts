@@ -13,7 +13,8 @@ function CreateMap()
     defaultab.auto_delete_odd = 0 -- Delete Odds Items On the same tracks it is using
     defaultab.auto_delete_odds_project = 1 -- Delete Odd Items in every track
 
-    defaultab.impCC  = 1
+    defaultab.impCC  = 1 -- Delete CC
+    defaultab.impProgram  = 1 -- delete Program changes / bank
     return defaultab
 end
 ------------------------------
@@ -291,8 +292,8 @@ function UpdateConfig(i,info, btn_name) --For Updating GUI based on map[i]
 end
 
 function UpdateMenuConfig(y)
-    local options = {'delete_outside_track' ,'auto_delete_odd' , 'auto_delete_odds_project' , 'impCC'}
-    local menu_num = {2                     ,4                 ,5                           , 6      }
+    local options = {'delete_outside_track' ,'auto_delete_odd' , 'auto_delete_odds_project' , 'impCC', 'impProgram'}
+    local menu_num = {2                     ,4                 ,5                           , 6      , 7 }
     for i = 1, #options do
         local val = map[y][options[i]]
         if val == 1 then 

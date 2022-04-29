@@ -180,10 +180,44 @@ function TrimEnd(item, amount, pos, is_pos)
     reaper.SetMediaItemInfo_Value( item, 'D_LENGTH' , len-amount )
 end
 
-function bfut_ResetAllChunkGuids(item_chunk, key) -- (I changed a little but it is from here: https://github.com/bfut/ReaScripts/blob/main/Items%20Editing/bfut_Replace%20item%20under%20mouse%20cursor%20with%20selected%20item.lua
-    item_chunk = item_chunk:gsub('%s('..key..')%s+.-[\r]-[%\n]', "\ntemp%1 "..reaper.genGuid("").."\n", 1)
+function bfut_ResetAllChunkGuids(item_chunk, key)
+    while item_chunk:match('%s('..key..')') do
+        item_chunk = item_chunk:gsub('%s('..key..')%s+.-[\r]-[%\n]', "\ntemp%1 "..reaper.genGuid("").."\n", 1)
+    end
     return item_chunk:gsub('temp'..key, key), true
 end
+
+function SubMagicChar(string)
+    local string = string.gsub(string, '[%[%]%(%)%+%-%*%?%^%$%%]', '%%%1')
+    return string
+end
+  
+function ResetChunkIndentifier(chunk, key)
+    for line in chunk:gmatch( '(.-)\n+') do
+        if line:match(key) then
+            local new_line = line:gsub(key.."%s+{.+}",key..' '..reaper.genGuid(""))
+            line = SubMagicChar(line)
+            chunk=string.gsub(chunk,line,new_line)
+        end
+    end
+    return chunk
+end
+
+
+function ResetAllIndentifiers(chunk) -- Tested in Tracks. 
+    -- Track
+    chunk = ResetChunkIndentifier(chunk, 'TRACKID')
+    chunk = ResetChunkIndentifier(chunk, 'FXID')
+    -- Items
+    chunk = ResetChunkIndentifier(chunk, 'GUID')
+    chunk = ResetChunkIndentifier(chunk, 'IGUID')
+    chunk = ResetChunkIndentifier(chunk, 'POOLEDEVTS')
+    -- Envelopes
+    chunk = ResetChunkIndentifier(chunk, 'EGUID')
+    return chunk
+end
+
+
 
 function Match(string, pattern)
     if string.find(string,pattern..'$') then return true else return false end

@@ -1,4 +1,4 @@
--- @version 1.32.2
+-- @version 1.33
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,11 +10,11 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Add Video button
---    + Saves MIDI Transfer changes when you close, set a source item or change the tracks.
+--    + Support new Track Lanes
+--    + Transfer Program Change Option
 
 
-script_version = "1.32.2"
+script_version = "1.33"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

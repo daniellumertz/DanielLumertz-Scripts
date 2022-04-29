@@ -43,6 +43,10 @@ function DeleteOld(track, name, ch, y)
                         list[num_list].D_FADEOUTDIR   = reaper.GetMediaItemInfo_Value(item_loop, "D_FADEOUTDIR") 
                         list[num_list].B_UISEL  = reaper.GetMediaItemInfo_Value(item_loop, "B_UISEL") 
                         list[num_list].I_GROUPID  = reaper.GetMediaItemInfo_Value(item_loop, "I_GROUPID") 
+                        list[num_list].I_LASTY  = reaper.GetMediaItemInfo_Value(item_loop, "I_LASTY") 
+                        list[num_list].I_LASTH  = reaper.GetMediaItemInfo_Value(item_loop, "I_LASTH") 
+                        list[num_list].F_FREEMODE_Y  = reaper.GetMediaItemInfo_Value(item_loop, "F_FREEMODE_Y") 
+                        list[num_list].F_FREEMODE_H  = reaper.GetMediaItemInfo_Value(item_loop, "F_FREEMODE_H") 
                         list[num_list].IS_POOLID, list[num_list].POOLID = reaper.BR_GetMidiTakePoolGUID( item_loop_take )
                         if map[y].pref_keep_cuts == 1 then 
                             list[num_list][0] = item_start
@@ -74,6 +78,7 @@ end
 
 function CopyMIDI(item, track)-- Copy an Item to Track
         local retval, chunk = reaper.GetItemStateChunk( item, "", false )
+        --local chunk = ResetAllIndentifiers(chunk)
         local chunk = bfut_ResetAllChunkGuids(chunk, "IGUID")
         local chunk = bfut_ResetAllChunkGuids(chunk, "GUID")
         --local chunk = bfut_ResetAllChunkGuids(chunk, "POOLEDEVTS")
@@ -114,6 +119,7 @@ function CopyMediaItem(y, track, ch, first_new , last_new, n_tracks_imported ) -
 
     --Delete CC/Texts/PC options 
     if map[y].impCC == 0 then DeleteCC(new_take) end
+    if map[y].impProgram == 0 then DeleteProgramChange(new_take) end
 
     ---Reset Track Propieties ( and cut if keepcuts == 1)
     if map[y].color_item == 1 then 
@@ -188,7 +194,7 @@ function SoloChannel(take, ch)
     end
 end 
 
-function DeleteCC(take, ch) 
+function DeleteCC(take) 
     local retval, MIDIstring = reaper.MIDI_GetAllEvts(take, "") 
     local MIDIlen = MIDIstring:len()
     local tableEvents = {}
@@ -198,6 +204,23 @@ function DeleteCC(take, ch)
         offset, flags, ms, stringPos = string.unpack("i4Bs4", MIDIstring, stringPos) -- Unpack the MIDI[stringPos] event 
         --pos=pos+offset -- For keeping track of the Postion of the notes in Ticks
         if ms:len() == 3 and ms:byte(1)>>4 == 11 and ms:byte(2) <= 120 then -- if ms:len == 3 means it have 3 messages(Notes, CC,Poly Aftertouch, Pitchbend ) ms:byte(1)>>4 == 11 see if the 4 first digits are 1011 (CC)
+            ms=""
+        end 
+        table.insert(tableEvents, string.pack("i4Bs4", offset, flags, ms))
+    end 
+    reaper.MIDI_SetAllEvts(take, table.concat(tableEvents)) 
+end 
+
+function DeleteProgramChange(take) 
+    local retval, MIDIstring = reaper.MIDI_GetAllEvts(take, "") 
+    local MIDIlen = MIDIstring:len()
+    local tableEvents = {}
+    local stringPos = 1
+    --local pos=0 
+    while stringPos < MIDIlen do 
+        offset, flags, ms, stringPos = string.unpack("i4Bs4", MIDIstring, stringPos) -- Unpack the MIDI[stringPos] event 
+        --pos=pos+offset -- For keeping track of the Postion of the notes in Ticks
+        if ms:len() == 2 and ms:byte(1)>>4 == 12 then -- if ms:len == 3 means it have 3 messages(Notes, CC,Poly Aftertouch, Pitchbend ) ms:byte(1)>>4 == 11 see if the 4 first digits are 1011 (CC)
             ms=""
         end 
         table.insert(tableEvents, string.pack("i4Bs4", offset, flags, ms))
