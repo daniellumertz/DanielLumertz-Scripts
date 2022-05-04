@@ -48,6 +48,9 @@ function DeleteOld(track, name, ch, y)
                         list[num_list].F_FREEMODE_Y  = reaper.GetMediaItemInfo_Value(item_loop, "F_FREEMODE_Y") 
                         list[num_list].F_FREEMODE_H  = reaper.GetMediaItemInfo_Value(item_loop, "F_FREEMODE_H") 
                         list[num_list].IS_POOLID, list[num_list].POOLID = reaper.BR_GetMidiTakePoolGUID( item_loop_take )
+                        if map[y].color_item == 0 then 
+                            list[num_list].I_CUSTOMCOLOR = reaper.GetMediaItemInfo_Value(item_loop, "I_CUSTOMCOLOR")
+                        end
                         if map[y].pref_keep_cuts == 1 then 
                             list[num_list][0] = item_start
                             list[num_list][1] = item_len
@@ -82,8 +85,17 @@ function CopyMIDI(item, track)-- Copy an Item to Track
         local chunk = bfut_ResetAllChunkGuids(chunk, "IGUID")
         local chunk = bfut_ResetAllChunkGuids(chunk, "GUID")
         --local chunk = bfut_ResetAllChunkGuids(chunk, "POOLEDEVTS")
-        local new_item = reaper.CreateNewMIDIItemInProj( track, 3, 0.1 )
-        reaper.SetItemStateChunk( new_item, chunk, false )
+
+        local on, new_item
+        while not on do -- REAPER needs some time to set item chunk with MIDI source here I ensure it set before continue
+            new_item = reaper.CreateNewMIDIItemInProj( track, 3, 0.1 )
+            reaper.SetItemStateChunk( new_item, chunk, false )
+
+            local take = reaper.GetActiveTake( new_item )
+            local src = reaper.GetMediaItemTake_Source( take )
+            on = reaper.CF_GetMediaSourceOnline( src )
+            if not on then DeleteItemsList({new_item}) end
+        end
             
         local items_list = SaveSelectedItems()
     
@@ -321,6 +333,7 @@ function DeleteOddAllTracks(y)
                 for i =  num_items-1, 0, -1  do 
                     local item_loop = reaper.GetTrackMediaItem( track_loop, i )
                     local item_loop_take = reaper.GetMediaItemTake( item_loop, 0 )
+                    if not item_loop_take then goto continue end
                     local _, item_loop_name = reaper.GetSetMediaItemTakeInfo_String( item_loop_take, 'P_NAME', "", false )
                     if Match(item_loop_name,"!MTr CH %d+ %- "..SubMagicChar(map[y].font_name)) == true then 
                         local ch_loop = string.match(item_loop_name, '%d+')
@@ -330,6 +343,7 @@ function DeleteOddAllTracks(y)
                             -- Do nothing This Item Is From the same Font, but 1) Should be there
                         end
                     end 
+                    ::continue::
                 end
             end           
         end

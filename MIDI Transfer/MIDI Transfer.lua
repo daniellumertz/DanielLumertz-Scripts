@@ -1,4 +1,4 @@
--- @version 1.33
+-- @version 1.34
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Table to string.lua
@@ -10,11 +10,12 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Support new Track Lanes
---    + Transfer Program Change Option
+--    + Fix bug trying to get items without takes
+--    + Fix bug with MIDI that requires more time to set the chunk
+--    + If Color Items == off then keep item colors
 
 
-script_version = "1.33"
+script_version = "1.34"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

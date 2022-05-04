@@ -1,5 +1,5 @@
 -- @noindex
-function Msg(val)
+function print(val)
     reaper.ShowConsoleMsg(tostring(val).."\n")
 end
 
@@ -111,7 +111,6 @@ function LoadSelectedItems(list)
     reaper.Main_OnCommand(40289, 0)--Item: Unselect all items
     if #list ~= 0 then 
         for i = 1, #list do 
-            print(list[i])
             reaper.SetMediaItemSelected( list[i], true )
         end 
     end
