@@ -199,7 +199,6 @@ function GetSendChunk(chunk, send_idx) -- send_idx can be nil to get all send ch
     for send_chunk in string.gmatch(chunk,'AUXRECV '..send_idx..'.-\n') do
         while true do
             --local next_line = string.match(chunk,literalize(send_chunk)..'(.-\n)')
-            print(send_chunk)
             local next_line = match_n(chunk, literalize(send_chunk)..'(.-\n)', i)
             if string.match(next_line,'<AUX') then
                 --send_chunk = string.match(chunk, literalize(send_chunk)..literalize(next_line)..'.-\n>\n')
