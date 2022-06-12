@@ -1,3 +1,4 @@
+-- @noindex
 function ReaShareErrorChunk()
     reaper.ShowMessageBox('This Is Not A Valid Chunk!', 'ReaShare', 0)    
 end
