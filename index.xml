@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="642f2fd895d3c5c7fd3613a29aa7e2f808e969b7">
+<index version="1" name="Daniel Lumertz Scripts" commit="0936dec3962cb3b694290f9dfc897c705abc81f0">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -465,6 +465,19 @@
         <source file="Classes/Class - Tabs.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/8e2a0365fb9c93612063434de53884702934d0fa/MIDI%20Transfer/Classes/Class%20-%20Tabs.lua</source>
         <source file="Classes/Class - TextEditor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/8e2a0365fb9c93612063434de53884702934d0fa/MIDI%20Transfer/Classes/Class%20-%20TextEditor.lua</source>
         <source file="Classes/Class - Textbox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/8e2a0365fb9c93612063434de53884702934d0fa/MIDI%20Transfer/Classes/Class%20-%20Textbox.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="MIDI/Copy Paste MIDI">
+    <reapack name="Copy Paste MIDI.lua" type="script">
+      <version name="0.1" author="Daniel Lumertz" time="2022-06-21T22:01:37Z">
+        <changelog><![CDATA[+ Release for beta test]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Copy%20Paste%20MIDI.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0936dec3962cb3b694290f9dfc897c705abc81f0/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
       </version>
     </reapack>
   </category>
