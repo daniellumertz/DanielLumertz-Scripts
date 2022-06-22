@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="0936dec3962cb3b694290f9dfc897c705abc81f0">
+<index version="1" name="Daniel Lumertz Scripts" commit="b1688c10d3cc4ebc1a62bed0a98eb4039237405c">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -109,39 +109,16 @@
     </reapack>
   </category>
   <category name="Items/Item Sampler">
-    <reapack name="Item  Sampler.lua" type="script">
-      <version name="1.3" author="Daniel Lumertz" time="2022-04-15T06:07:00Z">
-        <changelog><![CDATA[+ Add Presets
-+ Change Default settings
-+ Change V number on GUI
-+ Pass Keys]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/Item%20%20Sampler.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/presets.lua</source>
-        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/GUI%20Functions.lua</source>
-        <source file="groups.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/groups.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/utils/json.lua</source>
-        <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f4d9e5a4bc28c4a646db40ee810497319659b771/Items/Item%20Sampler/Item%20Simpler.lua</source>
-      </version>
-      <version name="1.3.1" author="Daniel Lumertz" time="2022-04-23T23:40:58Z">
+    <reapack name="Item Sampler.lua" type="script">
+      <version name="1.3.3" author="Daniel Lumertz" time="2022-06-22T03:44:35Z">
         <changelog><![CDATA[+ Update to the new imgui system]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/Item%20%20Sampler.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/presets.lua</source>
-        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/GUI%20Functions.lua</source>
-        <source file="groups.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/groups.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/utils/json.lua</source>
-        <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/64ab6ff0f1b1e9238ebacc2720ba3b893acc5bb5/Items/Item%20Sampler/Item%20Simpler.lua</source>
-      </version>
-      <version name="1.3.2" author="Daniel Lumertz" time="2022-04-24T00:24:19Z">
-        <changelog><![CDATA[+ Update to the new imgui system]]></changelog>
-        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/Item%20%20Sampler.lua</source>
-        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/General%20Functions.lua</source>
-        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/presets.lua</source>
-        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/GUI%20Functions.lua</source>
-        <source file="groups.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/groups.lua</source>
-        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/utils/json.lua</source>
-        <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/121936da4bb6007c69efa2d2362d0119fb753d8d/Items/Item%20Sampler/Item%20Simpler.lua</source>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/Item%20Sampler.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/General%20Functions.lua</source>
+        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/presets.lua</source>
+        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/GUI%20Functions.lua</source>
+        <source file="groups.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/groups.lua</source>
+        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/utils/json.lua</source>
+        <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dd573584fd3be1c6dbe00f0ad2056be202ffac22/Items/Item%20Sampler/Item%20Simpler.lua</source>
       </version>
     </reapack>
   </category>
@@ -486,6 +463,10 @@
       <version name="1.0" author="Daniel Lumertz" time="2021-07-09T23:00:50Z">
         <changelog><![CDATA[+ Initial Release]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/375f119babfe696d8203d5d384f08494bb5f9749/MIDI/Pitch%20Class%20Counter/Pitch%20Class%20Counter.lua</source>
+      </version>
+      <version name="1.0.1" author="Daniel Lumertz" time="2022-06-22T04:18:28Z">
+        <changelog><![CDATA[+ IMGUI update]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b1688c10d3cc4ebc1a62bed0a98eb4039237405c/MIDI/Pitch%20Class%20Counter/Pitch%20Class%20Counter.lua</source>
       </version>
     </reapack>
   </category>
