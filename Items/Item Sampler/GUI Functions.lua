@@ -376,7 +376,7 @@ function PushStyle()
 
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Text(),                  0xFFFFFFFF)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_TextDisabled(),          0x808080FF)
-    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x0F0F0FF0)
+    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ChildBg(),               0x00000000)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_PopupBg(),               0x141414F0)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Border(),                0x6E6E8080)
@@ -437,3 +437,5 @@ function PopStyle()
     reaper.ImGui_PopStyleColor(ctx, 55)
     
 end
+
+

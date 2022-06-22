@@ -1,4 +1,4 @@
--- @version 1.3.2
+-- @version 1.3.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -14,8 +14,7 @@
 --TODOs
 -- Update header require
 
-
-local version = '1.3.2'
+local version = '1.3.3'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -350,20 +349,25 @@ function Place_Sequence(is_random,sequence_reverse,isrand_sequence)
 end
 
 ------ Gui Func
+function HSV(h, s, v, a)
+    local r, g, b = reaper.ImGui_ColorConvertHSVtoRGB(h, s, v)
+    return reaper.ImGui_ColorConvertDouble4ToU32(r, g, b, a or 1.0)
+end
+
 function ChangeColor(H,S,V,A)
     reaper.ImGui_PushID(ctx, 3)
-    local button = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
-    local hover =  reaper.ImGui_ColorConvertHSVtoRGB( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = reaper.ImGui_ColorConvertHSVtoRGB( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local button = HSV( H, S, V, A)
+    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  button)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), hover)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  active)
 end
 
 function ChangeColorButton(H,S,V,A)
-    local button = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
-    local hover =  reaper.ImGui_ColorConvertHSVtoRGB( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = reaper.ImGui_ColorConvertHSVtoRGB( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local button = HSV( H, S, V, A)
+    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  button)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), hover)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  active)
@@ -389,8 +393,8 @@ function ResetStyleCount()
 end
 
 function ChangeColorTab(H,S,V,A)
-    local button = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
-    local act_hover =  reaper.ImGui_ColorConvertHSVtoRGB( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local button = HSV( H, S, V, A)
+    local act_hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Tab(),  button)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_TabHovered(), act_hover)
     reaper.ImGui_PushStyleColor(ctx,  reaper.ImGui_Col_TabActive(),  act_hover)
@@ -406,7 +410,8 @@ function GuiInit()
 end
 
 function loop()
-    CheckProjChange() 
+    CheckProjChange()
+
     PushStyle()
     if not PreventPassKeys2 then -- Passthrough keys
         PassThorugh()
@@ -431,7 +436,6 @@ function loop()
 
     local gui_w , gui_h = reaper.ImGui_GetContentRegionAvail(ctx)
     local gui_x, gui_y = reaper.ImGui_GetWindowPos(ctx)
-
 
     --- GUI HERE
 
@@ -706,7 +710,6 @@ function loop()
     end        
     reaper.ImGui_PopFont(ctx)
     PopStyle()
-        
     if open then
         reaper.defer(loop)
     else

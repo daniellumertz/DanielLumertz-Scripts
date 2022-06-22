@@ -1,7 +1,7 @@
 -- @noindex
 
 
-local version = '1.0'
+local version = '1.0.1'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
 
@@ -289,11 +289,16 @@ function Place_Sequence(is_random,sequence_reverse,isrand_sequence)
 end
 
 ------ Gui Func
+function HSV(h, s, v, a)
+    local r, g, b = reaper.ImGui_ColorConvertHSVtoRGB(h, s, v)
+    return reaper.ImGui_ColorConvertDouble4ToU32(r, g, b, a or 1.0)
+end
+
 function ChangeColor(H,S,V,A)
     reaper.ImGui_PushID(ctx, 3)
-    local button = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
-    local hover =  reaper.ImGui_ColorConvertHSVtoRGB( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = reaper.ImGui_ColorConvertHSVtoRGB( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local button = HSV( H, S, V, A)
+    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  button)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), hover)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  active)
@@ -321,6 +326,8 @@ function loop()
         PassThorugh()
     end
     Ctrl, Shift, Alt = GetModKeys()
+    print(Ctrl)
+    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
 
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
     reaper.ImGui_SetNextWindowSize(ctx, 270, 300, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
@@ -546,7 +553,8 @@ function loop()
         ----
         reaper.ImGui_End(ctx)
     end        
-    reaper.ImGui_PopFont(ctx)
+    reaper.ImGui_PopFont(ctx) 
+    reaper.ImGui_PopStyleColor(ctx) -- pop background
 
         
     if open then
