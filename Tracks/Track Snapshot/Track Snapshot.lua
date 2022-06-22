@@ -1,4 +1,4 @@
--- @version 1.4.6
+-- @version 1.4.7
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -18,7 +18,7 @@
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.6'
+ScriptVersion = '1.4.7'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

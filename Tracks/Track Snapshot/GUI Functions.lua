@@ -42,18 +42,23 @@ function ResetStyleCount()
     CounterStyle = 0
 end
 
+function HSV(h, s, v, a)
+    local r, g, b = reaper.ImGui_ColorConvertHSVtoRGB(h, s, v)
+    return reaper.ImGui_ColorConvertDouble4ToU32(r, g, b, a or 1.0)
+end
+
 function ChangeColor(H,S,V,A)
     reaper.ImGui_PushID(ctx, 3)
-    local button = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
-    local hover =  reaper.ImGui_ColorConvertHSVtoRGB( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = reaper.ImGui_ColorConvertHSVtoRGB( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local button = HSV( H, S, V, A)
+    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  button)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), hover)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  active)
 end
 
 function ChangeColorText(H,S,V,A)
-    local textcolor = reaper.ImGui_ColorConvertHSVtoRGB( H, S, V, A)
+    local textcolor = HSV( H, S, V, A)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Text(),  textcolor)
 end
 
