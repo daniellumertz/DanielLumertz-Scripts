@@ -3,7 +3,7 @@
 -- @provides
 --    [nomain] General Function.lua
 -- @changelog
---    + One unecessary line
+--    + First Release
 
 
 ----------------------
@@ -185,6 +185,7 @@ end
 ----------------------
 local ctx = reaper.ImGui_CreateContext('S.Organizer')
 
+--local ctx = reaper.ImGui_CreateContext('My script')
 local size = reaper.GetAppVersion():match('OSX') and 12 or 14
 local font = reaper.ImGui_CreateFont('sans-serif', size) -- Create the fonts you need
 reaper.ImGui_AttachFont(ctx, font)-- Attach the fonts you need
@@ -224,6 +225,8 @@ end
 function loop()
     -- Windowss Flags
     reaper.ImGui_PushFont(ctx, font)
+    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
+
     reaper.ImGui_SetNextWindowSize(ctx, 208, 225, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
 
     --Begin
@@ -250,7 +253,7 @@ function loop()
 
         reaper.ImGui_SameLine(ctx)
         reaper.ImGui_PushItemWidth( ctx,  -1) -- Set the input text size to match the window
-        rv, text = reaper.ImGui_InputText(ctx, '', number_sourcer,reaper.ImGui_InputTextFlags_ReadOnly())
+        rv, text = reaper.ImGui_InputText(ctx, '###', number_sourcer,reaper.ImGui_InputTextFlags_ReadOnly())
         ----------------- POSITION BUTTON
         if reaper.ImGui_Button(ctx, 'Position') then
             SetPos()
@@ -262,7 +265,7 @@ function loop()
             number_pos = NumPos() 
         end
         reaper.ImGui_SameLine(ctx)
-        rv, text = reaper.ImGui_InputText(ctx, '', number_pos,reaper.ImGui_InputTextFlags_ReadOnly())
+        rv, text = reaper.ImGui_InputText(ctx, '###2', number_pos,reaper.ImGui_InputTextFlags_ReadOnly())
         -------------- RADIO BUTTON
         if not val then val = 1 end
         rv, val = reaper.ImGui_RadioButtonEx(ctx, 'Category', val, 0); reaper.ImGui_SameLine(ctx)
@@ -282,6 +285,8 @@ function loop()
     end
     
     reaper.ImGui_PopFont(ctx) -- Always pop before ending
+    reaper.ImGui_PopStyleColor(ctx)
+
 
     -----------
     ---- Ending
