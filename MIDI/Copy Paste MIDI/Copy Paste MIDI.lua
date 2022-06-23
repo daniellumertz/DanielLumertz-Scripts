@@ -1,4 +1,4 @@
--- @version 0.2
+-- @version 0.2.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
@@ -13,7 +13,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.1'
+Version = '0.2.1'
 CopyList = {}
 
 --- Settings Change in the UI after 
