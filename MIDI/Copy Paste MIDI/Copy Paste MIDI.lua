@@ -1,23 +1,15 @@
--- @version 0.1
+-- @version 0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Release for beta test
+--    + First Release
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
+
 local info = debug.getinfo(1,'S')
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
-
---[[
-    TODO
-    TEST!
-    UI COLOR 
-    Pass keys
-    -- optional 
-    find patterns and reduce code size with abstractions
-]]
-
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
@@ -34,9 +26,13 @@ LenghtInter = 1
 VelocityInter = 1 
 PitchInter = 1 
 IntervalInter = 1 
+MeasureInter = 1 
 -- When pasting Pitch and intervals create notes that were not in chord? 
 PitchFill = true
 InterFill = true
+-- Meme
+StevieTable = {}
+
 ----
 dofile(script_path..'Functions/General Lua Functions.lua')
 dofile(script_path..'Functions/MIDI Functions.lua')
