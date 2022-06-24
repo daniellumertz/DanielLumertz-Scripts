@@ -150,3 +150,16 @@ function LimitNumber(number,min,max)
 	if max and number > max then return max end
 	return number
 end
+
+---------------------
+----------------- MISC
+---------------------
+
+function open_url(url)
+  local OS = reaper.GetOS()
+  if OS == "OSX32" or OS == "OSX64" then
+    os.execute('open "" "' .. url .. '"')
+  else
+    os.execute('start "" "' .. url .. '"')
+  end
+end

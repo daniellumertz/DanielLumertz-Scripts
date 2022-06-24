@@ -1,9 +1,9 @@
--- @version 0.2.1
+-- @version 0.2.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + First Release
+--    + Add about menu
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -13,7 +13,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.2.1'
+Version = '0.2.2'
 CopyList = {}
 
 --- Settings Change in the UI after 

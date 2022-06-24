@@ -19,6 +19,23 @@ function MenuBar()
             Gap= LimitNumber(Gap,0)
             reaper.ImGui_EndMenu(ctx)
         end
+
+        if reaper.ImGui_BeginMenu(ctx, 'About') then
+            local _
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?p=2572255#post2572255')
+            end
+            if reaper.ImGui_MenuItem(ctx, 'Video') then
+                open_url('https://youtu.be/s3eTIyaUxBc')
+            end
+            if reaper.ImGui_MenuItem(ctx, 'Donate') then
+                open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
+            end
+            reaper.ImGui_EndMenu(ctx)
+
+        end
+
+
         reaper.ImGui_EndMenuBar(ctx)
     end
 end
