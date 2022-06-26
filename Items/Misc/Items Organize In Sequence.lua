@@ -1,7 +1,13 @@
--- @version 1.0
+-- @version 1.1
 -- @author Daniel Lumertz
 -- @changelog
---    + First Release
+--    + Add comment
+--    + Rename Undo
+
+--[[
+    This script will organize items across tracks
+    First Item first sel track will be followed by first item second sel track etc...
+]]
 
 
 ------------ Options 
@@ -53,8 +59,6 @@ for i_track = 0, track_cnt-1 do
     last_cnt = cnt
 end
 
-
-
 --- Undo and set ptoject
 reaper.Undo_BeginBlock()
 reaper.PreventUIRefresh(1)
@@ -97,4 +101,4 @@ end
 --- End Undo, project set
 reaper.PreventUIRefresh(-1)
 reaper.UpdateArrange()
-reaper.Undo_EndBlock2(0, 'Organize Items in Sequence', -1)
+reaper.Undo_EndBlock2(0, 'Script: Organize Items in Sequence Across Tracks', -1)
