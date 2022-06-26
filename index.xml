@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="fd9bca7b7fdb9fae067af1dcdb0a03d88d0568a8">
+<index version="1" name="Daniel Lumertz Scripts" commit="ece556d7ae7e8eeaaeec47c4d2ba2b55e2b755f3">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -123,10 +123,21 @@
     </reapack>
   </category>
   <category name="Items/Misc">
+    <reapack name="Create Regions Using Items Sequence Across Tracks.lua" type="script">
+      <version name="1.0" author="Daniel Lumertz" time="2022-06-26T20:45:42Z">
+        <changelog><![CDATA[+ First Release]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ece556d7ae7e8eeaaeec47c4d2ba2b55e2b755f3/Items/Misc/Create%20Regions%20Using%20Items%20Sequence%20Across%20Tracks.lua</source>
+      </version>
+    </reapack>
     <reapack name="Items Organize In Sequence.lua" type="script">
       <version name="1.0" author="Daniel Lumertz" time="2022-06-26T19:20:23Z">
         <changelog><![CDATA[+ First Release]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/fd9bca7b7fdb9fae067af1dcdb0a03d88d0568a8/Items/Misc/Items%20Organize%20In%20Sequence.lua</source>
+      </version>
+      <version name="1.1" author="Daniel Lumertz" time="2022-06-26T20:45:42Z">
+        <changelog><![CDATA[+ Add comment
++ Rename Undo]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ece556d7ae7e8eeaaeec47c4d2ba2b55e2b755f3/Items/Misc/Items%20Organize%20In%20Sequence.lua</source>
       </version>
     </reapack>
   </category>
