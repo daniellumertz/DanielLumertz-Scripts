@@ -1,6 +1,5 @@
 -- @version 1.0
 -- @author Daniel Lumertz
--- @provides
 -- @changelog
 --    + First Release
 
