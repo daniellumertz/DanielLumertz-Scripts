@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="71f02d443e99aa17b2b21af4baad9f37c9a6987b">
+<index version="1" name="Daniel Lumertz Scripts" commit="03c83749d83588be6ac6e3e6db41a2d3d840b773">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -513,6 +513,19 @@
         <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/71f02d443e99aa17b2b21af4baad9f37c9a6987b/MIDI/Copy%20Paste%20MIDI/Functions/GUI%20Functions.lua</source>
         <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/71f02d443e99aa17b2b21af4baad9f37c9a6987b/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/71f02d443e99aa17b2b21af4baad9f37c9a6987b/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
+      </version>
+      <version name="0.3.1" author="Daniel Lumertz" time="2022-07-01T06:21:42Z">
+        <changelog><![CDATA[+ Correct Measure Position Bug non quantized ppq
++ Add Rhythm Option Using Measure Position
++ Rename Measure Position to Groove
++ Add Pin option
++ Change the interpolations behaviour for the new rhythm Measure Position]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Copy%20Paste%20MIDI.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/03c83749d83588be6ac6e3e6db41a2d3d840b773/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
       </version>
     </reapack>
   </category>
