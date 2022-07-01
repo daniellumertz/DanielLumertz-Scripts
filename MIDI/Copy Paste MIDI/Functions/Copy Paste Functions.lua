@@ -196,6 +196,106 @@ function PasteRhythmTakes()
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Rythm' )
 end
 
+-- Diferent option paste using measure poisitions copied and saved in groove. Dont copy more than one position per event. 
+function PasteRythmMeasure(take)
+    if not CopyList.groove or not (CopyList.groove[0] or CopyList.groove[1]) then return end -- There isnt anything saved
+    local i = 1 -- To iterate over CopyList.groove measures table eg = CopyList.groove[i][i_i]
+    local i_i = 0 -- To iterate inside every measure postion. needs to be 0! if start with a new event it will set to 1 if start with chord then it will add to 1, if it was 1 here it would add to 2
+    local notes_on = {}
+    local last_start, last_new_start, last_event_delta -- time of last note originally, new time of last note, last_event_delta
+    local new_table = {}
+    local current_measure_start 
+    local retval, MIDIstr = reaper.MIDI_GetAllEvts(take)
+    for offset, offset_count, flags, msg, stringPos in IterateAllMIDI(MIDIstr,false) do 
+        local selected = (flags&1 == 1) -- Look at UnpackFlags()
+        --local msg_type = msg:byte(1)>>4
+        local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg)
+        --vars
+
+        if selected then
+            if msg_type == 9 then
+                if not current_measure_start then -- save first measure start
+                    current_measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
+                end
+                if ((not last_start) or (last_start < (offset_count-Gap))) or (not IsGap) then -- this note start a new event in the lists
+                    i_i = i_i + 1 
+                    if i_i > #CopyList.groove[i] then -- Go to next measure
+                        i = i + 1
+                        i = ((i-1)%#CopyList.groove)+1 -- Make i loop around from 1 to #CopyList.rhythm
+                        i_i = 1
+                        current_measure_start = reaper.MIDI_GetPPQPos_EndOfMeasure(take, current_measure_start+1) -- go to next measure
+                    end
+                    local new_delta_start_measure = CopyList.groove[i][i_i]
+                    -- Interpolate
+                    local original_measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
+                    local original_delta = offset_count - original_measure_start 
+                    local delta = math.floor(InterpolateBetween2(new_delta_start_measure, original_delta, RhythmInter)+0.5)
+                    
+                    local new_ppq = delta + current_measure_start
+
+                    SetMIDIUnsorted(new_table,new_ppq,offset_count,msg,flags)
+                    last_event_delta = new_ppq - offset_count 
+                else-- Getting next note of a chord. 
+                    local new_ppq = offset_count + last_event_delta
+                    SetMIDIUnsorted(new_table,new_ppq,offset_count,msg,flags)
+                    -- use last_event_delta to se the new position
+                end
+                notes_on[#notes_on+1] = {pitch = val1, delta = last_event_delta , offset_count = offset_count, ch = msg_ch} -- delta is the difference between the new ppq and the old ppq position. negative it is earlier positive it went afterwards. offset count is the original ppq position to get meta events
+
+                last_start = offset_count
+
+            elseif msg_type == 8 then
+                local bol = false
+                for index, note_table in ipairs(notes_on) do
+                    if note_table.pitch == val1 and note_table.ch == msg_ch then -- This pitch is on 
+                        local new_val = offset_count + note_table.delta  
+                        SetMIDIUnsorted(new_table,new_val,offset_count,msg,flags)
+                        bol = true
+                        table.remove(notes_on,index)                  
+                        break
+                    end
+                end
+                if not bol then -- if didnt catch in the notes on table
+                    TableInsert(new_table,offset,offset_count,flags,msg)
+                end
+            else
+                TableInsert(new_table,offset,offset_count,flags,msg)
+            end
+        else
+            local bol = false
+            -- Move Meta Note Evnts
+            if msg_type == 15 and text:sub(1,4) == 'NOTE' then 
+                local ch, pitch = text:match('NOTE (%d+) (%d+)')
+                for index, note_table in ipairs(notes_on) do
+                    if note_table.pitch == tonumber(pitch) and note_table.offset_count == offset_count and note_table.ch == (tonumber(ch)+1) then 
+                        local new_val = offset_count + note_table.delta  
+                        SetMIDIUnsorted(new_table,new_val,offset_count,msg,flags)
+                        bol = true
+                        break
+                    end
+                end
+            end 
+            if not bol then
+                TableInsert(new_table,offset,offset_count,flags,msg)
+            end
+        end
+    end
+
+    local new_str = PackPackedMIDITable(new_table)
+    reaper.MIDI_SetAllEvts(take, new_str)
+    reaper.MIDI_Sort(take)    
+end
+
+function PasteRhythmTakesMeasure()
+    local midi_editor = reaper.MIDIEditor_GetActive()
+    for take in enumMIDITakes(midi_editor, true) do 
+        if CountSelectedNotes(take) > 0 then 
+            PasteRythmMeasure(take)
+        end
+    end
+    reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Rythm' )
+end
+
 function PasteLength(take)
     if not CopyList.len or not (CopyList.len[0] or CopyList.len[1]) then return end -- There isnt anything saved
     local i = 0 -- To iterate over CopyList table eg = CopyList.len[i][i_i]
@@ -643,6 +743,7 @@ function PasteGroove(take)
 
                     -- calculate new position and delta
                     local new_pos = measure_start + new_measure_pos
+                    new_pos = math.floor(new_pos + 0.5) -- quantize to a integer value, cant set a decimal point ppq 
                     local delta = new_pos - offset_count -- positive it moves to after. negative it moves to before
                     -- Set midi
                     SetMIDIUnsorted(new_table,new_pos,offset_count,msg,flags)

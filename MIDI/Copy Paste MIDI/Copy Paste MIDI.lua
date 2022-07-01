@@ -1,9 +1,13 @@
--- @version 0.2.2
+-- @version 0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add about menu
+--    + Correct Measure Position Bug non quantized ppq
+--    + Add Rythm Option Using Measure Position
+--    + Rename Measure Position to Groove
+--    + Add Pin option
+
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -13,7 +17,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.2.2'
+Version = '0.3'
 CopyList = {}
 
 --- Settings Change in the UI after 
@@ -30,6 +34,10 @@ MeasureInter = 1
 -- When pasting Pitch and intervals create notes that were not in chord? 
 PitchFill = true
 InterFill = true
+
+RhythmMeasurePos = false
+--- UI
+Pin = true
 -- Meme
 StevieTable = {}
 

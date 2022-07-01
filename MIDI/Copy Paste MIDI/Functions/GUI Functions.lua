@@ -34,6 +34,8 @@ function MenuBar()
             reaper.ImGui_EndMenu(ctx)
 
         end
+        local _
+        _, Pin = reaper.ImGui_MenuItem(ctx, 'Pin', optional_shortcutIn, Pin)
 
 
         reaper.ImGui_EndMenuBar(ctx)
@@ -108,7 +110,10 @@ function loop()
     PassKeys()
     PushStyle()
     reaper.ImGui_SetNextWindowSize(ctx, W, H, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
-    local window_flags = reaper.ImGui_WindowFlags_NoResize() | reaper.ImGui_WindowFlags_MenuBar()
+    local window_flags = reaper.ImGui_WindowFlags_NoResize() | reaper.ImGui_WindowFlags_MenuBar() 
+    if Pin then 
+        window_flags = window_flags | reaper.ImGui_WindowFlags_TopMost()
+    end
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..Version, true, window_flags)
 
     local _ -- values I will throw away
@@ -134,14 +139,18 @@ function loop()
         ----- Rhythm
         ButtonStylePush(RhythmInter)
         if reaper.ImGui_Button(ctx,'Rhythm', -1,Btn_size) then
-            PasteRhythmTakes()
+            if not RhythmMeasurePos then 
+                PasteRhythmTakes()
+            else
+                PasteRhythmTakesMeasure()
+            end
             Stevie('R')
         end
-        RhythmInter = SliderInter(RhythmInter)
+        SliderInterRhythm(RhythmInter)
         ButtonStylePop()
 
         ButtonStylePush(MeasureInter)
-        if reaper.ImGui_Button(ctx,'Measure Position', -1,Btn_size) then
+        if reaper.ImGui_Button(ctx,'Groove', -1,Btn_size) then
             PasteGrooveTakes()
             Stevie('M')
         end
@@ -195,7 +204,7 @@ function loop()
     end
 end
 
-function SliderInter(InterValue)
+function SliderInter(InterValue) -- Using InterValue local var so it can be used to multiple buttons
     local _
 
     if reaper.ImGui_BeginPopupContextItem(ctx) then 
@@ -206,6 +215,19 @@ function SliderInter(InterValue)
         reaper.ImGui_EndPopup(ctx)
     end
     return InterValue
+end
+
+function SliderInterRhythm() -- Needed an separete for a new option in rhythm
+    local _
+
+    if reaper.ImGui_BeginPopupContextItem(ctx) then 
+        reaper.ImGui_Text(ctx, 'Original')
+        reaper.ImGui_SameLine(ctx, 185) -- Pad next text
+        reaper.ImGui_Text(ctx, 'Copy')
+        _, RhythmInter = reaper.ImGui_SliderDouble(ctx, '###InterSlider', RhythmInter, 0, 1, tostring(math.floor(RhythmInter*100))..'%%')
+        _, RhythmMeasurePos = reaper.ImGui_Checkbox(ctx, 'Paste Measure Position', RhythmMeasurePos)
+        reaper.ImGui_EndPopup(ctx)
+    end
 end
 
 function SliderInterNotes(InterValue, CheckValue)
