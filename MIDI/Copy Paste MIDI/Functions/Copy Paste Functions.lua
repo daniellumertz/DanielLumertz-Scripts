@@ -227,11 +227,14 @@ function PasteRythmMeasure(take)
                     end
                     local new_delta_start_measure = CopyList.groove[i][i_i]
                     -- Interpolate
-                    local original_measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
-                    local original_delta = offset_count - original_measure_start 
-                    local delta = math.floor(InterpolateBetween2(new_delta_start_measure, original_delta, RhythmInter)+0.5)
+                    --local original_measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
+                    --local original_delta = offset_count - original_measure_start 
+                    --local delta = math.floor(InterpolateBetween2(new_delta_start_measure, original_delta, RhythmInter)+0.5)
+                    -- use original_delta to interpolate using the current measure position. But It is kinda strange when notes come from another measure so rulling it out and interpolating using the current position and the new position
                     
-                    local new_ppq = delta + current_measure_start
+                    local ppq_using_delta = new_delta_start_measure + current_measure_start
+                    local new_ppq = math.floor(InterpolateBetween2(ppq_using_delta, offset_count, RhythmInter)+0.5)
+
 
                     SetMIDIUnsorted(new_table,new_ppq,offset_count,msg,flags)
                     last_event_delta = new_ppq - offset_count 

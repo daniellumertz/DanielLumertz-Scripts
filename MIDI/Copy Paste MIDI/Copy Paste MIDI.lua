@@ -1,12 +1,13 @@
--- @version 0.3
+-- @version 0.3.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + Correct Measure Position Bug non quantized ppq
---    + Add Rythm Option Using Measure Position
+--    + Add Rhythm Option Using Measure Position
 --    + Rename Measure Position to Groove
 --    + Add Pin option
+--    + Change the interpolations behaviour for the new rhythm Measure Position
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
@@ -17,7 +18,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.3'
+Version = '0.3.1'
 CopyList = {}
 
 --- Settings Change in the UI after 
