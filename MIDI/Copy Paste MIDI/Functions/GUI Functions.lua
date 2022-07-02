@@ -140,56 +140,85 @@ function loop()
         ButtonStylePush(RhythmInter)
         if reaper.ImGui_Button(ctx,'Rhythm', -1,Btn_size) then
             if not RhythmMeasurePos then 
-                PasteRhythmTakes()
+                PasteRhythmTakes(CopyList,RhythmInter)
             else
-                PasteRhythmTakesMeasure()
+                PasteRhythmTakesMeasure(CopyList,RhythmInter)
             end
             Stevie('R')
         end
-        SliderInterRhythm(RhythmInter)
+        local do_autopaste
+        do_autopaste = SliderInterRhythm(RhythmInter)
+        if do_autopaste then 
+            if not RhythmMeasurePos then
+                AutoPaste(PasteRhythmTakes,RhythmInter,SaveCopy,CopyList)
+            else
+                AutoPaste(PasteRhythmTakesMeasure,RhythmInter,SaveCopy,CopyList)
+            end
+        end
         ButtonStylePop()
 
-        ButtonStylePush(MeasureInter)
+        ButtonStylePush(GrooveInter)
         if reaper.ImGui_Button(ctx,'Groove', -1,Btn_size) then
-            PasteGrooveTakes()
+            PasteGrooveTakes(CopyList,GrooveInter)
             Stevie('M')
         end
-        MeasureInter = SliderInter(MeasureInter)
+        local do_autopaste
+        GrooveInter, do_autopaste = SliderInter(GrooveInter)
+        if do_autopaste then 
+            AutoPaste(PasteGrooveTakes,GrooveInter,SaveCopy,CopyList)
+        end
         ButtonStylePop()
 
         --- Lenght
         ButtonStylePush(LenghtInter)
         if reaper.ImGui_Button(ctx,'Length', -1,Btn_size) then
-            PasteLenTakes()
+            PasteLenTakes(CopyList,LenghtInter)
             Stevie('L')
         end
-        LenghtInter = SliderInter(LenghtInter)
+        local do_autopaste
+        LenghtInter, do_autopaste = SliderInter(LenghtInter)
+        if do_autopaste then 
+            AutoPaste(PasteLenTakes,LenghtInter,SaveCopy,CopyList)
+        end
         ButtonStylePop()
 
         --- Velocity
         ButtonStylePush(VelocityInter)
         if reaper.ImGui_Button(ctx,'Velocity', -1,Btn_size) then
-            PasteVelTakes()
+            PasteVelTakes(CopyList,VelocityInter)
             Stevie('V')
         end
-        VelocityInter = SliderInter(VelocityInter)
+        local do_autopaste
+        VelocityInter, do_autopaste = SliderInter(VelocityInter)
+        if do_autopaste then 
+            AutoPaste(PasteVelTakes,VelocityInter,SaveCopy,CopyList)
+        end
         ButtonStylePop()
 
         --- Pitch
         ButtonStylePush(PitchInter)
         if reaper.ImGui_Button(ctx,'Pitch', -1,Btn_size) then
-            PastePitchTakes()
+            PastePitchTakes(CopyList,PitchInter)
             Stevie('P')
         end
-        PitchInter, PitchFill = SliderInterNotes(PitchInter, PitchFill)
+        local do_autopaste
+        PitchInter, PitchFill, do_autopaste = SliderInterNotes(PitchInter, PitchFill, 'Pitch')
+        if do_autopaste then 
+            AutoPaste(PastePitchTakes,PitchInter,SaveCopy,CopyList)
+        end
         ButtonStylePop()
 
         --- Interval
         ButtonStylePush(IntervalInter)
         if reaper.ImGui_Button(ctx,'Interval', -1,Btn_size) then
-            PasteIntervalsTakes()
+            PasteIntervalsTakes(CopyList,IntervalInter)
         end
-        IntervalInter, InterFill = SliderInterNotes(IntervalInter, InterFill)
+        local do_autopaste
+        IntervalInter, InterFill, do_autopaste = SliderInterNotes(IntervalInter, InterFill, 'Interval')
+        if do_autopaste then 
+            AutoPaste(PasteIntervalsTakes,IntervalInter,SaveCopy,CopyList)
+        end
+
         ButtonStylePop()
 
     
@@ -204,46 +233,93 @@ function loop()
     end
 end
 
+---@param InterValue number number use to interpolate
+---@param source string string telling which parameter is using it
+---@return number InterValue
 function SliderInter(InterValue) -- Using InterValue local var so it can be used to multiple buttons
-    local _
-
+    local do_autopaste
     if reaper.ImGui_BeginPopupContextItem(ctx) then 
+        -- Reset info for autopaste
+        if reaper.ImGui_IsWindowAppearing(ctx) then -- Make the auto paste goes false 'safety'
+            IsAutoPaste = false
+            SaveCopy = nil
+        end
+        --Body
         reaper.ImGui_Text(ctx, 'Original')
         reaper.ImGui_SameLine(ctx, 185) -- Pad next text
         reaper.ImGui_Text(ctx, 'Copy')
-        _, InterValue = reaper.ImGui_SliderDouble(ctx, '###InterSlider', InterValue, 0, 1, tostring(math.floor(InterValue*100))..'%%')
+        local _, change, save_current_state
+        change, InterValue = reaper.ImGui_SliderDouble(ctx, '###InterSlider', InterValue, 0, 1, tostring(math.floor(InterValue*100))..'%%')
+        save_current_state, IsAutoPaste = reaper.ImGui_Checkbox(ctx, 'Auto Paste', IsAutoPaste)
+        -- Save current selected notes when click AutoPaste button
+        if save_current_state then
+            SaveCopy = CopyMIDIParameters(take)
+        end
+        -- Check if need to autopaste
+        do_autopaste = change and IsAutoPaste
+
         reaper.ImGui_EndPopup(ctx)
     end
-    return InterValue
+    return InterValue, do_autopaste
 end
 
 function SliderInterRhythm() -- Needed an separete for a new option in rhythm
-    local _
-
+    local do_autopaste
     if reaper.ImGui_BeginPopupContextItem(ctx) then 
+        -- Reset info for autopaste
+        if reaper.ImGui_IsWindowAppearing(ctx) then -- Make the auto paste goes false 'safety'
+            IsAutoPaste = false
+            SaveCopy = nil
+        end
+        --Body
         reaper.ImGui_Text(ctx, 'Original')
         reaper.ImGui_SameLine(ctx, 185) -- Pad next text
         reaper.ImGui_Text(ctx, 'Copy')
-        _, RhythmInter = reaper.ImGui_SliderDouble(ctx, '###InterSlider', RhythmInter, 0, 1, tostring(math.floor(RhythmInter*100))..'%%')
+        local _, change, save_current_state
+        change, RhythmInter = reaper.ImGui_SliderDouble(ctx, '###InterSlider', RhythmInter, 0, 1, tostring(math.floor(RhythmInter*100))..'%%')
         _, RhythmMeasurePos = reaper.ImGui_Checkbox(ctx, 'Paste Measure Position', RhythmMeasurePos)
+        save_current_state, IsAutoPaste = reaper.ImGui_Checkbox(ctx, 'Auto Paste', IsAutoPaste)
+        -- Save current selected notes when click AutoPaste button
+        if save_current_state then
+            SaveCopy = CopyMIDIParameters(take)
+        end
+        -- Check if need to autopaste
+        do_autopaste = change and IsAutoPaste
+
         reaper.ImGui_EndPopup(ctx)
     end
+
+    return do_autopaste
 end
 
+---@param InterValue number number use to interpolate
+---@param source string string telling which parameter is using it
+---@return number InterValue
 function SliderInterNotes(InterValue, CheckValue)
-    local _
-    if reaper.ImGui_BeginPopupContextItem(ctx) then 
+    local do_autopaste
+    if reaper.ImGui_BeginPopupContextItem(ctx) then
+        if reaper.ImGui_IsWindowAppearing(ctx) then -- Make the auto paste goes false 'safety'
+            IsAutoPaste = false
+            SaveCopy = nil
+        end
         reaper.ImGui_Text(ctx, 'Original')
         reaper.ImGui_SameLine(ctx, 185) -- Pad next text
         reaper.ImGui_Text(ctx, 'Copy')
-        _, InterValue = reaper.ImGui_SliderDouble(ctx, '###InterSlider', InterValue, 0, 1, tostring(math.floor(InterValue*100))..'%%')
+        local _, change, save_current_state
+        change, InterValue = reaper.ImGui_SliderDouble(ctx, '###InterSlider', InterValue, 0, 1, tostring(math.floor(InterValue*100))..'%%')
         _, CheckValue = reaper.ImGui_Checkbox(ctx, 'Fill all chord notes', CheckValue)
+        save_current_state, IsAutoPaste = reaper.ImGui_Checkbox(ctx, 'Auto Paste', IsAutoPaste)
+
+        if save_current_state then
+            SaveCopy = CopyMIDIParameters(take)
+        end
+        do_autopaste = change and IsAutoPaste
         reaper.ImGui_EndPopup(ctx)
     end
-    return InterValue, CheckValue
+    return InterValue, CheckValue, do_autopaste
 end
--------------
 
+----
 function PassKeys() -- Might be a little tough on resource
     --Get keys pressed
     local active_keys = {}

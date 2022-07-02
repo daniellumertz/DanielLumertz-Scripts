@@ -83,7 +83,7 @@ function CopyMIDIParameters(take) -- TODO implement this function to look in all
     return copy_list
 end
 
-function PasteRythm(take)
+function PasteRhythm(take,CopyList,RhythmInter)
     if not CopyList.rhythm or not (CopyList.rhythm[0] or CopyList.rhythm[1]) then return end -- There isnt anything saved
     local i = 0 -- To iterate over CopyList table eg = CopyList.rhythm[i][i_i]
     local i_i = 0 -- To iterate inside every CopyList table table  needs to be 0! if start with a new event it will set to 1 if start with chord then it will add to 1, if it was 1 here it would add to 2
@@ -186,18 +186,18 @@ function PasteRythm(take)
     reaper.MIDI_Sort(take)    
 end
 
-function PasteRhythmTakes()
+function PasteRhythmTakes(CopyList,InterVal)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteRythm(take)
+            PasteRhythm(take,CopyList,InterVal)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Rythm' )
 end
 
 -- Diferent option paste using measure poisitions copied and saved in groove. Dont copy more than one position per event. 
-function PasteRythmMeasure(take)
+function PasteRythmMeasure(take,CopyList,RhythmInter)
     if not CopyList.groove or not (CopyList.groove[0] or CopyList.groove[1]) then return end -- There isnt anything saved
     local i = 1 -- To iterate over CopyList.groove measures table eg = CopyList.groove[i][i_i]
     local i_i = 0 -- To iterate inside every measure postion. needs to be 0! if start with a new event it will set to 1 if start with chord then it will add to 1, if it was 1 here it would add to 2
@@ -289,17 +289,17 @@ function PasteRythmMeasure(take)
     reaper.MIDI_Sort(take)    
 end
 
-function PasteRhythmTakesMeasure()
+function PasteRhythmTakesMeasure(CopyList,InterVal)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteRythmMeasure(take)
+            PasteRythmMeasure(take,CopyList,InterVal)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Rythm' )
 end
 
-function PasteLength(take)
+function PasteLength(take,CopyList,LenghtInter)
     if not CopyList.len or not (CopyList.len[0] or CopyList.len[1]) then return end -- There isnt anything saved
     local i = 0 -- To iterate over CopyList table eg = CopyList.len[i][i_i]
     local i_i = 0 -- To iterate inside every CopyList table table 
@@ -356,17 +356,17 @@ function PasteLength(take)
     reaper.MIDI_Sort(take)    
 end
 
-function PasteLenTakes()
+function PasteLenTakes(CopyList,LenghtInter)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteLength(take)
+            PasteLength(take,CopyList,LenghtInter)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Length' )
 end
 
-function PasteVelocity(take)
+function PasteVelocity(take,CopyList,VelocityInter)
     if not CopyList.vel or not (CopyList.vel[0] or CopyList.vel[1]) then return end -- There isnt anything saved
     local i = 0 -- To iterate over CopyList table eg = CopyList.len[i][i_i]
     local i_i = 0 -- To iterate inside every CopyList table table 
@@ -406,17 +406,17 @@ function PasteVelocity(take)
     
 end
 
-function PasteVelTakes()
+function PasteVelTakes(CopyList,VelocityInter)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteVelocity(take)
+            PasteVelocity(take,CopyList,VelocityInter)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Velocity' )
 end
 
-function PastePitches(take)
+function PastePitches(take,CopyList,PitchInter)
     if not CopyList.pitch or not (CopyList.pitch[0] or CopyList.pitch[1]) then return end -- There isnt anything saved
     local note_idx = -1
     local i = 0 -- To iterate over CopyList table eg = CopyList.len[i][i_i]
@@ -440,7 +440,7 @@ function PastePitches(take)
                 -- Adjust i and i_i
                 if (not last_start or last_start < offset_count-Gap) or (not IsGap) then -- this note starts a event/chord
                     -- Check if i_i < #CopyList.pitch[i] and PitchFill. if true then insert notes remaning notes at last_start. using last_msg info
-                    FillNotesToLastNote(take,i,i_i,last_msg,new_table)
+                    FillNotesToLastNote(CopyList,take,i,i_i,last_msg,new_table)
                     -- set i to a new value
                     i = i + 1
                     i = ((i-1)%#CopyList.pitch)+1 -- Make i loop around from 1 to #CopyList.len  
@@ -513,7 +513,7 @@ function PastePitches(take)
             end
         end
     end
-    FillNotesToLastNote(take,i,i_i,last_msg,new_table) -- after all events check if it was added all notes in last CopyList.pitch[i] used
+    FillNotesToLastNote(CopyList,take,i,i_i,last_msg,new_table) -- after all events check if it was added all notes in last CopyList.pitch[i] used
 
     local new_str = PackPackedMIDITable(new_table)
     reaper.MIDI_SetAllEvts(take, new_str)
@@ -521,18 +521,18 @@ function PastePitches(take)
     
 end
 
-function PastePitchTakes()
+function PastePitchTakes(CopyList,PitchInter)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PastePitches(take)
+            PastePitches(take, CopyList,PitchInter)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Pitch' )
 end
 
 --- Add the notes missing in the chord CopyList.pitch[i] at the new_table
-function FillNotesToLastNote(take,i,i_i,last_msg,new_table)
+function FillNotesToLastNote(CopyList,take,i,i_i,last_msg,new_table)
     if i > 0 and i_i < #CopyList.pitch[i] and PitchFill then -- check if is missing some note
         local _, _, _, startppqpos, endppqpos, _, _, _ = reaper.MIDI_GetNote(take, last_msg.note_idx)
         for j = i_i+1, #CopyList.pitch[i] do
@@ -547,7 +547,7 @@ function FillNotesToLastNote(take,i,i_i,last_msg,new_table)
     end
 end
 
-function PasteIntervals(take)
+function PasteIntervals(take,CopyList,IntervalInter)
     if not CopyList.interval or not (CopyList.interval[0] or CopyList.interval[1]) then return end -- There isnt anything saved
     local note_idx = -1
     local i = 0 -- To iterate over CopyList table eg = CopyList.interval[i][i_i]
@@ -574,7 +574,7 @@ function PasteIntervals(take)
                     -- Adjust i and i_i
                     if (not last_start or last_start < offset_count-Gap) or (not IsGap) then -- this note starts a event/chord
                         -- Check if i_i < #CopyList.interval[i] and PitchFill. if true then insert notes remaning notes at last_start. using last_msg info
-                        FillIntervalsToLastNote(take,i,i_i,last_msg,new_table)
+                        FillIntervalsToLastNote(CopyList,take,i,i_i,last_msg,new_table)
                         -- set i to a new value
                         i = i + 1
                         i = ((i-1)%#CopyList.interval)+1 -- Make i loop around from 1 to #CopyList.interval  
@@ -659,7 +659,7 @@ function PasteIntervals(take)
 
         end
     end
-    FillIntervalsToLastNote(take,i,i_i,last_msg,new_table)
+    FillIntervalsToLastNote(CopyList,take,i,i_i,last_msg,new_table)
 
     local new_str = PackPackedMIDITable(new_table)
     reaper.MIDI_SetAllEvts(take, new_str)
@@ -668,7 +668,7 @@ function PasteIntervals(take)
 end
 
 --- Add the notes missing in the chord CopyList.interval[i] at the new_table
-function FillIntervalsToLastNote(take,i,i_i,last_msg,new_table)
+function FillIntervalsToLastNote(CopyList,take,i,i_i,last_msg,new_table)
     if i == 0 and not CopyList.interval[0] then return end -- rule out first event if not filled with intervals at [0]
     if  i_i < #CopyList.interval[i] and InterFill then -- check if is missing some note
         local _, _, _, startppqpos, endppqpos, _, _, _ = reaper.MIDI_GetNote(take, last_msg.note_idx)
@@ -691,18 +691,18 @@ function FillIntervalsToLastNote(take,i,i_i,last_msg,new_table)
     end
 end
 
-function PasteIntervalsTakes()
+function PasteIntervalsTakes(CopyList,IntervalInter)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteIntervals(take)
+            PasteIntervals(take,CopyList,IntervalInter)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Intervals' )
 end
 
 
-function PasteGroove(take)
+function PasteGroove(take,CopyList,GrooveInter)
     if not CopyList.groove or not (CopyList.groove[0] or CopyList.groove[1]) then return end -- There isnt anything saved
     local i = 0 -- To iterate over CopyList table eg = CopyList.rhythm[i][i_i]
     local notes_on = {}
@@ -746,6 +746,7 @@ function PasteGroove(take)
 
                     -- calculate new position and delta
                     local new_pos = measure_start + new_measure_pos
+                    new_pos = InterpolateBetween2(new_pos, offset_count, GrooveInter)
                     new_pos = math.floor(new_pos + 0.5) -- quantize to a integer value, cant set a decimal point ppq 
                     local delta = new_pos - offset_count -- positive it moves to after. negative it moves to before
                     -- Set midi
@@ -806,12 +807,19 @@ function PasteGroove(take)
 end
 
 
-function PasteGrooveTakes()
+function PasteGrooveTakes(CopyList,GrooveInter)
     local midi_editor = reaper.MIDIEditor_GetActive()
     for take in enumMIDITakes(midi_editor, true) do 
         if CountSelectedNotes(take) > 0 then 
-            PasteGroove(take)
+            PasteGroove(take,CopyList,GrooveInter)
         end
     end
     reaper.Undo_OnStateChange2( 0, 'Script: Paste MIDI Rythm' )
+end
+
+function AutoPaste(paste_function,InterVal,SaveCopy,CopyList)
+    -- First paste the saved version, uses place holder to store the value
+    paste_function(SaveCopy,1)
+    -- Second paste with current configs
+    paste_function(CopyList,InterVal)
 end

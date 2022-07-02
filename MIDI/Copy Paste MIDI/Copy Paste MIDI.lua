@@ -1,13 +1,10 @@
--- @version 0.3.1
+-- @version 0.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Correct Measure Position Bug non quantized ppq
---    + Add Rhythm Option Using Measure Position
---    + Rename Measure Position to Groove
---    + Add Pin option
---    + Change the interpolations behaviour for the new rhythm Measure Position
+--    + Add Auto Paste. 
+--    + Correct BUG with groove interpolate.
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
@@ -18,7 +15,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.3.1'
+Version = '0.4'
 CopyList = {}
 
 --- Settings Change in the UI after 
@@ -31,7 +28,9 @@ LenghtInter = 1
 VelocityInter = 1 
 PitchInter = 1 
 IntervalInter = 1 
-MeasureInter = 1 
+GrooveInter = 1 
+
+IsAutoPaste = false --Auto Paste when changing Inter value 
 -- When pasting Pitch and intervals create notes that were not in chord? 
 PitchFill = true
 InterFill = true
