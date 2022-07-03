@@ -1,5 +1,4 @@
-
--- @version 0.1.1
+-- @version 0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
