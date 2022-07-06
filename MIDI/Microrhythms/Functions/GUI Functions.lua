@@ -191,7 +191,7 @@ function loop()
         -- Length Input
         reaper.ImGui_SameLine(ctx)
         reaper.ImGui_SetNextItemWidth(ctx, -1)
-        chage_user_len, UserInputLength = reaper.ImGui_InputText(ctx, '###UserInputLength', UserInputLength)
+        chage_user_len, UserInputLength = reaper.ImGui_InputText(ctx, '###UserInputLength', UserInputLength, reaper.ImGui_InputTextFlags_CharsDecimal())
         if reaper.ImGui_IsItemFocused(ctx) then
             PreventPassKeys.UserInputLength = true
         else

@@ -1,9 +1,10 @@
--- @version 0.1
+
+-- @version 0.1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Initial Release
+--    + Only allow decimals at text editor Len
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -22,7 +23,7 @@ dofile(script_path..'Functions/GUI Functions.lua')
 
 -- ID
 ScriptName = 'Microrhythms'
-Version = '0.1'
+Version = '0.1.1'
 
 -- UI
 Pin = true
