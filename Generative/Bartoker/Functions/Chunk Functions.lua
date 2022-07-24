@@ -7,15 +7,9 @@
 function PasteItemChunksAtTimeAtTrack(pasted_chunk,item_pattern,insert_track,paste_time)
 	pasted_chunk = '\n'..pasted_chunk..'\n'..item_pattern -- To put first and last chunk in a pattern.
 
-    -- Get the earliest Item Chunk using <Position
-    local smallest_pos = math.huge
     for item_chunk in SubString(pasted_chunk,'\n(<ITEM.-)\n<ITEM') do
-        local pos = GetChunkVal(item_chunk,'POSITION')
-        smallest_pos = math.min(tonumber(pos),smallest_pos)
-    end
-
-    for item_chunk in SubString(pasted_chunk,'\n(<ITEM.-)\n<ITEM') do
-        CreateMediaItemWithChunk(item_chunk, insert_track, paste_time, smallest_pos )
+        local item
+        item, paste_time = CreateMediaItemWithChunk(item_chunk, insert_track, paste_time) 
     end
 
 end
@@ -25,15 +19,26 @@ end
 ---@param track MediaTrack track to paste
 ---@param start_paste_pos number where it will start pasting
 ---@param pad_len number pad is the smallest chunk position from the items to be pasted
----@return unknown
-function CreateMediaItemWithChunk(chunk, track, start_paste_pos, pad_len )
+---@return MediaItem new_item
+---@return number new_item_end
+function CreateMediaItemWithChunk(chunk, track, paste_pos )
     chunk = ResetAllIndentifiers(chunk)
     local new_item = reaper.AddMediaItemToTrack( track )
     reaper.SetItemStateChunk( new_item, chunk, false )
-    local chunk_pos = GetChunkVal(chunk,'POSITION')
-    local new_pos = (start_paste_pos - pad_len) + chunk_pos 
-    reaper.SetMediaItemInfo_Value( new_item, "D_POSITION" , new_pos ) -- Alternative is to use the position inside the chunk for that just scrap this line. Or calculate the difference between the items and  position + edit cursor position
-    return new_item
+    reaper.SetMediaItemInfo_Value( new_item, "D_POSITION" , paste_pos ) -- Alternative is to use the position inside the chunk for that just scrap this line. Or calculate the difference between the items and  position + edit cursor position
+    -- get the length of the item and the length of the source. trim the item and get the new end value.
+    local new_take = reaper.GetActiveTake(new_item)
+    local new_source = reaper.GetMediaItemTake_Source( new_take )
+    local source_length, lengthIsQN = reaper.GetMediaSourceLength( new_source )
+    if lengthIsQN then
+        -- get the length in seconds
+        source_length = reaper.TimeMap2_QNToTime( 0, source_length )
+    end
+    local new_item_end = paste_pos + source_length
+    
+    reaper.SetMediaItemInfo_Value( new_item, "D_LENGTH", source_length)
+    --local new_item_end = paste_pos + new_item_len
+    return new_item, new_item_end
 end
 
 function GetChunkVal(chunk,key)

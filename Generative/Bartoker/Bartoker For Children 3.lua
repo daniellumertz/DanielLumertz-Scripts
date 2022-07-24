@@ -1,9 +1,9 @@
--- @version 0.1
+-- @version 0.1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Initial Release
+--    + Fix tempo when creating Chord Track.
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
@@ -60,8 +60,7 @@ local mel2_end = 1
 local min2_vel = 40
 local max2_vel = 80
 local accents2 = 10
-local accents2chance = 1
-
+local accents2chance = 10
 
 ------------------------------
 -- Undo
@@ -200,8 +199,7 @@ reaper.Undo_EndBlock('Generate Bartok For Children nº3', -1)
 
 
 
---[[ normal settings
---GetFromTableRandom({})
+--[[ This is the default settings copy this if needed to go back
 -- user settings:
 local ppq = 960
 local chord_with_scale = false
