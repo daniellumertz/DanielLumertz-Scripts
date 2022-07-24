@@ -1,11 +1,10 @@
--- @version 0.4
+-- @version 0.4.1
 -- @author Daniel Lumertz
 -- @provides
+--    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add Auto Paste. 
---    + Correct BUG with groove interpolate.
-
+--    + Change action to midi editor
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -15,7 +14,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.4'
+Version = '0.4.1'
 CopyList = {}
 
 --- Settings Change in the UI after 

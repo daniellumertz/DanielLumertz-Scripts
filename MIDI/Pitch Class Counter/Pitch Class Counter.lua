@@ -1,8 +1,10 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
+-- @provides
+--    [main=midi_editor] .
 -- @changelog
---    + IMGUI update
-Version = '1.0.1'
+--    + Change action to midi editor
+Version = '1.0.2'
 function print(val)
     reaper.ShowConsoleMsg("\n"..tostring(val))    
 end
