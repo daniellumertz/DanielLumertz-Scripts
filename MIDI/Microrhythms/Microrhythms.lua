@@ -1,9 +1,10 @@
--- @version 0.1.1
+-- @version 0.1.2
 -- @author Daniel Lumertz
 -- @provides
+--    [main=midi_editor]
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Only allow decimals at text editor Len
+--    + Change action to midi editor
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
