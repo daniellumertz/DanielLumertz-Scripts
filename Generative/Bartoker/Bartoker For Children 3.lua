@@ -1,19 +1,21 @@
--- @version 0.1.1
+-- @version 0.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Fix tempo when creating Chord Track.
+--    + Change the dofile (prev version was wind only)
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 -- get script path
 local script_path = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 -- dofile all files inside functions folder
-local script_functions_path = script_path .. "/Functions/"
-for file_name in io.popen([[dir "]]..script_functions_path..[[" /b /aa]]):lines() do
-    dofile(script_functions_path..file_name)
-end
+dofile(script_path .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
+dofile(script_path .. 'Functions/Bartoker Functions.lua') -- Functions for using the markov in reaper
+dofile(script_path .. 'Functions/Chunk Functions.lua') -- Functions for using the markov in reaper
+dofile(script_path .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
+dofile(script_path .. 'Functions/MIDI Functions.lua') -- Functions for using the markov in reaper
+dofile(script_path .. 'Functions/Saved Chunks.lua') -- Functions for using the markov in reaper
 
 -- run mobdebug
 
