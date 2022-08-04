@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="10e26489a29f461a2a3b5b1486cda5e24d75983a">
+<index version="1" name="Daniel Lumertz Scripts" commit="a18c0480b11efa6b4a2539a009327cedb3cd7e31">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -571,6 +571,15 @@
         <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/9001a1e5702a98c0fe43bc1160c5fd04198bca40/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/9001a1e5702a98c0fe43bc1160c5fd04198bca40/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
       </version>
+      <version name="0.4.1" author="Daniel Lumertz" time="2022-07-24T22:40:19Z">
+        <changelog><![CDATA[+ Change action to midi editor]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Copy%20Paste%20MIDI.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
+      </version>
     </reapack>
   </category>
   <category name="MIDI/Microrhythms">
@@ -605,6 +614,17 @@
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/10e26489a29f461a2a3b5b1486cda5e24d75983a/MIDI/Microrhythms/Functions/MIDI%20Functions.lua</source>
         <source file="Functions/Microrhythms Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/10e26489a29f461a2a3b5b1486cda5e24d75983a/MIDI/Microrhythms/Functions/Microrhythms%20Functions.lua</source>
       </version>
+      <version name="0.1.4" author="Daniel Lumertz" time="2022-07-24T22:40:19Z">
+        <changelog><![CDATA[+ Change action to midi editor
++ Update GUI version number.]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Microrhythms.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Microrhythms Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Microrhythms/Functions/Microrhythms%20Functions.lua</source>
+      </version>
     </reapack>
   </category>
   <category name="MIDI/Pitch Class Counter">
@@ -616,6 +636,10 @@
       <version name="1.0.1" author="Daniel Lumertz" time="2022-06-22T04:18:28Z">
         <changelog><![CDATA[+ IMGUI update]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b1688c10d3cc4ebc1a62bed0a98eb4039237405c/MIDI/Pitch%20Class%20Counter/Pitch%20Class%20Counter.lua</source>
+      </version>
+      <version name="1.0.2" author="Daniel Lumertz" time="2022-07-24T22:40:19Z">
+        <changelog><![CDATA[+ Change action to midi editor]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a18c0480b11efa6b4a2539a009327cedb3cd7e31/MIDI/Pitch%20Class%20Counter/Pitch%20Class%20Counter.lua</source>
       </version>
     </reapack>
   </category>
