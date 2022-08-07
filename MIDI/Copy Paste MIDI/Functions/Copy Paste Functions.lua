@@ -98,7 +98,7 @@ function PasteRhythm(take,CopyList,RhythmInter)
         --vars
 
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 if  last_start  then -- This wont be the first event/note
                     local last -- new ppq of last note that will be used to calculate the new position. Can use the start of previous note or start of previous event/chord
                     local last_original -- ppq from last note originally
@@ -144,7 +144,7 @@ function PasteRhythm(take,CopyList,RhythmInter)
                 end
                 last_start = offset_count
 
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol = false
                 for index, note_table in ipairs(notes_on) do
                     if note_table.pitch == val1 and note_table.ch == msg_ch then -- This pitch is on 
@@ -213,7 +213,7 @@ function PasteRythmMeasure(take,CopyList,RhythmInter)
         --vars
 
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 if not current_measure_start then -- save first measure start
                     current_measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
                 end
@@ -247,7 +247,7 @@ function PasteRythmMeasure(take,CopyList,RhythmInter)
 
                 last_start = offset_count
 
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol = false
                 for index, note_table in ipairs(notes_on) do
                     if note_table.pitch == val1 and note_table.ch == msg_ch then -- This pitch is on 
@@ -312,7 +312,7 @@ function PasteLength(take,CopyList,LenghtInter)
         local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg)
         --vars
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 if (not last_start or last_start < offset_count-Gap) or (not IsGap) then -- this note starts a event/chord
                     i = i + 1
                     i = ((i-1)%#CopyList.len)+1 -- Make i loop around from 1 to #CopyList.len  
@@ -325,7 +325,7 @@ function PasteLength(take,CopyList,LenghtInter)
                 notes_on[#notes_on+1] = {pitch = val1, start = offset_count, new_len = CopyList.len[i][i_i], ch = msg_ch}
                 TableInsert(new_table,offset,offset_count,flags,msg)
                 last_start = offset_count
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol 
                 for index, note_table in ipairs(notes_on) do
                     if note_table.pitch == val1 and note_table.ch == msg_ch then
@@ -378,7 +378,7 @@ function PasteVelocity(take,CopyList,VelocityInter)
         local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg)
         --vars
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 if (not last_start or last_start < offset_count-Gap ) or (not IsGap) then -- this note starts a event/chord
                     i = i + 1
                     i = ((i-1)%#CopyList.len)+1 -- Make i loop around from 1 to #CopyList.len  
@@ -436,7 +436,7 @@ function PastePitches(take,CopyList,PitchInter)
         end
         --vars
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 -- Adjust i and i_i
                 if (not last_start or last_start < offset_count-Gap) or (not IsGap) then -- this note starts a event/chord
                     -- Check if i_i < #CopyList.pitch[i] and PitchFill. if true then insert notes remaning notes at last_start. using last_msg info
@@ -464,7 +464,7 @@ function PastePitches(take,CopyList,PitchInter)
                     notes_mod[#notes_mod+1] = {type = 'DEL', pitch = val1, ch = msg_ch,  offset_count = offset_count}
                 end
                 last_start = offset_count -- originally was inside the if condition of pitches that will be mooded
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol = false
 
                 for index, note_table in ipairs(notes_mod) do
@@ -563,12 +563,12 @@ function PasteIntervals(take,CopyList,IntervalInter)
         local selected = (flags&1 == 1) -- Look at UnpackFlags()
         local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg)
 
-        if msg_type == 9 then
+        if msg_type == 9 and val2 > 0 then
             note_idx = note_idx + 1
         end
         --vars
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 local new_pitch, last, is_start_evt -- number: new pitch, points to table to get last note original pitch/new_pitch. last alternates between last_msg and   last_msg_evnt_start. boolean if this note will start a new event
                 if last_msg then
                     -- Adjust i and i_i
@@ -611,7 +611,7 @@ function PasteIntervals(take,CopyList,IntervalInter)
                 last_msg = {original_pitch = val1, new_pitch = (new_pitch or val1), note_idx = note_idx, val2 = val2, flags = flags, msg_ch = msg_ch} -- if not new_pitch (first note) get val1
                 if not last_start or is_start_evt then last_msg_evnt_start = {original_pitch = val1, new_pitch = (new_pitch or val1)} end -- save info if this note start a event 
                 last_start = offset_count
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol = false
 
                 for index, note_table in ipairs(notes_mod) do
@@ -718,7 +718,7 @@ function PasteGroove(take,CopyList,GrooveInter)
         --vars
 
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 -- get start of this measure
                 local measure_start = reaper.MIDI_GetPPQPos_StartOfMeasure( take, offset_count )
                 ---if this note is in a new measure  increment i (get values from another measure in the list )
@@ -763,7 +763,7 @@ function PasteGroove(take,CopyList,GrooveInter)
                 notes_on[#notes_on+1] = {pitch = val1, delta = last_delta_start, ch = msg_ch, offset_count = offset_count}
                 last_start = offset_count
                 last_measure_start = measure_start
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
 
                 local bol = false
                 for index, note_table in ipairs(notes_on) do

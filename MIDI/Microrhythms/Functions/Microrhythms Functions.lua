@@ -17,7 +17,7 @@ function MakeRhythmTable(input,input_length)
     input_length = tonumber(input_length)
     local ppq = 960 -- TODO look how not hardcode the ppq in the settings
     local total_ppq = input_length * ppq
-    table_rhythm = {}
+    local table_rhythm = {}
     for index, ratio in ipairs(table_rhythm_input) do
         table_rhythm[#table_rhythm+1] = total_ppq*(ratio/total_len_ratio) --  (ratio/total_len_ratio) = how much this ratio is from the total. if ratio = 2 and len_ratio = 4 then it is 1/2 of the total. and it will have 1/2 of the total_ppq
     end
@@ -51,7 +51,7 @@ function PasteRhythm(IsGap,Gap,take,RhythmTable1,SteadyValue,RhythmInter)
         --vars
 
         if selected then
-            if msg_type == 9 then
+            if msg_type == 9 and val2 > 0 then
                 if  last_start  then -- This wont be the first event/note
                     local new_val -- new note position
                     if (last_start < (offset_count-Gap)) or (not IsGap) then -- this note start a new event in the lists
@@ -84,7 +84,7 @@ function PasteRhythm(IsGap,Gap,take,RhythmTable1,SteadyValue,RhythmInter)
                 end
                 last_start = offset_count -- Original last note pos
 
-            elseif msg_type == 8 then
+            elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then
                 local bol = false
                 for index, note_table in ipairs(notes_on) do
                     if note_table.pitch == val1 and note_table.ch == msg_ch then -- This pitch is on 

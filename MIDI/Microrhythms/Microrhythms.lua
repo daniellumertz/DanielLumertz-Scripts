@@ -1,11 +1,10 @@
--- @version 0.1.4
+-- @version 0.1.5
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Change action to midi editor
---    + Update GUI version number.
+--    + Catch notes on with vel = 0 as notes off messages. 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -24,7 +23,7 @@ dofile(script_path..'Functions/GUI Functions.lua')
 
 -- ID
 ScriptName = 'Microrhythms'
-Version = '0.1.4'
+Version = '0.1.5'
 
 -- UI
 Pin = true
