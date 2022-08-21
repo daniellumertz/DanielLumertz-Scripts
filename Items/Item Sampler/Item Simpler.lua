@@ -1,7 +1,7 @@
 -- @noindex
 
 
-local version = '1.0.1'
+local version = '1.0.2'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
 
@@ -326,7 +326,6 @@ function loop()
         PassThorugh()
     end
     Ctrl, Shift, Alt = GetModKeys()
-    print(Ctrl)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
 
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 

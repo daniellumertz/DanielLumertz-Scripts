@@ -1,4 +1,4 @@
--- @version 1.3.3
+-- @version 1.3.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -8,13 +8,13 @@
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + Update to the new imgui system
+--    + remove debug line in simpler
 
 
 --TODOs
 -- Update header require
 
-local version = '1.3.3'
+local version = '1.3.4'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
