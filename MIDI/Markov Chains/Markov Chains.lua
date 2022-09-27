@@ -1,8 +1,7 @@
--- @version 0.1.12
+-- @version 0.1.13
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
---    [nomain] Sources/*.json
 -- @changelog
 --    + beta release
 
@@ -32,7 +31,7 @@ dofile(ScriptPath .. 'Functions/Generate New Sequences.lua') -- Functions for us
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.12'
+Version = '0.1.13'
 
 --- Settings
 SettingsFileName = "User Settings"
