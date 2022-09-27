@@ -1,6 +1,7 @@
 -- @version 0.1.13
 -- @author Daniel Lumertz
 -- @provides
+--    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + beta release
