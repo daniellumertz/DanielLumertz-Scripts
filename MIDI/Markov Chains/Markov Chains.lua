@@ -1,4 +1,4 @@
--- @version 0.1.13
+-- @version 0.1.14
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -32,7 +32,7 @@ dofile(ScriptPath .. 'Functions/Generate New Sequences.lua') -- Functions for us
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.13'
+Version = '0.1.14'
 
 --- Settings
 SettingsFileName = "User Settings"
