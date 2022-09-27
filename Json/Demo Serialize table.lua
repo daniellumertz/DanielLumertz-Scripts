@@ -45,7 +45,7 @@ end
 
 -- Get a Path to save json (using script path)
 local info = debug.getinfo(1, 'S');
-local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
+local ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]];
 
 -- A TABLE
 local test_table = {
@@ -55,10 +55,10 @@ local test_table = {
 }
 
 -- SAVING A TABLE TO JSON (it don't need to be a table, can be a number, string...)
-save_json(script_path, "my_preset", test_table)
+save_json(ScriptPath, "my_preset", test_table)
 
 -- LOADING THE TABLE 
-local loaded_var = load_json(script_path, "my_preset")
+local loaded_var = load_json(ScriptPath, "my_preset")
 
 print(loaded_var.table_in_a_table[1])
 print(loaded_var.dude)
