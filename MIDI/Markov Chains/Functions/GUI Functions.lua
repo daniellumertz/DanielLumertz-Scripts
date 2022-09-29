@@ -418,9 +418,12 @@ function VelocityRightClickMenu()
         retval, VelSettings.keep_start = reaper.ImGui_Checkbox(ctx, 'Keep Start', VelSettings.keep_start)
         ToolTip(GUISettings.tips, 'If true, the first nºOrder parameters from the selected notes will be the same, the markov will start from it.')
 
-        ----- Drop
+        reaper.ImGui_Separator(ctx)
+        ----- Drop/Group
         local is_drop = VelSettings.drop and true
         local retval, is_drop= reaper.ImGui_Checkbox(ctx, 'Group',is_drop)
+        ToolTip(GUISettings.tips, 'If true, will group velocity in groups, usefull for groupping the possibilities by reducing the resolution.')
+
         if retval then
             if is_drop then
                 VelSettings.drop = {{low = 1, high = 40},{low = 41, high = 100},{low = 101, high = 127}} -- Make this a slider
@@ -428,8 +431,33 @@ function VelocityRightClickMenu()
                 VelSettings.drop = false
             end
         end        
-        ToolTip(GUISettings.tips, 'If true, will group velocity in groups, usefull for agrouping low medium high velocities in groups for markov, instead of separate values. There is no way to set the groups sizes right now I am working on a widget for that!')
 
+        if VelSettings.drop then 
+            reaper.ImGui_Text(ctx, 'Groups divisions')
+            -- Make the Grabber Table
+            local grabbers = {}
+            for i = 1, #VelSettings.drop-1 do
+                grabbers[i] = VelSettings.drop[i].high
+            end
+            -- Slider
+            reaper.ImGui_SetNextItemWidth(ctx, 150)
+            local boll, grabbers = ImGui_MultiSlider(ctx,'##MultisliderDrop',grabbers,1,127,true)
+
+            -- If Change then new Grabber Table to VelSettings.drop 
+            if boll then
+                VelSettings.drop = {}
+                local old_grab_val = 1
+                for index, value in ipairs(grabbers) do
+                    VelSettings.drop[index] = {}
+                    VelSettings.drop[index].high = value
+                    VelSettings.drop[index].low = old_grab_val     
+                    old_grab_val = value            
+                end
+                -- Last Group
+                table.insert( VelSettings.drop, {low = old_grab_val, high = 127})
+            end
+
+        end 
 
         reaper.ImGui_EndPopup(ctx)
     end    

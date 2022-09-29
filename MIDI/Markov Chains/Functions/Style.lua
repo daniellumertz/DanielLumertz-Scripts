@@ -23,11 +23,13 @@ function PushGeneralStyle()
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_HeaderHovered(),    0x47F8DE62)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_HeaderActive(),     0x47F8DEA2)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Separator(),        0xCCF7FF80)
+    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_SliderGrab(),       0x1D7D62FF)
+    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_SliderGrabActive(), 0x31CFA2FF)
 end
 
 function PopGeneralStyle()
     reaper.ImGui_PopStyleVar(ctx, 4)
-    reaper.ImGui_PopStyleColor(ctx, 16)
+    reaper.ImGui_PopStyleColor(ctx, 18)
 end
 
 

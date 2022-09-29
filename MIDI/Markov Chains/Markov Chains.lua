@@ -1,10 +1,10 @@
--- @version 0.1.14
+-- @version 0.1.15
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + beta release
+--    + Add velocity slider
 
 local info = debug.getinfo(1, 'S');
 ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -28,11 +28,12 @@ dofile(ScriptPath .. 'Functions/Music General Functions.lua') -- Functions for u
 dofile(ScriptPath .. 'Functions/Style.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Drop Enhance Resolution Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Generate New Sequences.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/ImGUI Widgets.lua') -- Functions for using the markov in reaper
 
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.14'
+Version = '0.1.15'
 
 --- Settings
 SettingsFileName = "User Settings"

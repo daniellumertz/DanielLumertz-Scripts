@@ -1,8 +1,8 @@
 --@noindex
 function loop()
+    PushGeneralStyle()
     --demo.PushStyle(ctx)
     --demo.ShowDemoWindow(ctx)
-    PushGeneralStyle()
 
     if not reaper.ImGui_IsAnyItemActive(ctx)  then -- maybe overcome TableHaveAnything
         PassKeys()
