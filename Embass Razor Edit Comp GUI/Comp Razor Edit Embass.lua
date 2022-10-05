@@ -1,16 +1,16 @@
--- @version 1.4.1
+-- @version 1.4.2
 -- @author Embass, Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 -- @changelog
---    + Add Option to keep track colors
+--    + correct gui bug related to text input label
 
 ----------------------
 --Script info
 ----------------------
 
-script_version = "1.4.1"
-
+script_version = "1.4.2"
+---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 --- Loading
@@ -358,7 +358,7 @@ function GuiLoop()
 
         reaper.ImGui_SameLine(ctx)
         reaper.ImGui_PushItemWidth( ctx,  -1) -- Set the input text size to match the window
-        _, _ = reaper.ImGui_InputText(ctx, '', dest_number,reaper.ImGui_InputTextFlags_ReadOnly())
+        _, _ = reaper.ImGui_InputText(ctx, '##textinput', dest_number,reaper.ImGui_InputTextFlags_ReadOnly())
         ToolTip('Show Dest Tracks')
     
         -------------- Do It
