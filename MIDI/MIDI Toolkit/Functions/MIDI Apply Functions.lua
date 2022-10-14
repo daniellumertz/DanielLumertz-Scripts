@@ -1,7 +1,7 @@
 --@noindex
--- version 0.2
+-- version 0.2.1
 -- changelog
--- bugfix quantize rhythm ppq at TransposeToPPQ, when using QN and Sec as unit
+-- limit all velocities from 1 to 127
 
 ---Generate a take and then Apply a sequence of parameters to the notes. If sequence is bigger than the notes selected it will loop around. Each parameter table is a table with tables for each event  that conatins and numbers or strings for the parameters , if as strings and use_mutesymbol the parameter can have a mute symbol at the end and  that will mute the note else will be nonmuted. If use_mutesymbol false then it wont change the mute flag using the mute symbol, it can change with the mute sequence tho. This function utilizes a simillar function named ApplyParameterSequenceToSelectedNotes. This function sort the notes by time and pitch bottom up bedore pasting, which is impossible with the same of ApplyParameterSequenceToSelectedNotes; 
 ---@param track Track The track to create the MIDI Item
@@ -1159,8 +1159,8 @@ function ApplyParameterSequenceToNotes(take, is_selected, event_size, is_event, 
 
                     if vel_sequence.interpolate then
                         new_vel = math.floor(InterpolateBetween2(new_vel,val2,vel_sequence.interpolate)+0.5)
-                        new_vel = LimitNumber(new_vel,0,127)
                     end
+                    new_vel = LimitNumber(new_vel,1,127)
                 end
                 
                 local new_len

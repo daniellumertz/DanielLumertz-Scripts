@@ -9,7 +9,7 @@ function CopyParam(event_size,is_event)
 end
 
 function PasteParam(param,new_param_seq,interpolate,event_size,is_event,complete)
-    if #new_param_seq <= 0 then return end
+    if not new_param_seq or #new_param_seq <= 0 then return end
 
     if param == 'groove' then
         new_param_seq = MakeGrooveTable(new_param_seq)

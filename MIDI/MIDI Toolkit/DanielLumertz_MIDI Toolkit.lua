@@ -1,16 +1,18 @@
--- @version 0.1.16
+-- @version 0.1.17
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
 -- @changelog
---    + Beta release
+--    + Copy Paste: Check for Copy before trying to paste
+--    + Serializer: Fix adding vals
+--    + Add Tooltips
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '0.1.16'
+Version = '0.1.17'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');

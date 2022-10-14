@@ -32,6 +32,7 @@ function MainLoop()
         --- GUI MAIN:
         CopyPaste()
         PermutateGUI()
+        
         -- Mapper   
         local mapper_y = reaper.ImGui_GetCursorPosY(ctx)
         Mapper()

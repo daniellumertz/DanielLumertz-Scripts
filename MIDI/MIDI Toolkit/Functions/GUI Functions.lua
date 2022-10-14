@@ -24,8 +24,9 @@ function MenuBar()
             local _
 
             _, GUISettings.tips = reaper.ImGui_MenuItem(ctx, 'Show ToolTips', optional_shortcutIn, GUISettings.tips) 
-
             --_, GUISettings.pitch_as_numbers = reaper.ImGui_MenuItem(ctx, 'Show Pitch as Numbers', optional_shortcutIn, GUISettings.pitch_as_numbers) 
+            _, GUISettings.use_sharps = reaper.ImGui_MenuItem(ctx, 'Pitch Names With Sharps', optional_shortcutIn, GUISettings.use_sharps)
+            ToolTip(GUISettings.tips, 'If enabled, pitch names will be with sharp. If false pitch names will be with flats')
 
 
             reaper.ImGui_Separator(ctx) ---------------------
@@ -87,9 +88,12 @@ function MenuBar()
 end
 
 function PermutateGUI()
-    if not reaper.ImGui_CollapsingHeader(ctx, 'Permutator',false) then
+    if not reaper.ImGui_CollapsingHeader(ctx, 'Rotator',false) then
+        ToolTip(GUISettings.tips, 'Rotate the parameters on selected notes')
         return
     end
+    ToolTip(GUISettings.tips, 'Rotate the parameters on selected notes')
+
 
     -- Pitch
     reaper.ImGui_PushFont(ctx, FontTitle) 
@@ -111,6 +115,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the pitch values upwards.\n E.g. the sequence of notes is 20 127 1 30 will become 30 1 20 127.')
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'E##pitchdown') then
@@ -123,6 +128,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the pitch values downwards.\n E.g. the sequence of notes is 20 127 1 30 will become 1 30 127 20.')
+
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'B##pitchleft') then 
@@ -135,6 +142,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the pitch values to the left.\n E.g. the sequence of notes is 20 127 1 30 will become 127 1 30 20.')
+
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'C##pitchright') then 
@@ -147,6 +156,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the pitch values to the right.\n E.g. the sequence of notes is 20 127 1 30 will become 30 20 127 1.')
 
 
     reaper.ImGui_PopFont(ctx) -- Pop Font
@@ -173,6 +183,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the interval values upwards.\n E.g. the sequence of notes is 2 7 -3 3 will become 3 -3 2 7.')
+
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'E##intdown') then
@@ -185,6 +197,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the interval values downwards.\n E.g. the sequence of notes is 2 7 -3 3 will become -3 3 7 2.')
+
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'B##intervalleft') then 
@@ -197,6 +211,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the interval values to the left.\n E.g. the sequence of notes is 2 7 -3 3 will become 7 -3 3 2.')
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'C##intervalright') then 
@@ -209,6 +224,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the interval values to the right.\n E.g. the sequence of notes is 2 7 -3 3 will become 3 2 7 -3.')
+
     reaper.ImGui_PopFont(ctx)
 
     reaper.ImGui_Separator(ctx)
@@ -233,6 +250,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the rhythm values upwards.\n E.g. the sequence of rhythms is 0.25 0.5 1 0.33 will become 0.33 1 0.25 0.5')
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'E##rhythmdown') then
@@ -245,6 +263,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the rhythm values downwards.\n E.g. the sequence of rhythms is 0.25 0.5 1 0.33 will become 1 0.33 0.5 0.25')
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'B##rhythmleft') then 
@@ -256,7 +275,8 @@ function PermutateGUI()
                 StuckFunction = nil
             end
         end
-    end        
+    end
+    ToolTip(GUISettings.tips, 'Rotate the rhythm values to the left.\n E.g. the sequence of rhythms is 0.25 0.5 1 0.33 will become 0.5 1 0.33 0.25.')        
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'C##rhythmright') then 
@@ -269,6 +289,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the rhythm values to the right.\n E.g. the sequence of rhythms is 0.25 0.5 1 0.33 will become 0.33 0.25 0.5 1.')
 
     reaper.ImGui_PopFont(ctx)
 
@@ -295,6 +316,7 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the measure position of each note upwards.\n E.g. the sequence of measure positions is 0 1 2 3.5 will become 1 2 3.5 0')
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'E##rmeasurep') then
@@ -307,6 +329,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the measure position of each note downwards.\n E.g. the sequence of measure positions is 0 1 2 3.5 will become 3.5 0 1 2')
+
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'B##MPleftt') then 
@@ -319,6 +343,7 @@ function PermutateGUI()
             end
         end
     end    
+    ToolTip(GUISettings.tips, 'Rotate the measure position of each note to the left.\n E.g. the sequence of measure positions is 0 1 2 3.5 will become 1 2 3.5 0')
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'C##MPleft') then 
@@ -331,6 +356,9 @@ function PermutateGUI()
             end
         end
     end    
+    ToolTip(GUISettings.tips, 'Rotate the measure position of each note to the right.\n E.g. the sequence of measure positions is 0 1 2 3.5 will become 3.5 0 1 2')
+
+    
     reaper.ImGui_PopFont(ctx)
 
     reaper.ImGui_Separator(ctx)
@@ -356,6 +384,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the velocity values upwards.\n E.g. the sequence of notes is 20 127 1 30 will become 30 1 20 127.')
+
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx, 'E##veldown') then
@@ -368,6 +398,8 @@ function PermutateGUI()
             end
         end
     end
+    ToolTip(GUISettings.tips, 'Rotate the velocity values downwards.\n E.g. the sequence of notes is 20 127 1 30 will become 1 30 127 20.')
+
 
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx,  'B##Velleft') then 
@@ -379,7 +411,9 @@ function PermutateGUI()
                 StuckFunction = nil
             end
         end
-    end  
+    end
+    ToolTip(GUISettings.tips, 'Rotate the velocity values to the left.\n E.g. the sequence of notes is 20 127 1 30 will become 127 1 30 20.')
+  
     
     reaper.ImGui_SameLine(ctx,nil,3)
     if reaper.ImGui_Button(ctx,  'C##VelRight') then 
@@ -393,12 +427,15 @@ function PermutateGUI()
         end
     end  
     reaper.ImGui_PopFont(ctx)
+    ToolTip(GUISettings.tips, 'Rotate the velocity values to the right.\n E.g. the sequence of notes is 20 127 1 30 will become 30 20 127 1.')
 end
+
 
 function Reorder()
     local flags = MapperIsDrag and reaper.ImGui_TreeNodeFlags_OpenOnDoubleClick() or nil 
     
     local open = reaper.ImGui_CollapsingHeader(ctx, 'Serializer',false,flags)
+    ToolTip(GUISettings.tips, 'Set a serie of parameters to the selected notes. Reorder current parameters.')
 
     local y -- return the delta over the header
     if reaper.ImGui_IsItemActive(ctx) then
@@ -424,6 +461,8 @@ function Reorder()
         end
         reaper.ImGui_EndCombo(ctx)
     end
+    ToolTip(GUISettings.tips, 'Choose the parameter. Right Click for more options.')
+
 
     -- Reorder: Buttons
     reaper.ImGui_SameLine(ctx, Gui_W-80)
@@ -432,15 +471,20 @@ function Reorder()
         ReorderTable[SelectedParam] = RandomizeParamsReorder(ReorderTable[SelectedParam])
         SetParamsReorder(Gap,IsGap,ReorderTable,SelectedParam)
     end
+    ToolTip(GUISettings.tips, 'Shuffle the values of the selected parameter.')
+
     reaper.ImGui_SameLine(ctx, nil, 2)
     if reaper.ImGui_Button(ctx, 'H##Reordercopy') then--copy
         GetParamsReorder(Gap,IsGap,ReorderTable)
     end
+    ToolTip(GUISettings.tips, 'Get the parameter values from selected notes.')
+
+
     reaper.ImGui_SameLine(ctx, nil, 2)
     if reaper.ImGui_Button(ctx, 'I##Reorderpaste') then -- paste
         SetParamsReorder(Gap,IsGap,ReorderTable,SelectedParam)
     end
-
+    ToolTip(GUISettings.tips, 'Set the parameter values to selected notes.')
 
 
     reaper.ImGui_PopFont(ctx)
@@ -469,6 +513,8 @@ function Reorder()
             name = name:gsub(internal_sep,', ')
 
             reaper.ImGui_Selectable(ctx, name)
+            ToolTip(GUISettings.tips, 'Parameter value, right click for setting the value or delting. Drag over other values to change the order, drag and hold control/command to copy the value, hold alt to swap places.')
+
 
             if reaper.ImGui_IsItemHovered(ctx) then
                 selectable_hover = true
@@ -477,6 +523,8 @@ function Reorder()
             if reaper.ImGui_BeginPopupContextItem(ctx) then
                 TempNewName = TempNewName or name 
                 local retval, TempNewName = reaper.ImGui_InputText(ctx, '##'..SelectedParam..i, TempNewName)
+                ToolTip(GUISettings.tips, 'Set a new value for this parameter.')
+
                 if reaper.ImGui_IsItemDeactivated(ctx) then -- try to see if is a valid input if is insert on the table and set order
                     ChangeParamReorder(TempNewName,i)
                     TempNewName = nil
@@ -487,6 +535,8 @@ function Reorder()
                     table.remove(ReorderTable[SelectedParam],i)
                     SetParamsReorder(Gap,IsGap,ReorderTable,SelectedParam)
                 end
+                ToolTip(GUISettings.tips, 'Delete this parameter value.')
+
                 reaper.ImGui_EndPopup(ctx)
             end
 
@@ -531,10 +581,11 @@ function Reorder()
         end
         reaper.ImGui_EndChild(ctx)
         local child_is_hovered = reaper.ImGui_IsItemHovered(ctx)
-        if reaper.ImGui_IsMouseDoubleClicked(ctx, 0) then
-            if child_is_hovered and not selectable_hover then
-                print(ReorderTable[SelectedParam][#ReorderTable])
-                table.insert(ReorderTable[SelectedParam],ReorderTable[SelectedParam][#ReorderTable[SelectedParam]] or 1)
+        if child_is_hovered and not selectable_hover then
+            ToolTip(GUISettings.tips, 'Double click to add a new value.')
+            
+            if reaper.ImGui_IsMouseDoubleClicked(ctx, 0) then
+                table.insert(ReorderTable[SelectedParam],ReorderTable[SelectedParam][#ReorderTable[SelectedParam]] or '1')
             end
         end
     end 
@@ -546,8 +597,10 @@ end
 function Mapper()
 
     if not reaper.ImGui_CollapsingHeader(ctx, 'Mapper',false) then
+        ToolTip(GUISettings.tips, 'Swap parameter values.')
         return
     end
+    ToolTip(GUISettings.tips, 'Swap parameter values.')
 
     local x1 = reaper.ImGui_GetCursorPosX(ctx)
     reaper.ImGui_SetCursorPosX(ctx, x1)
@@ -566,7 +619,7 @@ function Mapper()
                 reaper.ImGui_SetNextItemWidth(ctx, -1)
                 local change
                 change, MapperSettings.quantize_text = reaper.ImGui_InputText(ctx, '###quantizedrop', MapperSettings.quantize_text, reaper.ImGui_InputTextFlags_CharsDecimal())
-                ToolTip(GUISettings.tips, 'Quantize value')
+                ToolTip(GUISettings.tips, 'Quantize Rhythm and Measure Positions Values, unit are in Quarter Notes.')
     
                 if (not reaper.ImGui_IsItemActive(ctx)) then
                     local function error() end
@@ -589,6 +642,8 @@ function Mapper()
         end
         reaper.ImGui_EndCombo(ctx)
     end
+    ToolTip(GUISettings.tips, 'Choose the parameter. Right Click for more options.')
+
     right_click()
 
 
@@ -602,11 +657,13 @@ function Mapper()
     if reaper.ImGui_Button(ctx, 'H##Mappercopy') then--copy
         MapperTable = GetParamsMapper(Gap,IsGap)
     end
+    ToolTip(GUISettings.tips, 'Get the values from the selected notes.')
+
     reaper.ImGui_SameLine(ctx, nil, 2)
     if reaper.ImGui_Button(ctx, 'I##Mapperpaste') then -- paste
         SetParamsMapper(Gap,IsGap,MapperTable,MapperSelectedParam)
     end
-
+    ToolTip(GUISettings.tips, 'Set the values for the selected notes.')
 
 
     reaper.ImGui_PopFont(ctx)
@@ -643,6 +700,8 @@ function Mapper()
 
             reaper.ImGui_SetNextItemWidth(ctx, 2*width_avail/3)
             retval, parameter_table.new_value = reaper.ImGui_InputText(ctx, name, parameter_table.new_value)
+            ToolTip(GUISettings.tips, 'Set a new value for every '..MapperSelectedParam..' parameter with the value of '..name..'.')
+
             --WriteAtLastObjectasShortkey('text', 255,255,255,255)
             
 
@@ -665,14 +724,20 @@ function CopyPaste()
             reaper.ImGui_Text(ctx, 'Copy')
             local _, change, save_current_state
             change, inter = reaper.ImGui_SliderDouble(ctx, '###InterSlider', inter, 0, 1, tostring(math.floor(inter*100))..'%%')
+            ToolTip(GUISettings.tips, 'Iterate between the current value and the copied value')
+
             if complete then
                 _, complete = reaper.ImGui_Checkbox(ctx, 'Fill all chord notes', complete)
+                ToolTip(GUISettings.tips, 'If true it will add notes when pasting chords. If false it will only modify the selected notes values')
             end
             save_current_state, IsAutoPaste = reaper.ImGui_Checkbox(ctx, 'Auto Paste', IsAutoPaste)
+            ToolTip(GUISettings.tips, 'If true and change the [iterate slider] above it will paste the values to the selected notes')
+
     
             if save_current_state then
                 SaveCopy = CopyParam(Gap,IsGap)
             end
+
             do_autopaste = change and IsAutoPaste
             if do_autopaste then
                 local name
@@ -691,8 +756,11 @@ function CopyPaste()
     end
 
     if not reaper.ImGui_CollapsingHeader(ctx, 'Copy Paste',false) then
+        ToolTip(GUISettings.tips, 'Copy the parameters of a group of notes to paste in other.')
         return
     end
+    ToolTip(GUISettings.tips, 'Copy the parameters of a group of notes to paste in other.')
+
 
     local btn_height = 29
     local btn_indent = 2
@@ -704,6 +772,8 @@ function CopyPaste()
         CopiedParameters = CopyParam(Gap,IsGap)
     end
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Copy all the parameters of the selected notes.')
+
     -- paste
     reaper.ImGui_Separator(ctx)
 
@@ -712,59 +782,67 @@ function CopyPaste()
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.pitch_inter)
-    if reaper.ImGui_Button(ctx, 'Pitch', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Pitch', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('pitch',CopiedParameters.pitch,CopySettings.pitch_inter,Gap,IsGap,PitchComplete)
     end
     CopySettings.pitch_inter,PitchComplete = slider_right_click('pitch',CopySettings.pitch_inter,PitchComplete)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the pitch of the copied notes. Right click to Interpolate between current and paste values.')
+
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.interval_inter)
-    if reaper.ImGui_Button(ctx, 'Interval', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Interval', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('interval',CopiedParameters.interval,CopySettings.interval_inter,Gap,IsGap,InterComplete)
     end
     CopySettings.interval_inter,InterComplete = slider_right_click('interval',CopySettings.interval_inter,InterComplete)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the interval of the copied notes. Right click to Interpolate between current and paste values.')
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.vel_inter)
-    if reaper.ImGui_Button(ctx, 'Velocity', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Velocity', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('vel',CopiedParameters.vel,CopySettings.vel_inter,Gap,IsGap)
     end
     CopySettings.vel_inter = slider_right_click('vel',CopySettings.vel_inter)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the velocity of the copied notes. Right click to Interpolate between current and paste values.')
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.rhythm_inter)
-    if reaper.ImGui_Button(ctx, 'Rhythm', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Rhythm', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('rhythm_qn',CopiedParameters.rhythm_qn,CopySettings.rhythm_inter,Gap,IsGap)
     end
     CopySettings.rhythm_inter = slider_right_click('rhythm_qn',CopySettings.rhythm_inter)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the rhythm of the copied notes. Right click to Interpolate between current and paste values.')
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.measure_pos_inter)
-    if reaper.ImGui_Button(ctx, 'Measure Pos', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Measure Pos', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('measure_pos_qn',CopiedParameters.measure_pos_qn,CopySettings.measure_pos_inter,Gap,IsGap)
     end
     CopySettings.measure_pos_inter = slider_right_click('measure_pos_qn',CopySettings.measure_pos_inter)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the measure position of the copied notes. Right click to Interpolate between current and paste values.')
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.groove_inter)
-    if reaper.ImGui_Button(ctx, 'Groove', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Groove', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('groove',CopiedParameters.measure_pos_qn,CopySettings.groove_inter,Gap,IsGap)
     end
     CopySettings.groove_inter = slider_right_click('groove',CopySettings.groove_inter)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Quantize selected notes to the measure position of the copied notes. Right click to Interpolate between current and paste values.')
 
     reaper.ImGui_SetCursorPosX(ctx, x_start+btn_indent)
     ButtonStylePush(CopySettings.len_inter)
-    if reaper.ImGui_Button(ctx, 'Length', -btn_indent, btn_height) then
+    if reaper.ImGui_Button(ctx, 'Length', -btn_indent, btn_height) and CopiedParameters then
         PasteParam('len_qn',CopiedParameters.len_qn,CopySettings.len_inter,Gap,IsGap)
     end    
     CopySettings.len_inter = slider_right_click('len_qn',CopySettings.len_inter)
     ButtonStylePop()
+    ToolTip(GUISettings.tips, 'Paste the length of the copied notes. Right click to Interpolate between current and paste values.')    
 
 end
 

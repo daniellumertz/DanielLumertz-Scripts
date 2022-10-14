@@ -30,12 +30,14 @@ end
 
 function ToolTip(is_tooltip, text)
     if is_tooltip and reaper.ImGui_IsItemHovered(ctx) then
+        reaper.ImGui_PushFont(ctx, FontText)
         reaper.ImGui_BeginTooltip(ctx)
         --reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 20)
         reaper.ImGui_PushTextWrapPos(ctx, 200)
         reaper.ImGui_Text(ctx, text)
         reaper.ImGui_PopTextWrapPos(ctx)
         reaper.ImGui_EndTooltip(ctx)
+        reaper.ImGui_PopFont(ctx)
     end
 end
 

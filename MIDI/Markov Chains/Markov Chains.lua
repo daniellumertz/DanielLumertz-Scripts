@@ -1,15 +1,15 @@
--- @version 0.1.15
+-- @version 0.1.16
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add velocity slider
+--    + Small Fix at internal MIDI Apply function
 
 local info = debug.getinfo(1, 'S');
 ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
---dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 
@@ -33,7 +33,7 @@ dofile(ScriptPath .. 'Functions/ImGUI Widgets.lua') -- Functions for using the m
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.15'
+Version = '0.1.16'
 
 --- Settings
 SettingsFileName = "User Settings"
