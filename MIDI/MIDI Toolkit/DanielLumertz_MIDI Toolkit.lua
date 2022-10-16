@@ -1,18 +1,19 @@
--- @version 0.1.17
+-- @version 0.1.18
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
 -- @changelog
---    + Copy Paste: Check for Copy before trying to paste
---    + Serializer: Fix adding vals
---    + Add Tooltips
+--    + Copy Paste: fix typo
+--    + Copy Paste: fix GUI 'copy' text position
+--    + Rotator: fix vertical rotation for non rhythm and measure_pos_qn
 
---dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+
+dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '0.1.17'
+Version = '0.1.18'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');

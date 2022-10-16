@@ -66,7 +66,7 @@ function PermutateVertical(param,is_up,event_size,is_event)
     local new_param_seq = TableDeepCopy(param_list[param])
     
     for event_idx, event_table in ipairs(param_list[param]) do
-        if param == 'measure_pos_qn' or 'rhythm_qn' then -- just get the first value
+        if param == 'measure_pos_qn' or param == 'rhythm_qn' then -- just get the first value
             event_table = {param_list[param][event_idx][1]}
         end
         for parameter_idx, parameter in ipairs(event_table) do

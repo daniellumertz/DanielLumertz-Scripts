@@ -720,11 +720,11 @@ function CopyPaste()
                 SaveCopy = nil
             end
             reaper.ImGui_Text(ctx, 'Original')
-            reaper.ImGui_SameLine(ctx, 185) -- Pad next text
+            reaper.ImGui_SameLine(ctx, 200) -- Pad next text
             reaper.ImGui_Text(ctx, 'Copy')
             local _, change, save_current_state
             change, inter = reaper.ImGui_SliderDouble(ctx, '###InterSlider', inter, 0, 1, tostring(math.floor(inter*100))..'%%')
-            ToolTip(GUISettings.tips, 'Iterate between the current value and the copied value')
+            ToolTip(GUISettings.tips, 'Interpolate between the current value and the copied value')
 
             if complete then
                 _, complete = reaper.ImGui_Checkbox(ctx, 'Fill all chord notes', complete)
