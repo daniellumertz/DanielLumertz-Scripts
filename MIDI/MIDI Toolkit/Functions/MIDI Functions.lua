@@ -592,6 +592,8 @@ function CreateNotesTable(is_selected,ignore_muted,is_combine_items,take_list)
 
     for k, take in ipairs(takes) do
         takes_table[#takes_table+1] = {}
+        SortNotes(take,true,true)
+
 
         local item  = reaper.GetMediaItemTake_Item(take)
         local item_start = reaper.GetMediaItemInfo_Value( item, 'D_POSITION' )
@@ -816,7 +818,7 @@ function CopyMIDIParametersFromEventList(take_table, mark_muted_pitch,mark_muted
         end
     end
 
-    -- sort the pitch table
+    -- copy pitch table list and sort it for interval (will calculate intervals inside events always in ascending order, independent which note came first)
     for event_idx, event_table in ipairs(copy_list.pitch) do
         table.sort(event_table, function(a,b)
             return tonumber(a:match('%d*')) < tonumber(b:match('%d*')) 
