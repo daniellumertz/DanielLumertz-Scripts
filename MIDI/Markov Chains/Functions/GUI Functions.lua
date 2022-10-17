@@ -146,7 +146,7 @@ function SourceCombo()
 
         -- Load Source Button
         if reaper.ImGui_Selectable(ctx, 'Load Source Table') then
-            SelectedSourceTable = LoadSource(AllSources)
+            SelectedSourceTable = LoadSource(AllSources) or SelectedSourceTable
         end
         ToolTip(GUISettings.tips, 'Load a Source Table from a file.')
 

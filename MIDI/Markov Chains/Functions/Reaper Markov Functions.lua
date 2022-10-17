@@ -50,7 +50,9 @@ function MidiParametersSeparate(parameter_string)
     local internal_sep = '&' -- for iterpolating multiple values in a single string.
 
     local new_event_table = {}
-
+    if not parameter_string then
+        print('here')
+    end
     parameter_string  = parameter_string .. internal_sep
     for param_val in parameter_string:gmatch('(.-)' .. internal_sep) do -- iterate between value(internal_sep)
         table.insert(new_event_table, param_val)
@@ -229,7 +231,7 @@ function ReaperApplyMarkov(SelectedSourceTable, pitch_settings, rhythm_settings,
         new_pitch_sequence, new_rhythm_sequence, new_vel_sequece, new_qn_pos_sequence = GenerateNewLinkSequence(original_sequence,markov_table,link_settings,pitch_settings,rhythm_settings,vel_setting)
     end
     --Rhythm
-    if rhythm_settings.mode == 1 and (not (link_count > 1 and link_settings.rhythm)) then -- Rhythm
+    if rhythm_settings.mode == 1 and (not (link_count > 1 and link_settings.rhythm)) and #original_notes > 1 then -- Rhythm
         --new_rhythm_sequence = GenerateNewSequence(original_sequence.rhythm_qn, markov_table.rhythm, #original_sequence.rhythm_qn, rhythm_settings, rhythm_settings.keep_start)
         new_rhythm_sequence, new_qn_pos_sequence = GenerateNewSequenceRhythm(original_sequence, markov_table.rhythm, #original_sequence.rhythm_qn, rhythm_settings, rhythm_settings.keep_start, PosQNWeight, mute_symbol)
     elseif rhythm_settings.mode == 2 and (not (link_count > 1 and link_settings.rhythm)) then -- Measure position

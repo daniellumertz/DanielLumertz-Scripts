@@ -99,7 +99,7 @@ end
 ---@param vel_sequence any
 function EnhanceResolution(pitch_sequence,pos_sequence,vel_sequence, pitch_settings, rhythm_settings, vel_settings, link_settings, original_notes,mute_symbol)
     local is_linked = link_settings.pitch and link_settings.order and link_settings.order > 1
-    if pitch_settings.drop and pitch_settings.mode == 1  then -- if drop resolution and mode == 1  will drop the resolution to pitch classes 0 based (0 - pitch_settings.drop)
+    if pitch_settings.drop and pitch_settings.mode == 1 and TableCheckValues(pitch_sequence, 'sequence') then -- if drop resolution and mode == 1  will drop the resolution to pitch classes 0 based (0 - pitch_settings.drop)
         local new_sequence = {}
         local last_note -- used to compare the next closest note
         -- If keep start add the start from original. as the new sequence is pitch class, it lost the octave information
@@ -135,7 +135,7 @@ function EnhanceResolution(pitch_sequence,pos_sequence,vel_sequence, pitch_setti
     if rhythm_settings.drop then -- Do fucking nothing is just a quantize at the drop, there is no enhance 
     end
 
-    if vel_settings.drop and vel_settings.mode == 1  then
+    if vel_settings.drop and vel_settings.mode == 1 and TableCheckValues(vel_sequence, 'sequence') then
         local new_sequence = {}
         -- If keep start add the start from original. as the new sequence is pitch class, it lost the octave information
         if vel_settings.keep_start or (is_linked and link_settings.keep_start)  then -- Get original notes that start the selected notes (they are already at the pitch_sequence.sequence but are in the pitch class form)

@@ -5,6 +5,10 @@
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + Small Fix at internal MIDI Apply function
+--    + Fix when cancelling a Load Source table
+--    + To apply rhythm need to have more than 1 event selected
+--    + Check if source table is empty at enchance resolution
+
 
 local info = debug.getinfo(1, 'S');
 ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]]

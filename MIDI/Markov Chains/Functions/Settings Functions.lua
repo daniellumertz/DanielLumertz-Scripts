@@ -130,6 +130,8 @@ function LoadSource(AllSources)
         
         AllSources[#AllSources+1] = temp_source
         return temp_source
+    else
+        return false
     end
 end
 
