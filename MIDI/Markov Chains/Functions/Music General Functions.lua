@@ -47,3 +47,82 @@ function GetClosestNote(note,new_pitch_class,octave_size)
         end
     end
 end
+
+function NumberToNote(number, is_sharp, is_octave, center_c_octave) -- Number, boolean(optional), boolean(optional), number(optional)
+    if center_c_octave == nil then
+        center_c_octave = 4
+    end
+    if is_sharp == nil then
+        is_sharp = true
+    end
+    if is_octave == nil then
+        is_octave = true
+    end
+
+    local note_names_sharp = {'C','C#','D','D#','E','F','F#','G','G#','A','A#','B'}
+    local note_names_flat = {'C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'}
+    local note_names = is_sharp and note_names_sharp or note_names_flat
+    local pitch_class = note_names[(number % 12)+1] 
+    if is_octave then
+        local octave_number = math.floor((number / 12) - (5-center_c_octave))
+        pitch_class = pitch_class..octave_number
+    end
+
+    return pitch_class
+end
+
+function NoteToNumber(note,center_c_octave) -- Number, number(optional)
+    if center_c_octave == nil then
+        center_c_octave = 4
+    end
+    
+    local pitch_class_step = note:sub(1,1)
+    local pitch_class_step = pitch_class_step:upper() -- to match
+    local steps_names = {C = 0, D = 2, E = 4, F = 5, G = 7, A = 9, B = 11}
+    local pitch_class_number = steps_names[pitch_class_step]
+    if not pitch_class_number then return false end
+
+    local octave_number = string.match(note, "[%-%d]+") 
+    local accidents = note:match(pitch_class_step..'(.*)'..(octave_number or ''))
+    
+    octave_number = octave_number or center_c_octave
+    octave_number = tonumber(octave_number) or center_c_octave
+    octave_number = octave_number + (5-center_c_octave)
+    
+    if accidents then
+        for accident in accidents:gmatch('.') do
+            if accident == '#' then
+                pitch_class_number = pitch_class_number + 1
+            elseif accident:lower() == 'b' then
+                pitch_class_number = pitch_class_number - 1
+            end
+        end
+    end
+
+    local number = pitch_class_number + (12 * octave_number)
+    return number
+end
+
+function IsStringNote(string)
+    local is = false
+    local note_names_sharp = {'C','C#','D','D#','E','F','F#','G','G#','A','A#','B'}
+    local note_names_flat = {'C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'}
+
+    local pitch_class_name = string.match(string, '[%a#]*')
+    for k, v in pairs(note_names_sharp) do
+        if pitch_class_name == v then 
+            is = true
+            goto continue
+        end
+    end
+
+    for k, v in pairs(note_names_flat) do
+        if pitch_class_name == v then 
+            is = true
+            goto continue
+        end
+    end
+
+    ::continue::
+    return is
+end

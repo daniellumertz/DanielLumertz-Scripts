@@ -1,15 +1,11 @@
--- @version 0.1.17
+-- @version 0.1.18
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
+-- @license MIT
 -- @changelog
---    + Small Fix at internal MIDI Apply function
---    + Fix when cancelling a Load Source table
---    + To apply rhythm need to have more than 1 event selected
---    + Check if source table is empty at enchance resolution
---    + Remove debug line
-
+--    + Better Print transition probabilities
 
 
 local info = debug.getinfo(1, 'S');
@@ -39,7 +35,7 @@ dofile(ScriptPath .. 'Functions/ImGUI Widgets.lua') -- Functions for using the m
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.17'
+Version = '0.1.18'
 
 --- Settings
 SettingsFileName = "User Settings"

@@ -50,9 +50,6 @@ function MidiParametersSeparate(parameter_string)
     local internal_sep = '&' -- for iterpolating multiple values in a single string.
 
     local new_event_table = {}
-    if not parameter_string then
-        print('here')
-    end
     parameter_string  = parameter_string .. internal_sep
     for param_val in parameter_string:gmatch('(.-)' .. internal_sep) do -- iterate between value(internal_sep)
         table.insert(new_event_table, param_val)
@@ -148,6 +145,8 @@ function PrintChanceTable(SelectedSourceTable, pitch_settings, rhythm_settings, 
     local separetor = ';'
     local internal_sep = '&' -- for iterpolating multiple values in a single string.
     local delete_note_symbol = '\1'
+    local print_separator = ' + ' -- between values in a single event
+    local print_separator_events = ' | ' -- between events
 
     -------------------------------------
     local markov_table = CreateMarkovTableFromSource(SelectedSourceTable, pitch_settings, rhythm_settings, vel_setting,link_settings, mute_symbol, nothing_symbol)
@@ -160,6 +159,20 @@ function PrintChanceTable(SelectedSourceTable, pitch_settings, rhythm_settings, 
                 local total_sum = 0
                 local new_t = {}
                 for index, next_val in pairs(possible_next_val) do
+                    -- Transforms next_val from number to note string
+                    if param_type == 'pitch' and next_val ~= nothing_symbol then 
+                        local next_val_tab = MidiParametersSeparate(next_val)
+                        next_val = ''
+                        for index, val in ipairs(next_val_tab) do
+                            val = tonumber(val)
+                            if val then 
+                                next_val = next_val..NumberToNote(val,true,not pitch_settings.drop)..internal_sep
+                            end
+                        end
+                        next_val = next_val:sub(1,-2)
+                    end
+                    next_val = next_val:gsub(internal_sep, print_separator)
+                    ---
                     if next_val == nothing_symbol then goto continue end
                     if new_t[next_val] then -- increase the value chance
                         new_t[next_val] = new_t[next_val] + 1
@@ -172,13 +185,41 @@ function PrintChanceTable(SelectedSourceTable, pitch_settings, rhythm_settings, 
 
                 -- Transform table from count to percentages
                 for next_val, count in pairs(new_t) do
-                    new_t[next_val] = tostring((count / total_sum)*100)..'%'
+                    new_t[next_val] = string.format("%.2f%%", tostring((count / total_sum)*100))
                 end
                 ------------
+                -- Transforms next_val from number to note string
+
+                if param_type == 'pitch' and last_value ~= nothing_symbol  then
+                    local last_value_new = ''
+                    for last_value in last_value:gmatch('[^'..separetor..']+') do -- iterate each order event
+                        local last_val_tab = MidiParametersSeparate(last_value)
+                        for index, val in ipairs(last_val_tab) do -- iterate pitch value
+                            local number_val = tonumber(val)
+                            if number_val then 
+                                last_value_new = last_value_new..NumberToNote(number_val,true,not pitch_settings.drop)
+                            else
+                                last_value_new = last_value_new..val
+                            end
+                            last_value_new = last_value_new..internal_sep -- add internal separator between each event pitch value
+                        end
+                        last_value_new = last_value_new:sub(1,-2)-- remove last internal_sep
+                        last_value_new = last_value_new..separetor -- add separator between each last order event 
+                    end
+                    last_value = last_value_new:sub(1,-2)
+                end
+                last_value = last_value:gsub(internal_sep, print_separator)
+                last_value = last_value:gsub(separetor, print_separator_events)
+                last_value = last_value:gsub(nothing_symbol, 'Start')
+
+
+                ---
+                
                 chance_table[last_value] = new_t
 
                 ::continue::
             end
+
 
             print('-------------------------')
             print('------------------  '..param_type)
