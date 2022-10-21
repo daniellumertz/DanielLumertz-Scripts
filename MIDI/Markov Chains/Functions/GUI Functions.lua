@@ -210,6 +210,16 @@ function MenuBar()
             end
             ToolTip(GUISettings.tips, 'Recommended Donation : One Billion dollars')
 
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
+            end
+
+            if reaper.ImGui_MenuItem(ctx, 'Manual') then
+                open_url('https://drive.google.com/file/d/1Ci1yCuG7hoFg7vPJfOLKSXKQLg6DbQky/view?usp=sharing')
+            end
+
+
+
             reaper.ImGui_EndMenu(ctx)
 
         end
