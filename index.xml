@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="0a32fd519975f38db6820f21c52440905e7f7be0">
+<index version="1" name="Daniel Lumertz Scripts" commit="d9179b1a7487c4c81a5a54f5d18751838d21b372">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -719,6 +719,26 @@
         <source file="Functions/Reaper Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0a32fd519975f38db6820f21c52440905e7f7be0/MIDI/Markov%20Chains/Functions/Reaper%20Markov%20Functions.lua</source>
         <source file="Functions/Settings Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0a32fd519975f38db6820f21c52440905e7f7be0/MIDI/Markov%20Chains/Functions/Settings%20Functions.lua</source>
         <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/0a32fd519975f38db6820f21c52440905e7f7be0/MIDI/Markov%20Chains/Functions/Style.lua</source>
+      </version>
+      <version name="0.1.18" author="Daniel Lumertz" time="2022-10-20T07:19:43Z">
+        <changelog><![CDATA[+ Better Print transition probabilities]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Markov%20Chains.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Drop Enhance Resolution Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Drop%20Enhance%20Resolution%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/GUID Convert.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/GUID%20Convert.lua</source>
+        <source file="Functions/General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/General%20Functions.lua</source>
+        <source file="Functions/Generate New Sequences.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Generate%20New%20Sequences.lua</source>
+        <source file="Functions/ImGUI Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/ImGUI%20Widgets.lua</source>
+        <source file="Functions/Json Main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Json%20Main.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop Function.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Main%20Loop%20Function.lua</source>
+        <source file="Functions/Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Markov%20Functions.lua</source>
+        <source file="Functions/Music General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Music%20General%20Functions.lua</source>
+        <source file="Functions/Reaper Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Reaper%20Markov%20Functions.lua</source>
+        <source file="Functions/Settings Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Settings%20Functions.lua</source>
+        <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9179b1a7487c4c81a5a54f5d18751838d21b372/MIDI/Markov%20Chains/Functions/Style.lua</source>
       </version>
     </reapack>
   </category>
