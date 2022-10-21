@@ -395,7 +395,8 @@ function ApplyMarkovWeighted(original_t_markov, last_val, filter_nothing, ...)
                 if weight_table.type == 'specific' then
                     for w_key, w_value in ipairs(weight_table.w_values) do
                         local val = tonumber(MidiParametersSeparate(value_table.val)[1]) -- the first event val
-                        if val == w_value.val then --maybe I should check if  w_value.val cant be a string
+                        local w_val_num = tonumber(MidiParametersSeparate(w_value.val)[1]) -- the first event val
+                        if val == w_val_num then 
                             value_table.chance = value_table.chance * (w_value.w) -- other options is (weight_table.w*w_value.w). But I am already using weight_table.w to scale w_value.w
                             break
                         end

@@ -72,71 +72,6 @@ function AddNoteSelectionToSourceTable(source_table, event_size, is_event, combi
     end
 end
 
-function ReaperGenerateNewItemMarkov(SelectedSourceTable, pitch_settings, rhythm_settings, vel_setting, link_settings, event_size, is_event, legato, number_of_events)
-    reaper.Undo_BeginBlock2(0)
-    reaper.PreventUIRefresh(1)
-    -- Generate Markov sequences
-    local mute_symbol = 'M'
-    local nothing_symbol = '*'
-    local separetor = ';'
-    local internal_sep = '&' -- for iterpolating multiple values in a single string.
-    local delete_note_symbol = '\1'
-
-    -------------------------------------
-    -- Learn the markov table from source
-    -------------------------------------
-    local markov_table = CreateMarkovTableFromSource(SelectedSourceTable, pitch_settings, rhythm_settings, vel_setting, link_settings, mute_symbol)
-
-    ------------------------
-    -- Generate New Sequences
-    -------------------------
-    local new_pitch_sequence
-    local new_interval_sequence
-    local new_rhythm_sequence
-    local new_measurepos_sequence
-    local new_vel_sequece
-
-    -- Pitch
-    if pitch_settings.mode == 1 then -- Pitch
-        new_pitch_sequence = GenerateNewSequence(nil, markov_table.pitch, number_of_events,pitch_settings, false)
-    elseif pitch_settings.mode == 2 then -- Interval
-        new_interval_sequence = GenerateNewSequence(nil, markov_table.interval,number_of_events, pitch_settings, false)
-    end
-    --Rhythm
-    if rhythm_settings.mode == 1 then -- Rhythm
-        new_rhythm_sequence = GenerateNewSequence(nil, markov_table.rhythm, number_of_events, rhythm_settings, false)
-    elseif rhythm_settings.mode == 2 then -- Measure position
-        new_measurepos_sequence = GenerateNewSequence(nil, markov_table.measure_pos, number_of_events, rhythm_settings, false)
-    end
-    -- Vel
-    if vel_setting.mode == 1 then -- Vel
-        new_vel_sequece = GenerateNewSequence(nil, markov_table.vel, number_of_events,vel_setting, false)
-    end
-
-    ----------------------
-    -- Prepare sequences
-    ----------------------
-
-    -- In the new sequences remove nothing symbol from the start of sequence(if settings.keep_start is false).
-    local all_sequences = { pitch = {settings = pitch_settings, sequence = new_pitch_sequence or new_interval_sequence},
-                            rhythm = {settings = rhythm_settings, sequence = new_rhythm_sequence or new_measurepos_sequence},
-                            vel  = {settings = vel_setting, sequence = new_vel_sequece}} -- just to batch process all sequences.
-
-    
-    local pitch_sequence, pos_sequence, vel_sequence  = PrepareNewSequencesToApply(all_sequences, mute_symbol, nothing_symbol, internal_sep)
-
-
-    ----------------------
-    -- Create Item sequences
-    ----------------------
-    local track = reaper.GetLastTouchedTrack()
-    local time = reaper.GetCursorPosition()
-    CreateItemFromParameterSequence(track, time, number_of_events, event_size, is_event, pitch_sequence, pos_sequence, vel_sequence, nil, nil, nil, mute_symbol,true)
-    --ApplyParameterSequenceToNotesMultipleTakes(event_size, false, is_event, pitch_sequence, pos_sequence, vel_sequence, len_sequence, mute_sequence, channel_sequence, mute_symbol, legato)
-
-    reaper.Undo_OnStateChange2( 0, 'Script: Generate Item From Markov' )
-end
-
 function PrintChanceTable(SelectedSourceTable, pitch_settings, rhythm_settings, vel_setting,link_settings)
     reaper.ClearConsole()
     
@@ -325,22 +260,7 @@ end
 ---@param nothing_symbol any
 ---@param internal_sep any
 function PrepareNewSequencesToApply(all_sequences, mute_symbol, nothing_symbol, internal_sep)
-    -- If parameter is only the mute symbol (for pitch and velocity) tehn make vel =1M and pitch = 1M
-    if TableCheckValues(all_sequences, 'pitch', 'sequence') then
-        for param_idx, param in ipairs(all_sequences.pitch.sequence) do
-            if param == mute_symbol then
-                all_sequences.pitch.sequence[param_idx] = '0'..mute_symbol
-            end
-        end
-    end
 
-    if TableCheckValues(all_sequences, 'vel', 'sequence') then
-        for param_idx, param in ipairs(all_sequences.vel.sequence) do
-            if param == mute_symbol then
-                all_sequences.vel.sequence[param_idx] = '1'..mute_symbol
-            end
-        end
-    end
 
     for param_type, param_table in pairs(all_sequences) do
         if param_table.sequence == nil then goto continue end
@@ -359,11 +279,18 @@ function PrepareNewSequencesToApply(all_sequences, mute_symbol, nothing_symbol, 
         -- Break the glued event string, in a table. The opposite of MidiTableParametersEventTogether.
         for idx, parameter_string in pairs(sequence) do
             local new_event_table = MidiParametersSeparate(parameter_string)
-            --[[ local new_event_table = {}
-            parameter_string  = parameter_string .. internal_sep
-            for param_val in parameter_string:gmatch('(.-)' .. internal_sep) do -- iterate between value(internal_sep)
-                table.insert(new_event_table, param_val)
-            end ]]
+
+            
+            -- If parameter is only the mute symbol (for pitch and velocity) tehn make vel =1M and pitch = 1M, change all muted symbols for a muted value
+            for k,value in pairs(new_event_table) do
+                if value == mute_symbol then
+                    if param_type == 'pitch' then
+                        new_event_table[k] = '0'..mute_symbol
+                    elseif param_type == 'vel' then
+                        new_event_table[k] = '1'..mute_symbol
+                    end
+                end
+            end
             sequence[idx] = new_event_table
         end
         ::continue::

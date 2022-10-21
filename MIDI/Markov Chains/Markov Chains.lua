@@ -1,11 +1,13 @@
--- @version 0.1.18
+-- @version 0.1.19
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @license MIT
 -- @changelog
---    + Better Print transition probabilities
+--    + Bugfix Generate muted notes in chords
+--    + Bugfix Measure Position Weight. 
+--    + Check if the weight item exist before trying to select it 
 
 
 local info = debug.getinfo(1, 'S');
@@ -35,7 +37,7 @@ dofile(ScriptPath .. 'Functions/ImGUI Widgets.lua') -- Functions for using the m
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '0.1.18'
+Version = '0.1.19'
 
 --- Settings
 SettingsFileName = "User Settings"

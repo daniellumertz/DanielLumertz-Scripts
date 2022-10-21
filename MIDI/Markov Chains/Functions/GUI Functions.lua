@@ -266,7 +266,7 @@ function PitchRightClickMenu()
                 local item = reaper.GetSelectedMediaItem(0,0)
                 if item then
                     local take = reaper.GetActiveTake(item)
-                    PCWeight = {w = 2, take = take, octave_size = 12}
+                    PCWeight = {w = 2, take = take, octave_size = 12, item = item}
                 else
                     reaper.ShowMessageBox('Please Select an Item!', 'Markov Chains', 0)
                 end
@@ -284,20 +284,24 @@ function PitchRightClickMenu()
                 ToolTip(GUISettings.tips, 'Weight value to be used in the weighting. The higher the value the more it will weight the chances.')
                 PCWeight.w = LimitNumber(v, 1)
 
-                if reaper.ImGui_Button(ctx, 'Select Current Item##PC', -1) then -- Button to select the weight item
-                    reaper.Undo_BeginBlock2(0)
-                    local item = reaper.GetMediaItemTake_Item(PCWeight.take)
-                    SelectItemList(item)
-                    reaper.UpdateArrange()
-                    reaper.Undo_EndBlock2(0, 'Markov: Select Pitch Class Weight Item', -1)
-                end
-                ToolTip(GUISettings.tips, 'Select the Weight item in the arrange view')
-
-
                 reaper.ImGui_Text(ctx, 'Octave Size')
                 ToolTip(GUISettings.tips, 'Octave size to be used when weigthing pitch classes.')
                 reaper.ImGui_SetNextItemWidth(ctx, -1)
                 _, PCWeight.octave_size = reaper.ImGui_InputInt(ctx, '###PCWeightOctavesize', PCWeight.octave_size,0,0,reaper.ImGui_InputTextFlags_CharsDecimal())
+
+                if reaper.ImGui_Button(ctx, 'Select Current Item##PC', -1) then -- Button to select the weight item
+                    if reaper.ValidatePtr2(0, PCWeight.item, 'MediaItem*') then
+                        reaper.Undo_BeginBlock2(0)
+                        local item = reaper.GetMediaItemTake_Item(PCWeight.take)
+                        SelectItemList(item)
+                        reaper.UpdateArrange()
+                        reaper.Undo_EndBlock2(0, 'Markov: Select Pitch Class Weight Item', -1)
+                    else -- if item is removed remove weight
+                        reaper.ShowMessageBox('The item is no longer available, please select a new one.', 'Markov Chains', 0)
+                        PCWeight = nil
+                    end
+                end
+                ToolTip(GUISettings.tips, 'Select the Weight item in the arrange view')
 
                 if reaper.ImGui_Button(ctx, 'Remove Weight##PC', -1) then
                     PCWeight = nil
@@ -367,7 +371,7 @@ function RhythmRightClickMenu()
         if reaper.ImGui_Button(ctx, 'Get Selected Item', -1) then
             local item = reaper.GetSelectedMediaItem(0,0)
             local take = reaper.GetActiveTake(item)
-            PosQNWeight = {w = 2, take = take}
+            PosQNWeight = {w = 2, take = take, item = item}
 
             if LinkSettings.rhythm then -- not link compatible
                 LinkSettings.rhythm = false
@@ -383,11 +387,16 @@ function RhythmRightClickMenu()
             PosQNWeight.w = LimitNumber(v, 1)
 
             if reaper.ImGui_Button(ctx, 'Select Current Item', -1) then -- Button to select the weight item
-                reaper.Undo_BeginBlock2(0)
-                local item = reaper.GetMediaItemTake_Item(PosQNWeight.take)
-                SelectItemList(item)
-                reaper.UpdateArrange()
-                reaper.Undo_EndBlock2(0, 'Markov: Select Pos Weight Item', -1)
+                if reaper.ValidatePtr2(0, PosQNWeight.item, 'MediaItem*') then
+                    reaper.Undo_BeginBlock2(0)
+                    local item = reaper.GetMediaItemTake_Item(PosQNWeight.take)
+                    SelectItemList(item)
+                    reaper.UpdateArrange()
+                    reaper.Undo_EndBlock2(0, 'Markov: Select Pos Weight Item', -1)
+                else
+                    reaper.ShowMessageBox('The item is no longer available, please select a new one.', 'Markov Chains', 0)
+                    PosQNWeight = nil
+                end
             end
             ToolTip(GUISettings.tips, 'Select weight item at arrange view.')
 
