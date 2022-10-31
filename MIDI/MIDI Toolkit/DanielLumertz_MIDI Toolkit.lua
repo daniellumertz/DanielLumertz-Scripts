@@ -4,15 +4,15 @@
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
+-- @license MIT
 -- @changelog
---    + Change internal Sorting of pitches and intervals
---    + Remove debug line
+--    + Release
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '0.1.19'
+Version = '1.0.0'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');

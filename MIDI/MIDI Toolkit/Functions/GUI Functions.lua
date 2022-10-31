@@ -72,6 +72,12 @@ function MenuBar()
                 open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
             end
             ToolTip(GUISettings.tips, 'Recommended Donation : One Billion dollars')
+            if reaper.ImGui_MenuItem(ctx, 'Manual') then
+                open_url('https://drive.google.com/file/d/1asBpkunaSgQzybhVIXwJihE5GuRepoyy/view')
+            end
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?t=272241')
+            end
 
             reaper.ImGui_EndMenu(ctx)
 
