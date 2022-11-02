@@ -1,6 +1,6 @@
 -- @noindex
--- version: 0.5
--- Added get pitches and get pitch classes 
+-- version: 0.5.1
+-- fix get pitches and get pitch classes 
 ---------------------
 ----------------- Iterate
 ---------------------
@@ -875,7 +875,6 @@ function GetSelectedPitchClasses( is_selected,filter_mute,take_list)
     
     local pitch_classes = {}
     local added_values = {}
-    if not midi_editor then return pitch_classes end
     for k, take in ipairs(takes) do
         for selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx in IterateMIDINotes(take) do
             if (is_selected and selected) and ((not filter_mute) or (filter_mute and not muted)) then
@@ -914,7 +913,6 @@ function GetSelectedPitches(is_selected,filter_mute,take_list)
 
     local pitches = {}
     local added_values = {}
-    if not midi_editor then return pitches end
     for k, take in ipairs(takes) do
         for selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx in IterateMIDINotes(take) do
             if ((not is_selected) or (is_selected and selected)) and ((not filter_mute) or (filter_mute and not muted)) then

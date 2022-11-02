@@ -1,10 +1,12 @@
--- @version 1.0.0
+-- @version 1.0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
 -- @changelog
---    + update file noindex error
+--    + change from open in midi editor to selected in arrange get button behavior
+--    + fix internal MIDI function
+--    + add tooltips
 
 
 -- get script path
@@ -24,7 +26,9 @@ dofile(ScriptPath .. 'Functions/Imgui Functions.lua') -- Functions with the main
 
 -- Global Variables GUI
 ScriptName = 'Fake Grids'
-Version = '1.0.0' -- version of the script
+Version = '1.0.1' -- version of the script
+
+Settings = {Tips = true} -- GUI Settings for the script
 -- Global Variables Logic
 MarkersList = {}
 
@@ -33,7 +37,7 @@ FilterMuted = false
 IsSharp = false
 Sub = {
   name = 's',
-  color = 0x2ACB52,
+  color = 0x808080,
   divisions = 4
 }
 

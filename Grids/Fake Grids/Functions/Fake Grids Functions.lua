@@ -1,5 +1,7 @@
 --@noindex
 
+-- Get
+
 function MakeMarkersList(is_selected,filter_mute)
     local markers_list = {}
     -- Default values for name, color, turned on
@@ -7,12 +9,15 @@ function MakeMarkersList(is_selected,filter_mute)
     local colors = {0x8D8D8D, 0x1A1A19, 0x44981A, 0x96980E, 0x9B1111, 0x0E9598 } 
     local on = true
     -- Get selected pitch classes
-    local pitches = GetSelectedPitches(is_selected,filter_mute)
+    local take_list = {}
+    for item in enumSelectedItems() do
+        take_list[#take_list+1] = reaper.GetActiveTake(item)
+    end
+    local pitches = GetSelectedPitches(is_selected,filter_mute,take_list)
     -- Get errors
     if #pitches == 0 then 
-        local midi_editor = reaper.MIDIEditor_GetActive()
-        if not midi_editor then 
-            reaper.ShowMessageBox('Open an MIDI Item at the MIDI Editor', ScriptName, 0)
+        if #take_list == 0 then 
+            reaper.ShowMessageBox('Select a MIDI Item', ScriptName, 0)
         else
             reaper.ShowMessageBox('Add/Select Some notes', ScriptName, 0)
         end
@@ -31,17 +36,19 @@ function MakeMarkersList(is_selected,filter_mute)
     return markers_list
 end
 
+---- Apply
+
 function ApplyMarkers(markers_list,is_selected,filter_mute)
     if #markers_list == 0 then return end
     reaper.Undo_BeginBlock()
     reaper.PreventUIRefresh(1)
     
-    local midi_editor  = reaper.MIDIEditor_GetActive()
-    for take in enumMIDITakes(midi_editor,true) do
+    for item in enumSelectedItems() do
+        local take = reaper.GetActiveTake(item)
         for selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx in IterateMIDINotes(take) do
             if ((not is_selected) or (is_selected and selected)) and ((not filter_mute) or (filter_mute and not muted)) then -- if passes the script setting
                 for index, markers_options in ipairs(markers_list) do -- loop every note in the list until match 
-                    if markers_options.note == pitch then -- if match add a marker and break
+                    if markers_options.note == pitch and markers_options.on then -- if match add a marker and break
                         local new_color = RGBA_To_ReaperRGB(markers_options.color)
                         local pos = reaper.MIDI_GetProjTimeFromPPQPos(take, startppqpos)
                         reaper.AddProjectMarker2(0, false, pos, 0, Identfier..markers_options.name, -1, new_color)
@@ -113,6 +120,8 @@ function ApplyMarkersSubdivide()
 
 end
 
+--- Delete
+
 function DeleteSubMarkers()
     reaper.Undo_BeginBlock()
     reaper.PreventUIRefresh(1)
@@ -148,6 +157,8 @@ function DeleteMarkers()
     reaper.UpdateArrange()
     reaper.Undo_EndBlock(ScriptName..': Delete markers.', -1)
 end
+
+-- Style
 
 function PushStyle()
     reaper.ImGui_PushStyleVar(ctx, reaper.ImGui_StyleVar_Alpha(),               1)
