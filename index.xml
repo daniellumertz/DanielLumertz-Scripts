@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="e3637877622e8d39c441abbb74cd79679c5ed135">
+<index version="1" name="Daniel Lumertz Scripts" commit="a72be5d32452c153b19c0ea04aaf5c62c7fd9842">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -44,6 +44,12 @@
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/19e73dbd1bbb2d62a9972a4528c89f3001fc2e59/FX/Set%20Last%20Touched%20Param/Set%20Last%20Touched%20Parameter.lua</source>
         <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/19e73dbd1bbb2d62a9972a4528c89f3001fc2e59/FX/Set%20Last%20Touched%20Param/Functions/FX%20Functions.lua</source>
         <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/19e73dbd1bbb2d62a9972a4528c89f3001fc2e59/FX/Set%20Last%20Touched%20Param/Functions/General%20Lua%20Functions.lua</source>
+      </version>
+      <version name="0.2" author="Daniel Lumertz" time="2022-11-25T01:18:49Z">
+        <changelog><![CDATA[+ Add Relative MIDI Support]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a72be5d32452c153b19c0ea04aaf5c62c7fd9842/FX/Set%20Last%20Touched%20Param/Set%20Last%20Touched%20Parameter.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a72be5d32452c153b19c0ea04aaf5c62c7fd9842/FX/Set%20Last%20Touched%20Param/Functions/FX%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a72be5d32452c153b19c0ea04aaf5c62c7fd9842/FX/Set%20Last%20Touched%20Param/Functions/General%20Lua%20Functions.lua</source>
       </version>
     </reapack>
   </category>
