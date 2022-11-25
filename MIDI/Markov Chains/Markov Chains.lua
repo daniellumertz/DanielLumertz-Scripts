@@ -1,12 +1,11 @@
--- @version 1.0.0
+-- @version 1.0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @license MIT
 -- @changelog
---    + Add links for manual and forum
---    + Initial release 1.0.0
+--    + Fix note off velocities 
 
 
 local info = debug.getinfo(1, 'S');

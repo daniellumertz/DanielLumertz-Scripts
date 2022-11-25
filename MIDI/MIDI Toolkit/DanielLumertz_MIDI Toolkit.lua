@@ -1,4 +1,4 @@
--- @version 0.1.19
+-- @version 1.0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -6,13 +6,13 @@
 --    [nomain] Fonts/*.ttf
 -- @license MIT
 -- @changelog
---    + Release
+--    + Fix velocity off
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '1.0.0'
+Version = '1.0.1'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');
