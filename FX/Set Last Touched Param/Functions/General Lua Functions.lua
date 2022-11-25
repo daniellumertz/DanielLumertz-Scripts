@@ -8,7 +8,7 @@ function print(...)
     for i, v in ipairs( { ... } ) do
       t[i] = tostring( v )
     end
-    reaper.ShowConsoleMsg( table.concat( t, "\n" ) .. "\n" )
+    reaper.ShowConsoleMsg( table.concat( t, " " ) .. "\n" )
 end
 
 function tprint (tbl, indent)
@@ -135,14 +135,6 @@ end
 ----------------- Numbers
 ---------------------
 
----When inter = 1 return val1 when inter = 0 return val2, use decimal values (0-1) to interpolate
----@param val1 number
----@param val2 number
----@param inter number
----@return number
-function InterpolateBetween2(val1,val2,inter)
-	return (val1*inter)+(val2*(1-inter)) 
-end
 
 ---Limit a number between min and max
 ---@param number number number to be limited
@@ -150,10 +142,72 @@ end
 ---@param max number maximum number
 ---@return number
 function LimitNumber(number,min,max)
-	if min and number < min then return min end
-	if max and number > max then return max end
-	return number
+  if min and number < min then return min end
+  if max and number > max then return max end
+  return number
 end
+
+---Remove the decimal part of a number
+---@param number number number to be rounded
+---@return number
+function RoundNumber(number)
+  return math.floor(number + 0.5)
+end
+
+---Return a number to the closest quantize value, simillar to RoundNumber.
+---@param num number number to be quantized
+---@param quantize number quantize value
+function QuantizeNumber(num,quantize_value)
+  local up_value = (num + (quantize_value/2))
+  local low_quantize = ((up_value / quantize_value)//1)*quantize_value
+  return low_quantize
+end
+
+---When inter = 1 return val1 when inter = 0 return val2, use decimal values (0-1) to interpolate
+---@param val1 number
+---@param val2 number
+---@param inter number
+---@return number
+function InterpolateBetween2(val1,val2,inter)
+return (val1*inter)+(val2*(1-inter)) 
+end
+
+---Map/Scale Val between range 1 (min1 - max1) to range 2 (min2 - max2)
+---@param value number Value to be mapped
+---@param min1 number Range 1 min
+---@param max1 number Range 1 max
+---@param min2 number Range 2 min
+---@param max2 number Range 2 max
+---@return number
+function MapRange(value,min1,max1,min2,max2)
+  return (value - min1) / (max1 - min1) * (max2 - min2) + min2
+end
+
+---Generate a random number between min and max.
+---@param min number minimum value
+---@param max number maximum value
+---@param is_include_max boolean if true it can result on the max value
+---@return number
+function RandomNumberFloat(min,max,is_include_max)
+  local sub = (is_include_max and 0) or -1 --  -1 because it cant never be the max value. Lets say we want to choose random between a and b a have 2/3 chance and b 1/3. If the random value is from 0 - 2(not includded) it is a, if the value is from 2 - 3(not includded) it is b. 
+  local big_val = 1000000 -- the bigger the number the bigger the resolution. Using 1M right now
+  local random = math.random(0,big_val-sub) -- Generating a very big value to be Scaled to the sum of the chances, for enabling floats.
+  random = MapRange(random,0,big_val,min,max) -- Scale the random value to the sum of the chances
+
+  return random
+end
+
+--- Return dbval in linear value. 0 = -inf, 1 = 0dB, 2 = +6dB, etc...
+function dBToLinear(dbval)
+  return 10^(dbval/20) 
+end
+
+--- Return value in db. 0 = -inf, 1 = 0dB, 2 = +6dB, etc...
+function LinearTodB(value)
+  return 20 * math.log(value,10)    
+end
+
+
 
 ---------------------
 ----------------- MISC
