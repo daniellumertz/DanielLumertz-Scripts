@@ -1,10 +1,16 @@
--- @version 1.0.2
+-- @version 1.0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 -- @changelog
---    + Change action to midi editor
-Version = '1.0.2'
+--    + imgui update 0.8
+
+
+
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
+
+Version = '1.0.3'
 function print(val)
     reaper.ShowConsoleMsg("\n"..tostring(val))    
 end
