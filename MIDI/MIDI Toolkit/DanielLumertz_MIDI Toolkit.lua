@@ -1,4 +1,4 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -6,13 +6,13 @@
 --    [nomain] Fonts/*.ttf
 -- @license MIT
 -- @changelog
---    + Fix velocity off
+--    + update to imgui 0.8
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '1.0.1'
+Version = '1.0.2'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');
@@ -32,6 +32,12 @@ dofile(ScriptPath .. 'Functions/MIDI Functions.lua') -- General MIDI Functions n
 dofile(ScriptPath .. 'Functions/Param Tables Functions.lua') -- General MIDI Functions needed
 dofile(ScriptPath .. 'Functions/Permutate Functions.lua') -- General MIDI Functions needed
 dofile(ScriptPath .. 'Functions/Style.lua') -- General MIDI Functions needed
+dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- preset to work with Tables
+
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 
 
