@@ -1,21 +1,31 @@
--- @version 1.0
+-- @version 1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Function.lua
+--    [nomain] REAPER Functions.lua
 -- @changelog
---    + First Release
+--    + Update to imgui 0.8
 
 
 ----------------------
 --Script info
 ----------------------
 
-script_version = "0"
+
+
+script_version = "1.1"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 --- Loading
+
 dofile(script_path .. 'General Function.lua') -- General Functions needed
+dofile(script_path .. 'REAPER Functions.lua') -- preset to work with Tables
+
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 ----------------------
 --Fake info
