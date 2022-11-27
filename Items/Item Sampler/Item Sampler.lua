@@ -1,20 +1,20 @@
--- @version 1.3.4
+-- @version 1.3.5
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 --    [nomain] presets.lua
 --    [nomain] GUI Functions.lua
 --    [nomain] groups.lua
+--    [nomain] REAPER Functions.lua
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + remove debug line in simpler
-
+--    + update to imgui 0.8
 
 --TODOs
 -- Update header require
 
-local version = '1.3.4'
+local version = '1.3.5'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -25,7 +25,12 @@ dofile(script_path .. 'General Functions.lua') -- General Functions needed
 dofile(script_path .. 'GUI Functions.lua') -- General Functions needed
 dofile(script_path .. 'groups.lua') -- General Functions needed
 dofile(script_path .. 'presets.lua') -- General Functions needed
+dofile(script_path .. 'REAPER Functions.lua') -- preset to work with Tables
 
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 
 function TableMin(tab)
