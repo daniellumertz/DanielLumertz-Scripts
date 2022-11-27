@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="db9233ecb1bef86fd6b1f265a29766505e8873fc">
+<index version="1" name="Daniel Lumertz Scripts" commit="45fc4ab414e447962d16ac9d2e10ee6030b6c8ae">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -1427,6 +1427,22 @@
         <source file="Track Snapshot Send Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/36e9d9e98e358ae33bad99b35ddf7a943a8625a0/Tracks/Track%20Snapshot/Track%20Snapshot%20Send%20Functions.lua</source>
         <source file="theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/36e9d9e98e358ae33bad99b35ddf7a943a8625a0/Tracks/Track%20Snapshot/theme.lua</source>
         <source file="Style Editor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/36e9d9e98e358ae33bad99b35ddf7a943a8625a0/Tracks/Track%20Snapshot/Style%20Editor.lua</source>
+      </version>
+      <version name="1.4.8" author="Daniel Lumertz" time="2022-11-27T22:38:58Z">
+        <changelog><![CDATA[+ Update to Imgui 0.8
++ Add a check for extensions]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Track%20Snapshot.lua</source>
+        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/utils/json.lua</source>
+        <source file="Chunk Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Chunk%20Functions.lua</source>
+        <source main="main" file="Delete Snapshots on Project.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Delete%20Snapshots%20on%20Project.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/General%20Functions.lua</source>
+        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/GUI%20Functions.lua</source>
+        <source file="Serialize Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Serialize%20Table.lua</source>
+        <source file="Track Snapshot Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Track%20Snapshot%20Functions.lua</source>
+        <source file="Track Snapshot Send Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Track%20Snapshot%20Send%20Functions.lua</source>
+        <source file="theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/theme.lua</source>
+        <source file="Style Editor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/Style%20Editor.lua</source>
+        <source file="REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/45fc4ab414e447962d16ac9d2e10ee6030b6c8ae/Tracks/Track%20Snapshot/REAPER%20Functions.lua</source>
       </version>
     </reapack>
   </category>
