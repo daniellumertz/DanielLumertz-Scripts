@@ -9,7 +9,7 @@
 --    [main] Clipboard Copy.lua
 
 -- @changelog
---    + Update to the new Imgui System
+--    + Update to the new Imgui 0.8
 
 local name = 'Clipboard '
 local version = '1.1.4'
@@ -25,6 +25,9 @@ dofile(script_path .. 'Serialize Table.lua') -- General Functions needed
 dofile(script_path .. 'preset.lua') -- preset to work with JSON
 dofile(script_path .. 'Clipboard Functions.lua') -- Functions to this script
 dofile(script_path .. 'General Functions.lua') -- General Functions needed
+
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 function GuiInit()
     ctx = reaper.ImGui_CreateContext('Item Sequencer') -- Add VERSION TODO
@@ -53,7 +56,9 @@ function loop()
             reaper.ImGui_PushID(ctx, k)
             if ColorList[k] then reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  ColorList[k]) end
             if reaper.ImGui_Button(ctx, NamesList[k], -1) then
-                if not reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then -- is ctrl down? 
+                if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then -- is ctrl down? 
+                    ChangeSelection(items)
+                else
                     if Configs.AutoPaste == true then
                         PasteList(items)
                         if Configs.AutoExit == true then open = false end
@@ -61,8 +66,6 @@ function loop()
                         CopyList(items)
                         if Configs.AutoExit == true then open = false end
                     end
-                else
-                    ChangeSelection(items)
                 end
             end
             --reaper.ImGui_ColorButton(ctx,  'desc_id', ColorList[k] ,  nil, nil, nil)
