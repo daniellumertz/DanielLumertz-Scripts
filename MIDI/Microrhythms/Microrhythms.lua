@@ -1,4 +1,4 @@
--- @version 0.1.5
+-- @version 0.1.6
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -17,13 +17,19 @@ dofile(script_path..'Functions/MIDI Functions.lua')
 dofile(script_path..'Functions/Arrange Functions.lua')
 dofile(script_path..'Functions/Microrhythms Functions.lua')
 dofile(script_path..'Functions/GUI Functions.lua')
+dofile(script_path .. 'Functions/REAPER Functions.lua') -- preset to work with Tables
+
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 
 ------- Global
 
 -- ID
 ScriptName = 'Microrhythms'
-Version = '0.1.5'
+Version = '0.1.6'
 
 -- UI
 Pin = true
