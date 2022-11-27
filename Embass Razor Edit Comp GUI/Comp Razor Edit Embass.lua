@@ -1,21 +1,23 @@
--- @version 1.4.2
+-- @version 1.4.4
 -- @author Embass, Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 -- @changelog
---    + correct gui bug related to text input label
+--    + update to imgui 0.8
 
 ----------------------
 --Script info
 ----------------------
 
-script_version = "1.4.2"
+script_version = "1.4.4"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 --- Loading
 dofile(script_path .. 'General Functions.lua') -- General Functions needed
 
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 
 function print(value) reaper.ShowConsoleMsg(tostring(value).."\n") end
