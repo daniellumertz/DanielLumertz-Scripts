@@ -1,4 +1,4 @@
--- @version 1.4.7
+-- @version 1.4.8
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -12,17 +12,20 @@
 --    [nomain] Track Snapshot Send Functions.lua
 --    [nomain] theme.lua
 --    [nomain] Style Editor.lua
+--    [nomain] REAPER Functions.lua
 -- @changelog
---    + Remove debug lines
+--    + Update to Imgui 0.8
+--    + Add a check for extensions
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.7'
+ScriptVersion = '1.4.8'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 configs_filename = 'configs' -- Json ScriptName
+
 
 dofile(script_path .. 'Serialize Table.lua') -- preset to work with Tables
 dofile(script_path .. 'Track Snapshot Functions.lua') -- Functions to this script
@@ -31,9 +34,16 @@ dofile(script_path .. 'GUI Functions.lua') -- General Functions needed
 dofile(script_path .. 'Chunk Functions.lua') -- General Functions needed
 dofile(script_path .. 'theme.lua') -- General Functions needed
 dofile(script_path .. 'Track Snapshot Send Functions.lua') -- General Functions needed
+dofile(script_path .. 'REAPER Functions.lua') -- preset to work with Tables
+
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
+
+
 --dofile(script_path .. 'Style Editor.lua') -- Remember to remove
 
-if not CheckRequirements() then return end
 
 --- configs
 Configs = {}

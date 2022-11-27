@@ -416,47 +416,6 @@ function PostKey(hwnd, vk_code)
     reaper.JS_WindowMessage_Post(hwnd, "WM_KEYUP", vk_code, 0,0,0)
 end
 
-function CheckRequirements()
-    local wind_name = ScriptName..' '..ScriptVersion
-    if not reaper.APIExists('ImGui_GetVersion') then
-        reaper.ShowMessageBox('Please Install ReaImGui at ReaPack', wind_name, 0)
-        return false
-    end    
-
-    if not reaper.APIExists('JS_ReaScriptAPI_Version') then
-        reaper.ShowMessageBox('Please Install js_ReaScriptAPI at ReaPack', wind_name, 0)
-        return false
-    end    
-
-    if  not reaper.APIExists('CF_GetSWSVersion') then
-        reaper.ShowMessageBox('Please Install SWS at www.sws-extension.org', wind_name, 0)
-        return false
-    end
-    --[[  -- meh for comparing versions
-    --local major, minor, patch = string.match(AppVersion, "(%d+)%.(%d+)%.(%d+)")
-    local sws_version = reaper.CF_GetSWSVersion()
-    local sws_min = '2.12.1'
-
-    if not CompareVersions(sws_version,sws_min) then
-        local bol = reaper.ShowMessageBox('Please Update SWS at www.sws-extension.org\nYou are running version: '..sws_version..'\nMin Version is: '..sws_min..'\nRun Anyway?', wind_name, 4)
-        return bol == 6
-    end
-
-    local version =  reaper.GetAppVersion()
-    print(version)
-    local min = '6.50'
-
-    if not CompareVersions(version,min) then
-        local bol = reaper.ShowMessageBox('Please Update Reaper\nYou are running version: '..version..'\nMin Version is: '..min..'\nRun Anyway?', wind_name, 4)
-        return bol == 6
-    end ]]
-
-    --print(reaper.ImGui_GetVersion())
-    --print(reaper.JS_ReaScriptAPI_Version())
-    --print(reaper.CF_GetSWSVersion())
-    return true 
-end
-
 function CompareVersions(actual_version,minimum_version) -- major minor patch
     local major, minor, patch = string.match(actual_version, "(%d+)%.(%d+)%.(%d+)")
     local major_min, minor_min, patch_min = string.match(minimum_version, "(%d+)%.(%d+)%.(%d+)")
