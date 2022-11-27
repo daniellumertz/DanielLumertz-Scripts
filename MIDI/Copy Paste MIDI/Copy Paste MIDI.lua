@@ -1,10 +1,10 @@
--- @version 0.4.2
+-- @version 0.4.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Catch notes ON with vel == 0 as notes off
+--    + Update to imgui 0.8
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -14,7 +14,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 --- Global
 ScriptName = 'Copy Paste MIDI'
-Version = '0.4.2'
+Version = '0.4.3'
 CopyList = {}
 
 --- Settings Change in the UI after 
@@ -46,11 +46,12 @@ dofile(script_path..'Functions/MIDI Functions.lua')
 dofile(script_path..'Functions/Arrange Functions.lua')
 dofile(script_path..'Functions/Copy Paste Functions.lua')
 dofile(script_path..'Functions/GUI Functions.lua')
+dofile(script_path ..'Functions/REAPER Functions.lua') -- preset to work with Tables
 
 
-
-
-
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 GuiInit()
 loop()
