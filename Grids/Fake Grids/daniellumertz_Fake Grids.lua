@@ -1,12 +1,11 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
 -- @changelog
---    + change from open in midi editor to selected in arrange get button behavior
---    + fix internal MIDI function
---    + add tooltips
+--    + Update to Imgui 0.8
+--    + Add a check for extensions
 
 
 -- get script path
@@ -19,14 +18,19 @@ dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for usi
 dofile(ScriptPath .. 'Functions/General Music Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Loop.lua') -- Functions with the main loop for maintaining the GUI
 dofile(ScriptPath .. 'Functions/Imgui Functions.lua') -- Functions with the main loop for maintaining the GUI
+dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- preset to work with Tables
 
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 
 -- Global Variables GUI
 ScriptName = 'Fake Grids'
-Version = '1.0.1' -- version of the script
+Version = '1.0.2' -- version of the script
 
 Settings = {Tips = true} -- GUI Settings for the script
 -- Global Variables Logic
