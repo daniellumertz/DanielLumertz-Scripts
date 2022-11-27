@@ -1,11 +1,11 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @license MIT
 -- @changelog
---    + Fix note off velocities 
+--    + Update to imgui 0.8
 
 
 local info = debug.getinfo(1, 'S');
@@ -31,11 +31,17 @@ dofile(ScriptPath .. 'Functions/Style.lua') -- Functions for using the markov in
 dofile(ScriptPath .. 'Functions/Drop Enhance Resolution Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Generate New Sequences.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/ImGUI Widgets.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- preset to work with Tables
+
+
+if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
+-- Imgui shims to 0.7.2 (added after the news at 0.8)
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '1.0.0'
+Version = '1.0.2'
 
 --- Settings
 SettingsFileName = "User Settings"
