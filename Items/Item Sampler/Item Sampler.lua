@@ -1,4 +1,4 @@
--- @version 1.3.5
+-- @version 1.3.6
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -9,12 +9,12 @@
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + update to imgui 0.8
+--    + Correct Checkers
 
 --TODOs
 -- Update header require
 
-local version = '1.3.5'
+local version = '1.3.6'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 

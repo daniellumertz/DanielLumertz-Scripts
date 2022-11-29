@@ -1,10 +1,10 @@
--- @version 0.1.6
+-- @version 0.1.7
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Catch notes on with vel = 0 as notes off messages. 
+--    + Correct Checkers
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -29,7 +29,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 -- ID
 ScriptName = 'Microrhythms'
-Version = '0.1.6'
+Version = '0.1.7'
 
 -- UI
 Pin = true

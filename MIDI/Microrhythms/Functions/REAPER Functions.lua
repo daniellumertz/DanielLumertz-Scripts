@@ -130,16 +130,16 @@ function CompareVersion(check_version, min_version, max_version, separator)
 
     for index, check_v in ipairs(check_table) do
         -- check if is less than the min_version
-        if min_table and check_v < min_table[index] then
+        if min_table and check_v < (min_table[index] or 0) then
             return false, 'min'
-        elseif min_table and check_v > min_table[index] then -- bigger than the min version stop checking min_version
+        elseif min_table and check_v > (min_table[index] or 0) then -- bigger than the min version stop checking min_version
             min_table = nil
         end
         
         -- check if is more than the max_version
-        if max_table and check_v > max_table[index] then
+        if max_table and check_v > (max_table[index] or 0) then
             return false, 'max'
-        elseif max_table and check_v < max_table[index] then -- less than the max version stop checking max_version
+        elseif max_table and check_v < (max_table[index] or 0) then -- less than the max version stop checking max_version
             max_table = nil
         end    
     end

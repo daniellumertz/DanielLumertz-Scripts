@@ -1,10 +1,10 @@
--- @version 1.1
+-- @version 1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Function.lua
 --    [nomain] REAPER Functions.lua
 -- @changelog
---    + Update to imgui 0.8
+--    + Update Checkers
 
 
 ----------------------
@@ -13,7 +13,7 @@
 
 
 
-script_version = "1.1"
+script_version = "1.2"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

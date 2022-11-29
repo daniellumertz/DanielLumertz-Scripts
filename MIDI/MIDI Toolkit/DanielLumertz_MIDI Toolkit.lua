@@ -1,4 +1,4 @@
--- @version 1.0.2
+-- @version 1.0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -6,13 +6,13 @@
 --    [nomain] Fonts/*.ttf
 -- @license MIT
 -- @changelog
---    + update to imgui 0.8
+--    + correct checkers
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '1.0.2'
+Version = '1.0.3'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');

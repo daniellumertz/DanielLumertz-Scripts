@@ -1,4 +1,4 @@
--- @version 1.4.8
+-- @version 1.4.9
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -14,13 +14,12 @@
 --    [nomain] Style Editor.lua
 --    [nomain] REAPER Functions.lua
 -- @changelog
---    + Update to Imgui 0.8
---    + Add a check for extensions
+--    + Correct Checkers
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.8'
+ScriptVersion = '1.4.9'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]

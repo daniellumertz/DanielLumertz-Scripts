@@ -1,11 +1,11 @@
--- @version 1.0.2
+-- @version 1.0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @license MIT
 -- @changelog
---    + Update to imgui 0.8
+--    + Update checkers
 
 
 local info = debug.getinfo(1, 'S');
@@ -41,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '1.0.2'
+Version = '1.0.3'
 
 --- Settings
 SettingsFileName = "User Settings"

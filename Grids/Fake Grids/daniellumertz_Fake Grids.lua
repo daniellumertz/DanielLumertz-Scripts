@@ -1,11 +1,10 @@
--- @version 1.0.2
+-- @version 1.0.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [nomain] Fonts/*.ttf
 -- @changelog
---    + Update to Imgui 0.8
---    + Add a check for extensions
+--    + Correct checkers
 
 
 -- get script path
@@ -30,7 +29,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 -- Global Variables GUI
 ScriptName = 'Fake Grids'
-Version = '1.0.2' -- version of the script
+Version = '1.0.3' -- version of the script
 
 Settings = {Tips = true} -- GUI Settings for the script
 -- Global Variables Logic
