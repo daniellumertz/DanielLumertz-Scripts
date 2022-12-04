@@ -8,7 +8,7 @@ function main_loop()
         PassKeys()
     end
 
-    CheckProjects()
+    --CheckProjects()
     AlternateLoop() 
 
 
@@ -57,7 +57,7 @@ function main_loop()
     end
 end
 
---- Check for each project if need to trigger Alternate
+--- Check for each project if need to trigger goto
 function AlternateLoop()
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
