@@ -1,1 +1,2 @@
+--@noindex
 print('hello world')
