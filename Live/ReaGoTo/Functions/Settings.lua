@@ -1,3 +1,5 @@
+--@noindex
+
 -------------
 --- Settings Saved in a Json
 -------------
