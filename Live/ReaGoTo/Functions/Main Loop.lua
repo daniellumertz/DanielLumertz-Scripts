@@ -9,7 +9,7 @@ function main_loop()
     end
 
     --CheckProjects()
-    AlternateLoop() 
+    --GetMIDIInputs()
 
 
     ------------ Window management area
@@ -50,6 +50,8 @@ function main_loop()
     PopTheme()
     --emo.PopStyle(ctx)
 
+    GoToLoop()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
+
     if open then
         reaper.defer(main_loop)
     else
@@ -58,52 +60,60 @@ function main_loop()
 end
 
 --- Check for each project if need to trigger goto
-function AlternateLoop()
+function GoToLoop()
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
-        local trigger = false -- is going to trigger randomizer?
+        if not project_table.is_trigerred then goto continue end
         -- Get play pos/state
         local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
-        local pos =  reaper.GetPlayPositionEx( proj ) -- current pos
+        local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
         local time = reaper.time_precise()
 
-        if not FirstRun then
-            -- if stoped
-            if project_table.oldisplay and not is_play then
-                trigger = 'stop'
-            end
+        -- if stoped
+        if project_table.stop_trigger and project_table.oldisplay and not is_play then
+            project_table.is_triggered = false
+        end
 
-            -- if looped (only if it is playing)
-            if is_play then
-                -- At loop start and at stop reset AlteredAtThisLoop 
-                if (is_play and pos < project_table.oldpos) or (not is_play and project_table.oldisplay) then
-                    project_table.is_loopchanged = false
+        -- if playing and triggered look after next Trigger point 
+        if is_play and project_table.is_triggered then
+
+            local trigger_point 
+            ------- Get the next triggering point (currently only for makers maybe do for QN values as well)
+            -- Loop each marker (improve with a binary search later)
+            local retval, num_markers, num_regions = reaper.CountProjectMarkers(proj)
+            for i = 0, num_markers-1 do
+                local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers( i )
+                if mark_pos > pos and name:match('^'..project_table.identifier)  then
+                    trigger_point = mark_pos
+                    break -- just need the next #goto marker
                 end
-                -- Calculate the delta time
-                local loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
-                local delta =  time - project_table.oldtime
+            end
+            -- TODO Opitonal config project_table.is_region_end_trigger, if is true this config use then current region end as a #goto if it is next than the next #goto marker
+            ------- Change Player position if needed (Try to change as close to the marker as possible)
+            if trigger_point then -- only if there is something to trigger to comapre to
+                -- If markers get triggers overides
+                local delta =  time - project_table.oldtime -- for defer instability estimation
                 -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
                 local playrate = reaper.Master_GetPlayRate(proj)
-                if is_play and not project_table.is_loopchanged and pos + (delta * UserConfigs.compensate) * playrate >= loop_end and project_table.oldpos < loop_end then 
-                    trigger = 'loop'
-                    project_table.is_loopchanged = true
+                if is_play and pos + (delta * UserConfigs.compensate) * playrate >= trigger_point then -- will it need project_table.oldpos < trigger_point  ?
+                    ---- Calculate the new position
+                    GoTo(project_table.is_triggered,proj)
+                    ---- Add Markers at the trigger position for debugging mostly
                     if UserConfigs.add_markers then
                         reaper.AddProjectMarker(proj, false, pos, 0, '', 0) -- debug when it is happening
                     end
                 end
             end
-        else
-            FirstRun = nil
+        elseif not is_play and project_table.is_triggered then -- change to the start of the region/marker
+            GoTo(project_table.is_triggered,proj)
         end
 
+
+        ::continue::
         -- Update values
         project_table.oldtime = time
         project_table.oldpos = pos
         project_table.oldisplay = is_play
-
-        if trigger then 
-            AlternateItems(project_table.groups, trigger)
-        end
     end
 end
 
