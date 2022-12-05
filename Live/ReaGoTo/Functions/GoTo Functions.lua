@@ -1,5 +1,6 @@
 --@noindex
 function GoTo(reason,proj)
+    print('GoTo')
     --[[ is_triggered options:
         ‘next’	
         ‘prev’	
@@ -35,16 +36,16 @@ function GoTo(reason,proj)
         
         local region = playlist[playlist.current]
         local guid = region.guid -- region guid
-        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID'..guid, '', false )
+        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
         local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id )
-        local new_pos = (isrgn and rgnend) or pos
+        local new_pos = pos
         
         -- set loop 
         if region.loop then
             local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
         end
         -- set play cursor 
-        reaper.SetEditCurPos2(proj, new_pos, proj.moveview, true)
+        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
     end
 
     if reason == 'next' then 

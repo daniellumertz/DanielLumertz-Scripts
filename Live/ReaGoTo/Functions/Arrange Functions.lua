@@ -55,6 +55,26 @@ function enumProjects()
     end
 end
 
+
+---Iterate fuction returns retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber using EnumProjectMarkers2
+---@param proj ReaperProject 
+---@return function iterate retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber
+function enumMarkers2(proj)
+    local i = 0
+    local retval, num_markers, num_regions = reaper.CountProjectMarkers(proj)
+    local cnt = num_markers + num_regions
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, i )
+            i = i + 1
+            if not isrgn then
+                return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber
+            end
+        end
+        return nil
+    end
+end
+
 ----- Tracks
 ----- Get
 

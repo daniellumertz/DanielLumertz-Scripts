@@ -16,7 +16,7 @@
 -- 6) Goto Overide markers
 
 
-dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+--dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 -- get script path
@@ -34,7 +34,7 @@ dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
 
-if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.0') then return end -- Check Extensions
+if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.71') then return end -- Check Extensions
 dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
 
 
@@ -86,7 +86,7 @@ ProjConfigs = {
 UserConfigs = {
     only_focus_project = false,
     compensate = 2,
-    add_markers = true
+    add_markers = false
 }
 
 -- Gui Style

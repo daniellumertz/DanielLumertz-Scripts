@@ -66,13 +66,15 @@ function GoToCheck()
         -- test remove this part 
         if not project_table.is_triggered and reaper.CountSelectedMediaItems(proj) > 0 then
             project_table.is_triggered = 'next'
+            reaper.SelectAllMediaItems( 0, false )
         end
         -- Get play pos/state
         local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
         local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
         local time = reaper.time_precise()
 
-        if not project_table.is_trigerred then goto continue end
+
+        if not project_table.is_triggered then goto continue end
 
 
         -- if stoped
@@ -83,17 +85,39 @@ function GoToCheck()
         -- if playing and triggered look after next Trigger point 
         if is_play and project_table.is_triggered then
 
-            local trigger_point 
             ------- Get the next triggering point (currently only for makers maybe do for QN values as well)
-            -- Loop each marker (improve with a binary search later)
-            local retval, num_markers, num_regions = reaper.CountProjectMarkers(proj)
-            for i = 0, num_markers-1 do
-                local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers( i )
-                if mark_pos > pos and name:match('^'..project_table.identifier)  then
-                    trigger_point = mark_pos
-                    break -- just need the next #goto marker
-                end
+            local trigger_point 
+            local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
+            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
+            if is_repeat then
+                loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
+                is_repeat = loop_start ~= loop_end and is_repeat -- Does it have an area selected? does it have repeat on ? 
             end
+            for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj) do 
+                -- Get the next marker
+                if not next_marker_pos and mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
+                    next_marker_pos = mark_pos
+                end
+                -- If loop/repeat is ON then get the closest next goto marker  
+                print('mark_pos : ', mark_pos) 
+                if is_repeat and not loop_marker_pos and mark_pos > loop_start and name:match('^'..project_table.identifier) then 
+                    loop_marker_pos = mark_pos
+                end
+                -- check if already got all info needed
+                if (is_repeat and loop_marker_pos and next_marker_pos) then
+                    break
+                elseif (not is_repeat and next_marker_pos) then
+                    break
+                end
+            end --trigger_point
+            if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one of them
+                trigger_point = next_marker_pos or loop_marker_pos
+            elseif next_marker_pos and loop_marker_pos then -- have both. check which is closer
+                local loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
+                local next_distance = next_marker_pos - pos 
+                trigger_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
+            end
+
             print('trigger_point : ', trigger_point)
             -- TODO Opitonal config project_table.is_region_end_trigger, if is true this config use then current region end as a #goto if it is next than the next #goto marker
             ------- Change Player position if needed (Try to change as close to the marker as possible)
@@ -111,7 +135,7 @@ function GoToCheck()
                     end
                 end
             end
-        elseif not is_play and project_table.is_triggered then -- change to the start of the region/marker
+        elseif not is_play and project_table.is_triggered then -- receive goto orders when paused
             GoTo(project_table.is_triggered,proj)
         end
 
