@@ -50,7 +50,7 @@ function main_loop()
     PopTheme()
     --emo.PopStyle(ctx)
 
-    GoToLoop()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
+    GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
 
     if open then
         reaper.defer(main_loop)
@@ -60,14 +60,20 @@ function main_loop()
 end
 
 --- Check for each project if need to trigger goto
-function GoToLoop()
+function GoToCheck()
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
-        if not project_table.is_trigerred then goto continue end
+        -- test remove this part 
+        if not project_table.is_triggered and reaper.CountSelectedMediaItems(proj) > 0 then
+            project_table.is_triggered = 'next'
+        end
         -- Get play pos/state
         local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
         local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
         local time = reaper.time_precise()
+
+        if not project_table.is_trigerred then goto continue end
+
 
         -- if stoped
         if project_table.stop_trigger and project_table.oldisplay and not is_play then
@@ -88,6 +94,7 @@ function GoToLoop()
                     break -- just need the next #goto marker
                 end
             end
+            print('trigger_point : ', trigger_point)
             -- TODO Opitonal config project_table.is_region_end_trigger, if is true this config use then current region end as a #goto if it is next than the next #goto marker
             ------- Change Player position if needed (Try to change as close to the marker as possible)
             if trigger_point then -- only if there is something to trigger to comapre to
@@ -115,6 +122,9 @@ function GoToLoop()
         project_table.oldpos = pos
         project_table.oldisplay = is_play
     end
+
+    -- for testing
+    reaper.defer(GoToCheck)
 end
 
 

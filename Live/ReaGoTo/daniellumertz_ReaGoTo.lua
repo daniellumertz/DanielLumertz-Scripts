@@ -5,7 +5,6 @@
 -- @changelog
 --    + Release
 -- @license MIT
-print('hello world')
 
 
 -----TODO:
@@ -17,7 +16,7 @@ print('hello world')
 -- 6) Goto Overide markers
 
 
---dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 -- get script path
@@ -26,7 +25,6 @@ ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/Randomizer Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/GUI Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Imgui General Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Main Loop.lua') -- Functions for using the markov in reaper
@@ -34,6 +32,7 @@ dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
 
 if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.0') then return end -- Check Extensions
 dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
@@ -59,17 +58,20 @@ ProjConfigs = {
         playlists = {
             [1] = {
                 [1] = {
-                    guid = '{28680144-38F8-4365-995D-6585F5D4AF2F}',
+                    guid = '{6652B628-8F3F-4ABF-9C24-6CE09A43ADC6}',
                     loop = true,
-                    type = 'region' -- need?
+                    type = 'region'
                 },
 
                 [2] = {
-                    guid = '{C4230ED0-80D3-4FD8-8F44-B88ACC20D5F1}',
+                    guid = '{5A3C8623-A903-4CE9-838F-AC4ADFD25C83}',
                     loop = true,
-                    type = 'region' -- need?
-                }
-            }
+                    type = 'region'
+                },
+                current = 1
+            },
+            current = 1,
+            shuffle = true
         },
         identifier = '#goto',
         oldtime = reaper.time_precise(),
@@ -94,5 +96,5 @@ FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the rig
 
 
 -- Start
-
+GoToCheck()
 
