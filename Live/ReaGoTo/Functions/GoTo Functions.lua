@@ -37,7 +37,8 @@ function GoTo(reason,proj)
         local region = playlist[playlist.current]
         local guid = region.guid -- region guid
         local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
-        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id )
+        if marker_id == '' then goto continue end -- better safe than sorry
+        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id ) 
         local new_pos = pos
         
         -- set loop 
@@ -46,6 +47,7 @@ function GoTo(reason,proj)
         end
         -- set play cursor 
         reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        ::continue::
     end
 
     if reason == 'next' then 
@@ -56,4 +58,48 @@ function GoTo(reason,proj)
     -- TODO other possible reasons 
     end
     proj_table.is_triggered = false
+end
+
+-------------
+--- Playlists Table 
+-------------
+
+function CreateNewPlaylist(name)
+    local default_table = {name = name,
+                           shuffle = false, -- saves used idxes (for shuffle mode)
+                           reset = true, -- at stop reset playlist current position to 0
+                           current = 0, -- 0 means not in any region of this playlist, reset to 0 each stop?
+                        } 
+    return default_table
+end
+
+function CreateNewRegion(id, proj)
+    
+    local retval, guid = reaper.GetSetProjectInfo_String( proj, 'MARKER_GUID:'..id, '', false )
+    print(guid)
+    if guid == '' then return false end
+    local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, id )
+    local region_table = {
+            guid = guid,
+            loop = isrgn,
+            type = isrgn and 'region' or 'marker',
+            chance = 1            
+    }
+    return region_table    
+end
+
+function CreateProjectConfigTable(proj)
+    local is_play = reaper.GetPlayStateEx(proj)&1 == 1
+    local t = {
+        playlists = {CreateNewPlaylist('P1')},
+        identifier = '#goto', -- markers identifier to trigger GoTo actions
+        oldpos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj), 
+        oldtime = reaper.time_precise(),
+        oldisplay = is_play,
+        is_triggered = false, -- if triggered to goto a position or next prev markers reg
+        stop_trigger = true, --at stop cancel triggers
+        moveview = true, -- moveview at GoTo 
+    }   
+    return t
+    
 end

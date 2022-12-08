@@ -57,9 +57,11 @@ end
 
 
 ---Iterate fuction returns retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber using EnumProjectMarkers2
----@param proj ReaperProject 
+---@param proj ReaperProject project 
+---@param only_marker number 0 = both, 1 = only marker, 2 = only region. 1 is the default
 ---@return function iterate retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber
-function enumMarkers2(proj)
+function enumMarkers2(proj, only_marker)
+    if not only_marker then only_marker = 1 end
     local i = 0
     local retval, num_markers, num_regions = reaper.CountProjectMarkers(proj)
     local cnt = num_markers + num_regions
@@ -67,8 +69,29 @@ function enumMarkers2(proj)
         while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
             local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, i )
             i = i + 1
-            if not isrgn then
-                return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber
+            if (only_marker == 0) or (only_marker == 1 and not isrgn) or (only_marker == 2  and isrgn) then -- filter
+                return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, i
+            end
+        end
+        return nil
+    end
+end
+
+---Iterate fuction returns retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber using EnumProjectMarkers2
+---@param proj ReaperProject 
+---@param only_marker number 0 = both, 1 = only marker, 2 = only region. 1 is the default
+---@return function iterate retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber
+function enumMarkers3(proj, only_marker)
+    if not only_marker then only_marker = 1 end
+    local i = 0
+    local retval, num_markers, num_regions = reaper.CountProjectMarkers(proj)
+    local cnt = num_markers + num_regions
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color = reaper.EnumProjectMarkers3( proj, i )
+            i = i + 1
+            if (only_marker == 0) or (only_marker == 1 and not isrgn) or (only_marker == 2  and isrgn) then -- filter
+                return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i
             end
         end
         return nil
@@ -144,3 +167,29 @@ function CreateTimeQNTable() -- From JS Multitool THANKS THANKS THANKS!
     return tQNFromTime, tTimeFromQN -- Return related to project time
 end
 
+----- Marker / Region
+
+---Get the first mark that matches the name and is region
+---@param proj ReaperProject 
+---@param name string string to check
+---@param only_marker number 0 = both, 1 = only marker, 2 = only region. 1 is the default
+function GetMarkByName(proj,name,only_marker)
+    for retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx in enumMarkers3(proj, only_marker) do 
+        if name == mark_name then 
+            return retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx
+        end
+    end
+end
+
+---Get the first mark that matches the user ID.
+---@param proj ReaperProject 
+---@param id number marker user id.
+---@param only_marker number 0 = both, 1 = only marker, 2 = only region. 1 is the default
+function GetMarkByID(proj,id,only_marker)
+    for retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx in enumMarkers3(proj, only_marker) do 
+        if id == markrgnindexnumber then 
+            return retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx
+        end
+    end
+    return false
+end

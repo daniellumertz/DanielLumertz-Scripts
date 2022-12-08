@@ -25,7 +25,7 @@ end
 function DefaultSettings()
     UserConfigs = {
         only_focus_project = false, -- only checks the focused project
-        compensate = 2, -- Compensate the defer instability. The bigger the compensation the earlier it will change before the loop end. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!
+        compensate = 2, -- Compensate the defer instability. -- too much will have timing problems (can jump regions much early). Too little will have more artifacts (when the marker is at the attack of a transient (common scenario))
         add_markers = false -- add markers every time alternator is trigger. for debugging/understanding when it triggers positions.
     } -- Json file 
 
@@ -84,15 +84,7 @@ function LoadProjectSettings(proj)
     if not ProjConfigs[proj] then 
         ProjConfigs[proj] = CreateProjectConfigTable(proj)
     end
-    -- Safe check if some take couldnt load (like if it was deleted). Remove if cant find
-    for group_key, group in ipairs(ProjConfigs[proj].groups) do
-        for take_idx = #group, 1, -1 do
-            local take = group[take_idx].take
-            if type(take) == 'string' then -- if a take is a string then remove it as it couldnt load from the GUID to mediatake
-                table.remove(group,take_idx)
-            end
-        end
-    end
+    -- Dont need to validate Userdata, no userdata at the table
 end
 
 -------------

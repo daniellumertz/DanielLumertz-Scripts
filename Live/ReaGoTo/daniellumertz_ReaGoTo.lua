@@ -8,9 +8,9 @@
 
 
 -----TODO:
--- 0) Fake data to test Project structure and user setting
--- 1) make the main loop to check
 -- 2) Gui and hook parameters up
+-- 3) Check regions guid every loop / every request! Where?
+-- 3.5) extra goto overides 
 -- 4) Save settings
 -- 5) MIDI Trigger
 -- 6) Goto Overide markers
@@ -42,17 +42,18 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 ScriptName = 'ReaGoTo'
 Version = '0.0.1'
 
---[[ -- Load Settings
+-- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
+Settings()
 
 -- Project configs (Loaded in the main loop at CheckProjects()) Need to start with an blank table
 ProjConfigs = {}
 ExtKey = 'project_config' -- ext state key
 ProjPaths = {} -- Table with the paths for each project tab. ProjPaths[proj] = path
- ]]
+
 
 -- Test Configs making script
-FocusedProj = reaper.EnumProjects(-1)
+--[[ FocusedProj = reaper.EnumProjects(-1)
 ProjConfigs = {
     [FocusedProj] = {
         playlists = {
@@ -82,12 +83,12 @@ ProjConfigs = {
         is_region_end_trigger = false,
         moveview = false
     } 
-}
-UserConfigs = {
+} ]]
+--[[ UserConfigs = {
     only_focus_project = false,
-    compensate = 2,
+    compensate = 2, -- too much will have timing problems (can jump regions much early). Too little will have more artifacts (when the marker is at the attack of a transient (common scenario))
     add_markers = false
-}
+} ]]
 
 -- Gui Style
 Gui_W_init = 275 -- Init 
@@ -96,5 +97,7 @@ FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the rig
 
 
 -- Start
-GoToCheck()
+GuiInit()
+reaper.defer(main_loop())
+reaper.atexit(Save)
 
