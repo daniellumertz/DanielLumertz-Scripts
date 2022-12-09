@@ -74,9 +74,7 @@ function CreateNewPlaylist(name)
 end
 
 function CreateNewRegion(id, proj)
-    
     local retval, guid = reaper.GetSetProjectInfo_String( proj, 'MARKER_GUID:'..id, '', false )
-    print(guid)
     if guid == '' then return false end
     local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, id )
     local region_table = {

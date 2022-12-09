@@ -66,3 +66,16 @@ function PostKey(hwnd, vk_code)
     reaper.JS_WindowMessage_Post(hwnd, "WM_KEYDOWN", vk_code, 0,0,0)
     reaper.JS_WindowMessage_Post(hwnd, "WM_KEYUP", vk_code, 0,0,0)
 end
+
+----------------
+---- Text
+----------------
+
+---Print on imgui screen
+function ImPrint(...)
+    local t = {}
+    for i, v in ipairs( { ... } ) do
+        t[i] = tostring( v )
+    end
+    reaper.ImGui_Text(ctx, table.concat( t, " " ))
+end

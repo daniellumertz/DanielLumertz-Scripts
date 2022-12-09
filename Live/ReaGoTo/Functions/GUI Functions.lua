@@ -58,7 +58,7 @@ function PlaylistTab(playlist)
 
     -- Button
     if reaper.ImGui_Button(ctx, 'Add Region/Marker', -FLTMIN) then
-        TempRegionID = 1
+        TempRegionID = ''
         TempIsRegion = true
         reaper.ImGui_OpenPopup( ctx, 'Add Region/Marker##popup'..playlist.name )
         --Popup insert idx or name
@@ -71,10 +71,9 @@ function PlaylistTab(playlist)
     if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*3, true) then
         for region_idx, region_table in ipairs(playlist) do
             local guid = region_table.guid
-
             -- Each region/marker info:
             local _, region_id = reaper.GetSetProjectInfo_String( FocusedProj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
-            local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id )
+            local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap())
 
@@ -135,25 +134,40 @@ function PlaylistTab(playlist)
     return is_save
 end
 
-function AddRegionPopUp(playlist,playlist_idx)
+function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
     if reaper.ImGui_BeginPopup(ctx, 'Add Region/Marker##popup'..playlist.name) then
         local retval
-        retval, TempRegionID = reaper.ImGui_InputInt(ctx, 'Region ID'..playlist.name, TempRegionID, 0, 0)
-        reaper.ImGui_Text(ctx, text)
+        --- Input options
+        reaper.ImGui_Text(ctx, 'Region ID/Name:')
+        retval, TempRegionID = reaper.ImGui_InputText(ctx, '##Input region'..playlist.name, TempRegionID) -- Why it can't erase everything???
+        -- checkbox
         retval, TempIsRegion = reaper.ImGui_Checkbox(ctx, 'Is Region', TempIsRegion)
-        if reaper.ImGui_Button(ctx, 'Add', -FLTMIN) and TempRegionID then
-            local retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx = GetMarkByID(FocusedProj,TempRegionID,(TempIsRegion and 2 or 1))
-            if idx then 
-                local region_table = CreateNewRegion(idx, FocusedProj)
-                if region_table then
-                    table.insert(playlist,region_table)
+        reaper.ImGui_SameLine(ctx)
+        retval, TempAddByName = reaper.ImGui_Checkbox(ctx, 'Add By name', TempAddByName)
+        -- Get the information
+        local getmarkfunc = (TempAddByName and GetMarkByName) or GetMarkByID
+        local retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx = getmarkfunc(FocusedProj,TempRegionID,(TempIsRegion and 2 or 1))
+        --- Helper text (little text to show name or ID) 
+        if retval then
+            ImPrint('Name        :',mark_name)
+            ImPrint('Idx Number  :', markrgnindexnumber)
+        
+            if reaper.ImGui_Button(ctx, 'Add', -FLTMIN) and TempRegionID then
+                if idx then 
+                    local region_table = CreateNewRegion(idx, FocusedProj)
+                    if region_table then
+                        table.insert(playlist,region_table)
+                    end
                 end
-            end
 
-            TempRegionID = nil
-            TempIsRegion = nil
-            reaper.ImGui_CloseCurrentPopup(ctx)
-         end
+                TempRegionID = nil
+                TempIsRegion = nil
+                TempAddByName = nil
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+        else
+            ImPrint('Region or Marker Not Found!')
+        end
         reaper.ImGui_EndPopup(ctx)
     end
     
