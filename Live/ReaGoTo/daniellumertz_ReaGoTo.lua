@@ -9,11 +9,11 @@
 
 -----TODO:
 -- 2) Gui and hook parameters up
+    -- Loop buttom
+    -- GOTO BUttons,
 -- 3) Check regions guid every loop / every request! Where?
 -- 3.5) extra goto overides 
--- 4) Save settings
--- 5) MIDI Trigger
--- 6) Goto Overide markers
+-- 5) MIDI/Key Trigger
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")

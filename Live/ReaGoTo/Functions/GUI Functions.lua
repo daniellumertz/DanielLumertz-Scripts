@@ -27,6 +27,9 @@ function PlaylistSelector(playlists)
                     is_save = true
                 end
                 _, playlist.reset = reaper.ImGui_Checkbox(ctx, 'Reset at stop', playlist.reset)
+                reaper.ImGui_SameLine(ctx)
+                _, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
+
                 reaper.ImGui_EndPopup(ctx)
             end
 
@@ -68,21 +71,27 @@ function PlaylistTab(playlist)
     -- Each region/marker
     local avail_x, avail_y = reaper.ImGui_GetContentRegionAvail(ctx)
     local line_size = reaper.ImGui_GetTextLineHeight(ctx) -- give space for the buttons bellow
-    if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*3, true) then
+    if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*3, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
+
         for region_idx, region_table in ipairs(playlist) do
             local guid = region_table.guid
             -- Each region/marker info:
             local _, region_id = reaper.GetSetProjectInfo_String( FocusedProj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
             local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
             reaper.ImGui_SetNextItemWidth(ctx, 150)
-            local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap())
+            local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
 
+            -- Double Click goto region
+            if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx,0) then
+                print('se fudeu')
+                -- TODO make a goto function here
+            end
 
             -- rename / delete take popup
             if reaper.ImGui_BeginPopupContextItem(ctx) then
                 TempWasOpen = region_idx
                 TempName = region_name -- Temporary holds the name as the user writes
-                local is_del = RenameRegionMarkerPopUp(playlist, region_idx)
+                local is_del = RenameRegionMarkerPopUp(playlist, region_idx, region_name)
                 if is_del then -- take was removed from table
                     TempName = nil
                     TempWasOpen  = nil
@@ -93,6 +102,7 @@ function PlaylistTab(playlist)
                 reaper.SetProjectMarker2( FocusedProj, region_markrgnindexnumber, region_isrgn, region_pos, region_rgnend, TempName )
                 TempName = nil
                 TempWasOpen  = nil
+                is_save = true -- always resave when closing 
             end
 
             -- Drag
@@ -117,16 +127,6 @@ function PlaylistTab(playlist)
                 reaper.ImGui_EndDragDropTarget(ctx)
             end
 
-            -- Probability box
-            local change
-            reaper.ImGui_SameLine(ctx)
-            reaper.ImGui_SetCursorPosX(ctx, Gui_W-110) -- change that to something flexible
-            reaper.ImGui_Text(ctx, 'Chance: ')
-            reaper.ImGui_SameLine(ctx)
-            reaper.ImGui_SetNextItemWidth(ctx, 30)
-            change, region_table.chance = reaper.ImGui_InputInt(ctx, '##'..region_name..region_idx, region_table.chance, 0, 0)
-            is_save = change or is_save
-            if region_table.chance < 0 then region_table.chance = 0 end
         end
         reaper.ImGui_EndChild(ctx)
     end
@@ -175,16 +175,33 @@ function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
 end
 
 function RenameRegionMarkerPopUp(playlist, k)
+    local region_table = playlist[k]
+    local _
     reaper.ImGui_Text(ctx, 'Edit name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     _, TempName = reaper.ImGui_InputText(ctx, "##renameinput", TempName)
+
+    -- Chance 
+    local change
+    reaper.ImGui_SetNextItemWidth(ctx, 30)
+    change, region_table.chance = reaper.ImGui_InputInt(ctx, 'Chance##'..k, region_table.chance, 0, 0)
+    if region_table.chance < 0 then region_table.chance = 0 end
+
+    -- Loop 
+
+    if region_table.type == 'region' then
+        reaper.ImGui_SameLine(ctx)
+        _, region_table.loop = reaper.ImGui_Checkbox(ctx, 'Loop Region ##loopcheckbox'..k, region_table.loop)
+    end
+
     -- remove button
     if reaper.ImGui_Button(ctx, 'Remove Region/Marker', -FLTMIN) then
         table.remove(playlist,k) -- remove from the main table
         return true
     end
+
     -- Enter close popup
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
@@ -196,6 +213,7 @@ function RenamePlaylistPopUp(playlist)
     if reaper.ImGui_IsWindowAppearing(ctx) then
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
+    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
     _, playlist.name = reaper.ImGui_InputText(ctx, "##renameinput", playlist.name)
     -- Enter
     if reaper.ImGui_IsKeyDown(ctx, 13) then
