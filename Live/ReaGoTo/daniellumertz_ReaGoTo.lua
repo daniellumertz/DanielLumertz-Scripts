@@ -8,11 +8,12 @@
 
 
 -----TODO:
--- 2) Gui and hook parameters up
-    -- GOTO BUttons,
--- 3) Check regions guid every loop / every request! Where?
--- 3.5) extra goto overides 
+-- 3) Checking if regions exist at CheckProjects() try if I can break it
+    -- trigger Goto a region and delete the region probably will break
+-- 4) Functional gotoes
+----------------------------
 -- 5) MIDI/Key Trigger
+-- 6) extra goto overides 
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")

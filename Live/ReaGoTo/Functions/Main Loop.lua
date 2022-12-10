@@ -196,7 +196,7 @@ function CheckProjects()
         end
     end
 
-    --- Check if all takes are available 
+    --- Check if all regions are available 
     -- Safe check if some take couldnt load (like if it was deleted). Remove if cant find
 
 
@@ -205,7 +205,7 @@ function CheckProjects()
             for rgn_k, region_table in ipairs_reverse(playlist) do   
                 local retval, marker_id = reaper.GetSetProjectInfo_String( check_proj, 'MARKER_INDEX_FROM_GUID:'..region_table.guid, '', false )
                 if marker_id == '' then 
-                    table.remove(region_table,rgn_k)
+                    table.remove(playlist,rgn_k)
                 end
             end
         end
