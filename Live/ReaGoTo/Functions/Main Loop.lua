@@ -65,9 +65,6 @@ function GoToCheck()
         local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
         local time = reaper.time_precise()
 
-        if not project_table.is_triggered then goto continue end
-
-
         -- if stoped
         if project_table.oldisplay and not is_play then
             if project_table.stop_trigger then -- Cancel triggers
@@ -80,6 +77,10 @@ function GoToCheck()
                 end
             end
         end
+
+
+        if not project_table.is_triggered then goto continue end
+
     
         -- if playing and triggered look after next Trigger point 
         if is_play and project_table.is_triggered then

@@ -27,6 +27,8 @@ function GoTo(reason,proj)
     local function next_prev(is_next)  -- Next and Prev logic
         local playlists = proj_table.playlists
         local playlist = playlists[playlists.current]
+        if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
+
         -- updates the value at the ProjConfigs table
         local change = ((not is_next and -1) or 0) -- if goes prev then -1 if goes next then 0
         playlist.current = ((playlist.current+change) % #playlist) + 1
@@ -86,7 +88,8 @@ function CreateNewRegion(id, proj)
             guid = guid,
             loop = isrgn,
             type = isrgn and 'region' or 'marker',
-            chance = 1            
+            chance = 1,
+            current = 0           
     }
     return region_table    
 end
@@ -94,7 +97,8 @@ end
 function CreateProjectConfigTable(proj)
     local is_play = reaper.GetPlayStateEx(proj)&1 == 1
     local t = {
-        playlists = {CreateNewPlaylist('P1')},
+        playlists = {CreateNewPlaylist('P1'),
+                     current = 1},
         identifier = '#goto', -- markers identifier to trigger GoTo actions
         oldpos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj), 
         oldtime = reaper.time_precise(),
