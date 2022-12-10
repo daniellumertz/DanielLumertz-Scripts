@@ -11,6 +11,7 @@
 -- 3) Checking if regions exist at CheckProjects() try if I can break it
     -- trigger Goto a region and delete the region probably will break
 
+-- Goto without any region
 -- Shuffle playlist
 -- 4) Functional gotoes
     -- Random
@@ -24,7 +25,7 @@
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
-demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
+--demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 -- get script path
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]

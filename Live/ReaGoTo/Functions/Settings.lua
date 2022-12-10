@@ -85,7 +85,7 @@ function SaveProjectSettings(proj, config_table)
     table_copy.oldpos = nil
     table_copy.oldisplay = nil
     table_copy.oldtime = nil
-    SaveExtStateTable(proj, ScriptName, ExtKey, config_table, true)
+    SaveExtStateTable(proj, ScriptName, ExtKey, table_copy, true)
 end
 
 function LoadProjectSettings(proj)
@@ -118,6 +118,12 @@ function LoadExtStateTable(proj, script_name, key, convert_GUID)
     return tabela
 end
 
+---Save at project ext state convert user data to guid
+---@param proj Project Reaper project to save to 
+---@param script_name string ext state will use the script name to store information
+---@param key string ext state will use this key inside the script name area to store information
+---@param tabela table table you want to save. User data Takes, Tracks, Items are converted user data to GUID. 
+---@param convert_GUID any
 function SaveExtStateTable(proj, script_name, key, tabela, convert_GUID)
     if convert_GUID then 
         tabela = CovertUserDataToGUIDRecursive(proj, tabela)
