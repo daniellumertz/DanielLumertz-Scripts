@@ -113,7 +113,7 @@ function GoToCheck()
                     end
                 end
             end
-        elseif not is_play and project_table.is_triggered then -- receive goto orders when paused
+        elseif UserConfigs.trigger_when_paused and not is_play and project_table.is_triggered then -- receive goto orders when paused
             GoTo(project_table.is_triggered,proj)
         end
 
@@ -177,7 +177,7 @@ end
 
 
 --[[
-For now save the  this
+For now save the  this (check markers at the beggining of the loop )
 
         -- if playing and triggered look after next Trigger point 
         if is_play and project_table.is_triggered then

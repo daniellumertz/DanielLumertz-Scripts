@@ -1,6 +1,5 @@
 --@noindex
 function GoTo(reason,proj)
-    print('GoTo')
     --[[ is_triggered options:
         ‘next’	
         ‘prev’	
@@ -30,7 +29,7 @@ function GoTo(reason,proj)
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
 
         -- updates the value at the ProjConfigs table
-        local change = ((not is_next and -1) or 0) -- if goes prev then -1 if goes next then 0
+        local change = ((is_next and 0) or -2) -- if goes prev then -1 if goes next then 0
         playlist.current = ((playlist.current+change) % #playlist) + 1
         if playlist.shuffle and (is_next and playlist.current == 1) or (not is_next and playlist.current == #playlist) then --shuffle the table every time it loops around
             --todo randomize values

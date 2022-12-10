@@ -224,6 +224,11 @@ function RenamePlaylistPopUp(playlist)
 end
 
 function TriggerButtons(playlists)
+    local function triggered_button_style(is_trigger)
+        if is_trigger then 
+        end
+
+    end
     local avail_w, avail_h = reaper.ImGui_GetContentRegionAvail(ctx)
     local button_gap = 8
     local button_cnt = 3
@@ -244,6 +249,9 @@ function TriggerButtons(playlists)
     --reaper.ImGui_SameLine(ctx)
     --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)
 
+    if ProjConfigs[FocusedProj].is_triggered and reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) then
+        SetGoTo(FocusedProj, false)
+    end
 end
 
 function MenuBar()
@@ -266,6 +274,8 @@ function MenuBar()
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
             _, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
             ToolTip(true, 'Only trigger at the focused project, if more project are open they will consume less resources.')
+            _, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
+            ToolTip(true, 'Execute goto action immediately when  REAPER is not playing.')
 
             _, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
             reaper.ImGui_Separator(ctx)

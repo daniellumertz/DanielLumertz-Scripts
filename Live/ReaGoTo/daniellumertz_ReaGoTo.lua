@@ -1,4 +1,4 @@
--- @version 0.0.2b
+-- @version 0.0.3b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
@@ -10,13 +10,18 @@
 -----TODO:
 -- 3) Checking if regions exist at CheckProjects() try if I can break it
     -- trigger Goto a region and delete the region probably will break
+
 -- 4) Functional gotoes
-----------------------------
+    -- Random
+    -- Paint triggered buttons
+    -- test multiple projects
+---------------------------- extra after trying a bit
 -- 5) MIDI/Key Trigger
 -- 6) extra goto overides 
+-- 7) forced goto marker (mark that always is triggered)
 
 
-dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+--dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 -- get script path
@@ -40,7 +45,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.0.1'
+Version = '0.0.3'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
