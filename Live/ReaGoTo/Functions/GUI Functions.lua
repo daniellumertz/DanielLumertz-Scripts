@@ -224,27 +224,64 @@ function RenamePlaylistPopUp(playlist)
 end
 
 function TriggerButtons(playlists)
-    local function triggered_button_style(is_trigger)
-        if is_trigger then 
+    local function triggered_button_style(check_trigger, proj)
+        if not proj then proj = FocusedProj end
+        if ProjConfigs[proj].is_triggered == check_trigger then 
+            local alpha = MapRange(GUIButtomAnimationVal,-1,1,0.6,0.9) --adds alpha based on animation step
+            local button_collor = HSVtoImGUI(40/360, 0.84, 0.92, alpha)
+            local button_collor_hover = HSVtoImGUI(40/360, 0.84, 0.92, 0.9)
+            local button_collor_active = HSVtoImGUI(40/360, 0.84, 0.92, 1)
+            
+            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),        button_collor)
+            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), button_collor_hover)
+            reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  button_collor_active)
+            return true
         end
-
+        return false
     end
+
+    local function pop_button_style(check)
+        if check then 
+            reaper.ImGui_PopStyleColor(ctx, 3)
+        end
+    end
+
     local avail_w, avail_h = reaper.ImGui_GetContentRegionAvail(ctx)
     local button_gap = 8
     local button_cnt = 3
     local button_size = ((avail_w-((button_cnt-1)*button_gap))/button_cnt)
 
-    if reaper.ImGui_Button(ctx, '<',button_size) then
-        SetGoTo(FocusedProj, 'prev')
+    do -- Prev Button
+        local trigger_string = 'prev'
+        local paint = triggered_button_style(trigger_string)
+        if reaper.ImGui_Button(ctx, '<',button_size) then
+            SetGoTo(FocusedProj, 'prev')
+        end
+        pop_button_style(paint)
     end
-    reaper.ImGui_SameLine(ctx)
+
+    do -- Random Button
+        local trigger_string = 'random'
+        local paint = triggered_button_style(trigger_string)
+        reaper.ImGui_SameLine(ctx)
         if reaper.ImGui_Button(ctx, '?',button_size) then
-        SetGoTo(FocusedProj, 'random')
+            SetGoTo(FocusedProj, trigger_string)
+        end
+        pop_button_style(paint)
     end
-    reaper.ImGui_SameLine(ctx)
-    if reaper.ImGui_Button(ctx, '>',button_size) then
-        SetGoTo(FocusedProj, 'next')
+
+    do -- Next Button
+        reaper.ImGui_SameLine(ctx)
+        local trigger_string = 'next'
+        local paint = triggered_button_style(trigger_string)
+        if reaper.ImGui_Button(ctx, '>',button_size) then
+            SetGoTo(FocusedProj, trigger_string)
+        end
+        pop_button_style(paint)
     end
+
+
+    --pop_button_style(true)
     --_, _ = reaper.ImGui_InputText(ctx, '##gototext', 'buf') --TODO optional goto personalized
     --reaper.ImGui_SameLine(ctx)
     --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)
@@ -336,4 +373,13 @@ function MenuBar()
 
         reaper.ImGui_EndMenuBar(ctx)
     end
+end
+
+function AnimationValues()
+    if not GUIAnimationStep then 
+        GUIAnimationStep = 0  --GUIAnimationTrig value between 0 and 4 pi 
+
+    end
+    GUIAnimationStep = (GUIAnimationStep + 0.1) % (4*math.pi)
+    GUIButtomAnimationVal = math.sin(GUIAnimationStep) -- value between -1 amd 1     
 end

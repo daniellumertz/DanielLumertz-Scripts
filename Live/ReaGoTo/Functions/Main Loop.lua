@@ -33,6 +33,7 @@ function main_loop()
     -- Updates the variables used in the script
     Gui_W, Gui_H = reaper.ImGui_GetWindowSize(ctx)
     if visible then
+        AnimationValues()
         MenuBar()
         local _ --  values I will throw away
         --- GUI MAIN: 
@@ -45,7 +46,7 @@ function main_loop()
     -- OpenPopups() 
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
-    --emo.PopStyle(ctx)
+    --demo.PopStyle(ctx)
 
     GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
 

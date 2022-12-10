@@ -1,4 +1,4 @@
 --@noindex
-
-local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id )
-print(rgnend)
+for i = 0, 4*math.pi, 0.1 do
+    print(i, math.sin(4*math.pi))
+end

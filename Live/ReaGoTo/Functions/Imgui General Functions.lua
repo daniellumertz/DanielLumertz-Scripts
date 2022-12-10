@@ -1,6 +1,6 @@
 --@noindex
---v 0.0.1
--- Add keys
+--v 0.1
+-- Add colors
 ----------------
 ---- Colors
 ----------------
@@ -13,6 +13,16 @@ function RGBA_To_ReaperRGB(rgb_input)
     return reaper.ImGui_ColorConvertNative(rgb_input) | 0x1000000
 end
 
+---Input a HSVA color, output is a number to insert in ImGUI widgets (from imgui demo)
+---@param h number hue from 0 - 1
+---@param s number saturation 0 - 1
+---@param v number value 0 - 1
+---@param a number alpha 0 - 1
+---@return number color color for imgui RRGGBBAA
+function HSVtoImGUI(h, s, v, a)
+    local r, g, b = reaper.ImGui_ColorConvertHSVtoRGB(h, s, v)
+    return reaper.ImGui_ColorConvertDouble4ToU32(r, g, b, a or 1.0)
+end
 ----------------
 ---- Popups
 ----------------

@@ -19,7 +19,6 @@ function Settings()
     if not retval_load then
         DefaultSettings()
         SaveSettings(ScriptPath,SettingsFileName)
-        print('UserConfigs.trigger_when_paused  ', UserConfigs.trigger_when_paused)
     end
 end
 
