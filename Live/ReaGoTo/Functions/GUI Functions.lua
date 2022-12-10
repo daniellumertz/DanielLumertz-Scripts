@@ -144,6 +144,7 @@ function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
         retval, TempIsRegion = reaper.ImGui_Checkbox(ctx, 'Is Region', TempIsRegion)
         reaper.ImGui_SameLine(ctx)
         retval, TempAddByName = reaper.ImGui_Checkbox(ctx, 'Add By name', TempAddByName)
+        if not TempAddByName then TempRegionID = tonumber(TempRegionID) end 
         -- Get the information
         local getmarkfunc = (TempAddByName and GetMarkByName) or GetMarkByID
         local retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx = getmarkfunc(FocusedProj,TempRegionID,(TempIsRegion and 2 or 1))
