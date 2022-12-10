@@ -60,6 +60,11 @@ function GoTo(reason,proj)
     proj_table.is_triggered = false
 end
 
+---Create/Cancel Goto triggers for project
+function SetGoTo(project, val)
+    ProjConfigs[project].is_triggered = val
+end
+
 -------------
 --- Playlists Table 
 -------------

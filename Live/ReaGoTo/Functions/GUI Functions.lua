@@ -226,11 +226,18 @@ function TriggerButtons(playlists)
     local button_gap = 8
     local button_cnt = 3
     local button_size = ((avail_w-((button_cnt-1)*button_gap))/button_cnt)
-    reaper.ImGui_Button(ctx, '<',button_size)
+
+    if reaper.ImGui_Button(ctx, '<',button_size) then
+        SetGoTo(FocusedProj, 'prev')
+    end
     reaper.ImGui_SameLine(ctx)
-    reaper.ImGui_Button(ctx, '?',button_size)
+        if reaper.ImGui_Button(ctx, '?',button_size) then
+        SetGoTo(FocusedProj, 'random')
+    end
     reaper.ImGui_SameLine(ctx)
-    reaper.ImGui_Button(ctx, '>',button_size)
+    if reaper.ImGui_Button(ctx, '>',button_size) then
+        SetGoTo(FocusedProj, 'next')
+    end
     --_, _ = reaper.ImGui_InputText(ctx, '##gototext', 'buf') --TODO optional goto personalized
     --reaper.ImGui_SameLine(ctx)
     --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)

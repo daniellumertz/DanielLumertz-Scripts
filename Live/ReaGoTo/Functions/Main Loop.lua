@@ -47,7 +47,7 @@ function main_loop()
     PopTheme()
     --emo.PopStyle(ctx)
 
-    --GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
+    GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
 
     if open then
         reaper.defer(main_loop)
@@ -80,7 +80,7 @@ function GoToCheck()
                 end
             end
         end
-
+    
         -- if playing and triggered look after next Trigger point 
         if is_play and project_table.is_triggered then
 
@@ -127,47 +127,7 @@ function GoToCheck()
 end
 
 
-function CheckProjects()
-    local projects_opened = {} -- to check if some project closed
-    -- Check if some project opened
-    for check_proj in enumProjects() do
-        local check = false
-        for proj, project_table in pairs(ProjConfigs) do
-            if proj == check_proj then -- project already have a configs 
-                check = true
-                break
-            end             
-        end 
-        local project_path = GetFullProjectPath(check_proj)
-        if not check or ProjPaths[check_proj] ~= project_path then -- new project detected // project without cofigs (new tab or user opened a project)
-            LoadProjectSettings(check_proj)
-            ProjPaths[check_proj] = project_path
-        end
-        table.insert(projects_opened, check_proj)
-    end
 
-    -- Check if some project closed
-    for proj, proj_table in pairs(ProjConfigs) do
-        if not TableHaveValue(projects_opened,proj) then
-            ProjConfigs[proj] = nil-- if closed remove from ProjConfigs. configs should be saved as user uses
-            ProjPaths[proj] = nil
-        end
-    end
-
-    --- Check if all takes are available 
-    for check_proj in enumProjects() do
-        for group_idx, group in ipairs(ProjConfigs[check_proj].groups) do -- for every group
-            for take_idx, take_table in ipairs_reverse(group) do -- for every take
-                local take = take_table.take
-                if not reaper.ValidatePtr2(check_proj, take, 'MediaItem_Take*') then -- Remove missing takes@
-                    table.remove(group,take_idx)
-                end
-            end
-        end
-
-    end
-    FocusedProj = reaper.EnumProjects( -1 )
-end
 
 function CheckProjects()
     local projects_opened = {} -- to check if some project closed

@@ -51,45 +51,6 @@ ProjConfigs = {}
 ExtKey = 'project_config' -- ext state key
 ProjPaths = {} -- Table with the paths for each project tab. ProjPaths[proj] = path
 
-
--- Test Configs making script
---[[ FocusedProj = reaper.EnumProjects(-1)
-ProjConfigs = {
-    [FocusedProj] = {
-        playlists = {
-            [1] = {
-                [1] = {
-                    guid = '{6652B628-8F3F-4ABF-9C24-6CE09A43ADC6}',
-                    loop = true,
-                    type = 'region'
-                },
-
-                [2] = {
-                    guid = '{5A3C8623-A903-4CE9-838F-AC4ADFD25C83}',
-                    loop = true,
-                    type = 'region'
-                },
-                current = 1
-            },
-            current = 1,
-            shuffle = true
-        },
-        identifier = '#goto',
-        oldtime = reaper.time_precise(),
-        is_play = reaper.GetPlayStateEx(FocusedProj)&1 == 1,
-        oldpos = (reaper.GetPlayStateEx(FocusedProj)&1 == 1 and reaper.GetPlayPositionEx( FocusedProj )) or reaper.GetCursorPositionEx(FocusedProj), -- switch for is_play
-        is_triggered = false,
-        stop_trigger = true, -- if pause or stop it will cancel triggers
-        is_region_end_trigger = false,
-        moveview = false
-    } 
-} ]]
---[[ UserConfigs = {
-    only_focus_project = false,
-    compensate = 2, -- too much will have timing problems (can jump regions much early). Too little will have more artifacts (when the marker is at the attack of a transient (common scenario))
-    add_markers = false
-} ]]
-
 -- Gui Style
 Gui_W_init = 275 -- Init 
 Gui_H_init = 450 -- Init 

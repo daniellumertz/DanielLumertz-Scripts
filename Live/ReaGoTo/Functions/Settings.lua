@@ -65,7 +65,6 @@ end
 -- Saves all at the end of the script. Only use at the end of the script as it change the oldpos and oldisplay values (reason is for not triggering when opening the script at this project next time)
 function SaveAllProjectSettings()
     for proj, project_table in pairs(ProjConfigs) do
-        project_table.oldisplay = false
         SaveProjectSettings(proj, project_table)
     end
 end
@@ -74,6 +73,13 @@ end
 ---@param proj project reaper project 
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
+    local table_copy = TableDeepCopy(config_table)
+    -- remove triggers
+    table_copy.is_triggered = false
+    -- remove positions
+    table_copy.oldpos = nil
+    table_copy.oldisplay = nil
+    table_copy.oldtime = nil
     SaveExtStateTable(proj, ScriptName, ExtKey, config_table, true)
 end
 
