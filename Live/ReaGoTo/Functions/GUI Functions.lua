@@ -23,6 +23,7 @@ function PlaylistSelector(playlists)
                 is_save = RenamePlaylistPopUp(playlist)
                 -- delete
                 if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
+                    reaper.ImGui_CloseCurrentPopup(ctx)
                     table.remove(playlists,playlist_key)
                     is_save = true
                 end
