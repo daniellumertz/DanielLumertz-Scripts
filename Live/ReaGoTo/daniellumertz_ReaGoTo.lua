@@ -9,7 +9,6 @@
 
 -----TODO:
 -- 2) Gui and hook parameters up
-    -- Loop buttom
     -- GOTO BUttons,
 -- 3) Check regions guid every loop / every request! Where?
 -- 3.5) extra goto overides 

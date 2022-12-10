@@ -71,7 +71,7 @@ function PlaylistTab(playlist)
     -- Each region/marker
     local avail_x, avail_y = reaper.ImGui_GetContentRegionAvail(ctx)
     local line_size = reaper.ImGui_GetTextLineHeight(ctx) -- give space for the buttons bellow
-    if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*3, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
+    if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*3.5, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
 
         for region_idx, region_table in ipairs(playlist) do
             local guid = region_table.guid
@@ -219,6 +219,22 @@ function RenamePlaylistPopUp(playlist)
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
     end
+end
+
+function TriggerButtons(playlists)
+    local avail_w, avail_h = reaper.ImGui_GetContentRegionAvail(ctx)
+    local button_gap = 8
+    local button_cnt = 3
+    local button_size = ((avail_w-((button_cnt-1)*button_gap))/button_cnt)
+    reaper.ImGui_Button(ctx, '<',button_size)
+    reaper.ImGui_SameLine(ctx)
+    reaper.ImGui_Button(ctx, '?',button_size)
+    reaper.ImGui_SameLine(ctx)
+    reaper.ImGui_Button(ctx, '>',button_size)
+    --_, _ = reaper.ImGui_InputText(ctx, '##gototext', 'buf') --TODO optional goto personalized
+    --reaper.ImGui_SameLine(ctx)
+    --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)
+
 end
 
 function MenuBar()

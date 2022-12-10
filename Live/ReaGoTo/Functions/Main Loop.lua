@@ -32,17 +32,13 @@ function main_loop()
 
     -- Updates the variables used in the script
     Gui_W, Gui_H = reaper.ImGui_GetWindowSize(ctx)
-    --[[     CTRL = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Mod_Ctrl())
-        SHIFT = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Mod_Shift())
-        ALT = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Mod_Alt()) ]]
-
     if visible then
         MenuBar()
         local _ --  values I will throw away
         --- GUI MAIN: 
         PlaylistSelector(ProjConfigs[FocusedProj].playlists)
         -- Trigger Buttons
-
+        TriggerButtons(ProjConfigs[FocusedProj].playlists)
         reaper.ImGui_End(ctx)
     end 
     
