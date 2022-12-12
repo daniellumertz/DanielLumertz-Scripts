@@ -1,6 +1,6 @@
 -- @noindex
--- version: 0.5.1
--- fix get pitches and get pitch classes 
+-- version: 0.5.2
+-- fix sort notes
 ---------------------
 ----------------- Iterate
 ---------------------
@@ -1062,7 +1062,7 @@ function SortNotes(take,bottomup,sort)
     local function sort_wait_table(wait_table,bottomup,new_midi_table)
         -- sort table 
         if bottomup then
-            table.sort(wait_table, function(a,b) return a.pitch < b.pitch end)
+            table.sort(wait_table, function(a,b) return a.pitch < b.pitch end) -- TODO need to if same pitch whoever came first goes first  .offset_count have the position 
         else
             table.sort(wait_table, function(a,b) return a.pitch > b.pitch end)
         end
@@ -1077,8 +1077,8 @@ function SortNotes(take,bottomup,sort)
 
     local function try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
         if last_start and last_start ~= offset_count then -- new position add all notes at wait table
-            sort_wait_table(wait_start,bottomup,new_table)
             sort_wait_table(wait_end,bottomup,new_table)
+            sort_wait_table(wait_start,bottomup,new_table)
 
             --reset table
             wait_start = {}
@@ -1096,7 +1096,7 @@ function SortNotes(take,bottomup,sort)
     local wait_start, wait_end = {},{} -- table to add the notes waiting
     for offset, offset_count, flags, midimsg, stringPos in IterateAllMIDI(MIDIstr,false) do
         local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(midimsg)
-        if msg_type == 9 then -- noteon
+        if msg_type == 9 and val2 > 0 then -- noteon
 
             wait_start, wait_end, last_start, new_table = try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
             
@@ -1114,7 +1114,7 @@ function SortNotes(take,bottomup,sort)
 
             -- ad to wait table
             wait_start[#wait_start+1] = {offset = offset, offset_count = offset_count, flags = flags, midimsg = midimsg, stringPos = stringPos, pitch = val1, meta = meta}
-        elseif msg_type == 8 then  --noteoff
+        elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then  --noteoff
 
             wait_start, wait_end, last_start, new_table = try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
 

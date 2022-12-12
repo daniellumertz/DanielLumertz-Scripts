@@ -11,11 +11,11 @@
 -- 3) Checking if regions exist at CheckProjects() try if I can break it
     -- trigger Goto a region and delete the region probably will break
 
--- Goto without any region
+-- Check Goto without any region
 -- Shuffle playlist
 -- 4) Functional gotoes
     -- Random
-    -- sections
+    -- specific sections
         -- paint
     -- try to break
 ---------------------------- extra after trying a bit

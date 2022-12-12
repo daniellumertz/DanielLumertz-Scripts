@@ -1,5 +1,6 @@
---@noindex
--- version: 0.4
+-- @noindex
+-- version: 0.5.2
+-- fix sort notes
 ---------------------
 ----------------- Iterate
 ---------------------
@@ -592,8 +593,6 @@ function CreateNotesTable(is_selected,ignore_muted,is_combine_items,take_list)
 
     for k, take in ipairs(takes) do
         takes_table[#takes_table+1] = {}
-        SortNotes(take,true,true)
-
 
         local item  = reaper.GetMediaItemTake_Item(take)
         local item_start = reaper.GetMediaItemInfo_Value( item, 'D_POSITION' )
@@ -693,13 +692,11 @@ function CopyMIDIParametersFromEventList(take_table, mark_muted_pitch,mark_muted
 --  pitch = pitch,
 --  vel = vel,
 --  start_time = proj start_time in sec
-    mute_mark = mute_mark or 'MIDI_GetAllEvts'
+    mute_mark = mute_mark or 'm'
 
     local copy_list = {}
     copy_list.pitch = {}
     copy_list.interval = {} -- number of elements = number of notes - 1 (insert only the difference)
-    copy_list.melodic_interval = {} -- number of elements = number of notes - 1 (insert only the difference)
-    copy_list.harmonic_interval = {} -- number of elements = number of notes - 1 (insert only the difference)
     copy_list.vel = {}
     copy_list.len = {}
     copy_list.len_qn = {}
@@ -818,7 +815,7 @@ function CopyMIDIParametersFromEventList(take_table, mark_muted_pitch,mark_muted
         end
     end
 
-    -- copy pitch table list and sort it for interval (will calculate intervals inside events always in ascending order, independent which note came first)
+    -- sort the pitch table
     for event_idx, event_table in ipairs(copy_list.pitch) do
         table.sort(event_table, function(a,b)
             return tonumber(a:match('%d*')) < tonumber(b:match('%d*')) 
@@ -840,9 +837,6 @@ function CopyMIDIParametersFromEventList(take_table, mark_muted_pitch,mark_muted
                     events_interval = events_interval .. mute_mark
                 end
                 table.insert(copy_list.interval[#copy_list.interval], events_interval)
-                if not copy_list.melodic_interval[event_idx-1] then copy_list.melodic_interval[event_idx-1] = {} end
-                table.insert(copy_list.melodic_interval[event_idx-1], events_interval)
-
 
             elseif note_idx > 1 then -- if there is more notes in this event list
                 local last_pitch = event_table[note_idx-1]:match('%d*')
@@ -852,17 +846,88 @@ function CopyMIDIParametersFromEventList(take_table, mark_muted_pitch,mark_muted
                 if mark_muted_pitch and last_muted then
                     inside_interval = inside_interval .. mute_mark
                 end
-                table.insert(copy_list.interval[#copy_list.interval],inside_interval)
-                if not copy_list.harmonic_interval[event_idx-1] then copy_list.harmonic_interval[event_idx-1] = {} end
-                table.insert(copy_list.harmonic_interval[event_idx-1], inside_interval)
- 
+                table.insert(copy_list.interval[#copy_list.interval],inside_interval) 
             end
         end       
     end 
-    copy_list.harmonic_interval= TableRemoveSpaceKeys(copy_list.harmonic_interval)
-    copy_list.melodic_interval= TableRemoveSpaceKeys(copy_list.melodic_interval)
+
 
     return copy_list
+end
+
+
+---Make a list of all pitch classes, without repetition.
+---@param is_selected boolean If true, only selected notes will be used.
+---@param filter_mute boolean If true, muted notes will be ignored.
+---@param take_list table optional pass a table with takes it will use it, else it will get the editables takes at the active MIDI Editor.
+---@return table
+function GetSelectedPitchClasses( is_selected,filter_mute,take_list)
+    local takes 
+    local midi_editor = reaper.MIDIEditor_GetActive()
+    if take_list then 
+        takes = take_list
+    else
+        takes = {}
+        for take in enumMIDITakes(midi_editor,true) do
+            takes[#takes+1] = take
+        end
+    end
+    
+    local pitch_classes = {}
+    local added_values = {}
+    for k, take in ipairs(takes) do
+        for selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx in IterateMIDINotes(take) do
+            if (is_selected and selected) and ((not filter_mute) or (filter_mute and not muted)) then
+                -- get pitch class
+                local pitch_class = pitch % 12
+                -- add pitch class to table
+                if not added_values[pitch_class] then
+                    table.insert(pitch_classes,pitch_class)
+                    added_values[pitch_class] = true
+                end
+            end
+        end
+    end
+
+    table.sort(pitch_classes)
+
+    return pitch_classes    
+end
+
+---Make a list of all pitches, without repetition.
+---@param is_selected boolean If true, only selected notes will be used.
+---@param filter_mute boolean If true, muted notes will be ignored.
+---@param take_list table optional pass a table with takes it will use it, else it will get the editables takes at the active MIDI Editor.
+---@return table
+function GetSelectedPitches(is_selected,filter_mute,take_list)
+    local takes 
+    local midi_editor = reaper.MIDIEditor_GetActive()
+    if take_list then 
+        takes = take_list
+    else
+        takes = {}
+        for take in enumMIDITakes(midi_editor,true) do
+            takes[#takes+1] = take
+        end
+    end
+
+    local pitches = {}
+    local added_values = {}
+    for k, take in ipairs(takes) do
+        for selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx in IterateMIDINotes(take) do
+            if ((not is_selected) or (is_selected and selected)) and ((not filter_mute) or (filter_mute and not muted)) then
+                -- add pitch class to table
+                if not added_values[pitch] then
+                    table.insert(pitches,pitch)
+                    added_values[pitch] = true
+                end
+            end
+        end
+    end
+
+    table.sort(pitches)
+
+    return pitches    
 end
 
 ---------------------
@@ -997,7 +1062,7 @@ function SortNotes(take,bottomup,sort)
     local function sort_wait_table(wait_table,bottomup,new_midi_table)
         -- sort table 
         if bottomup then
-            table.sort(wait_table, function(a,b) return a.pitch < b.pitch end)
+            table.sort(wait_table, function(a,b) return a.pitch < b.pitch end) -- TODO need to if same pitch whoever came first goes first  .offset_count have the position 
         else
             table.sort(wait_table, function(a,b) return a.pitch > b.pitch end)
         end
@@ -1012,8 +1077,8 @@ function SortNotes(take,bottomup,sort)
 
     local function try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
         if last_start and last_start ~= offset_count then -- new position add all notes at wait table
-            sort_wait_table(wait_start,bottomup,new_table)
             sort_wait_table(wait_end,bottomup,new_table)
+            sort_wait_table(wait_start,bottomup,new_table)
 
             --reset table
             wait_start = {}
@@ -1031,7 +1096,7 @@ function SortNotes(take,bottomup,sort)
     local wait_start, wait_end = {},{} -- table to add the notes waiting
     for offset, offset_count, flags, midimsg, stringPos in IterateAllMIDI(MIDIstr,false) do
         local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(midimsg)
-        if msg_type == 9 then -- noteon
+        if msg_type == 9 and val2 > 0 then -- noteon
 
             wait_start, wait_end, last_start, new_table = try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
             
@@ -1049,7 +1114,7 @@ function SortNotes(take,bottomup,sort)
 
             -- ad to wait table
             wait_start[#wait_start+1] = {offset = offset, offset_count = offset_count, flags = flags, midimsg = midimsg, stringPos = stringPos, pitch = val1, meta = meta}
-        elseif msg_type == 8 then  --noteoff
+        elseif msg_type == 8 or (msg_type == 9 and val2 == 0) then  --noteoff
 
             wait_start, wait_end, last_start, new_table = try_to_add_to_table(new_table,offset_count,wait_start,wait_end,last_start)
 

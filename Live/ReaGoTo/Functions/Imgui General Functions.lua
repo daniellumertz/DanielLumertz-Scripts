@@ -43,8 +43,8 @@ end
 ----------------
 
 
-
-function PassKeys() -- Might be a little tough on resource
+-- PassKeys to the last focused window. Only working in windows currently
+function PassKeys() 
     --Get keys pressed
     local active_keys = {}
     for key_val = 0,255 do
@@ -70,6 +70,39 @@ function PassKeys() -- Might be a little tough on resource
     if LastWindowFocus ~= win_focus and (win_name == 'trackview' or win_name == 'midiview')  then -- focused win title is different? INSERT HERE
         LastWindowFocus = win_focus
     end    
+end
+
+-- PassKeys to main or midieditor(if is_midieditor and there is any midi editor active). 
+---@param is_midieditor boolean if true then it will always pass the key presses to the midi editor. If there isnt a midi editor it will pass to the main window. If false pass to the main window
+function PassKeys2(is_midieditor) 
+    --Get keys pressed
+    local active_keys = {}
+    for key_val = 0,255 do
+        if reaper.ImGui_IsKeyPressed(ctx, key_val, true) then -- true so holding will perform many times
+            active_keys[#active_keys+1] = key_val
+        end
+    end
+    -- Get Window
+    local sel_window 
+    if is_midieditor then
+        local midi = reaper.MIDIEditor_GetActive()
+        if midi then 
+            sel_window = midi 
+        end
+    end
+
+    if not sel_window then
+        sel_window = reaper.GetMainHwnd()
+    end
+
+    --Send Message
+    if sel_window then 
+        if #active_keys > 0  then
+            for k, key_val in pairs(active_keys) do
+                PostKey(sel_window, key_val)
+            end
+        end
+    end
 end
 
 function PostKey(hwnd, vk_code)
