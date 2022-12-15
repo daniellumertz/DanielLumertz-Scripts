@@ -250,7 +250,7 @@ function TriggerButtons(playlists)
     local button_gap = 8
     local button_cnt = 3
     local button_size = ((avail_w-((button_cnt-1)*button_gap))/button_cnt)
-
+    local is_just_activated = ProjConfigs[FocusedProj].is_triggered and true   -- check if a button was just activated in this frame, to prevent 'cancel' button to appear in just one frame.
     do -- Prev Button
         local trigger_string = 'prev'
         local paint = triggered_button_style(trigger_string)
@@ -286,7 +286,7 @@ function TriggerButtons(playlists)
     --reaper.ImGui_SameLine(ctx)
     --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)
 
-    if ProjConfigs[FocusedProj].is_triggered and reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) then
+    if is_just_activated and ProjConfigs[FocusedProj].is_triggered and reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) then
         SetGoTo(FocusedProj, false)
     end
 end
