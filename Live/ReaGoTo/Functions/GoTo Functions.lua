@@ -45,6 +45,8 @@ function GoTo(reason,proj)
         -- set loop 
         if region.loop then
             local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
+        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
+            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
         end
         -- set play cursor 
         reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)

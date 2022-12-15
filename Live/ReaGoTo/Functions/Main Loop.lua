@@ -29,7 +29,6 @@ function main_loop()
     end
     reaper.ImGui_PushFont(ctx, FontText) -- Says you want to start using a specific font
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..Version, true, window_flags)
-
     -- Updates the variables used in the script
     Gui_W, Gui_H = reaper.ImGui_GetWindowSize(ctx)
     if visible then
