@@ -12,6 +12,7 @@ function GoTo(reason,proj)
         '{next,next,prev,bar4.2}'
     ]] -- no spaces. always lower case. 
     local proj_table = ProjConfigs[proj]
+        
     -- if is a table decide one of them
     if reason:match('{.+}') then -- Todo idea reason with random pick position : {next, next, prev}. User actually just types:  next, next, prev ; then add in the code the {} and fix the syntax 
         local possible_reasons = {}
@@ -26,6 +27,7 @@ function GoTo(reason,proj)
     local function next_prev(is_next)  -- Next and Prev logic
         local playlists = proj_table.playlists
         local playlist = playlists[playlists.current]
+        if #playlist == 0 then return false end -- Check if any marker/region
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
 
         -- updates the value at the ProjConfigs table

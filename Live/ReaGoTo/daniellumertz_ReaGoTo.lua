@@ -8,8 +8,7 @@
 
 
 -----TODO:
--- 3) Checking if regions exist at CheckProjects() try if I can break it
-    -- trigger Goto a region and delete the region probably will break
+-- 3) try if I can break Check if regions exist at CheckProjects() 
 
 -- Check Goto without any region
 -- Shuffle playlist
