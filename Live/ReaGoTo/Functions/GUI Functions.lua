@@ -151,7 +151,7 @@ function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
 
             ImPrint('Name        :',mark_name)
             ImPrint('Idx Number  :', markrgnindexnumber)
-            
+
             local is_enter =  reaper.ImGui_IsKeyDown(ctx, 13)
             if (reaper.ImGui_Button(ctx, 'Add', -FLTMIN) or is_enter ) and TempRegionID then
                 if idx then 
@@ -179,6 +179,7 @@ function RenameRegionMarkerPopUp(playlist, k)
     local region_table = playlist[k]
     local _
     reaper.ImGui_Text(ctx, 'Edit name:')
+    
     if reaper.ImGui_IsWindowAppearing(ctx) then
         PreventKeys.region_popup = true
         reaper.ImGui_SetKeyboardFocusHere(ctx)
@@ -212,7 +213,7 @@ end
 
 function RenamePlaylistPopUp(playlist, playlist_key, playlists)
     local is_save, change
-    reaper.ImGui_Text(ctx, 'Edit name:')
+    reaper.ImGui_Text(ctx, 'Playlist name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
         PreventKeys.playlist_popup = true
         reaper.ImGui_SetKeyboardFocusHere(ctx)
@@ -233,7 +234,6 @@ function RenamePlaylistPopUp(playlist, playlist_key, playlists)
     reaper.ImGui_SameLine(ctx)
     change, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
     is_save = is_save or change
-
 
 
     -- Enter Close it fucking down
@@ -329,21 +329,55 @@ function MenuBar()
 
     if reaper.ImGui_BeginMenuBar(ctx) then
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
-            _, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
-            ToolTip(true, 'Only trigger at the focused project, if more project are open they will consume less resources.')
-            _, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
-            ToolTip(true, 'Execute goto action immediately when  REAPER is not playing.')
+            if reaper.ImGui_BeginMenu(ctx, 'Goto Project Settings') then
 
-            _, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
-            reaper.ImGui_Separator(ctx)
-            if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
-                reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
-                _, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
-                UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1 
-                ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change before the loop end. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
+                local proj_table = ProjConfigs[FocusedProj]
+                local change, change2, change3
+                change, proj_table.moveview = reaper.ImGui_MenuItem(ctx, 'Move Arrange View at Go To', optional_shortcutIn, proj_table.moveview)
+                ToolTip(true, 'If need move arrange view position')
+
+                change2, proj_table.is_region_end_trigger = reaper.ImGui_MenuItem(ctx, 'Region End is a #goto marker', optional_shortcutIn, proj_table.is_region_end_trigger)
+                ToolTip(true, 'Intepret the end of a region as a #goto marker')
+
+                change3, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
+                ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
+
+                if change or change2 or change3 then
+                    SaveProjectSettings(FocusedProj, proj_table)
+                end
 
                 reaper.ImGui_EndMenu(ctx)
             end
+
+            if reaper.ImGui_BeginMenu(ctx, 'Goto Settings') then
+                local change1, change2, change3, change4
+                change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+                ToolTip(true, 'Only trigger at the focused project, if more project are open they will consume less resources.')
+                change2, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
+                ToolTip(true, 'Execute goto action immediately when  REAPER is not playing.')
+    
+                change3, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
+                ToolTip(true, 'Mostly to debug where it is triggering the goto action.')
+
+                if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
+                    reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
+                    change4, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
+                    UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1 
+                    ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
+    
+                    reaper.ImGui_EndMenu(ctx)
+                end
+
+                if change1 or change2 or change3 or change4 then
+                    SaveSettings(ScriptPath,SettingsFileName)
+                end
+    
+                reaper.ImGui_EndMenu(ctx)
+            end
+
+
+
+            reaper.ImGui_Separator(ctx)
 
             if reaper.ImGui_BeginMenu(ctx, 'Reaper Settings') then
                 reaper.ImGui_Text(ctx, 'Media Buffer Size:')
@@ -375,6 +409,7 @@ function MenuBar()
             
             reaper.ImGui_EndMenu(ctx)
         end
+
 
         if reaper.ImGui_BeginMenu(ctx, 'About') then
             if reaper.ImGui_MenuItem(ctx, 'Donate') then

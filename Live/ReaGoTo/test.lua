@@ -1,3 +1,5 @@
+--@noindex
+
 ---Return a table with all keys inside a table
 ---@param t table
 ---@return table

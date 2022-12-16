@@ -63,7 +63,7 @@ end
 -- ProjectSettings
 
 
--- Saves all at the end of the script. Only use at the end of the script as it change the oldpos and oldisplay values (reason is for not triggering when opening the script at this project next time)
+-- Saves all at the end of the script.
 function SaveAllProjectSettings()
     for proj, project_table in pairs(ProjConfigs) do
         SaveProjectSettings(proj, project_table)
