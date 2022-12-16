@@ -58,7 +58,8 @@ ProjConfigs = {}
 ExtKey = 'project_config' -- ext state key
 ProjPaths = {} -- Table with the paths for each project tab. ProjPaths[proj] = path
 
--- Gui Style
+-- Gui Variables
+PreventKeys = {} -- prevent passing keys if anything is stored in it. Used keys are region_popup, playlist_popup
 Gui_W_init = 275 -- Init 
 Gui_H_init = 450 -- Init 
 FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the right side

@@ -27,13 +27,13 @@ function GoTo(reason,proj)
     local function next_prev(is_next)  -- Next and Prev logic
         local playlists = proj_table.playlists
         local playlist = playlists[playlists.current]
-        if #playlist == 0 then return false end -- Check if any marker/region
+        if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
 
         -- updates the value at the ProjConfigs table
         local change = ((is_next and 0) or -2) -- if goes prev then -1 if goes next then 0
         playlist.current = ((playlist.current+change) % #playlist) + 1
-        if playlist.shuffle and (is_next and playlist.current == 1) or (not is_next and playlist.current == #playlist) then --shuffle the table every time it loops around
+        if playlist.shuffle and ((is_next and playlist.current == 1) or (not is_next and playlist.current == #playlist)) then --shuffle the table every time it loops around
             RandomizeTable(playlist)
             --todo randomize values
         end
@@ -110,6 +110,7 @@ function CreateProjectConfigTable(proj)
         is_triggered = false, -- if triggered to goto a position or next prev markers reg
         stop_trigger = true, --at stop cancel triggers
         moveview = true, -- moveview at GoTo 
+        is_region_end_trigger = true --use the end of a region as a #goto marker
     }   
     return t
     

@@ -4,7 +4,7 @@ function main_loop()
     --demo.PushStyle(ctx)
     --demo.ShowDemoWindow(ctx)
     ----------- Pre GUI area
-    if not reaper.ImGui_IsAnyItemActive(ctx)  then -- maybe overcome TableHaveAnything
+    if not reaper.ImGui_IsAnyItemActive(ctx) and not TableHaveAnything(PreventKeys) then 
         PassKeys()
     end
 

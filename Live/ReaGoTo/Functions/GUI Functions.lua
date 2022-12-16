@@ -20,18 +20,10 @@ function PlaylistSelector(playlists)
 
             -- Popup to rename and delete
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
-                is_save = RenamePlaylistPopUp(playlist)
-                -- delete
-                if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
-                    reaper.ImGui_CloseCurrentPopup(ctx)
-                    table.remove(playlists,playlist_key)
-                    is_save = true
-                end
-                _, playlist.reset = reaper.ImGui_Checkbox(ctx, 'Reset at stop', playlist.reset)
-                reaper.ImGui_SameLine(ctx)
-                _, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
-
+                is_save = RenamePlaylistPopUp(playlist, playlist_key, playlists) 
                 reaper.ImGui_EndPopup(ctx)
+            elseif PreventKeys.playlist_popup then
+                PreventKeys.playlist_popup = nil
             end
 
             -- Show regions and markers inside this group
@@ -104,6 +96,7 @@ function PlaylistTab(playlist)
                 reaper.SetProjectMarker2( FocusedProj, region_markrgnindexnumber, region_isrgn, region_pos, region_rgnend, TempName )
                 TempName = nil
                 TempWasOpen  = nil
+                PreventKeys.region_popup = nil
                 is_save = true -- always resave when closing 
             end
 
@@ -181,6 +174,7 @@ function RenameRegionMarkerPopUp(playlist, k)
     local _
     reaper.ImGui_Text(ctx, 'Edit name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
+        PreventKeys.region_popup = true
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     _, TempName = reaper.ImGui_InputText(ctx, "##renameinput", TempName)
@@ -210,17 +204,37 @@ function RenameRegionMarkerPopUp(playlist, k)
     end
 end
 
-function RenamePlaylistPopUp(playlist)
+function RenamePlaylistPopUp(playlist, playlist_key, playlists)
+    local is_save, change
     reaper.ImGui_Text(ctx, 'Edit name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
+        PreventKeys.playlist_popup = true
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    _, playlist.name = reaper.ImGui_InputText(ctx, "##renameinput", playlist.name)
-    -- Enter
+    change, playlist.name = reaper.ImGui_InputText(ctx, "##renameinput", playlist.name)
+    is_save = is_save or change
+    -- delete
+    if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
+        reaper.ImGui_CloseCurrentPopup(ctx)
+        table.remove(playlists,playlist_key)
+        is_save = true
+    end
+
+    change, playlist.reset = reaper.ImGui_Checkbox(ctx, 'Reset at stop', playlist.reset)
+    is_save = is_save or change
+
+    reaper.ImGui_SameLine(ctx)
+    change, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
+    is_save = is_save or change
+
+
+
+    -- Enter Close it fucking down
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
     end
+    return is_save
 end
 
 function TriggerButtons(playlists)
