@@ -131,6 +131,9 @@ end
 
 function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
     if reaper.ImGui_BeginPopup(ctx, 'Add Region/Marker##popup'..playlist.name) then
+        if reaper.ImGui_IsWindowAppearing(ctx) then
+            PreventKeys.add_region = true
+        end
         local retval
         --- Input options
         reaper.ImGui_Text(ctx, 'Region ID/Name:')
@@ -145,17 +148,18 @@ function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
         local retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx = getmarkfunc(FocusedProj,TempRegionID,(TempIsRegion and 2 or 1))
         --- Helper text (little text to show name or ID) 
         if retval then
+
             ImPrint('Name        :',mark_name)
             ImPrint('Idx Number  :', markrgnindexnumber)
-        
-            if reaper.ImGui_Button(ctx, 'Add', -FLTMIN) and TempRegionID then
+            
+            local is_enter =  reaper.ImGui_IsKeyDown(ctx, 13)
+            if (reaper.ImGui_Button(ctx, 'Add', -FLTMIN) or is_enter ) and TempRegionID then
                 if idx then 
                     local region_table = CreateNewRegion(idx, FocusedProj)
                     if region_table then
                         table.insert(playlist,region_table)
                     end
                 end
-
                 TempRegionID = nil
                 TempIsRegion = nil
                 TempAddByName = nil
@@ -165,6 +169,8 @@ function AddRegionPopUp(playlist,playlist_idx) -- STOP HERE TESTING
             ImPrint('Region or Marker Not Found!')
         end
         reaper.ImGui_EndPopup(ctx)
+    else
+        PreventKeys.add_region = nil
     end
     
 end
