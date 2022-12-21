@@ -8,9 +8,8 @@
 
 
 -----TODO:
--- 0) try if I can break Check if regions exist at CheckProjects() 
+-- 0) try if I can break 
 -- 1) Grid as #goto option, with QN size
--- 2) Region end is a #goto
 
 -- 4) Functional gotoes
     -- Random

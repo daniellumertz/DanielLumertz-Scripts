@@ -332,17 +332,14 @@ function MenuBar()
             if reaper.ImGui_BeginMenu(ctx, 'Goto Project Settings') then
 
                 local proj_table = ProjConfigs[FocusedProj]
-                local change, change2, change3
+                local change, change2
                 change, proj_table.moveview = reaper.ImGui_MenuItem(ctx, 'Move Arrange View at Go To', optional_shortcutIn, proj_table.moveview)
                 ToolTip(true, 'If need move arrange view position')
 
-                change2, proj_table.is_region_end_trigger = reaper.ImGui_MenuItem(ctx, 'Region End is a #goto marker', optional_shortcutIn, proj_table.is_region_end_trigger)
-                ToolTip(true, 'Intepret the end of a region as a #goto marker')
-
-                change3, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
+                change2, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
 
-                if change or change2 or change3 then
+                if change  or change2 then
                     SaveProjectSettings(FocusedProj, proj_table)
                 end
 
@@ -359,10 +356,11 @@ function MenuBar()
                 change3, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
                 ToolTip(true, 'Mostly to debug where it is triggering the goto action.')
 
+                reaper.ImGui_Separator(ctx)
                 if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
                     reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
                     change4, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
-                    UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1 
+                    UserConfigs.compensate = UserConfigs.compensate > 0 and UserConfigs.compensate or 0
                     ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
     
                     reaper.ImGui_EndMenu(ctx)
@@ -435,6 +433,6 @@ function AnimationValues()
         GUIAnimationStep = 0  --GUIAnimationTrig value between 0 and 4 pi 
 
     end
-    GUIAnimationStep = (GUIAnimationStep + 0.1) % (4*math.pi)
+    GUIAnimationStep = (GUIAnimationStep + 0.4) % (4*math.pi)
     GUIButtomAnimationVal = math.sin(GUIAnimationStep) -- value between -1 amd 1     
 end

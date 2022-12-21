@@ -110,7 +110,6 @@ function CreateProjectConfigTable(proj)
         is_triggered = false, -- if triggered to goto a position or next prev markers reg
         stop_trigger = true, --at stop cancel triggers
         moveview = true, -- moveview at GoTo 
-        is_region_end_trigger = true --use the end of a region as a #goto marker
     }   
     return t
     
