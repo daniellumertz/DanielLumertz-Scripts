@@ -332,14 +332,19 @@ function MenuBar()
             if reaper.ImGui_BeginMenu(ctx, 'Goto Project Settings') then
 
                 local proj_table = ProjConfigs[FocusedProj]
-                local change, change2
+                local change, change2, change3
                 change, proj_table.moveview = reaper.ImGui_MenuItem(ctx, 'Move Arrange View at Go To', optional_shortcutIn, proj_table.moveview)
                 ToolTip(true, 'If need move arrange view position')
 
                 change2, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
 
-                if change  or change2 then
+                reaper.ImGui_Separator(ctx)
+                reaper.ImGui_Text(ctx, 'Mark Identifier:')
+                change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
+                ToolTip(true, 'Start of goto markers, identifier.')
+
+                if change or change2 or change3 then
                     SaveProjectSettings(FocusedProj, proj_table)
                 end
 
@@ -360,7 +365,7 @@ function MenuBar()
                 if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
                     reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
                     change4, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
-                    UserConfigs.compensate = UserConfigs.compensate > 0 and UserConfigs.compensate or 0
+                    UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1
                     ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
     
                     reaper.ImGui_EndMenu(ctx)
