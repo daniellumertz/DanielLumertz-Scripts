@@ -330,21 +330,65 @@ function MenuBar()
     if reaper.ImGui_BeginMenuBar(ctx) then
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
             if reaper.ImGui_BeginMenu(ctx, 'Goto Project Settings') then
-
+                ------------------------------------------------ General
                 local proj_table = ProjConfigs[FocusedProj]
-                local change, change2, change3
+                local change, change2, change3, change4, change5, change6, change7
                 change, proj_table.moveview = reaper.ImGui_MenuItem(ctx, 'Move Arrange View at Go To', optional_shortcutIn, proj_table.moveview)
                 ToolTip(true, 'If need move arrange view position')
 
                 change2, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
-
+                ------------------------------------------------ Marks
                 reaper.ImGui_Separator(ctx)
-                reaper.ImGui_Text(ctx, 'Mark Identifier:')
-                change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
-                ToolTip(true, 'Start of goto markers, identifier.')
 
-                if change or change2 or change3 then
+                change4, proj_table.is_marker = reaper.ImGui_MenuItem(ctx, 'Use Goto Markers', optional_shortcutIn, proj_table.is_marker)
+                ToolTip(true, 'Trigger Goto at goto identified markers.')
+
+                if proj_table.is_marker  then
+                    change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
+                    ToolTip(true, 'Goto Mark Identifier, every goto marker should start with this string.')
+                end
+                ------------------------------------------------ Unit
+                reaper.ImGui_Separator(ctx)
+                
+                change5, proj_table.grid.is_grid = reaper.ImGui_MenuItem(ctx, 'Use Unit', optional_shortcutIn, proj_table.grid.is_grid)
+                ToolTip(true, 'Trigger Goto by bars/whole note values.')
+
+                if proj_table.grid.is_grid then
+                    reaper.ImGui_Text(ctx, 'Trigger at :')
+                    reaper.ImGui_SetNextItemWidth(ctx, 30)
+                    change6, proj_table.grid.qnt = reaper.ImGui_InputInt(ctx, '##inputqnt', proj_table.grid.qnt, 0, 0)
+                    ToolTip(true, 'Quantity to trigger.')
+
+                    reaper.ImGui_SameLine(ctx)
+                    reaper.ImGui_Text(ctx, 'x')
+                    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+
+                    reaper.ImGui_SameLine(ctx)
+                    change6, proj_table.grid.unit_str = reaper.ImGui_InputText(ctx, '##inputval', proj_table.grid.unit_str)
+                    ToolTip(true, 'Value to count. Use "bar" for bars as unit. Use numbers or fractions for whole notes values. 1 = whole note, 1/4 = quarter note, etc...')
+
+                    
+                    if (not reaper.ImGui_IsItemActive(ctx))  then
+                        TempStr = proj_table.grid.unit_str -- need to be in a global variable outside any table
+                        TempUnit = proj_table.grid.unit
+                        local function error() end
+                        local set_user_val = load('TempUnit = '..TempStr) -- if RhythmSettings have math expression, it will be executed. or just get the number
+                        local retval = xpcall(set_user_val,error)
+                        if not tonumber(TempUnit) then -- call xpcall(set_user_val,error)
+                            TempUnit = 'bar'
+                            TempStr = 'bar'
+                        end 
+                        proj_table.grid.unit_str = TempStr
+                        proj_table.grid.unit = TempUnit
+
+                        TempStr = nil
+                        TempUnit = nil
+                    end
+                end
+
+
+                if change or change2 or change3 or change4 or change5 or change6 or change7 then
                     SaveProjectSettings(FocusedProj, proj_table)
                 end
 
