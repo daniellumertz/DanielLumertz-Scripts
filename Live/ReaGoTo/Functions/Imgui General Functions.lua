@@ -122,3 +122,19 @@ function ImPrint(...)
     end
     reaper.ImGui_Text(ctx, table.concat( t, " " ))
 end
+
+----------------
+---- Draw
+----------------
+
+
+function DrawRectLastItem(h,s,v,a)
+    local minx, miny = reaper.ImGui_GetItemRectMin(ctx)
+    local maxx, maxy = reaper.ImGui_GetItemRectMax(ctx)
+    local draw_list = reaper.ImGui_GetWindowDrawList(ctx)
+
+    local color =  HSVtoImGUI(h, s, v, a)
+    
+    reaper.ImGui_DrawList_AddRectFilled(draw_list, minx-50, miny, maxx, maxy, color)
+end
+

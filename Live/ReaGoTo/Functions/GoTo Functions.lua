@@ -12,6 +12,8 @@ function GoTo(reason,proj)
         '{next,next,prev,bar4.2}'
     ]] -- no spaces. always lower case. 
     local proj_table = ProjConfigs[proj]
+    local playlists = proj_table.playlists
+    local playlist = playlists[playlists.current]
         
     -- if is a table decide one of them
     if reason:match('{.+}') then -- Todo idea reason with random pick position : {next, next, prev}. User actually just types:  next, next, prev ; then add in the code the {} and fix the syntax 
@@ -25,8 +27,6 @@ function GoTo(reason,proj)
     -- TODO calculate for each possible
 
     local function next_prev(is_next)  -- Next and Prev logic
-        local playlists = proj_table.playlists
-        local playlist = playlists[playlists.current]
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
 
@@ -56,12 +56,38 @@ function GoTo(reason,proj)
         ::continue::
     end
 
+    local function go_to_playlist_val(playlist_val)
+        if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
+
+        playlist.current = playlist_val
+        
+        local region = playlist[playlist.current]
+        local guid = region.guid -- region guid
+        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
+        if marker_id == '' then goto continue end -- better safe than sorry
+        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id ) 
+        local new_pos = pos
+        
+        -- set loop 
+        if region.loop then
+            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
+        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
+            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
+        end
+        -- set play cursor 
+        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        ::continue::
+    end
+
     if reason == 'next' then 
         next_prev(true)          
     elseif reason == 'prev' then
         next_prev(false)
     elseif reason == 'random' then
     -- TODO other possible reasons 
+    elseif reason:match('^goto') then
+        local playlist_val = tonumber(reason:match('^goto'..'(.+)'))
+        go_to_playlist_val(playlist_val)
     end
     proj_table.is_triggered = false
 end

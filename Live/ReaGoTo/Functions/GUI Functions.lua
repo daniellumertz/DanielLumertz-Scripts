@@ -75,10 +75,14 @@ function PlaylistTab(playlist)
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
 
+            if project_table.is_triggered and tonumber(project_table.is_triggered:match('^goto(.+)')) == region_idx then
+                local alpha = MapRange(GUIButtomAnimationVal,-1,1,0.2,0.5) --adds alpha based on animation step
+                DrawRectLastItem(40/360, 0.84, 0.92,alpha)
+            end
+
             -- Double Click goto region
             if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx,0) then
-                print('se fudeu')
-                -- TODO make a goto function here
+                SetGoTo(FocusedProj, 'goto'..region_idx)
             end
 
             -- rename / delete take popup

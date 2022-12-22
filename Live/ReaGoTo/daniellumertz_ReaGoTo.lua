@@ -8,8 +8,7 @@
 
 
 -----TODO:
--- 0) try if I can break 
--- 1) Grid as #goto option, with QN size
+-- 0) try if I can break the gotocheck
 
 -- 4) Functional gotoes
     -- Random

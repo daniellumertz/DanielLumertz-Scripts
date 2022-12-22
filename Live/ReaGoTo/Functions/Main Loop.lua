@@ -73,7 +73,7 @@ function GoToCheck()
             -- Reset playlist position for each playlist
             for playlist_idx,playlist in ipairs(project_table.playlists) do
                 if playlist.reset then
-                    playlist.current = 0
+                    playlist.current = 1
                 end
             end
         end
