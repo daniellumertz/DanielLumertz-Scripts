@@ -86,38 +86,72 @@ function GoToCheck()
         if is_play and project_table.is_triggered then
 
             local trigger_point 
-            -------------------------- Markers
-            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
+            local marker_point
             local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
-            local is_at_loop_start -- is the trigger point at the loop start?
+            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
+            local marker_distance -- saves the distance to trigger using markers (to compare with grids)
             if is_repeat then
                 loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
                 is_repeat = loop_start ~= loop_end-- Does it have an area selected? does it have repeat on ? 
             end
-            -- Loop markers
-            for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
-                -- Get the next marker
-                if mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
-                    next_marker_pos = mark_pos  
-                    break -- if have the next marker then it already had the opportunity of having the loop repeat 
-                end
-                -- If loop/repeat is ON then get the closest goto marker from the loop start
-                if is_repeat and not loop_marker_pos and mark_pos >= loop_start and name:match('^'..project_table.identifier) then 
-                    loop_marker_pos = mark_pos
-                end
-            end 
+            -------------------------- Markers
+            if project_table.is_marker then
+                -- Loop markers
+                for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
+                    -- Get the next marker
+                    if mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
+                        next_marker_pos = mark_pos  
+                        break -- if have the next marker then it already had the opportunity of having the loop repeat 
+                    end
+                    -- If loop/repeat is ON then get the closest goto marker from the loop start
+                    if is_repeat and not loop_marker_pos and mark_pos >= loop_start and name:match('^'..project_table.identifier) then 
+                        loop_marker_pos = mark_pos
+                    end
+                end 
 
-            -- Get closest marker
-            if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one marker
-                trigger_point = next_marker_pos or loop_marker_pos
-            elseif next_marker_pos and loop_marker_pos then -- Compare markers position (closest from loop start vs next position marker)
-                local loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
-                local next_distance = next_marker_pos - pos 
-                trigger_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
-                is_at_loop_start = next_distance > loop_distance
-            end 
+                -- Get closest marker
+                local loop_distance, next_distance
+                if loop_marker_pos then 
+                    loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
+                end
+                if next_marker_pos then
+                    next_distance = next_marker_pos - pos 
+                end
+                if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one marker
+                    marker_point = next_marker_pos or loop_marker_pos
+                    marker_distance = loop_distance or next_distance
+                elseif next_marker_pos and loop_marker_pos then -- Compare markers position (closest from loop start vs next position marker)
+                    marker_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
+                    marker_distance = (next_distance < loop_distance and next_distance ) or loop_distance
+                end
+            end
+            ------------------------ Unit
+            -- check if passed by any unit and increase the counter
+            local unit_point -- position to trigger 
+            local unit_distance -- distance until trigger
 
-            ------------------------ GRIDS
+            if project_table.grid.is_grid then
+                local pos_qn = reaper.TimeMap2_timeToQN( proj, pos )
+                local retval, qnMeasureStart, qnMeasureEnd = reaper.TimeMap_QNToMeasures( proj, pos_qn )
+                if project_table.grid.unit == 'bar' then             
+                    unit_point = reaper.TimeMap_QNToTime( qnMeasureEnd )
+                else
+                    local unit_in_qn = project_table.grid.unit * 4 
+                    local measure_pos_qn = pos_qn - qnMeasureStart -- qn over that measure
+                    local next_qn = QuantizeUpwards(measure_pos_qn, unit_in_qn) + qnMeasureStart
+                    unit_point = reaper.TimeMap_QNToTime( next_qn )                    
+                end
+                unit_distance = unit_point - pos
+            end
+
+            ---------------------- Compare marker and unit get closest
+            if marker_point and unit_point then
+                trigger_point = marker_distance < unit_distance and marker_point or unit_point
+            else 
+                trigger_point = marker_point or unit_point
+            end
+
+
             --local retval, division, swingmode, swingamt = reaper.GetSetProjectGrid( proj, false, 0, 0, 0 )
 
             ------- Change Player position if needed (Try to change as close to the marker as possible)
@@ -126,11 +160,11 @@ function GoToCheck()
                 local delta =  time - project_table.oldtime -- for defer instability estimation
                 -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
                 local playrate = reaper.Master_GetPlayRate(proj)
-                local is_trigger_before = (trigger_point < pos)
+                local is_trigger_before = (trigger_point < pos) -- Trigger point is at the start of a loop.
                 local defer_in_proj_sec = (delta * UserConfigs.compensate) * playrate -- how much project sec each defer loop runs. avarage.
                 local is_trigger_between_defer = (pos + defer_in_proj_sec >= trigger_point)
 
-                if (not is_trigger_before and is_trigger_between_defer) or (is_at_loop_start and (loop_start + (defer_in_proj_sec - (loop_end - pos))) >= trigger_point  )  then
+                if (not is_trigger_before and is_trigger_between_defer) or (is_trigger_before and (loop_start + (defer_in_proj_sec - (loop_end - pos))) >= trigger_point  )  then
                     ---- Calculate the new position
                     GoTo(project_table.is_triggered,proj)
                     ---- Add Markers at the trigger position for debugging mostly
@@ -200,90 +234,3 @@ function CheckProjects()
     FocusedProj = reaper.EnumProjects( -1 )
 end
 
-
-            ------- Get the next triggering point
-            --[[ local trigger_point 
-            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
-            local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
-            if is_repeat then
-                loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
-                is_repeat = loop_start ~= loop_end and is_repeat -- Does it have an area selected? does it have repeat on ? 
-            end
-            -- Loop markers
-            for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
-                -- Get the next marker
-                if mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
-                    next_marker_pos = mark_pos  
-                    break -- if have the next marker then it already had the opportunity of having the loop repeat 
-                end
-                -- If loop/repeat is ON then get the closest goto marker from the loop start
-                if is_repeat and not loop_marker_pos and mark_pos > loop_start and name:match('^'..project_table.identifier) then 
-                    loop_marker_pos = mark_pos
-                end
-            end 
-            
-            if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one marker
-                trigger_point = next_marker_pos or loop_marker_pos
-            elseif next_marker_pos and loop_marker_pos then -- Compare markers position (closest from loop start vs next position marker)
-                local loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
-                local next_distance = next_marker_pos - pos 
-                trigger_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
-            end ]]
-
---[[
-    
-For now save the  this (check markers at the beggining of the loop )
-
-        -- if playing and triggered look after next Trigger point 
-        if is_play and project_table.is_triggered then
-
-            ------- Get the next triggering point (currently only for makers maybe do for QN values as well)
-            local trigger_point 
-            local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
-            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
-            if is_repeat then
-                loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
-                is_repeat = loop_start ~= loop_end and is_repeat -- Does it have an area selected? does it have repeat on ? 
-            end
-            for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj) do 
-                -- Get the next marker
-                if not next_marker_pos and mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
-                    next_marker_pos = mark_pos  
-                    break -- if have the next marker then it already had the opportunity of having the loop repeat 
-
-                end
-
-                -- If loop/repeat is ON then get the closest next goto marker  
-                if is_repeat and not loop_marker_pos and mark_pos > loop_start and name:match('^'..project_table.identifier) then 
-                    loop_marker_pos = mark_pos
-                end
-            end --trigger_point
-            if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one of them
-                trigger_point = next_marker_pos or loop_marker_pos
-            elseif next_marker_pos and loop_marker_pos then -- have both. check which is closer
-                local loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
-                local next_distance = next_marker_pos - pos 
-                trigger_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
-            end
-
-            print('trigger_point : ', trigger_point)
-            -- TODO Opitonal config project_table.is_region_end_trigger, if is true this config use then current region end as a #goto if it is next than the next #goto marker
-            ------- Change Player position if needed (Try to change as close to the marker as possible)
-            if trigger_point then -- only if there is something to trigger to comapre to
-                -- If markers get triggers overides
-                local delta =  time - project_table.oldtime -- for defer instability estimation
-                -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
-                local playrate = reaper.Master_GetPlayRate(proj)
-                if is_play and pos + (delta * UserConfigs.compensate) * playrate >= trigger_point then -- will it need project_table.oldpos < trigger_point  ?
-                    ---- Calculate the new position
-                    GoTo(project_table.is_triggered,proj)
-                    ---- Add Markers at the trigger position for debugging mostly
-                    if UserConfigs.add_markers then
-                        reaper.AddProjectMarker(proj, false, pos, 0, '', 0) -- debug when it is happening
-                    end
-                end
-            end
-        elseif not is_play and project_table.is_triggered then -- receive goto orders when paused
-            GoTo(project_table.is_triggered,proj)
-        end
-]]

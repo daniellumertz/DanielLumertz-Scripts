@@ -355,18 +355,9 @@ function MenuBar()
                 ToolTip(true, 'Trigger Goto by bars/whole note values.')
 
                 if proj_table.grid.is_grid then
-                    reaper.ImGui_Text(ctx, 'Trigger at :')
-                    reaper.ImGui_SetNextItemWidth(ctx, 30)
-                    change6, proj_table.grid.qnt = reaper.ImGui_InputInt(ctx, '##inputqnt', proj_table.grid.qnt, 0, 0)
-                    ToolTip(true, 'Quantity to trigger.')
-
-                    reaper.ImGui_SameLine(ctx)
-                    reaper.ImGui_Text(ctx, 'x')
                     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-
-                    reaper.ImGui_SameLine(ctx)
                     change6, proj_table.grid.unit_str = reaper.ImGui_InputText(ctx, '##inputval', proj_table.grid.unit_str)
-                    ToolTip(true, 'Value to count. Use "bar" for bars as unit. Use numbers or fractions for whole notes values. 1 = whole note, 1/4 = quarter note, etc...')
+                    ToolTip(true, 'Use "bar" for bars as unit. Use numbers or fractions for whole notes values. 1 = whole note, 1/4 = quarter note, etc...')
 
                     
                     if (not reaper.ImGui_IsItemActive(ctx))  then

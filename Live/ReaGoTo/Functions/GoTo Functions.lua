@@ -113,8 +113,7 @@ function CreateProjectConfigTable(proj)
         grid = {
             is_grid = false, -- use grid to trigger
             unit = 'bar', -- unit to trigger, can be 'bar' or a number like 1 for whole note 1/4 for quarter note etc... 
-            qnt = 1, -- quatity of units to trigger
-            counter = 0 -- unit counter. Set at at gotocheck(checking how many unit passed), when cancelling triggers (goes to 0), stopping a project (goes to 0), triggering a goto back to 0
+            unit_str = 'bar', -- to show at the GUI.
         },
         is_marker = true -- use markers to trigger
     }   
