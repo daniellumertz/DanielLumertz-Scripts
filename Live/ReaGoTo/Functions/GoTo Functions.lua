@@ -26,6 +26,26 @@ function GoTo(reason,proj)
     end
     -- TODO calculate for each possible
 
+    local function change_play_to_current()
+        local region = playlist[playlist.current]
+        local guid = region.guid -- region guid
+        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
+        if marker_id == '' then goto continue end -- better safe than sorry
+        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id ) 
+        local new_pos = pos
+        
+        -- set loop 
+        if region.loop then
+            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
+        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
+            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
+        end
+        -- set play cursor 
+        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        ::continue::
+    end
+
+
     local function next_prev(is_next)  -- Next and Prev logic
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
@@ -37,47 +57,19 @@ function GoTo(reason,proj)
             RandomizeTable(playlist)
             --todo randomize values
         end
-        
-        local region = playlist[playlist.current]
-        local guid = region.guid -- region guid
-        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
-        if marker_id == '' then goto continue end -- better safe than sorry
-        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id ) 
-        local new_pos = pos
-        
-        -- set loop 
-        if region.loop then
-            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
-        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
-            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
-        end
-        -- set play cursor 
-        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
-        ::continue::
+        change_play_to_current()
     end
+    
+    
+
 
     local function go_to_playlist_val(playlist_val)
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
 
         playlist.current = playlist_val
-        
-        local region = playlist[playlist.current]
-        local guid = region.guid -- region guid
-        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
-        if marker_id == '' then goto continue end -- better safe than sorry
-        local retval, isrgn, pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, marker_id ) 
-        local new_pos = pos
-        
-        -- set loop 
-        if region.loop then
-            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, new_pos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
-        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
-            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
-        end
-        -- set play cursor 
-        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
-        ::continue::
+        change_play_to_current()
     end
+
 
     if reason == 'next' then 
         next_prev(true)          
