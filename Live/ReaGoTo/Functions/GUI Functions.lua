@@ -285,13 +285,19 @@ function TriggerButtons(playlists)
     end
 
     do -- Random Button
-        local trigger_string = 'random'
-        local paint = triggered_button_style(trigger_string)
+        local trigger_string
+        if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Ctrl() then
+            trigger_string = 'random_with_rep'
+        else
+            trigger_string = 'random'
+        end
+        local paint = triggered_button_style('random')
+        local paint2 = triggered_button_style('random_with_rep')
         reaper.ImGui_SameLine(ctx)
         if reaper.ImGui_Button(ctx, '?',button_size) then
             SetGoTo(FocusedProj, trigger_string)
         end
-        pop_button_style(paint)
+        pop_button_style(paint or paint2)
     end
 
     do -- Next Button

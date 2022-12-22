@@ -4,6 +4,7 @@ function GoTo(reason,proj)
         ‘next’	
         ‘prev’	
         ‘random’
+        'random_with_rep'
         ‘pos’..float
         ‘qn’..float
         ‘bar’..Float
@@ -45,6 +46,40 @@ function GoTo(reason,proj)
         ::continue::
     end
 
+    ---@param same boolean can trigger the current again?
+    local function goto_random(same)
+        if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
+        if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value,
+
+        local chance_sum = 0
+        for idx, region_table in ipairs(playlist) do
+            if not same and idx == playlist.current then goto continue end -- dont add if is the same region
+            chance_sum = chance_sum + region_table.chance  
+            ::continue::          
+        end
+        
+        if chance_sum > 0 then
+            local rnd_val = math.random(chance_sum)
+
+            local count = 0
+            for idx, region_table in ipairs(playlist) do
+                if not same and idx == playlist.current then goto continue end -- dont add if is the same region
+                count = count + region_table.chance
+                if count >= rnd_val then
+                    playlist.current = idx
+                    break
+                end
+                ::continue::          
+            end
+        else
+            playlist.current = 1
+        end
+
+        change_play_to_current()
+    end
+
+    
+
 
     local function next_prev(is_next)  -- Next and Prev logic
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
@@ -59,9 +94,6 @@ function GoTo(reason,proj)
         end
         change_play_to_current()
     end
-    
-    
-
 
     local function go_to_playlist_val(playlist_val)
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
@@ -71,12 +103,14 @@ function GoTo(reason,proj)
     end
 
 
-    if reason == 'next' then 
+    if reason == 'next' then  -- next on the playlist
         next_prev(true)          
-    elseif reason == 'prev' then
+    elseif reason == 'prev' then -- prev on the playlist
         next_prev(false)
-    elseif reason == 'random' then
-    -- TODO other possible reasons 
+    elseif reason == 'random' then -- random on the playlist (cant be the current region again)
+        goto_random(false)
+    elseif reason == 'random_with_rep' then -- random on the playlist
+        goto_random(true)
     elseif reason:match('^goto') then
         local playlist_val = tonumber(reason:match('^goto'..'(.+)'))
         go_to_playlist_val(playlist_val)

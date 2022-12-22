@@ -8,13 +8,7 @@
 
 
 -----TODO:
--- 0) try if I can break the gotocheck
-
--- 4) Functional gotoes
-    -- Random
-    -- specific sections
-        -- paint
-    -- try to break
+-- 0) try if I can break the gotocheck, goto function
 ---------------------------- extra after trying a bit
 -- 5) MIDI/Key Trigger
 -- 6) extra goto overides 
