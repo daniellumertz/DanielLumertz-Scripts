@@ -9,7 +9,7 @@ function GoTo(reason,proj)
         ‘pos’..float
         ‘qn’..float
         ‘bar’..Float
-        ‘marker’ ..ID
+        ‘mark’ ..ID
         ‘region’..ID
         '{next,next,prev,bar4.2}'
     ]] -- no spaces. always lower case. 
@@ -21,7 +21,7 @@ function GoTo(reason,proj)
     if reason:match('{.+}') then -- Todo idea reason with random pick position : {next, next, prev}. User actually just types:  next, next, prev ; then add in the code the {} and fix the syntax 
         local possible_reasons = {}
         local str = reason:sub(2,-2)..',' -- remove the brackets
-        for reason in str:gmatch('(.-)%s-,%s*') do
+        for reason in str:gmatch('%s*(.-)%s-,%s*') do
             if ValidateCommand(reason) then
                 table.insert(possible_reasons, reason)
             end
@@ -102,6 +102,16 @@ function GoTo(reason,proj)
         change_play_to_current()
     end
 
+    local function goto_mark_or_region(user_id, is_region)
+        if user_id then
+            local mode = (is_region and 2) or 1
+            local retval, isrgn, mark_pos, rgnend, mark_name, markrgnindexnumber, color, idx = GetMarkByID(proj,user_id,mode)
+            if retval then
+                reaper.SetEditCurPos2(proj, mark_pos, proj_table.moveview, true)
+            end
+        end
+    end
+
     if reason == 'next' then  -- next on the playlist
         next_prev(true)          
     elseif reason == 'prev' then -- prev on the playlist
@@ -114,12 +124,30 @@ function GoTo(reason,proj)
         local playlist_val = tonumber(reason:match('^goto'..'(.+)'))
         go_to_playlist_val(playlist_val)
     elseif reason:match('^pos') then
-        local new_pos = reason:match('pos%s-(%d+%.?%d*)')
-        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        local new_pos = tonumber(reason:match('pos%s-(%d+%.?%d*)'))
+        if new_pos then
+            reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        end
     elseif reason:match('^qn') then
+        local new_pos_qn = tonumber(reason:match('qn%s-(%d+%.?%d*)'))
+        if new_pos_qn then
+            local new_pos = reaper.TimeMap2_QNToTime(proj, new_pos_qn)
+            reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        end
     elseif reason:match('^bar') then
-    elseif reason:match('^marker') then
+        local measure = tonumber(reason:match('bar%s-(%d+%.?%d*)'))
+        if measure then
+            local retval, qn_start, qn_end, timesig_num, timesig_denom, tempo = reaper.TimeMap_GetMeasureInfo(proj, measure)
+            local new_pos = reaper.TimeMap2_QNToTime(proj, qn_start)
+            reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+        end
+    elseif reason:match('^mark') then
+        local user_id = tonumber(reason:match('mark%s-(%d+%.?%d*)'))
+        goto_mark_or_region(user_id, false)
+
     elseif reason:match('^region') then
+        local user_id = tonumber(reason:match('region%s-(%d+%.?%d*)'))
+        goto_mark_or_region(user_id, true)
     end
     proj_table.is_triggered = false
 end
@@ -133,7 +161,7 @@ function ValidateCommand(goto_command)
                                 'pos',
                                 'qn',
                                 'bar',
-                                'marker',
+                                'mark',
                                 'region'}
     -- check if command makes sense
     for k,possibility in ipairs(possible_commands) do
