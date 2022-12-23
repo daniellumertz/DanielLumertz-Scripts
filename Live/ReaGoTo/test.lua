@@ -1,4 +1,7 @@
-for i = 1, 10, 1 do
-    print(math.random(2))
-    
+function printA()
+    print(A+5)
 end
+
+A = 50
+
+printA()

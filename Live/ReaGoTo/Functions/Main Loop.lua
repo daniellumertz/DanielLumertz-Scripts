@@ -9,7 +9,7 @@ function main_loop()
     end
 
     CheckProjects()
-    --GetMIDIInputs()
+    MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
 
 
     ------------ Window management area
@@ -46,7 +46,6 @@ function main_loop()
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
     --demo.PopStyle(ctx)
-
     GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
 
     if open then
