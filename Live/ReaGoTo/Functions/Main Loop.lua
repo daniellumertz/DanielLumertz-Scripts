@@ -86,6 +86,7 @@ function GoToCheck()
         if is_play and project_table.is_triggered then
 
             local trigger_point 
+            local marker_name
             local marker_point
             local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
             local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
@@ -96,16 +97,19 @@ function GoToCheck()
             end
             -------------------------- Markers
             if project_table.is_marker then
+                local next_marker_name, loop_marker_name 
                 -- Loop markers
                 for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
                     -- Get the next marker
                     if mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
                         next_marker_pos = mark_pos  
+                        next_marker_name = name
                         break -- if have the next marker then it already had the opportunity of having the loop repeat 
                     end
                     -- If loop/repeat is ON then get the closest goto marker from the loop start
                     if is_repeat and not loop_marker_pos and mark_pos >= loop_start and name:match('^'..project_table.identifier) then 
                         loop_marker_pos = mark_pos
+                        loop_marker_name = name
                     end
                 end 
 
@@ -118,11 +122,13 @@ function GoToCheck()
                     next_distance = next_marker_pos - pos 
                 end
                 if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one marker
-                    marker_point = next_marker_pos or loop_marker_pos
+                    marker_point = next_marker_pos  or loop_marker_pos
                     marker_distance = loop_distance or next_distance
+                    marker_name = next_marker_name  or loop_marker_name 
                 elseif next_marker_pos and loop_marker_pos then -- Compare markers position (closest from loop start vs next position marker)
-                    marker_point = (next_distance < loop_distance and next_marker_pos) or loop_marker_pos
-                    marker_distance = (next_distance < loop_distance and next_distance ) or loop_distance
+                    marker_point =    (next_distance < loop_distance and next_marker_pos)   or loop_marker_pos
+                    marker_distance = (next_distance < loop_distance and next_distance )    or loop_distance
+                    marker_name =     (next_distance < loop_distance and next_marker_name ) or loop_marker_name 
                 end
             end
             ------------------------ Unit
@@ -165,7 +171,16 @@ function GoToCheck()
                 local is_trigger_between_defer = (pos + defer_in_proj_sec >= trigger_point)
 
                 if (not is_trigger_before and is_trigger_between_defer) or (is_trigger_before and (loop_start + (defer_in_proj_sec - (loop_end - pos))) >= trigger_point  )  then
-                    ---- Calculate the new position
+                    -- check for trigger overies 
+                    if marker_name then
+                        local goto_command = marker_name:match(project_table.identifier..'%s+(.+)')
+                        if not goto_command then goto continue end
+                        if ValidateCommand(goto_command) then
+                            project_table.is_triggered = goto_command
+                        end
+                        ::continue:: 
+                    end
+                    ---- Goto ! 
                     GoTo(project_table.is_triggered,proj)
                     ---- Add Markers at the trigger position for debugging mostly
                     if UserConfigs.add_markers then

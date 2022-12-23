@@ -5,6 +5,7 @@ function GoTo(reason,proj)
         ‘prev’	
         ‘random’
         'random_with_rep'
+        'goto'..playlist region idx
         ‘pos’..float
         ‘qn’..float
         ‘bar’..Float
@@ -12,7 +13,7 @@ function GoTo(reason,proj)
         ‘region’..ID
         '{next,next,prev,bar4.2}'
     ]] -- no spaces. always lower case. 
-    local proj_table = ProjConfigs[proj]
+    local proj_table = ProjConfigs[proj] 
     local playlists = proj_table.playlists
     local playlist = playlists[playlists.current]
         
@@ -20,12 +21,14 @@ function GoTo(reason,proj)
     if reason:match('{.+}') then -- Todo idea reason with random pick position : {next, next, prev}. User actually just types:  next, next, prev ; then add in the code the {} and fix the syntax 
         local possible_reasons = {}
         local str = reason:sub(2,-2)..',' -- remove the brackets
-        for reason in str:gmatch('(.-),') do
-            table.insert(possible_reasons, reason)
+        for reason in str:gmatch('(.-)%s-,%s*') do
+            if ValidateCommand(reason) then
+                table.insert(possible_reasons, reason)
+            end
         end
         reason = possible_reasons[math.random(#possible_reasons)]
+        print(reason)
     end
-    -- TODO calculate for each possible
 
     local function change_play_to_current()
         local region = playlist[playlist.current]
@@ -78,9 +81,6 @@ function GoTo(reason,proj)
         change_play_to_current()
     end
 
-    
-
-
     local function next_prev(is_next)  -- Next and Prev logic
         if not playlist or #playlist == 0 then return false end -- Check if any marker/region/playlist
         if not TableCheckValues(playlist, 'current') then playlist.current = 0 end -- safe check if playlists have current value
@@ -102,7 +102,6 @@ function GoTo(reason,proj)
         change_play_to_current()
     end
 
-
     if reason == 'next' then  -- next on the playlist
         next_prev(true)          
     elseif reason == 'prev' then -- prev on the playlist
@@ -114,10 +113,36 @@ function GoTo(reason,proj)
     elseif reason:match('^goto') then
         local playlist_val = tonumber(reason:match('^goto'..'(.+)'))
         go_to_playlist_val(playlist_val)
+    elseif reason:match('^pos') then
+        local new_pos = reason:match('pos%s-(%d+%.?%d*)')
+        reaper.SetEditCurPos2(proj, new_pos, proj_table.moveview, true)
+    elseif reason:match('^qn') then
+    elseif reason:match('^bar') then
+    elseif reason:match('^marker') then
+    elseif reason:match('^region') then
     end
     proj_table.is_triggered = false
 end
 
+function ValidateCommand(goto_command)
+    local possible_commands = { 'next',
+                                'prev',	
+                                'random',
+                                'random_with_rep',
+                                'goto',
+                                'pos',
+                                'qn',
+                                'bar',
+                                'marker',
+                                'region'}
+    -- check if command makes sense
+    for k,possibility in ipairs(possible_commands) do
+        if goto_command:match('^{?%s*'..possibility) then -- does it have any of possible names (optionally it start with a table { with as many spaces as needed)
+            return true
+        end
+    end
+    return false
+end
 ---Create/Cancel Goto triggers for project
 function SetGoTo(project, val)
     ProjConfigs[project].is_triggered = val
