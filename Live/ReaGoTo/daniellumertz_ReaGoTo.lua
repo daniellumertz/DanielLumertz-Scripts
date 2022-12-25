@@ -1,4 +1,4 @@
--- @version 0.0.3b
+-- @version 0.1
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
@@ -41,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.0.3'
+Version = '0.1'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
