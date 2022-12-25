@@ -244,3 +244,26 @@ function CreateCleanMIDITable()
         is_learn = false
     }
 end
+
+
+-------------
+--- Utility Marks 
+-------------
+
+function AddGotoMarker()
+    local is_play = reaper.GetPlayStateEx(FocusedProj)&1 == 1 -- is playing 
+    local pos = (is_play and reaper.GetPlayPositionEx( FocusedProj )) or reaper.GetCursorPositionEx(FocusedProj) -- current pos
+    reaper.AddProjectMarker2(FocusedProj, false, pos, 0, ProjConfigs[FocusedProj].identifier, -1, 0)
+end
+
+function DeleteGotoMarkersAtTimeSelection()
+    local start, fim = reaper.GetSet_LoopTimeRange2( FocusedProj, false, false, 0, 0, false )
+    local retval, num_markers, num_regions = reaper.CountProjectMarkers(FocusedProj)
+    local cnt = num_markers + num_regions
+    for i = cnt-1 , 0, -1 do
+        local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, i )
+        if not isrgn and mark_pos >= start and mark_pos <= fim and name == ProjConfigs[FocusedProj].identifier then -- filter
+            reaper.DeleteProjectMarker( FocusedProj, markrgnindexnumber, false )
+        end
+    end
+end

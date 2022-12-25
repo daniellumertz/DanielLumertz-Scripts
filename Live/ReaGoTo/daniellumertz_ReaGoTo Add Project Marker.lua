@@ -1,23 +1,4 @@
--- @version 0.0.3b
--- @author Daniel Lumertz
--- @provides
---    [main] daniellumertz_ReaGoTo Add Project Marker.lua
---    [nomain] Functions/*.lua
--- @changelog
---    + Release
--- @license MIT
-
-
------TODO:
--- 0) try if I can break the gotocheck, goto function, overides
--- 5) MIDI/Key Trigger
-    -- Menus to learn at each button
-    -- MIDI learn table 
-
-
-
---dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
---demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
+--@noindex
 
 -- get script path
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
@@ -35,32 +16,13 @@ dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
 
-if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.71') then return end -- Check Extensions
-dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
-
-
------ Script Names
-ScriptName = 'ReaGoTo'
-Version = '0.0.3'
-
--- Load Settings
-SettingsFileName = 'ReaGoTo Settings'
-Settings()
-
+FocusedProj = reaper.EnumProjects( -1 )
 -- Project configs (Loaded in the main loop at CheckProjects()) Need to start with an blank table
+ScriptName = 'ReaGoTo'
 ProjConfigs = {}
 ExtKey = 'project_config' -- ext state key
 ProjPaths = {} -- Table with the paths for each project tab. ProjPaths[proj] = path
 
--- Gui Variables
-PreventKeys = {} -- prevent passing keys if anything is stored in it. Used keys are region_popup, playlist_popup
-Gui_W_init = 275 -- Init 
-Gui_H_init = 450 -- Init 
-FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the right side
+LoadProjectSettings(FocusedProj)
 
-
--- Start
-GuiInit()
-reaper.defer(main_loop())
-reaper.atexit(Save)
-
+AddGotoMarker()

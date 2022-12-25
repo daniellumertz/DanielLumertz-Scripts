@@ -357,15 +357,15 @@ function MenuBar()
                 ------------------------------------------------ General
                 local proj_table = ProjConfigs[FocusedProj]
                 local change, change2, change3, change4, change5, change6, change7
-                change, proj_table.moveview = reaper.ImGui_MenuItem(ctx, 'Move Arrange View at Go To', optional_shortcutIn, proj_table.moveview)
+                change, proj_table.moveview = reaper.ImGui_Checkbox(ctx, 'Move Arrange View at Go To', proj_table.moveview)
                 ToolTip(true, 'If need move arrange view position')
 
-                change2, proj_table.stop_trigger = reaper.ImGui_MenuItem(ctx, 'Stop Triggers', optional_shortcutIn, proj_table.stop_trigger)
+                change2, proj_table.stop_trigger = reaper.ImGui_Checkbox(ctx, 'Stop Triggers', proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
                 ------------------------------------------------ Marks
                 reaper.ImGui_Separator(ctx)
 
-                change4, proj_table.is_marker = reaper.ImGui_MenuItem(ctx, 'Use Goto Markers', optional_shortcutIn, proj_table.is_marker)
+                change4, proj_table.is_marker = reaper.ImGui_Checkbox(ctx, 'Use Goto Markers', proj_table.is_marker)
                 ToolTip(true, 'Trigger Goto at goto identified markers.')
 
                 if proj_table.is_marker  then
@@ -375,7 +375,7 @@ function MenuBar()
                 ------------------------------------------------ Unit
                 reaper.ImGui_Separator(ctx)
                 
-                change5, proj_table.grid.is_grid = reaper.ImGui_MenuItem(ctx, 'Use Unit', optional_shortcutIn, proj_table.grid.is_grid)
+                change5, proj_table.grid.is_grid = reaper.ImGui_Checkbox(ctx, 'Use Unit', proj_table.grid.is_grid)
                 ToolTip(true, 'Trigger Goto by bars/whole note values.')
 
                 if proj_table.grid.is_grid then
@@ -487,6 +487,23 @@ function MenuBar()
         _, GuiSettings.Pin = reaper.ImGui_MenuItem(ctx, 'Pin', optional_shortcutIn, GuiSettings.Pin)
 
         DockBtn()
+
+        local mark_text, help_text, mark_func
+        if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Ctrl() then
+            mark_text = '-'
+            help_text = 'Delete all goto markers at time selection.'
+            mark_func = DeleteGotoMarkersAtTimeSelection
+
+        else
+            mark_text = '+'
+            help_text = 'Add goto marker. Hold ctrl to delete.'
+            mark_func = AddGotoMarker
+        end
+
+        if reaper.ImGui_MenuItem(ctx, mark_text) then
+            mark_func()
+        end
+        ToolTip(true, help_text)
 
         reaper.ImGui_EndMenuBar(ctx)
     end
