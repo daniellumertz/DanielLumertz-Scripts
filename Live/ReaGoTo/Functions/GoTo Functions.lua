@@ -27,7 +27,6 @@ function GoTo(reason,proj)
             end
         end
         reason = possible_reasons[math.random(#possible_reasons)]
-        print(reason)
     end
 
     local function change_play_to_current()
@@ -198,7 +197,8 @@ function CreateNewRegion(id, proj)
             loop = isrgn,
             type = isrgn and 'region' or 'marker',
             chance = 1,
-            current = 0           
+            current = 0,
+            midi = CreateCleanMIDITable() -- to trigger the region via MIDI          
     }
     return region_table    
 end
@@ -220,8 +220,27 @@ function CreateProjectConfigTable(proj)
             unit = 'bar', -- unit to trigger, can be 'bar' or a number like 1 for whole note 1/4 for quarter note etc... 
             unit_str = 'bar', -- to show at the GUI.
         },
-        is_marker = true -- use markers to trigger
+        is_marker = true, -- use markers to trigger
+        buttons = {
+            next = {
+                midi = CreateCleanMIDITable()
+            },
+            prev = {
+                midi = CreateCleanMIDITable()
+            },
+            random = {
+                midi = CreateCleanMIDITable()
+            },
+            cancel = {
+                midi = CreateCleanMIDITable()
+            }
+        }
     }   
     return t
-    
+end
+
+function CreateCleanMIDITable()
+    return {
+        is_learn = false
+    }
 end

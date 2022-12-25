@@ -27,6 +27,7 @@ dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- Functions for using th
 dofile(ScriptPath .. 'Functions/GUI Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Imgui General Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Main Loop.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/MIDI Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper

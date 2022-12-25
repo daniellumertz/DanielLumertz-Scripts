@@ -11,7 +11,6 @@ function main_loop()
     CheckProjects()
     MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
 
-
     ------------ Window management area
     --- Flags
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
@@ -42,7 +41,6 @@ function main_loop()
         reaper.ImGui_End(ctx)
     end 
     
-    -- OpenPopups() 
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
     --demo.PopStyle(ctx)

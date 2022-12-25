@@ -80,8 +80,9 @@ function PlaylistTab(playlist)
                 DrawRectLastItem(40/360, 0.84, 0.92,alpha)
             end
 
-            -- Double Click goto region
-            if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx,0) then
+            -- Double Click/ MIDI Trigger goto region
+            local midi_trigger = CheckMIDITrigger(region_table.midi)
+            if (reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx,0)) or midi_trigger then
                 SetGoTo(FocusedProj, 'goto'..region_idx)
             end
 
@@ -209,6 +210,11 @@ function RenameRegionMarkerPopUp(playlist, k)
         return true
     end
 
+    -- MIDI
+    reaper.ImGui_Separator(ctx)
+    MIDILearn(region_table.midi)
+    
+
     -- Enter close popup
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
@@ -277,11 +283,13 @@ function TriggerButtons(playlists)
     local is_just_activated = ProjConfigs[FocusedProj].is_triggered and true   -- check if a button was just activated in this frame, to prevent 'cancel' button to appear in just one frame.
     do -- Prev Button
         local trigger_string = 'prev'
+        local midi_trigger = CheckMIDITrigger(ProjConfigs[FocusedProj].buttons.prev.midi) -- Trigger the current random (if holding ctrl without reptitio, holding ctrl can be itself )
         local paint = triggered_button_style(trigger_string)
-        if reaper.ImGui_Button(ctx, '<',button_size) then
+        if reaper.ImGui_Button(ctx, '<',button_size) or midi_trigger then
             SetGoTo(FocusedProj, 'prev')
         end
         pop_button_style(paint)
+        MidiPopupButtons(ProjConfigs[FocusedProj].buttons.prev.midi)
     end
 
     do -- Random Button
@@ -291,33 +299,39 @@ function TriggerButtons(playlists)
         else
             trigger_string = 'random'
         end
+        local midi_trigger = CheckMIDITrigger(ProjConfigs[FocusedProj].buttons.random.midi) -- Trigger the current random (if holding ctrl without reptitio, holding ctrl can be itself )
         local paint = triggered_button_style('random')
         local paint2 = triggered_button_style('random_with_rep')
         reaper.ImGui_SameLine(ctx)
-        if reaper.ImGui_Button(ctx, '?',button_size) then
+        if reaper.ImGui_Button(ctx, '?',button_size) or midi_trigger then
             SetGoTo(FocusedProj, trigger_string)
         end
         pop_button_style(paint or paint2)
+        MidiPopupButtons(ProjConfigs[FocusedProj].buttons.random.midi)
     end
 
     do -- Next Button
         reaper.ImGui_SameLine(ctx)
         local trigger_string = 'next'
+        local midi_trigger = CheckMIDITrigger(ProjConfigs[FocusedProj].buttons.next.midi)
         local paint = triggered_button_style(trigger_string)
-        if reaper.ImGui_Button(ctx, '>',button_size) then
+        if reaper.ImGui_Button(ctx, '>',button_size) or midi_trigger then
             SetGoTo(FocusedProj, trigger_string)
         end
         pop_button_style(paint)
+        MidiPopupButtons(ProjConfigs[FocusedProj].buttons.next.midi)
     end
 
+    do -- Cancel button
+        if is_just_activated and ProjConfigs[FocusedProj].is_triggered then
+            local midi_trigger = CheckMIDITrigger(ProjConfigs[FocusedProj].buttons.cancel.midi)
+            if reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) or midi_trigger then
+                SetGoTo(FocusedProj, false)
+            end
+            MidiPopupButtons(ProjConfigs[FocusedProj].buttons.cancel.midi)
 
-    --pop_button_style(true)
-    --_, _ = reaper.ImGui_InputText(ctx, '##gototext', 'buf') --TODO optional goto personalized
-    --reaper.ImGui_SameLine(ctx)
-    --reaper.ImGui_Button(ctx, 'Go To',-FLTMIN)
+        end
 
-    if is_just_activated and ProjConfigs[FocusedProj].is_triggered and reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) then
-        SetGoTo(FocusedProj, false)
     end
 end
 
@@ -476,6 +490,86 @@ function MenuBar()
 
         reaper.ImGui_EndMenuBar(ctx)
     end
+end
+
+function MIDILearn(midi_table)
+    reaper.ImGui_Text(ctx, 'MIDI:')
+    local learn_text = midi_table.is_learn and 'Cancel' or 'Learn'
+    if reaper.ImGui_Button(ctx, learn_text, -FLTMIN) then
+        midi_table.is_learn = not midi_table.is_learn
+    end
+
+    if midi_table.is_learn then
+        if MIDIInput[1] then
+            local msg_type,msg_ch,val1 = UnpackMIDIMessage(MIDIInput[1].msg)
+            if msg_type == 9 or msg_type == 11 or msg_type == 8 then 
+                midi_table.type = ((msg_type == 9 or msg_type == 8) and 9) or 11
+                midi_table.ch = msg_ch
+                midi_table.val1 = val1
+                midi_table.device = MIDIInput[1].device
+                midi_table.is_learn = false
+            end
+        end
+    end
+    
+    local w = reaper.ImGui_GetContentRegionAvail(ctx)
+    local x_pos = w - 10 -- position of X buttons
+    if midi_table.type then 
+        local name_type = midi_table.type == 9 and 'Note' or 'CC'
+        ImPrint(name_type..' : ',midi_table.val1)
+        reaper.ImGui_SameLine(ctx,x_pos)
+        if reaper.ImGui_Button(ctx, 'X##all') then
+            midi_table.type = nil
+            midi_table.ch = nil
+            midi_table.val1 = nil
+            midi_table.device = nil
+            midi_table.is_learn = false
+        end
+    end
+
+    if midi_table.device then 
+        local retval, device_name = reaper.GetMIDIInputName(midi_table.device, '')
+        ImPrint('Device : ',device_name)
+        reaper.ImGui_SameLine(ctx,x_pos)
+        if reaper.ImGui_Button(ctx, 'X##dev') then
+            midi_table.device = nil
+        end
+    end
+
+    if midi_table.ch then 
+        ImPrint('Channel : ',midi_table.ch)
+        reaper.ImGui_SameLine(ctx,x_pos)
+        if reaper.ImGui_Button(ctx, 'X##ch') then
+            midi_table.ch = nil
+        end
+    end    
+end
+
+function MidiPopupButtons(midi_table)
+    if reaper.ImGui_BeginPopupContextItem(ctx) then
+        MIDILearn(midi_table)
+        reaper.ImGui_Text(ctx, '                                                          ')
+        reaper.ImGui_EndPopup(ctx)
+    end
+end
+
+function CheckMIDITrigger(midi_table)
+    local midi_trigger = false
+    if midi_table.type and #MIDIInput > 0 then
+        for index, input_midi_table in ipairs(MIDIInput) do
+            local msg_input = input_midi_table.msg
+            local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg_input)
+            if msg_type ~= midi_table.type then goto continue end
+            if msg_type == 11 and val2 < 60 then goto continue end
+            if val1 ~= midi_table.val1 then goto continue end
+            if midi_table.ch and msg_ch ~= midi_table.ch then goto continue end
+            if midi_table.device and input_midi_table.device ~= midi_table.device then goto continue end
+            midi_trigger = true
+            break
+            ::continue::
+        end
+    end
+    return midi_trigger
 end
 
 function AnimationValues()
