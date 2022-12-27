@@ -100,12 +100,44 @@ function TargetsTab(parameter, parameter_key)
         local track = target.track
         local _, name = reaper.GetTrackName(track)
         reaper.ImGui_PushStyleVar(ctx, reaper.ImGui_StyleVar_IndentSpacing(), 0)
-        if reaper.ImGui_TreeNode(ctx, 'Track : '..name) then
+
+        local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name)
+        -- Right click node
+        reaper.ImGui_SetNextWindowSize(ctx, 125, 0)
+        reaper.ImGui_SetNextWindowBgAlpha(ctx, 0.75)
+        if reaper.ImGui_BeginPopupContextItem(ctx) then
+
+            if reaper.ImGui_Button(ctx, 'Invert Horizontal',-FLTMIN) then
+                ce_invert_points(target.curve, true, false)
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+
+            if reaper.ImGui_Button(ctx, 'Invert Vertical',-FLTMIN) then
+                ce_invert_points(target.curve, false, true)
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+
+            if reaper.ImGui_Button(ctx, 'Copy Points',-FLTMIN) then
+                TempCopyPoints = target.curve
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+
+            if reaper.ImGui_Button(ctx, 'Paste Points',-FLTMIN) then
+                target.curve = TableDeepCopy(TempCopyPoints)
+                TempCopyPoints = nil
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+
+            reaper.ImGui_EndPopup(ctx)
+        end
+        -- Curve inside tree node
+        if open then
             local curve_editor_height = 75
             ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {parameter.value})
 
             reaper.ImGui_TreePop(ctx)
         end
+
         reaper.ImGui_PopStyleVar(ctx)
 
     end

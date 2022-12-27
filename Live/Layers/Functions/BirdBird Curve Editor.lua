@@ -1,4 +1,4 @@
-
+--@noindex
 --[[ MINIMAL EXAMPLE
 ---------------
 local points = {ce_point(0.25, 0.85), ce_point(0.4, 0.5), ce_point(0.75, 0.5)}
@@ -104,6 +104,20 @@ function ce_point(x, y, tension) return {x = clamp(x, 0, 1), y = clamp(y, 0, 1),
 function ce_sort_points(points)
   table.sort(points, function(a, b) return a.x < b.x end)
 end
+
+function ce_invert_points(points,is_x,is_y)
+  for point_idx, point in ipairs(points) do
+    if is_x then 
+      point.x = 1-point.x
+    end
+
+    if is_y then
+      point.y = 1-point.y
+    end
+  end
+  ce_sort_points(points)
+end
+
 local function validate_points(points)
   if #points == 0 then
     table.insert(points, ce_point(0, 0)) 
