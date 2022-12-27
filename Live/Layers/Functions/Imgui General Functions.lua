@@ -27,15 +27,20 @@ end
 ---- Popups
 ----------------
 
-function ToolTip(is_tooltip, text)
+function ToolTip(is_tooltip, text, wrap)
     if is_tooltip and reaper.ImGui_IsItemHovered(ctx) then
-        reaper.ImGui_BeginTooltip(ctx)
-        --reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 20)
-        reaper.ImGui_PushTextWrapPos(ctx, 200)
-        reaper.ImGui_Text(ctx, text)
-        reaper.ImGui_PopTextWrapPos(ctx)
-        reaper.ImGui_EndTooltip(ctx)
+        ToolTipSimple(text, wrap)
     end
+end
+
+function ToolTipSimple(text, wrap)
+    wrap = wrap or 200    
+    reaper.ImGui_BeginTooltip(ctx)
+    --reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 20)
+    reaper.ImGui_PushTextWrapPos(ctx, wrap)
+    reaper.ImGui_Text(ctx, text)
+    reaper.ImGui_PopTextWrapPos(ctx)
+    reaper.ImGui_EndTooltip(ctx)    
 end
 
 ----------------
@@ -113,6 +118,14 @@ end
 ----------------
 ---- Text
 ----------------
+
+-- Insert a text at the center of the avail space
+function TextCenter(text)
+    local text_w, text_h = reaper.ImGui_CalcTextSize(ctx, text)
+    local avail_w = reaper.ImGui_GetContentRegionAvail(ctx)
+    reaper.ImGui_SetCursorPosX(ctx, avail_w/2 - text_w/2)
+    reaper.ImGui_Text(ctx, text)
+end
 
 ---Print on imgui screen
 function ImPrint(...)

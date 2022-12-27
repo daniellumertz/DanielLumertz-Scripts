@@ -5,62 +5,117 @@ function GuiInit()
     FontText = reaper.ImGui_CreateFont('sans-serif', 14) -- Create the fonts you need
     reaper.ImGui_Attach(ctx, FontText)-- Attach the fonts you need
     --- Smaller Font for smaller widgets
-    FontTiny = reaper.ImGui_CreateFont('sans-serif', 10) 
-    reaper.ImGui_Attach(ctx, FontTiny)
-    points = {ce_point(0.25, 0.85), ce_point(0.4, 0.5), ce_point(0.75, 0.5)}
-    points2 = {ce_point(0.25, 0.85), ce_point(0.4, 0.5), ce_point(0.75, 0.5)}
+    FontBigger = reaper.ImGui_CreateFont('sans-serif', 24) 
+    reaper.ImGui_Attach(ctx, FontBigger)
 
 end
 
-
-function MenuBar()
-    local function DockBtn()
-        local reval_dock =  reaper.ImGui_IsWindowDocked(ctx)
-        local dock_text =  reval_dock and  'Undock' or 'Dock'
-    
-        if reaper.ImGui_MenuItem(ctx,dock_text ) then
-            if reval_dock then -- Already Docked
-                SetDock = 0
-            else -- Not docked
-                SetDock = -3 -- Dock to the right 
-            end
-        end
-    end
-    
+---------   
+-- Center GUI
+---------
+function ParametersTabs()
     local _
-
-    if reaper.ImGui_BeginMenuBar(ctx) then
-
-        if reaper.ImGui_BeginMenu(ctx, 'Settings') then
-            local change1
-            change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
-    
-            if change1 or change2 or change3 or change4 then
-                SaveSettings(ScriptPath,SettingsFileName)
+    local proj_table = ProjConfigs[FocusedProj]
+    local parameters = proj_table.parameters
+    -- tabs
+    if reaper.ImGui_BeginTabBar(ctx, 'Parameters', reaper.ImGui_TabBarFlags_Reorderable() | reaper.ImGui_TabBarFlags_AutoSelectNewTabs() ) then
+        local is_save
+        -- All parameters sliders
+        if reaper.ImGui_BeginTabItem(ctx, 'All', false,reaper.ImGui_TabItemFlags_Leading()) then-- Start each tab
+            if reaper.ImGui_BeginChild(ctx, 'AllParameters', -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
+                for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
+                    SliderParameter(parameter,parameter_key)
+                end
+                reaper.ImGui_EndChild(ctx)
             end
-
-            reaper.ImGui_EndMenu(ctx)
+            reaper.ImGui_EndTabItem(ctx)
         end
 
+        -- For every parameter
+        for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
+            local open, keep = reaper.ImGui_BeginTabItem(ctx, ('%s###tab%d'):format(parameter.name, parameter_key), false) -- Start each tab
 
-        if reaper.ImGui_BeginMenu(ctx, 'About') then
-            if reaper.ImGui_MenuItem(ctx, 'Donate') then
-                open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
+            -- Popup to rename and delete
+            if reaper.ImGui_BeginPopupContextItem(ctx) then 
+                --is_save = RenamePlaylistPopUp(parameter, playlist_key, parameter) 
+                reaper.ImGui_EndPopup(ctx)
+            elseif PreventKeys.playlist_popup then
+                PreventKeys.playlist_popup = nil
             end
 
-            --if reaper.ImGui_MenuItem(ctx, 'Forum') then
-            --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
-            --end
+            -- Show Targets
+            if open then
+                if reaper.ImGui_BeginChild(ctx, 'Parameter'..parameter_key, -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
+                    -- Targets
+                    TargetsGui(parameter, parameter_key)
+                    reaper.ImGui_EndChild(ctx)
+                end
+                -- Targets part
+                reaper.ImGui_EndTabItem(ctx) 
+            end
 
-            reaper.ImGui_EndMenu(ctx)
         end
-        _, GuiSettings.Pin = reaper.ImGui_MenuItem(ctx, 'Pin', optional_shortcutIn, GuiSettings.Pin)
 
-        DockBtn()
+        -- Add Parameter
+        if reaper.ImGui_TabItemButton(ctx, '+', reaper.ImGui_TabItemFlags_Trailing() | reaper.ImGui_TabItemFlags_NoTooltip()) then -- Start each tab
+            table.insert(parameters,CreateParameterTable('P'..#parameters+1)) -- TODO
+            is_save = true
+        end
 
-        reaper.ImGui_EndMenuBar(ctx)
+        if is_save then -- Save settings
+            SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) -- TODO
+        end
+        
+        reaper.ImGui_EndTabBar(ctx)
+    end 
+end
+
+function TargetsGui(parameter, parameter_key)
+
+    -- Slider
+    SliderParameter(parameter,parameter_key)
+    -- TODO Popup menu
+    if reaper.ImGui_Button(ctx, 'Add Track', -FLTMIN) then
+        tprint(parameter.targets)
+        -- if holding alt, delete the table first
+        if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then 
+            parameter.targets = {}
+        end
+        AddSelectedTracksToTargets(FocusedProj,parameter.targets)
+    end
+    reaper.ImGui_Separator(ctx)
+    for track, target in pairs(parameter.targets) do
+        local _, name = reaper.GetTrackName(track)
+        if name == '' then 
+            name =  reaper.GetMediaTrackInfo_Value( track, 'IP_TRACKNUMBER' )
+        end
+        if reaper.ImGui_TreeNode(ctx, 'Track : '..name) then
+            local curve_editor_height = 75
+            reaper.ImGui_SetCursorPosX(ctx, 10)
+            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height)
+            reaper.ImGui_TreePop(ctx)
+        end
     end
 end
+
+---------   
+-- Popups
+---------
+
+function SliderParameter(parameter,parameter_key)
+    reaper.ImGui_PushFont(ctx,FontBigger)
+    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+    _, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
+    reaper.ImGui_PopFont(ctx)
+    if reaper.ImGui_IsItemActive(ctx) then
+        ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
+    end
+end
+
+
+---------   
+-- MIDI
+---------
 
 function MIDILearn(midi_table)
     reaper.ImGui_Text(ctx, 'MIDI:')
@@ -140,4 +195,53 @@ function CheckMIDITrigger(midi_table)
         end
     end
     return midi_trigger
+end
+
+function MenuBar()
+    local function DockBtn()
+        local reval_dock =  reaper.ImGui_IsWindowDocked(ctx)
+        local dock_text =  reval_dock and  'Undock' or 'Dock'
+    
+        if reaper.ImGui_MenuItem(ctx,dock_text ) then
+            if reval_dock then -- Already Docked
+                SetDock = 0
+            else -- Not docked
+                SetDock = -3 -- Dock to the right 
+            end
+        end
+    end
+    
+    local _
+
+    if reaper.ImGui_BeginMenuBar(ctx) then
+
+        if reaper.ImGui_BeginMenu(ctx, 'Settings') then
+            local change1
+            change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+    
+            if change1 or change2 or change3 or change4 then
+                SaveSettings(ScriptPath,SettingsFileName)
+            end
+
+            reaper.ImGui_EndMenu(ctx)
+        end
+
+
+        if reaper.ImGui_BeginMenu(ctx, 'About') then
+            if reaper.ImGui_MenuItem(ctx, 'Donate') then
+                open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
+            end
+
+            --if reaper.ImGui_MenuItem(ctx, 'Forum') then
+            --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
+            --end
+
+            reaper.ImGui_EndMenu(ctx)
+        end
+        _, GuiSettings.Pin = reaper.ImGui_MenuItem(ctx, 'Pin', optional_shortcutIn, GuiSettings.Pin)
+
+        DockBtn()
+
+        reaper.ImGui_EndMenuBar(ctx)
+    end
 end

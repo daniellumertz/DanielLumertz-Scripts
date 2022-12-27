@@ -1,6 +1,6 @@
 --@noindex
---version: 0.6.2
--- Add new random keys
+--version: 0.6.3
+-- Add remove decimal places
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
@@ -467,6 +467,11 @@ function RandomNumberFloat(min,max,is_include_max)
     random = MapRange(random,0,big_val,min,max) -- Scale the random value to the sum of the chances
 
     return random
+end
+
+function RemoveDecimals(num,decimal_places)
+    local int_num = math.floor(num * 10^decimal_places)
+    return int_num / 10^decimal_places    
 end
 
 --- Return dbval in linear value. 0 = -inf, 1 = 0dB, 2 = +6dB, etc...

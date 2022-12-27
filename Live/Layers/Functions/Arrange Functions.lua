@@ -34,6 +34,19 @@ function enumSelectedItems()
     end
 end
 
+function enumSelectedTracks(proj)
+    local cnt = reaper.CountSelectedTracks(proj)
+    local i = 0
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local track = reaper.GetSelectedTrack(proj, i) -- get current selected item
+            i = i + 1 -- for next time
+            return track
+        end
+        return nil
+    end
+end
+
 function enumTakes(item)
     local cnt = reaper.CountTakes(item)
     local i = 0

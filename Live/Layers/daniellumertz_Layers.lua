@@ -13,6 +13,7 @@
 --4) Slope code value and true_value
 --5) Slider with slope
 --3) Code to check the tracks+fx
+    -- Check if user have the fx (install via reapack or install via scripts)
 --2) continue Main code to set the fx
 --7) Code to bypass the fx/Or to set to 1
 --6) Delay per track (think in a way) (not needed )

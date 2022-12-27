@@ -34,9 +34,7 @@ function main_loop()
         MenuBar()
         local _ --  values I will throw away
         --- GUI MAIN: 
-        local retval = ce_draw(ctx, points, "curve", 0, 100,{0.5})
-        local retval = ce_draw(ctx, points2, "curves", 0, 100)
-
+        ParametersTabs()
 
         -- Trigger Buttons
         reaper.ImGui_End(ctx)

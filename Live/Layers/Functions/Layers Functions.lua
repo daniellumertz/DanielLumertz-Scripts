@@ -5,22 +5,29 @@ function SetGoTo(project, val)
 end
 
 -------------
---- Playlists Table 
+--- Table 
 -------------
+function AddSelectedTracksToTargets(proj, targets)
+    for track in enumSelectedTracks(proj) do
+        targets[track] = CreateTargetTable(track)
+    end
+end
+
+function CreatePointTable()
+    return {ce_point(0,0), ce_point(1,1)}
+end
 
 function CreateTargetTable()
     local t = {
-        curve = false, ---- TODO start with a linear value
+        curve = CreatePointTable(), ---- TODO start with a linear value
         bypass = false,
-        min = 0,
-        max = 2, ---- TODO Check min and max value. to be from -inf to +12 by default
-        delay = 0
     }
+    return t
 end
 
 function CreateParameterTable(name)
     local t = {
-        targets = {CreateTargetTable()},
+        targets = {},
         envelope = false,
         slopeup = 0,
         slopedown = 0,
