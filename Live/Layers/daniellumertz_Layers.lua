@@ -1,7 +1,6 @@
 -- @version 0.0.1b
 -- @author Daniel Lumertz
 -- @provides
---    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + Release
