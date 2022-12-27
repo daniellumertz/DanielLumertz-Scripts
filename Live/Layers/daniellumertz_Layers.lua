@@ -31,6 +31,7 @@ demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaIm
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 -- dofile all files inside functions folder
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/Chunk Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/GUI Functions.lua') -- Functions for using the markov in reaper

@@ -73,7 +73,6 @@ end
 function TargetsTab(parameter, parameter_key)
     ---- Slider
     SliderParameter(parameter,parameter_key)
-    -- TODO Slider Popup menu
 
     ---- Button add track
     if reaper.ImGui_Button(ctx, 'Add Track', -FLTMIN) then
@@ -148,12 +147,52 @@ end
 ---------
 
 function SliderParameter(parameter,parameter_key)
+    -- Update with Envelopes 
+    -- Update with MIDI 
+    local midi_val = CheckMIDIInput(parameter.midi)
+    if midi_val then
+        parameter.value = midi_val/127
+    end
+    -- Slider
     reaper.ImGui_PushFont(ctx,FontBigger)
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
     _, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
     reaper.ImGui_PopFont(ctx)
     if reaper.ImGui_IsItemActive(ctx) then
         ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
+    end
+    -- Popup
+    SliderPopUp(parameter,parameter_key)
+
+end
+
+function SliderPopUp(parameter,parameter_key)
+    reaper.ImGui_SetNextWindowSize(ctx, 175, 0)
+    if reaper.ImGui_BeginPopupContextItem(ctx) then
+        --- Slope
+        reaper.ImGui_Separator(ctx)
+        --- Envelope 
+        if reaper.ImGui_Button(ctx, 'Get Selected Envelope', -FLTMIN) then -- TODO Check if is a track envelope instad of an item envelope
+            local env = reaper.GetSelectedEnvelope(FocusedProj)
+            if env then
+                parameter.envelope = env
+            else
+                reaper.ShowMessageBox('Select some envelope!', ScriptName, 0)
+            end
+        end
+        if parameter.envelope then
+            local retval, env_name = reaper.GetEnvelopeName(parameter.envelope)
+            local track = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_TRACK' )
+            local retval, track_name = reaper.GetTrackName(track)
+            ImPrint('Envelope   : ',env_name)
+            ImPrint('From Track : ',track_name)
+        end
+
+        reaper.ImGui_Separator(ctx)
+        --- MIDI
+        MIDILearn(parameter.midi)
+
+        reaper.ImGui_EndPopup(ctx)
     end
 end
 
@@ -223,6 +262,7 @@ function MidiPopupButtons(midi_table)
     end
 end
 
+--- Check the MIDIInput input table if it triggered(same type, channel, device, and if cc then val2 > 60) with the values at midi_table. 
 function CheckMIDITrigger(midi_table)
     local midi_trigger = false
     if midi_table.type and #MIDIInput > 0 then
@@ -241,6 +281,26 @@ function CheckMIDITrigger(midi_table)
     end
     return midi_trigger
 end
+
+--- Check the MIDIInput input table if it triggered(same type, channel, device) with the values at midi_table. Return the midi value 
+function CheckMIDIInput(midi_table)
+    local midi_trigger = false
+    if midi_table.type and #MIDIInput > 0 then
+        for index, input_midi_table in ipairs(MIDIInput) do
+            local msg_input = input_midi_table.msg
+            local msg_type,msg_ch,val1,val2,text,msg = UnpackMIDIMessage(msg_input)
+            if msg_type ~= midi_table.type then goto continue end
+            if val1 ~= midi_table.val1 then goto continue end
+            if midi_table.ch and msg_ch ~= midi_table.ch then goto continue end
+            if midi_table.device and input_midi_table.device ~= midi_table.device then goto continue end
+            midi_trigger = val2
+            break
+            ::continue::
+        end
+    end
+    return midi_trigger
+end
+
 
 function MenuBar()
     local function DockBtn()

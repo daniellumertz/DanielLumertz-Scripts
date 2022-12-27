@@ -30,8 +30,8 @@ function CreateParameterTable(name)
     local t = {
         targets = {},
         envelope = false,
-        slopeup = 0,
-        slopedown = 0,
+        slopeup = 1, -- values from 0 to 1. 0 It wont move.
+        slopedown = 1, -- values from 0 to 1. 0 It wont move.
         name = name,
         midi = CreateCleanMIDITable(),
         bypass = false,

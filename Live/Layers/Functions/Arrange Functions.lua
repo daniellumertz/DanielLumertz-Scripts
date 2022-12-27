@@ -1,34 +1,28 @@
 --@noindex
---version: 0.5
--- ADD enum takes and projects
+--version: 0.8
+-- add envelope by guid functions
 
 
 ------- Iterate 
 
-function enumSelectedMIDITakes()
-    local cnt = reaper.CountSelectedMediaItems(0)
-    local i = 0
+-- Projects
+function enumProjects()
+    local i = -1
     return function ()
-        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
-            local item = reaper.GetSelectedMediaItem(0, i) -- get current selected item
-            i = i + 1 -- for next time
-            local take = reaper.GetActiveTake(item)
-            if reaper.TakeIsMIDI(take) then -- make sure, that take is MIDI
-                return take -- this break and return
-            end
-        end
-        return nil
+        i = i +1
+        return reaper.EnumProjects( i )
     end
 end
 
-function enumSelectedItems()
-    local cnt = reaper.CountSelectedMediaItems(0)
+-- Tracks
+function enumTracks(proj)
+    local cnt = reaper.CountTracks(proj)
     local i = 0
     return function ()
         while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
-            local item = reaper.GetSelectedMediaItem(0, i) -- get current selected item
+            local track = reaper.GetTrack(proj, i) -- get current selected item
             i = i + 1 -- for next time
-            return item
+            return track
         end
         return nil
     end
@@ -47,6 +41,50 @@ function enumSelectedTracks(proj)
     end
 end
 
+-- Items
+function enumSelectedItems(proj)
+    local cnt = reaper.CountSelectedMediaItems(0)
+    local i = 0
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local item = reaper.GetSelectedMediaItem(proj, i) -- get current selected item
+            i = i + 1 -- for next time
+            return item
+        end
+        return nil
+    end
+end
+
+function enumItems(proj)
+    local cnt = reaper.CountMediaItems(proj)
+    local i = 0
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local item = reaper.GetMediaItem(proj, i) -- get current selected item
+            i = i + 1 -- for next time
+            return item
+        end
+        return nil
+    end
+end
+
+-- Takes
+function enumSelectedMIDITakes(proj)
+    local cnt = reaper.CountSelectedMediaItems(proj)
+    local i = 0
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local item = reaper.GetSelectedMediaItem(proj, i) -- get current selected item
+            i = i + 1 -- for next time
+            local take = reaper.GetActiveTake(item)
+            if reaper.TakeIsMIDI(take) then -- make sure, that take is MIDI
+                return take -- this break and return
+            end
+        end
+        return nil
+    end
+end
+
 function enumTakes(item)
     local cnt = reaper.CountTakes(item)
     local i = 0
@@ -60,13 +98,37 @@ function enumTakes(item)
     end
 end
 
-function enumProjects()
-    local i = -1
+
+-- Envelopes
+function enumTrackEnvelopes(track)
+    local cnt = reaper.CountTrackEnvelopes(track)
+    local i = 0
     return function ()
-        i = i +1
-        return reaper.EnumProjects( i )
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local env = reaper.GetTrackEnvelope( track, i ) -- get current selected item
+            i = i + 1 -- for next time
+            return env
+        end
+        return nil
     end
 end
+
+function enumTakeEnvelopes(take)
+    local cnt = reaper.CountTakeEnvelopes(take)
+    local i = 0
+    return function ()
+        while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
+            local env = reaper.GetTakeEnvelope( take, i ) -- get current selected item
+            i = i + 1 -- for next time
+            return env
+        end
+        return nil
+    end
+end
+
+-------
+-- Markers
+-------
 
 
 ---Iterate fuction returns retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber using EnumProjectMarkers2
@@ -111,7 +173,10 @@ function enumMarkers3(proj, only_marker)
     end
 end
 
+--------
 ----- Tracks
+--------
+
 ----- Get
 
 ---Get MediaTrack by name if it exists. Return false if it dont find.
@@ -129,8 +194,10 @@ function GetTrackByName(proj,name)
     return false
 end
 
-
+----------
 ------- Items
+----------
+
 ------ Actions
 ---Select A list of items or one item. Validate them first
 ---@param itemlist table List of items to select. {item1, item2, item3} as userdata. Or just the item
@@ -154,7 +221,31 @@ function CreateSelectedItemsTable()
     return t
 end
 
+---Write an ext state at an item
+---@param item MediaItem
+---@param extname string name of the ext state section
+---@param key string name of the key inside the extname section
+---@param value string value to store 
+---@return boolean
+function SetItemExtState(item, extname, key, value)
+    local  retval, item_pos = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, value, true )
+    return retval
+end
+
+---Return the item ext state value
+---@param item MediaItem
+---@param extname string name of the ext state section
+---@param key string name of the key inside the extname section
+---@return boolean retval
+---@return string value
+function GetItemExtState(item, extname, key)
+    local retval, saved_original_pos = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, '', false )
+    return retval, saved_original_pos
+end
+
+-----------
 --------- Time / QN
+-----------
 
 function CreateTimeQNTable() -- From JS Multitool THANKS THANKS THANKS!
     -- After creating use like print(tQNFromTime[proj][960]) if it dont already have the value it will create and return. 
@@ -180,7 +271,9 @@ function CreateTimeQNTable() -- From JS Multitool THANKS THANKS THANKS!
     return tQNFromTime, tTimeFromQN -- Return related to project time
 end
 
+---------
 ----- Marker / Region
+---------
 
 ---Get the first mark that matches the name and is region
 ---@param proj ReaperProject 
@@ -206,4 +299,44 @@ function GetMarkByID(proj,id,only_marker)
         end
     end
     return false
+end
+
+-----------
+------ Envelopes
+-----------
+
+---Get The Envelope by the GUID. Search at tracks and/or items
+---@param guid string GUID to search, with {}.
+---@param is_track number 0 = just items, 1 just tracks, 2 both
+function GetEnvelopeByGUID(proj, guid, is_track)
+    if is_track == 1 or is_track == 2 then
+        for track in enumSelectedTracks(proj) do
+            local env = reaper.GetTrackEnvelopeByChunkName( track, guid )
+            if env then
+                return env
+            end
+        end
+    end
+
+    if is_track == 0 or is_track == 2 then
+        for item in enumItems(proj) do
+            for take in enumTakes(item) do
+                for env in  enumTakeEnvelopes(take) do
+                    print('checking guid',GetEnvelopeGUID(env) )
+                    print(' guid is     ',guid )
+                    if guid == GetEnvelopeGUID(env) then
+                        return env
+                    end
+                end
+            end
+        end
+    end
+end
+
+---Return the GUID of a envelope.
+---@param env Envelope Envelope 
+---@return string guid Guid
+function GetEnvelopeGUID(env)
+    local retval, chunk = reaper.GetEnvelopeStateChunk(env, '', false)
+    return GetChunkVal(chunk,'EGUID')
 end

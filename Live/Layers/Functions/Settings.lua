@@ -154,7 +154,7 @@ end
 
 --- Recursive COnvert functions
 
-function ConvertUserDataToGUID(proj, thing) -- Only Tracks, Items, Takes and LUA types.
+function ConvertUserDataToGUID(proj, thing) -- Only Tracks, Items, Takes, Envelopes and LUA types.
     -- Userdata types = ReaProject*, MediaTrack*, MediaItem*, MediaItem_Take*, TrackEnvelope* and PCM_source*
     local tipo
     local guid
@@ -176,8 +176,15 @@ function ConvertUserDataToGUID(proj, thing) -- Only Tracks, Items, Takes and LUA
         tipo = 'Take'
         retval, guid = reaper.GetSetMediaItemTakeInfo_String( thing, 'GUID', '', false )
         newthing = char..tipo..guid
-    elseif type(thing) == 'userdata' then -- Userdata Removed or ReaProject*, TrackEnvelope* and PCM_source*
+    
+    elseif reaper.ValidatePtr2(proj, thing, 'TrackEnvelope*' ) then
+        tipo = 'Envelope'
+        guid = GetEnvelopeGUID(thing)
+        newthing = char..tipo..guid
+
+    elseif type(thing) == 'userdata' then -- Userdata Removed or ReaProject* and PCM_source*
         newthing = char2..tostring(thing)
+        
     else  -- Expect a LUA accetable type
         newthing = thing
     end
@@ -186,27 +193,29 @@ end
 --'#$$$#userdata: XXXXX' Couldn't save. Without GUID Save with a tostring
 --'#$$$#Track{GUID}'Couldn't Load the GUID. 
 function ConvertGUIDToUserData(proj, str)
-  if str:sub(1,4) == '#$$#' then -- Is a GUID
-      local userdata
-      local tipo = str:match('%a+') -- Get type name #$$#NAME{GUID}
-      local guid = str:match('{.+}')
+    if str:sub(1,4) == '#$$#' then -- Is a GUID
+        local userdata
+        local tipo = str:match('%a+') -- Get type name #$$#NAME{GUID}
+        local guid = str:match('{.+}')
 
-      if tipo == 'Track'  then
-          userdata =  reaper.BR_GetMediaTrackByGUID(proj, guid ) --GetTrackByGUID(guid) 
-      elseif tipo == 'Item' then
-          userdata = reaper.BR_GetMediaItemByGUID(proj, guid)
-      elseif tipo == 'Take' then
-          userdata = reaper.GetMediaItemTakeByGUID(proj, guid)
-      end
+        if tipo == 'Track'  then
+            userdata =  reaper.BR_GetMediaTrackByGUID(proj, guid ) --GetTrackByGUID(guid) 
+        elseif tipo == 'Item' then
+            userdata = reaper.BR_GetMediaItemByGUID(proj, guid)
+        elseif tipo == 'Take' then
+            userdata = reaper.GetMediaItemTakeByGUID(proj, guid)
+        elseif tipo == 'Envelope' then
+            userdata = GetEnvelopeByGUID(proj, guid, 2)
+        end
 
-      if not userdata then -- Couldnt Find in the project
-        userdata = string.gsub(str,"#$$#",'#$$$#')
-      end
+        if not userdata then -- Couldnt Find in the project
+            userdata = string.gsub(str,"#$$#",'#$$$#')
+        end
 
-      return userdata
-  else
-      return str
-  end
+        return userdata
+    else
+        return str
+    end
 end
 
 function CovertUserDataToGUIDRecursive(proj, thing) -- Only Tracks, Items, Takes and LUA types.
