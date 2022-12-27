@@ -265,7 +265,7 @@ function ce_draw(ctx, points, id, w, h, values)
       
       l_po = po
     end
-    reaper.ImGui_DrawList_AddRect(dl, wx+1, wy, wx + ww, wy + wh, color_border, 0, 0, 2) 
+    reaper.ImGui_DrawList_AddRect(dl, wx+1, wy, wx + ww, wy + wh, color_border, 0, 0, 3) 
     for i = 1, #points_display do
       reaper.ImGui_DrawList_AddCircleFilled(table.unpack(points_display[i]))
     end

@@ -47,7 +47,7 @@ function ParametersTabs()
             if open then
                 if reaper.ImGui_BeginChild(ctx, 'Parameter'..parameter_key, -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
                     -- Targets
-                    TargetsGui(parameter, parameter_key)
+                    TargetsTab(parameter, parameter_key)
                     reaper.ImGui_EndChild(ctx)
                 end
                 -- Targets part
@@ -70,11 +70,12 @@ function ParametersTabs()
     end 
 end
 
-function TargetsGui(parameter, parameter_key)
-
-    -- Slider
+function TargetsTab(parameter, parameter_key)
+    ---- Slider
     SliderParameter(parameter,parameter_key)
-    -- TODO Popup menu
+    -- TODO Slider Popup menu
+
+    ---- Button add track
     if reaper.ImGui_Button(ctx, 'Add Track', -FLTMIN) then
         tprint(parameter.targets)
         -- if holding alt, delete the table first
@@ -83,18 +84,30 @@ function TargetsGui(parameter, parameter_key)
         end
         AddSelectedTracksToTargets(FocusedProj,parameter.targets)
     end
-    reaper.ImGui_Separator(ctx)
+
+    ---- Targets Curves and options
+
+    --Get the table in project order
+    local targets_organized = {}
     for track, target in pairs(parameter.targets) do
+        local idx = reaper.GetMediaTrackInfo_Value( track, 'IP_TRACKNUMBER' )
+        targets_organized[idx] = target
+    end
+    targets_organized = TableRemoveSpaceKeys(targets_organized)
+
+    reaper.ImGui_Separator(ctx)
+    for target_idx, target in pairs(targets_organized) do
+        local track = target.track
         local _, name = reaper.GetTrackName(track)
-        if name == '' then 
-            name =  reaper.GetMediaTrackInfo_Value( track, 'IP_TRACKNUMBER' )
-        end
+        reaper.ImGui_PushStyleVar(ctx, reaper.ImGui_StyleVar_IndentSpacing(), 0)
         if reaper.ImGui_TreeNode(ctx, 'Track : '..name) then
             local curve_editor_height = 75
-            reaper.ImGui_SetCursorPosX(ctx, 10)
-            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height)
+            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {parameter.value})
+
             reaper.ImGui_TreePop(ctx)
         end
+        reaper.ImGui_PopStyleVar(ctx)
+
     end
 end
 

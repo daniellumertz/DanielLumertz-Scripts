@@ -9,6 +9,7 @@
 
 
 -----TODO:
+--0) Set the GUI
 --1) GUI to interact with the data 
 --4) Slope code value and true_value
 --5) Slider with slope

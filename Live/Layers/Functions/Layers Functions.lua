@@ -17,10 +17,11 @@ function CreatePointTable()
     return {ce_point(0,0), ce_point(1,1)}
 end
 
-function CreateTargetTable()
+function CreateTargetTable(track)
     local t = {
         curve = CreatePointTable(), ---- TODO start with a linear value
         bypass = false,
+        track = track
     }
     return t
 end
