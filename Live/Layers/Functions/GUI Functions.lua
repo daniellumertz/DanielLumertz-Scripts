@@ -18,18 +18,8 @@ function ParametersTabs()
     local proj_table = ProjConfigs[FocusedProj]
     local parameters = proj_table.parameters
     -- tabs
-    if reaper.ImGui_BeginTabBar(ctx, 'Parameters', reaper.ImGui_TabBarFlags_Reorderable() | reaper.ImGui_TabBarFlags_AutoSelectNewTabs() ) then
+    if reaper.ImGui_BeginTabBar(ctx, 'Parameters',  reaper.ImGui_TabBarFlags_AutoSelectNewTabs() ) then
         local is_save
-        -- All parameters sliders
-        if reaper.ImGui_BeginTabItem(ctx, 'All', false,reaper.ImGui_TabItemFlags_Leading()) then-- Start each tab
-            if reaper.ImGui_BeginChild(ctx, 'AllParameters', -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
-                for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
-                    SliderParameter(parameter,parameter_key)
-                end
-                reaper.ImGui_EndChild(ctx)
-            end
-            reaper.ImGui_EndTabItem(ctx)
-        end
 
         -- For every parameter
         for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
@@ -37,10 +27,10 @@ function ParametersTabs()
 
             -- Popup to rename and delete
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
-                --is_save = RenamePlaylistPopUp(parameter, playlist_key, parameter) 
+                is_save = RenameParameter(parameter, parameter_key) 
                 reaper.ImGui_EndPopup(ctx)
-            elseif PreventKeys.playlist_popup then
-                PreventKeys.playlist_popup = nil
+            elseif PreventKeys.parameter_popup then
+                PreventKeys.parameter_popup = nil
             end
 
             -- Show Targets
@@ -56,6 +46,17 @@ function ParametersTabs()
 
         end
 
+        -- All parameters sliders
+        if reaper.ImGui_BeginTabItem(ctx, 'All', false) then-- Start each tab
+            if reaper.ImGui_BeginChild(ctx, 'AllParameters', -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
+                for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
+                    SliderParameter(parameter,parameter_key)
+                end
+                reaper.ImGui_EndChild(ctx)
+            end
+            reaper.ImGui_EndTabItem(ctx)
+        end
+
         -- Add Parameter
         if reaper.ImGui_TabItemButton(ctx, '+', reaper.ImGui_TabItemFlags_Trailing() | reaper.ImGui_TabItemFlags_NoTooltip()) then -- Start each tab
             table.insert(parameters,CreateParameterTable('P'..#parameters+1)) -- TODO
@@ -68,6 +69,20 @@ function ParametersTabs()
         
         reaper.ImGui_EndTabBar(ctx)
     end 
+end
+
+function SliderParameter(parameter,parameter_key)
+    -- Slider
+    reaper.ImGui_PushFont(ctx,FontBigger)
+    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+    _, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
+    reaper.ImGui_PopFont(ctx)
+    if reaper.ImGui_IsItemActive(ctx) then
+        ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
+    end
+    -- Popup
+    SliderPopUp(parameter,parameter_key)
+
 end
 
 function TargetsTab(parameter, parameter_key)
@@ -155,19 +170,32 @@ end
 -- Popups
 ---------
 
-function SliderParameter(parameter,parameter_key)
-    -- Slider
-    reaper.ImGui_PushFont(ctx,FontBigger)
-    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    _, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
-    reaper.ImGui_PopFont(ctx)
-    if reaper.ImGui_IsItemActive(ctx) then
-        ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
+function RenameParameter(parameter, parameter_key)
+    local is_save, change
+    reaper.ImGui_Text(ctx, 'Playlist name:')
+    if reaper.ImGui_IsWindowAppearing(ctx) then
+        PreventKeys.parameter_popup = true
+        reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
-    -- Popup
-    SliderPopUp(parameter,parameter_key)
+    reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+    change, parameter.name = reaper.ImGui_InputText(ctx, "##renameinput", parameter.name)
+    is_save = is_save or change
+    -- delete
+    if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
+        reaper.ImGui_CloseCurrentPopup(ctx)
+        table.remove(ProjConfigs[FocusedProj].parameters,parameter_key)
+        is_save = true
+    end
 
+    -- Enter Close it fucking down
+    if reaper.ImGui_IsKeyDown(ctx, 13) then
+        reaper.ImGui_CloseCurrentPopup(ctx)
+    end
+    return is_save 
+    
 end
+
+
 
 function SliderPopUp(parameter,parameter_key)
     reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)

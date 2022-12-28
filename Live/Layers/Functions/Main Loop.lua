@@ -103,8 +103,6 @@ function CheckProjects()
 end
 
 function UpdateValues()
-
-
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
         -- Playing info (for envelopes)
@@ -122,6 +120,8 @@ function UpdateValues()
                 -- Get the current Value
                 local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( parameter.envelope, pos, 0, 0)
                 -- Normalize between 0 and 1
+                local scale_mode = reaper.GetEnvelopeScalingMode(parameter.envelope) -- Never 1 ? 
+                value = reaper.ScaleFromEnvelopeMode(scale_mode, value)
                 local value = MapRange(value,minValue, maxValue,0,1)
                 parameter.value = value
             end

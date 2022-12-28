@@ -1,6 +1,6 @@
 --@noindex
---version: 0.8.2
--- Correct GetEnvelopeBypass
+--version: 0.8.3
+-- remove print
 
 
 ------- Iterate 
@@ -322,8 +322,6 @@ function GetEnvelopeByGUID(proj, guid, is_track)
         for item in enumItems(proj) do
             for take in enumTakes(item) do
                 for env in  enumTakeEnvelopes(take) do
-                    print('checking guid',GetEnvelopeGUID(env) )
-                    print(' guid is     ',guid )
                     if guid == GetEnvelopeGUID(env) then
                         return env
                     end
