@@ -147,7 +147,8 @@ function ce_draw(ctx, points, id, w, h, values)
   local color_hover = reaper.ImGui_GetColor(ctx, reaper.ImGui_Col_ButtonHovered()) 
   local color_active = reaper.ImGui_GetColor(ctx, reaper.ImGui_Col_ButtonActive())
 
-  local color_values = 0xFFFFFFFF - color_default    --  complementary color from the buttons! 
+ -- local color_values = 0xFFFFFFFF - color_default    --  complementary color from the buttons! 
+ local color_values = reaper.ImGui_GetColor(ctx, reaper.ImGui_Col_PlotHistogram())
   local color_values_line = get_color_with_new_alpha(color_values,0.5)    --  faded
 
   local color_border = reaper.ImGui_GetColor(ctx, reaper.ImGui_Col_Border())

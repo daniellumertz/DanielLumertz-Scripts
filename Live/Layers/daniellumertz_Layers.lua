@@ -8,7 +8,6 @@
 
 
 -----TODO:
---6)Check saves at MIDI function and all configs at GUI (Important in case the project is closed midway)
 --3) Check if user have the fx (install via reapack or install via scripts)
     -- Add when adding target
     -- Remove when removing target

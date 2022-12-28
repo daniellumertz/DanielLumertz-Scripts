@@ -70,7 +70,9 @@ function UpdateLayerFX()
             -- set the target value(that is used to set the fx)
             for track, target in pairs(parameter.targets) do
                 if target.value ~= parameter.true_value then
-                    target.value  = Slide(target.value,parameter.true_value,target.slopeup, target.slopedown,last_dif,0,1)
+                    local slopeup = target.slopeup + parameter.slopeup
+                    local slopedown = target.slopedown + parameter.slopedown
+                    target.value  = Slide(target.value,parameter.true_value,slopeup, slopedown,last_dif,0,1)
                 end
                 -- Set the FX value
             end
