@@ -122,7 +122,11 @@ function UpdateValues()
                 -- Normalize between 0 and 1
                 local scale_mode = reaper.GetEnvelopeScalingMode(parameter.envelope) -- Never 1 ? 
                 value = reaper.ScaleFromEnvelopeMode(scale_mode, value)
-                local value = MapRange(value,minValue, maxValue,0,1)
+                if value < centerValue then  -- Need to divide in two because of envelopes like volume that have different scalling for the upper and the down part
+                    value = MapRange(value,minValue, centerValue,0,0.5)
+                else
+                    value = MapRange(value,centerValue, maxValue,0.5,1)
+                end
                 parameter.value = value
             end
 
