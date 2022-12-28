@@ -163,11 +163,11 @@ function UpdateValues()
             end
 
             ----- Update with MIDI 
-            local midi_val = CheckMIDIInput(parameter.midi)
+            local midi_val = CheckMIDIInput(parameter.midi, MIDIInput)
             if midi_val then
+                -- Optionally put the value at the midi curve to tilt the MIDI Input value.
                 parameter.value = midi_val/127
             end
-
         end
     end
 end

@@ -13,6 +13,7 @@
     -- Remove when removing target
 --2) continue Main code to set the fx
 --7) Code to bypass the fx/Or to set to 1
+--8) refactor the MIDI check / learn / trigger / gui.  Code to use it elsewhere. Put in a dedicated file
 
 
 
@@ -32,6 +33,7 @@ dofile(ScriptPath .. 'Functions/Imgui General Functions.lua') -- Functions for u
 dofile(ScriptPath .. 'Functions/Imgui Custom Widgets.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Main Loop.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/MIDI Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/MIDI Input Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper
