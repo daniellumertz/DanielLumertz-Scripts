@@ -1,21 +1,24 @@
--- @version 0.0.1b
+-- @version 0.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
+--    [effect] daniellumertz Volume.jsfx
 -- @changelog
 --    + Release
 -- @license MIT
 
 
 -----TODO:
---3) Check if user have the fx (install via reapack)
+--1) Check if it is all ok with the jsfx
+    -- naming
+--2) continue Main code to set the fx
     -- Add when adding target
     -- Remove when removing target
---2) continue Main code to set the fx
---7) Code to bypass the fx/Or to set to 1
---8) refactor the MIDI check / learn / trigger / gui.  Code to use it elsewhere. Put in a dedicated file
+    -- Option to force the fx be at the end of the track fx
+--7) Code to bypass the fx
+--3) Set to install the jsfx with reapack
 
-
+    --
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")

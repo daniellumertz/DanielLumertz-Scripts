@@ -1,0 +1,19 @@
+noindex: true
+author Daniel Lumertz
+
+desc:daniellumertz Volume
+slider1:gain_db=1<0,1,0.01>gain (dB)
+
+@init
+  last_gain = gain_db
+@slider
+  next_gain = gain_db
+@block
+  nch=get_host_numchan();
+  d_gain = (next_gain - last_gain)/samplesblock;
+@sample
+  loop(i=0; nch,
+    spl(i)*= last_gain;
+    i += 1;
+  );
+  last_gain += d_gain;
