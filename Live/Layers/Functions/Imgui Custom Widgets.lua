@@ -215,4 +215,20 @@ function Imgui_CustomKnob(ctx, label, p_value, v_min, v_max, size)
     return value_changed, p_value
 end
 
+--- Similar to imgui Slider but with a mark overlay
+function ImGui_SliderWithMark(ctx, label, v, v_mark, is_mark,v_min, v_max, mark_color, optional_formatIn, optional_flagsIn)
+    local retval, v = reaper.ImGui_SliderDouble(ctx, label, v, v_min, v_max, optional_formatIn, optional_flagsIn)
+    if is_mark then
+        local minx, miny = reaper.ImGui_GetItemRectMin(ctx)
+        local maxx, maxy = reaper.ImGui_GetItemRectMax(ctx)
+    
+        local x = MapRange(v_mark,v_min,v_max,minx,maxx)
+    
+        local draw_list = reaper.ImGui_GetWindowDrawList(ctx)
+        local color = mark_color or reaper.ImGui_GetStyleColor(ctx, reaper.ImGui_Col_PlotLinesHovered())
+        reaper.ImGui_DrawList_AddLine(draw_list, x, miny+1, x, maxy-1, color, 2)
+    end
+    return retval, v
+end
+
 

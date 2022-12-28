@@ -133,12 +133,21 @@ function UpdateValues()
         for parameter_idx, parameter in ipairs(project_table.parameters) do
             ----- Update with Envelopes 
             if parameter.envelope and GetEnvelopeBypass(parameter.envelope) then -- If envelope and not bypassed 
-                -- Get min and max
-                local br_env = reaper.BR_EnvAlloc( parameter.envelope, false )
+                -- Is envelope at a track?
+                local item = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_ITEM' )
+                local is_at_item = item ~= 0 and true or false
+                if is_at_item then -- Trim the envelope input to the item length
+                    local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+                    local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+                    if pos < item_pos or pos > item_pos+item_len then goto continue end
+                end
+                -- Get min and max, evaluate
+                local br_env = reaper.BR_EnvAlloc( parameter.envelope, is_at_item )
                 local active, visible, armed, inLane, laneHeight, defaultShape, minValue, maxValue, centerValue, type, faderScaling, automationItemsOptions = reaper.BR_EnvGetProperties( br_env )
+                local value = reaper.BR_EnvValueAtPos( br_env, pos )
                 reaper.BR_EnvFree( br_env, false )
-                -- Get the current Value
-                local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( parameter.envelope, pos, 0, 0)
+
+                --local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( parameter.envelope, pos, 0, 0)
                 -- Normalize between 0 and 1
                 local scale_mode = reaper.GetEnvelopeScalingMode(parameter.envelope) -- Never 1 ? 
                 value = reaper.ScaleFromEnvelopeMode(scale_mode, value)
@@ -148,6 +157,7 @@ function UpdateValues()
                     value = MapRange(value,centerValue, maxValue,0.5,1)
                 end
                 parameter.value = value
+                ::continue::
             end
 
             ----- Update with MIDI 

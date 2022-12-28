@@ -71,11 +71,14 @@ function ParametersTabs()
     end 
 end
 
+
 function SliderParameter(parameter,parameter_key)
     -- Slider
     reaper.ImGui_PushFont(ctx,FontBigger)
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    _, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
+    --_, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
+    local is_mark = parameter.slopeup ~= 0 or parameter.slopedown ~= 0
+    _, parameter.value = ImGui_SliderWithMark(ctx, '##'..parameter.name..parameter_key, parameter.value, parameter.true_value, is_mark, 0, 1,0x42FAD248 ,'')
     reaper.ImGui_PopFont(ctx)
     if reaper.ImGui_IsItemActive(ctx) then
         ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
