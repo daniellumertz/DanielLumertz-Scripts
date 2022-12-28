@@ -9,9 +9,9 @@ function main_loop()
     end
 
     ----------- Checks / Get Input / Update with Inputs 
+    CurrentTime = reaper.time_precise()
     CheckProjects()
     MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
-
     UpdateValues()
 
     ------------ Window management area
@@ -43,17 +43,43 @@ function main_loop()
         reaper.ImGui_End(ctx)
     end 
 
-    -- UpdateLayerFX -- Calculate the true value, if changed: Update the FX.
+    UpdateLayerFX() -- Calculate the true value, if changed: Update the FX.
     
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
     demo.PopStyle(ctx)
+    OldTime = CurrentTime
 
     if open then
         reaper.defer(main_loop)
     else
         reaper.ImGui_DestroyContext(ctx)
     end
+end
+
+function UpdateLayerFX()
+    -- Update True Value
+    local last_dif = CurrentTime - OldTime 
+    local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
+    for proj, project_table in pairs(proj_t) do
+        for parameter_idx, parameter in ipairs(project_table.parameters) do
+            if parameter.value ~= parameter.true_value then
+                local is_going_up = parameter.value > parameter.true_value 
+                local time  = (is_going_up and parameter.slopeup) or parameter.slopedown -- time it takes to go from 0to1 or 1to0, in seconds
+                if time == 0 then
+                    parameter.true_value = parameter.value
+                else
+                    local speed = 1 / time --speed of value/second
+                    speed = speed * last_dif
+                    speed = LimitNumber(speed, 0, 1) -- just in case
+                    speed = is_going_up and speed or -speed
+                    local new_val = parameter.true_value + speed
+                    new_val = is_going_up and LimitNumber(new_val, 0, parameter.value) or LimitNumber(new_val, parameter.value, 1)
+                    parameter.true_value = new_val
+                end
+            end
+        end
+    end    
 end
 
 function CheckProjects()
@@ -97,8 +123,6 @@ function CheckProjects()
         ::continue::
     end
 
-    
-    
     FocusedProj = reaper.EnumProjects( -1 )
 end
 

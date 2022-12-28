@@ -8,7 +8,8 @@
 
 
 -----TODO:
---4) Slope code value and true_value
+--6)Check saves at MIDI function and all configs at GUI (Important in case the project is closed midway)
+--4) Slope code value and true_value 
 --5) Slider with slope
 --3) Check if user have the fx (install via reapack or install via scripts)
     -- Add when adding target
@@ -67,6 +68,7 @@ Gui_H_init = 450 -- Init
 FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the right side
 
 -- Start
+OldTime = reaper.time_precise()
 GuiInit()
 reaper.defer(main_loop())
 reaper.atexit(Save)

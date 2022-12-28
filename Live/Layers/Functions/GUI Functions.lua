@@ -152,7 +152,7 @@ function TargetsTab(parameter, parameter_key)
         -- Curve inside tree node
         if open then
             local curve_editor_height = 75
-            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {parameter.value})
+            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {parameter.true_value})
 
             reaper.ImGui_TreePop(ctx)
         end
@@ -198,9 +198,16 @@ end
 
 
 function SliderPopUp(parameter,parameter_key)
-    reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
+    reaper.ImGui_SetNextWindowSizeConstraints( ctx,  175, -1, FLTMAX, FLTMAX)
     if reaper.ImGui_BeginPopupContextItem(ctx) then
+        local _ 
         --- Slope
+        reaper.ImGui_SetNextItemWidth(ctx, 90)
+        _, parameter.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', parameter.slopeup, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 0 to 1
+        parameter.slopeup = LimitNumber(parameter.slopeup,0)
+        reaper.ImGui_SetNextItemWidth(ctx, 90)
+        _, parameter.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', parameter.slopedown, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 1 to 0
+        parameter.slopedown = LimitNumber(parameter.slopedown,0)
 
         --- MIDI
         reaper.ImGui_Separator(ctx)
