@@ -1,6 +1,6 @@
 --@noindex
---version: 0.8
--- add envelope by guid functions
+--version: 0.8.2
+-- Correct GetEnvelopeBypass
 
 
 ------- Iterate 
@@ -310,7 +310,7 @@ end
 ---@param is_track number 0 = just items, 1 just tracks, 2 both
 function GetEnvelopeByGUID(proj, guid, is_track)
     if is_track == 1 or is_track == 2 then
-        for track in enumSelectedTracks(proj) do
+        for track in enumTracks(proj) do
             local env = reaper.GetTrackEnvelopeByChunkName( track, guid )
             if env then
                 return env
@@ -339,4 +339,12 @@ end
 function GetEnvelopeGUID(env)
     local retval, chunk = reaper.GetEnvelopeStateChunk(env, '', false)
     return GetChunkVal(chunk,'EGUID')
+end
+
+---Return if the envelope bypass. 
+---@param env Envelope Envelope
+---@return boolean is_passing false = bypass, true = not bypass
+function GetEnvelopeBypass(env)
+    local retval, chunk = reaper.GetEnvelopeStateChunk(env, '', false)
+    return GetChunkVal(chunk,'ACT'):match('^%d+') == '1'
 end

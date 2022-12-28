@@ -8,8 +8,11 @@ function main_loop()
         PassKeys()
     end
 
+    ----------- Checks / Get Input / Update with Inputs 
     CheckProjects()
     MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
+
+    UpdateValues()
 
     ------------ Window management area
     --- Flags
@@ -72,18 +75,63 @@ function CheckProjects()
         table.insert(projects_opened, check_proj)
     end
 
-    -- Check if some project closed
+    -- Check if some project closed / all tracks are available / All envelopes are available / All Tracks have the Volume FX at the end
     for proj, proj_table in pairs(ProjConfigs) do
         if not TableHaveValue(projects_opened,proj) then
-            ProjConfigs[proj] = nil-- if closed remove from ProjConfigs. configs should be saved as user uses
+            ProjConfigs[proj] = nil-- if closed remove from ProjConfigs. configs should be saved as user uses.
             ProjPaths[proj] = nil
+            goto continue
         end
+
+        for parameter_idx, parameter in ipairs(proj_table.parameters) do
+            for track, target in pairs(parameter.targets) do
+                if (type(track) == "string") or (not reaper.ValidatePtr2(proj, track, 'MediaTrack*')) then -- string means it couldnt be loaded when opening the script, from the save. Remove this target
+                    parameter.targets[track] = nil
+                end
+            end
+
+            if (type(parameter.envelope) == "string") or (not reaper.ValidatePtr2(proj, parameter.envelope, 'TrackEnvelope*')) then -- string means it couldnt be loaded when opening the script, from the save. Remove this target
+                parameter.envelope = nil
+            end 
+        end
+        ::continue::
     end
 
-    --- TODO Check if all tracks are available 
-    -- Check if all tracks have the FX, make sure it is at the end of the fx list
-    -- Safe check if some take couldnt load (like if it was deleted). Remove if cant find
+    
     
     FocusedProj = reaper.EnumProjects( -1 )
 end
 
+function UpdateValues()
+
+
+    local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
+    for proj, project_table in pairs(proj_t) do
+        -- Playing info (for envelopes)
+        local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
+        local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
+        local s_rate =  reaper.GetSetProjectInfo( proj, 'PROJECT_SRATE ', 0, false )
+
+        for parameter_idx, parameter in ipairs(project_table.parameters) do
+            ----- Update with Envelopes 
+            if parameter.envelope and GetEnvelopeBypass(parameter.envelope) then -- If envelope and not bypassed 
+                -- Get min and max
+                local br_env = reaper.BR_EnvAlloc( parameter.envelope, false )
+                local active, visible, armed, inLane, laneHeight, defaultShape, minValue, maxValue, centerValue, type, faderScaling, automationItemsOptions = reaper.BR_EnvGetProperties( br_env )
+                reaper.BR_EnvFree( br_env, false )
+                -- Get the current Value
+                local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate( parameter.envelope, pos, 0, 0)
+                -- Normalize between 0 and 1
+                local value = MapRange(value,minValue, maxValue,0,1)
+                parameter.value = value
+            end
+
+            ----- Update with MIDI 
+            local midi_val = CheckMIDIInput(parameter.midi)
+            if midi_val then
+                parameter.value = midi_val/127
+            end
+
+        end
+    end
+end

@@ -76,13 +76,13 @@ function TargetsTab(parameter, parameter_key)
 
     ---- Button add track
     if reaper.ImGui_Button(ctx, 'Add Track', -FLTMIN) then
-        tprint(parameter.targets)
-        -- if holding alt, delete the table first
+        -- if holding alt then set targets to selected tracks, else add to the current targets
         if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then 
             parameter.targets = {}
         end
         AddSelectedTracksToTargets(FocusedProj,parameter.targets)
     end
+
 
     ---- Targets Curves and options
 
@@ -147,12 +147,6 @@ end
 ---------
 
 function SliderParameter(parameter,parameter_key)
-    -- Update with Envelopes 
-    -- Update with MIDI 
-    local midi_val = CheckMIDIInput(parameter.midi)
-    if midi_val then
-        parameter.value = midi_val/127
-    end
     -- Slider
     reaper.ImGui_PushFont(ctx,FontBigger)
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
@@ -167,32 +161,57 @@ function SliderParameter(parameter,parameter_key)
 end
 
 function SliderPopUp(parameter,parameter_key)
-    reaper.ImGui_SetNextWindowSize(ctx, 175, 0)
+    reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
     if reaper.ImGui_BeginPopupContextItem(ctx) then
         --- Slope
-        reaper.ImGui_Separator(ctx)
-        --- Envelope 
-        if reaper.ImGui_Button(ctx, 'Get Selected Envelope', -FLTMIN) then -- TODO Check if is a track envelope instad of an item envelope
-            local env = reaper.GetSelectedEnvelope(FocusedProj)
-            if env then
-                parameter.envelope = env
-            else
-                reaper.ShowMessageBox('Select some envelope!', ScriptName, 0)
-            end
-        end
-        if parameter.envelope then
-            local retval, env_name = reaper.GetEnvelopeName(parameter.envelope)
-            local track = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_TRACK' )
-            local retval, track_name = reaper.GetTrackName(track)
-            ImPrint('Envelope   : ',env_name)
-            ImPrint('From Track : ',track_name)
-        end
 
-        reaper.ImGui_Separator(ctx)
         --- MIDI
+        reaper.ImGui_Separator(ctx)
         MIDILearn(parameter.midi)
 
+        -- Envelopes
+        reaper.ImGui_Separator(ctx)
+        EnvelopePopup(parameter)
+
         reaper.ImGui_EndPopup(ctx)
+    end
+end
+
+function EnvelopePopup(parameter)
+    --- Envelope 
+    reaper.ImGui_Text(ctx, 'Envelope Follower')
+    if reaper.ImGui_Button(ctx, 'Get Selected Envelope', -FLTMIN) then -- TODO Check if is a track envelope instad of an item envelope
+        local env = reaper.GetSelectedEnvelope(FocusedProj)
+        if env then
+            parameter.envelope = env
+        else
+            reaper.ShowMessageBox('Select some envelope!', ScriptName, 0)
+        end
+    end
+    if parameter.envelope then
+        local retval, env_name = reaper.GetEnvelopeName(parameter.envelope)
+        local track = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_TRACK' )
+        local host_name, host_type
+        if track ~= 0 then
+            host_type = 'Track'
+            local _ 
+            _, host_name = reaper.GetTrackName(track)
+        else
+            host_type = 'Take'
+            local take = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_TAKE' )
+            host_name = reaper.GetTakeName(take)
+        end
+
+        ---- Write Information and  remove button
+        ImPrint('Envelope : ',env_name)
+        -- remove button
+        local w = reaper.ImGui_GetContentRegionAvail(ctx)
+        local x_pos = w - 10 -- position of X buttons
+        reaper.ImGui_SameLine(ctx, x_pos)
+        if reaper.ImGui_Button(ctx, 'X##envelope'..env_name) then
+            parameter.envelope = false
+        end
+        ImPrint('From '..host_type..' : ',host_name)
     end
 end
 
