@@ -326,6 +326,14 @@ function MIDILearn(midi_table)
         end
     end
 
+    if midi_table.ch then 
+        ImPrint('Channel : ',midi_table.ch)
+        reaper.ImGui_SameLine(ctx,x_pos)
+        if reaper.ImGui_Button(ctx, 'X##ch') then
+            midi_table.ch = nil
+        end
+    end  
+
     if midi_table.device then 
         local retval, device_name = reaper.GetMIDIInputName(midi_table.device, '')
         ImPrint('Device : ',device_name)
@@ -334,14 +342,6 @@ function MIDILearn(midi_table)
             midi_table.device = nil
         end
     end
-
-    if midi_table.ch then 
-        ImPrint('Channel : ',midi_table.ch)
-        reaper.ImGui_SameLine(ctx,x_pos)
-        if reaper.ImGui_Button(ctx, 'X##ch') then
-            midi_table.ch = nil
-        end
-    end    
 end
 
 function MidiPopupButtons(midi_table)

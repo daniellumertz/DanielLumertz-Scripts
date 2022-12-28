@@ -8,7 +8,7 @@
 
 
 -----TODO:
---3) Check if user have the fx (install via reapack or install via scripts)
+--3) Check if user have the fx (install via reapack)
     -- Add when adding target
     -- Remove when removing target
 --2) continue Main code to set the fx
