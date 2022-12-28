@@ -117,10 +117,11 @@ function TargetsTab(parameter, parameter_key)
 
         local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name)
         -- Right click node
-        reaper.ImGui_SetNextWindowSize(ctx, 125, 0)
+        reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
         reaper.ImGui_SetNextWindowBgAlpha(ctx, 0.75)
         if reaper.ImGui_BeginPopupContextItem(ctx) then
 
+            TextCenter('Curve')
             if reaper.ImGui_Button(ctx, 'Invert Horizontal',-FLTMIN) then
                 ce_invert_points(target.curve, true, false)
                 reaper.ImGui_CloseCurrentPopup(ctx)
@@ -136,12 +137,23 @@ function TargetsTab(parameter, parameter_key)
                 reaper.ImGui_CloseCurrentPopup(ctx)
             end
 
-            if reaper.ImGui_Button(ctx, 'Paste Points',-FLTMIN) then
+            if reaper.ImGui_Button(ctx, 'Paste Points',-FLTMIN) and TempCopyPoints then
                 target.curve = TableDeepCopy(TempCopyPoints)
-                TempCopyPoints = nil
+                --TempCopyPoints = nil -- why to destroy?
                 reaper.ImGui_CloseCurrentPopup(ctx)
             end
+            reaper.ImGui_Separator(ctx)
 
+            TextCenter('Target')
+            -- Slope Up
+            reaper.ImGui_SetNextItemWidth(ctx, 45)
+            _, target.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', target.slopeup, 0, 0, '%.2f')
+            target.slopeup = LimitNumber(target.slopeup,0)
+            -- Slope Down
+            reaper.ImGui_SetNextItemWidth(ctx, 45)
+            _, target.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', target.slopedown, 0, 0, '%.2f')
+            target.slopedown = LimitNumber(target.slopedown,0)
+            -- Remove button
             if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
                 parameter.targets[track] = nil
                 reaper.ImGui_CloseCurrentPopup(ctx)
@@ -152,7 +164,7 @@ function TargetsTab(parameter, parameter_key)
         -- Curve inside tree node
         if open then
             local curve_editor_height = 75
-            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {parameter.true_value})
+            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {target.value})
 
             reaper.ImGui_TreePop(ctx)
         end

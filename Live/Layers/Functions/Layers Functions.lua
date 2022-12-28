@@ -21,7 +21,10 @@ function CreateTargetTable(track)
     local t = {
         curve = CreatePointTable(), ---- TODO start with a linear value
         bypass = false,
-        track = track
+        track = track,
+        value = 1,
+        slopeup = 0,
+        slopedown = 0
     }
     return t
 end
@@ -30,8 +33,8 @@ function CreateParameterTable(name)
     local t = {
         targets = {},
         envelope = false,
-        slopeup = 1, -- values from 0 to 1. 0 It wont move.
-        slopedown = 1, -- values from 0 to 1. 0 It wont move.
+        slopeup = 0, -- values from 0 to 1. 0 It wont move.
+        slopedown = 0, -- values from 0 to 1. 0 It wont move.
         name = name,
         midi = CreateCleanMIDITable(),
         bypass = false,

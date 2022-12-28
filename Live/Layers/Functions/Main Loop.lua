@@ -64,19 +64,15 @@ function UpdateLayerFX()
     for proj, project_table in pairs(proj_t) do
         for parameter_idx, parameter in ipairs(project_table.parameters) do
             if parameter.value ~= parameter.true_value then
-                local is_going_up = parameter.value > parameter.true_value 
-                local time  = (is_going_up and parameter.slopeup) or parameter.slopedown -- time it takes to go from 0to1 or 1to0, in seconds
-                if time == 0 then
-                    parameter.true_value = parameter.value
-                else
-                    local speed = 1 / time --speed of value/second
-                    speed = speed * last_dif
-                    speed = LimitNumber(speed, 0, 1) -- just in case
-                    speed = is_going_up and speed or -speed
-                    local new_val = parameter.true_value + speed
-                    new_val = is_going_up and LimitNumber(new_val, 0, parameter.value) or LimitNumber(new_val, parameter.value, 1)
-                    parameter.true_value = new_val
+                parameter.true_value = Slide(parameter.true_value,parameter.value,parameter.slopeup, parameter.slopedown,last_dif,0,1)
+            end
+
+            -- set the target value(that is used to set the fx)
+            for track, target in pairs(parameter.targets) do
+                if target.value ~= parameter.true_value then
+                    target.value  = Slide(target.value,parameter.true_value,target.slopeup, target.slopedown,last_dif,0,1)
                 end
+                -- Set the FX value
             end
         end
     end    
