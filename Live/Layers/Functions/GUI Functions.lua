@@ -27,9 +27,10 @@ function ParametersTabs()
 
             -- Popup to rename and delete
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
-                is_save = RenameParameter(parameter, parameter_key) 
+                RenameParameter(parameter, parameter_key) 
                 reaper.ImGui_EndPopup(ctx)
-            elseif PreventKeys.parameter_popup then
+            elseif PreventKeys.parameter_popup == parameter_key then
+                is_save = true
                 PreventKeys.parameter_popup = nil
             end
 
@@ -73,25 +74,31 @@ end
 
 
 function SliderParameter(parameter,parameter_key)
-    -- Slider
+    local _
+    -- Slider size
     reaper.ImGui_PushFont(ctx,FontBigger)
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    --_, parameter.value = reaper.ImGui_SliderDouble(ctx, '##'..parameter.name..parameter_key, parameter.value, 0, 1, '')
+
+    -- slider
     local is_mark = parameter.slopeup ~= 0 or parameter.slopedown ~= 0
     _, parameter.value = ImGui_SliderWithMark(ctx, '##'..parameter.name..parameter_key, parameter.value, parameter.true_value, is_mark, 0, 1,0x42FAD248 ,'')
+
+    -- pop size
     reaper.ImGui_PopFont(ctx)
-    if reaper.ImGui_IsItemActive(ctx) then
+
+    -- tooltip
+    if reaper.ImGui_IsItemHovered(ctx) then
         ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
     end
-    -- Popup
-    SliderPopUp(parameter,parameter_key)
 
+    -- Popup
+    SliderPopUp(parameter, parameter_key)
 end
 
 function TargetsTab(parameter, parameter_key)
+    local is_save = false
     ---- Slider
     SliderParameter(parameter,parameter_key)
-
     ---- Button add track
     if reaper.ImGui_Button(ctx, 'Add Track', -FLTMIN) then
         -- if holding alt then set targets to selected tracks, else add to the current targets
@@ -99,6 +106,7 @@ function TargetsTab(parameter, parameter_key)
             parameter.targets = {}
         end
         AddSelectedTracksToTargets(FocusedProj,parameter.targets)
+        is_save = true
     end
 
 
@@ -120,50 +128,7 @@ function TargetsTab(parameter, parameter_key)
 
         local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name)
         -- Right click node
-        reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
-        reaper.ImGui_SetNextWindowBgAlpha(ctx, 0.75)
-        if reaper.ImGui_BeginPopupContextItem(ctx) then
-
-            TextCenter('Curve')
-            if reaper.ImGui_Button(ctx, 'Invert Horizontal',-FLTMIN) then
-                ce_invert_points(target.curve, true, false)
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-
-            if reaper.ImGui_Button(ctx, 'Invert Vertical',-FLTMIN) then
-                ce_invert_points(target.curve, false, true)
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-
-            if reaper.ImGui_Button(ctx, 'Copy Points',-FLTMIN) then
-                TempCopyPoints = target.curve
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-
-            if reaper.ImGui_Button(ctx, 'Paste Points',-FLTMIN) and TempCopyPoints then
-                target.curve = TableDeepCopy(TempCopyPoints)
-                --TempCopyPoints = nil -- why to destroy?
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-            reaper.ImGui_Separator(ctx)
-
-            TextCenter('Target')
-            -- Slope Up
-            reaper.ImGui_SetNextItemWidth(ctx, 45)
-            _, target.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', target.slopeup, 0, 0, '%.2f')
-            target.slopeup = LimitNumber(target.slopeup,0)
-            -- Slope Down
-            reaper.ImGui_SetNextItemWidth(ctx, 45)
-            _, target.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', target.slopedown, 0, 0, '%.2f')
-            target.slopedown = LimitNumber(target.slopedown,0)
-            -- Remove button
-            if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
-                parameter.targets[track] = nil
-                reaper.ImGui_CloseCurrentPopup(ctx)
-            end
-
-            reaper.ImGui_EndPopup(ctx)
-        end
+        TargetRightClick(parameter,target,track)
         -- Curve inside tree node
         if open then
             local curve_editor_height = 75
@@ -173,11 +138,57 @@ function TargetsTab(parameter, parameter_key)
         end
 
         reaper.ImGui_PopStyleVar(ctx)
-
+    end
+    if is_save then -- Save settings
+        SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) -- TODO
     end
 end
 
-function TargetRightClick()
+function TargetRightClick(parameter,target,track)
+    reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
+    reaper.ImGui_SetNextWindowBgAlpha(ctx, 0.75)
+    if reaper.ImGui_BeginPopupContextItem(ctx) then
+
+        TextCenter('Curve')
+        if reaper.ImGui_Button(ctx, 'Invert Horizontal',-FLTMIN) then
+            ce_invert_points(target.curve, true, false)
+            reaper.ImGui_CloseCurrentPopup(ctx)
+        end
+
+        if reaper.ImGui_Button(ctx, 'Invert Vertical',-FLTMIN) then
+            ce_invert_points(target.curve, false, true)
+            reaper.ImGui_CloseCurrentPopup(ctx)
+        end
+
+        if reaper.ImGui_Button(ctx, 'Copy Points',-FLTMIN) then
+            TempCopyPoints = target.curve
+            reaper.ImGui_CloseCurrentPopup(ctx)
+        end
+
+        if reaper.ImGui_Button(ctx, 'Paste Points',-FLTMIN) and TempCopyPoints then
+            target.curve = TableDeepCopy(TempCopyPoints)
+            --TempCopyPoints = nil -- why to destroy?
+            reaper.ImGui_CloseCurrentPopup(ctx)
+        end
+        reaper.ImGui_Separator(ctx)
+
+        TextCenter('Target')
+        -- Slope Up
+        reaper.ImGui_SetNextItemWidth(ctx, 45)
+        _, target.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', target.slopeup, 0, 0, '%.2f')
+        target.slopeup = LimitNumber(target.slopeup,0)
+        -- Slope Down
+        reaper.ImGui_SetNextItemWidth(ctx, 45)
+        _, target.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', target.slopedown, 0, 0, '%.2f')
+        target.slopedown = LimitNumber(target.slopedown,0)
+        -- Remove button
+        if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
+            parameter.targets[track] = nil
+            reaper.ImGui_CloseCurrentPopup(ctx)
+        end
+
+        reaper.ImGui_EndPopup(ctx)
+    end
     
 end
 
@@ -186,40 +197,37 @@ end
 ---------
 
 function RenameParameter(parameter, parameter_key)
-    local is_save, change
-    reaper.ImGui_Text(ctx, 'Playlist name:')
+    local _ 
+    reaper.ImGui_Text(ctx, 'Parameter Name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
-        PreventKeys.parameter_popup = true
+        PreventKeys.parameter_popup = parameter_key
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    change, parameter.name = reaper.ImGui_InputText(ctx, "##renameinput", parameter.name)
-    is_save = is_save or change
+    _, parameter.name = reaper.ImGui_InputText(ctx, "##renameinput", parameter.name)
     -- delete
     if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
         reaper.ImGui_CloseCurrentPopup(ctx)
         table.remove(ProjConfigs[FocusedProj].parameters,parameter_key)
-        is_save = true
     end
 
     -- Enter Close it fucking down
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
-    end
-    return is_save 
-    
+    end    
 end
 
 
 
-function SliderPopUp(parameter,parameter_key)
+function SliderPopUp(parameter, parameter_key)
     reaper.ImGui_SetNextWindowSizeConstraints( ctx,  175, -1, FLTMAX, FLTMAX)
     if reaper.ImGui_BeginPopupContextItem(ctx) then
-        local _ 
-        --- Slope
+        --- Slopeup
         reaper.ImGui_SetNextItemWidth(ctx, 90)
         _, parameter.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', parameter.slopeup, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 0 to 1
         parameter.slopeup = LimitNumber(parameter.slopeup,0)
+
+        --- Slopedown
         reaper.ImGui_SetNextItemWidth(ctx, 90)
         _, parameter.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', parameter.slopedown, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 1 to 0
         parameter.slopedown = LimitNumber(parameter.slopedown,0)
@@ -233,6 +241,10 @@ function SliderPopUp(parameter,parameter_key)
         EnvelopePopup(parameter)
 
         reaper.ImGui_EndPopup(ctx)
+        TempSliderPopUp = parameter_key  -- to save when popup close
+    elseif TempSliderPopUp == parameter_key then
+        TempSliderPopUp = nil
+        SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) -- TODO
     end
 end
 

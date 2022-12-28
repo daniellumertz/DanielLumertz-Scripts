@@ -9,16 +9,12 @@
 
 -----TODO:
 --6)Check saves at MIDI function and all configs at GUI (Important in case the project is closed midway)
---4) Slope code value and true_value 
---5) Slider with slope
 --3) Check if user have the fx (install via reapack or install via scripts)
     -- Add when adding target
     -- Remove when removing target
 --2) continue Main code to set the fx
 --7) Code to bypass the fx/Or to set to 1
---6) Delay per track (think in a way) (not needed )
-    -- maybe add all values inside a table like 
-        --delayed_data = {{data = 0.5, timer = 0.02},...} and if time > delay then send the values out else increase the timer
+
 
 
 

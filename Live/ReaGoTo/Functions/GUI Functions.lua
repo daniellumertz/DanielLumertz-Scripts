@@ -22,7 +22,7 @@ function PlaylistSelector(playlists)
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
                 is_save = RenamePlaylistPopUp(playlist, playlist_key, playlists) 
                 reaper.ImGui_EndPopup(ctx)
-            elseif PreventKeys.playlist_popup then
+            elseif PreventKeys.playlist_popup == playlist_key  then
                 PreventKeys.playlist_popup = nil
             end
 
@@ -225,7 +225,7 @@ function RenamePlaylistPopUp(playlist, playlist_key, playlists)
     local is_save, change
     reaper.ImGui_Text(ctx, 'Playlist name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
-        PreventKeys.playlist_popup = true
+        PreventKeys.playlist_popup = playlist_key
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
