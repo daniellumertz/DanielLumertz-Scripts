@@ -127,6 +127,11 @@ function TargetsTab(parameter, parameter_key)
                 reaper.ImGui_CloseCurrentPopup(ctx)
             end
 
+            if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
+                parameter.targets[track] = nil
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            end
+
             reaper.ImGui_EndPopup(ctx)
         end
         -- Curve inside tree node
@@ -140,6 +145,10 @@ function TargetsTab(parameter, parameter_key)
         reaper.ImGui_PopStyleVar(ctx)
 
     end
+end
+
+function TargetRightClick()
+    
 end
 
 ---------   
