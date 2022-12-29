@@ -25,13 +25,12 @@ function CheckFxPos(track, target)
         if target.force_fx_pos <= 0 then
             is_at_position = target.force_fx_pos == fx_idx - (fx_cnt-1)
             dest_idx =  (fx_cnt-1) + target.force_fx_pos
-        elseif target.is_force_fx > 0 then
+        elseif target.force_fx_pos > 0 then
             is_at_position = target.force_fx_pos == fx_idx+1
             dest_idx = target.force_fx_pos - 1
         end
 
         if not is_at_position then
-            print('change pos')
             reaper.TrackFX_CopyToTrack( track, fx_idx, track, dest_idx, true )
         end
     end

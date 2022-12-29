@@ -10,6 +10,9 @@
 
 
 -----TODO:
+-- 1) gui to set fx settings 
+    -- At targets
+    -- At projects
 --2) continue Main code to set the fx
     -- Option to force the fx be at the end of the track fx
         --reaper.TrackFX_CopyToTrack( src_track, src_fx, dest_track, dest_fx, is_move )

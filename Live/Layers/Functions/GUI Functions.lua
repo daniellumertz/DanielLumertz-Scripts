@@ -1,4 +1,5 @@
 -- @noindex
+
 function GuiInit()
     ctx = reaper.ImGui_CreateContext(ScriptName, reaper.ImGui_ConfigFlags_DockingEnable()) -- Add VERSION TODO
     --- Text Font
@@ -13,6 +14,7 @@ end
 ---------   
 -- Center GUI
 ---------
+
 function ParametersTabs()
     local _
     local proj_table = ProjConfigs[FocusedProj]
@@ -71,7 +73,6 @@ function ParametersTabs()
         reaper.ImGui_EndTabBar(ctx)
     end 
 end
-
 
 function SliderParameter(parameter,parameter_key)
     local _
@@ -171,9 +172,27 @@ function TargetRightClick(parameter,target,track)
             --TempCopyPoints = nil -- why to destroy?
             reaper.ImGui_CloseCurrentPopup(ctx)
         end
+        --------------------------
         reaper.ImGui_Separator(ctx)
+        TextCenter('FX')
 
+        if reaper.ImGui_BeginMenu(ctx, 'FX Position') then
+            _, target.is_force_fx = reaper.ImGui_Checkbox(ctx, "Force FX Pos", target.is_force_fx)
+            ToolTip(true,'Force the '..FXNAME..' to be at a position in the FX chain.')
+            if target.is_force_fx then
+                reaper.ImGui_Text(ctx, 'FX Pos:')
+                reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+                _, target.force_fx_pos = reaper.ImGui_InputInt(ctx, '##InputPos', target.force_fx_pos , 0, 0)
+                ToolTip(true,'0 = Last Fx.\n-1 -2 -3... = Fx postition counting from the end.\n1 2 3... = Fx position counting from the start.')
+            end
+            reaper.ImGui_EndMenu(ctx)
+        end
+
+
+        --------------------
+        reaper.ImGui_Separator(ctx)
         TextCenter('Target')
+
         -- Slope Up
         reaper.ImGui_SetNextItemWidth(ctx, 45)
         _, target.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', target.slopeup, 0, 0, '%.2f')
@@ -217,8 +236,6 @@ function RenameParameter(parameter, parameter_key)
         reaper.ImGui_CloseCurrentPopup(ctx)
     end    
 end
-
-
 
 function SliderPopUp(parameter, parameter_key)
     reaper.ImGui_SetNextWindowSizeConstraints( ctx,  175, -1, FLTMAX, FLTMAX)
@@ -287,12 +304,9 @@ function EnvelopePopup(parameter)
     end
 end
 
-
 ---------   
 -- MIDI
 ---------
-
-
 
 function MenuBar()
     local function DockBtn()
@@ -313,15 +327,34 @@ function MenuBar()
     if reaper.ImGui_BeginMenuBar(ctx) then
 
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
-            local change1
-            change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+            
+            if reaper.ImGui_BeginMenu(ctx, 'Script Settings') then
+                local change1
+                change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+        
+                if change1 then
+                    SaveSettings(ScriptPath,SettingsFileName)
+                end
+
+                reaper.ImGui_EndMenu(ctx)
+            end
+
+            if reaper.ImGui_BeginMenu(ctx, 'Script Project Settings') then
+                local change1, change2
+                change1, ProjConfigs[FocusedProj].remove_fx_atexit = reaper.ImGui_MenuItem(ctx, 'At Exit Remove FXs', optional_shortcutIn, ProjConfigs[FocusedProj].remove_fx_atexit)
+                ToolTip(true,'Remove Layer FX from all target tracks when the script closes.')
+                change2, ProjConfigs[FocusedProj].bypass = reaper.ImGui_MenuItem(ctx, 'Bypass', optional_shortcutIn, ProjConfigs[FocusedProj].bypass)
+        
+                if change1 or change2  then
+                    SaveSettings(ScriptPath,SettingsFileName)
+                end
     
-            if change1 or change2 or change3 or change4 then
-                SaveSettings(ScriptPath,SettingsFileName)
+                reaper.ImGui_EndMenu(ctx)
             end
 
             reaper.ImGui_EndMenu(ctx)
         end
+
 
 
         if reaper.ImGui_BeginMenu(ctx, 'About') then
