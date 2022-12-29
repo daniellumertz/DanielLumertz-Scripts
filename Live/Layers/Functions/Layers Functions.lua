@@ -9,8 +9,22 @@ end
 -------------
 function AddSelectedTracksToTargets(proj, targets)
     for track in enumSelectedTracks(proj) do
-        targets[track] = CreateTargetTable(track)
+        local target_table = CheckTargetsForTrack(proj,track)
+        targets[track] = target_table or CreateTargetTable(track)
     end
+end
+
+-- check if track was already added in another parameter if it was bring the table to this parameter and remove from the other
+function CheckTargetsForTrack(proj,track)
+    for parameter_index, parameter in ipairs(ProjConfigs[proj].parameters) do
+        for target_track, target in pairs(parameter.targets) do
+            if target_track == track then
+                parameter.targets[target_track] = nil
+                return target
+            end
+        end
+    end
+    return false
 end
 
 function CreatePointTable()

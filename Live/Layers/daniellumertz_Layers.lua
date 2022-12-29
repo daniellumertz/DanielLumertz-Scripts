@@ -9,14 +9,12 @@
 
 
 -----TODO:
---1) Check if it is all ok with the jsfx
-    -- naming
 --2) continue Main code to set the fx
     -- Add when adding target
     -- Remove when removing target
     -- Option to force the fx be at the end of the track fx
---7) Code to bypass the fx
---3) Set to install the jsfx with reapack
+--7) Code to bypass the fx(make it go to 1)
+--8) Check if same track is already an target before adding?
 
     --
 
