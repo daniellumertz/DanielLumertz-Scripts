@@ -106,6 +106,7 @@ function TargetsTab(parameter, parameter_key)
             parameter.targets = {}
         end
         AddSelectedTracksToTargets(FocusedProj,parameter.targets)
+        
         is_save = true
     end
 

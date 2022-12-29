@@ -1143,49 +1143,6 @@ function SortNotes(take,bottomup,sort)
     end
 end
 
----------------------
------------------ Get MIDI Input
----------------------
-
----Get MIDI input. Use for get MIDI between defer loops.
----@param midi_last_retval number need to store the last MIDI retval from MIDI_GetRecentInputEvent. Start the script with `MIDILastRetval = reaper.MIDI_GetRecentInputEvent(0)` and feed it here. Optionally pass nill here and it will create a global variable called "MIDILastRetval_Hidden" and manage that alone. 
----@return table midi_table midi table with all the midi values. each index have another table = {msg = midi message, ts = time, device = midi device idx}
----@return number midi_last_retval updated reval number.
-function GetMIDIInput(last_retval)
-    local idx = 0
-    local first_retval
-    local midi_table = {}
-    local is_save_hidden_retval -- if not last_retval then it will save it in a global variable MIDILastRetval_Hidden and use it later
-
-    -- if last_retval == true then it will manage the retval alone.
-    if not last_retval then
-        if not MIDILastRetval_Hidden then
-            MIDILastRetval_Hidden = reaper.MIDI_GetRecentInputEvent(0)
-            last_retval = MIDILastRetval_Hidden
-        else 
-            last_retval = MIDILastRetval_Hidden
-        end
-        is_save_hidden_retval = true
-    end
-    -- Get all recent inputs
-    while true do
-        local retval, msg, ts, device_idx = reaper.MIDI_GetRecentInputEvent(idx)
-        if idx == 0 then
-            first_retval = retval
-        end
-
-        if retval == 0 or retval == last_retval then
-            last_retval = first_retval
-            if is_save_hidden_retval then 
-                MIDILastRetval_Hidden = first_retval
-            end
-            return midi_table, last_retval
-        end
-        midi_table[#midi_table+1] = {msg = msg, ts = ts, device = device_idx}
-        
-        idx = idx + 1
-    end
-end
 
 
 

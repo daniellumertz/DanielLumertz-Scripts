@@ -1,7 +1,14 @@
 --@noindex
 ---Create/Cancel Goto triggers for project
-function SetGoTo(project, val)
-    ProjConfigs[project].is_triggered = val
+-------------
+--- FX 
+-------------
+
+---Check track if it haves the Volume fx.
+function CheckLayerFX(track)
+    local bol = false
+    local retval = reaper.TrackFX_AddByName( track, FXNAME, true, -1 )
+    print(retval)
 end
 
 -------------
@@ -11,6 +18,8 @@ function AddSelectedTracksToTargets(proj, targets)
     for track in enumSelectedTracks(proj) do
         local target_table = CheckTargetsForTrack(proj,track)
         targets[track] = target_table or CreateTargetTable(track)
+        -- FX
+        CheckLayerFX(track)
     end
 end
 
