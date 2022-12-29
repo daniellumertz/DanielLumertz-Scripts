@@ -1,9 +1,9 @@
--- @version 0.0.3
+-- @version 0.0.4
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
---    [effect] daniellumertz Volume.jsfx
+--    [effect] Layers Volume.jsfx
 -- @changelog
 --    + Release
 -- @license MIT
@@ -65,7 +65,7 @@ Gui_H_init = 450 -- Init
 FLTMIN, FLTMAX = reaper.ImGui_NumericLimits_Float() --set the padding to the right side
 
 -- Constants
-FXNAME = 'daniellumertz Volume'
+FXNAME = 'Layers Volume'
 
 -- Start
 OldTime = reaper.time_precise()
