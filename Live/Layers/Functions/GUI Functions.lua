@@ -177,7 +177,7 @@ function TargetRightClick(parameter,target,track)
         TextCenter('FX')
 
         if reaper.ImGui_BeginMenu(ctx, 'FX Position') then
-            _, target.is_force_fx = reaper.ImGui_Checkbox(ctx, "Force FX Pos", target.is_force_fx)
+            _, target.is_force_fx = reaper.ImGui_Checkbox(ctx, "Force FX Position", target.is_force_fx)
             ToolTip(true,'Force the '..FXNAME..' to be at a position in the FX chain.')
             if target.is_force_fx then
                 reaper.ImGui_Text(ctx, 'FX Pos:')
@@ -188,6 +188,7 @@ function TargetRightClick(parameter,target,track)
             reaper.ImGui_EndMenu(ctx)
         end
 
+        _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass', target.bypass)
 
         --------------------
         reaper.ImGui_Separator(ctx)
