@@ -71,5 +71,5 @@ FXNAME = 'Layers Volume'
 OldTime = reaper.time_precise()
 GuiInit()
 reaper.defer(main_loop())
-reaper.atexit(Save)
+reaper.atexit(AtExit)
 

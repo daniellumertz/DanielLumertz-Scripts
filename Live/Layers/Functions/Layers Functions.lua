@@ -68,11 +68,15 @@ function CheckTargetsForTrack(proj,track)
 end
 
 function RemoveTarget(parameter, track)
+    RemoveLayerFXFromTrack(track)
+    parameter.targets[track] = nil
+end
+
+function RemoveLayerFXFromTrack(track)
     local fx_idx = CheckLayerFX(track, false)
     if fx_idx ~= -1 then
         reaper.TrackFX_Delete(track, fx_idx)
-    end
-    parameter.targets[track] = nil
+    end    
 end
 
 -- Create Tables: 
@@ -146,4 +150,17 @@ function DeleteGotoMarkersAtTimeSelection()
             reaper.DeleteProjectMarker( FocusedProj, markrgnindexnumber, false )
         end
     end
+end
+
+function AtExit()
+    for proj, proj_table in pairs(ProjConfigs) do
+        if proj_table.remove_fx_atexit then
+            for parameter_idx, parameter in ipairs(proj_table.parameters) do
+                for track, target in pairs(parameter.targets) do
+                    RemoveLayerFXFromTrack(track)
+                end  
+            end
+        end
+    end
+    Save()    
 end
