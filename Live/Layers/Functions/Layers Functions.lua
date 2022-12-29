@@ -4,7 +4,7 @@
 --- FX 
 -------------
 
----Check track if it haves the Volume fx. 
+---Check track if it haves the Volume fx. Also use to ADD the FX.
 ---@param track MediaTrack
 ---@param add boolean if not find then add it to the end of the fx chain.
 ---@return number fx_idx return the fx_idx. -1 if not found. 0 Based
@@ -15,8 +15,9 @@ function CheckLayerFX(track, add)
     return fx_idx
 end
 
-function CheckFxPos(track, target)
+function CheckFxPos(track, target, proj)
     local fx_idx = CheckLayerFX(track, true) -- If there is not an FX then add it at the end
+    -- Position
     if target.is_force_fx then
         local fx_cnt =  reaper.TrackFX_GetCount( track )
 
@@ -32,10 +33,29 @@ function CheckFxPos(track, target)
 
         if not is_at_position then
             reaper.TrackFX_CopyToTrack( track, fx_idx, track, dest_idx, true )
+            print('changing pos')
         end
     end
+    -- Bypass
+    Bypass(track, fx_idx, target, proj)
+
 end
 
+function RemoveLayerFXFromTrack(track)
+    local fx_idx = CheckLayerFX(track, false)
+    if fx_idx ~= -1 then
+        reaper.TrackFX_Delete(track, fx_idx)
+    end    
+end
+
+function Bypass(track, fx_idx, target, proj)
+    local is_bypassed_current = not reaper.TrackFX_GetEnabled( track, fx_idx ) -- current value
+    local is_bypass =  target.bypass or ProjConfigs[proj].bypass -- expected value
+
+    if is_bypassed_current ~= is_bypass  then
+        reaper.TrackFX_SetEnabled( track, fx_idx, not is_bypass)
+    end
+end
 
 
 -------------
@@ -71,12 +91,7 @@ function RemoveTarget(parameter, track)
     parameter.targets[track] = nil
 end
 
-function RemoveLayerFXFromTrack(track)
-    local fx_idx = CheckLayerFX(track, false)
-    if fx_idx ~= -1 then
-        reaper.TrackFX_Delete(track, fx_idx)
-    end    
-end
+
 
 -- Create Tables: 
 

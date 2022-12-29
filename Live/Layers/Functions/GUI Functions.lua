@@ -187,8 +187,8 @@ function TargetRightClick(parameter,target,track)
             end
             reaper.ImGui_EndMenu(ctx)
         end
-
-        _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass', target.bypass)
+        --bypass:
+        _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass', target.bypass) -- will change at next loop
 
         --------------------
         reaper.ImGui_Separator(ctx)

@@ -114,7 +114,7 @@ function CheckProjects()
                     goto continue2
                 end
                 -- Check FX
-                CheckFxPos(track, target)
+                CheckFxPos(track, target, proj)
                 ::continue2::
             end
 
