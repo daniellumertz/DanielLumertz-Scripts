@@ -12,7 +12,7 @@ function main_loop()
     CurrentTime = reaper.time_precise()
     CheckProjects()
     MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
-    UpdateValues()
+    UpdateParameterValuesInput()
 
     ------------ Window management area
     --- Flags
@@ -43,7 +43,7 @@ function main_loop()
         reaper.ImGui_End(ctx)
     end 
 
-    UpdateLayerFX() -- Calculate the true value, if changed: Update the FX.
+    UpdateLayerFXValues() -- Calculate the true value, if changed: Update the FX.
     
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
@@ -57,7 +57,8 @@ function main_loop()
     end
 end
 
-function UpdateLayerFX()
+--- Update the parameter_true value and the target value. Update the FX value
+function UpdateLayerFXValues()
     -- Update True Value
     local last_dif = CurrentTime - OldTime 
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
@@ -72,7 +73,7 @@ function UpdateLayerFX()
                 if target.value ~= parameter.true_value then
                     local slopeup = target.slopeup + parameter.slopeup
                     local slopedown = target.slopedown + parameter.slopedown
-                    target.value  = Slide(target.value,parameter.true_value,slopeup, slopedown,last_dif,0,1)
+                    target.value  = Slide(target.value,parameter.value,slopeup, slopedown,last_dif,0,1)
                 end
                 -- Set the FX value
             end
@@ -128,7 +129,8 @@ function CheckProjects()
     FocusedProj = reaper.EnumProjects( -1 )
 end
 
-function UpdateValues()
+--- Get the envelope and MIDI input and update the Parameter Value
+function UpdateParameterValuesInput()
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
         -- Playing info (for envelopes)

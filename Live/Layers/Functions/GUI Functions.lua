@@ -82,7 +82,7 @@ function SliderParameter(parameter,parameter_key)
 
     -- slider
     local is_mark = parameter.slopeup ~= 0 or parameter.slopedown ~= 0
-    _, parameter.value = ImGui_SliderWithMark(ctx, '##'..parameter.name..parameter_key, parameter.value, parameter.true_value, is_mark, 0, 1,0x42FAD248 ,'')
+    _, parameter.value = ImGui_SliderWithMark(ctx, '##'..parameter.name..parameter_key, parameter.value, parameter.true_value, is_mark, 0, 1,TRUE_VALUE_COLOR ,'')
 
     -- pop size
     reaper.ImGui_PopFont(ctx)
