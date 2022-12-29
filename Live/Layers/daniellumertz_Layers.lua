@@ -1,4 +1,4 @@
--- @version 0.0.2
+-- @version 0.0.3
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -11,10 +11,6 @@
 
 -----TODO:
 --2) continue Main code to set the fx
-    -- Add when adding target
-        --reaper.TrackFX_AddByName( track, fxname, recFX, instantiate )
-    -- Remove when removing target
-        -- reaper.TrackFX_Delete( track, fx )
     -- Option to force the fx be at the end of the track fx
         --reaper.TrackFX_CopyToTrack( src_track, src_fx, dest_track, dest_fx, is_move )
     -- Set the parameter

@@ -184,7 +184,7 @@ function TargetRightClick(parameter,target,track)
         target.slopedown = LimitNumber(target.slopedown,0)
         -- Remove button
         if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
-            parameter.targets[track] = nil
+            RemoveTarget(parameter, track)
             reaper.ImGui_CloseCurrentPopup(ctx)
         end
 

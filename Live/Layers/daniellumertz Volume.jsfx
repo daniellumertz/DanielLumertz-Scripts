@@ -1,7 +1,7 @@
 noindex: true
 author Daniel Lumertz
 
-desc:daniellumertz Volume
+desc:Layers Volume
 slider1:gain_db=1<0,1,0.01>gain (dB)
 
 @init

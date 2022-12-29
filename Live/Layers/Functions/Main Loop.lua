@@ -99,7 +99,7 @@ function CheckProjects()
         table.insert(projects_opened, check_proj)
     end
 
-    -- Check if some project closed / all tracks are available / All envelopes are available / All Tracks have the Volume FX at the end
+    -- Check if some project closed / all tracks are available / All envelopes are available / All Tracks have the Volume FX at forced position(if any)
     for proj, proj_table in pairs(ProjConfigs) do
         if not TableHaveValue(projects_opened,proj) then
             ProjConfigs[proj] = nil-- if closed remove from ProjConfigs. configs should be saved as user uses.
@@ -111,7 +111,29 @@ function CheckProjects()
             for track, target in pairs(parameter.targets) do
                 if (type(track) == "string") or (not reaper.ValidatePtr2(proj, track, 'MediaTrack*')) then -- string means it couldnt be loaded when opening the script, from the save. Remove this target
                     parameter.targets[track] = nil
+                    goto continue2
                 end
+                -- Check FX
+                local fx_idx = CheckLayerFX(track, true) -- If there is not an FX then add it at the end
+                if target.is_force_fx then
+                    local fx_cnt =  reaper.TrackFX_GetCount( track )
+
+                    -- Check if Fx already is at requested position
+                    local is_at_position, dest_idx
+                    if target.force_fx_pos <= 0 then
+                        is_at_position = target.force_fx_pos == fx_idx - (fx_cnt-1)
+                        dest_idx =  (fx_cnt-1) + target.force_fx_pos
+                    elseif target.is_force_fx > 0 then
+                        is_at_position = target.force_fx_pos == fx_idx+1
+                        dest_idx = target.force_fx_pos - 1
+                    end
+
+                    if not is_at_position then
+                        print('change pos')
+                        reaper.TrackFX_CopyToTrack( track, fx_idx, track, dest_idx, true )
+                    end
+                end
+                ::continue2::
             end
 
             if (type(parameter.envelope) == "string") or (not reaper.ValidatePtr2(proj, parameter.envelope, 'TrackEnvelope*')) then -- string means it couldnt be loaded when opening the script, from the save. Remove this target
@@ -135,7 +157,7 @@ function UpdateValues()
         for parameter_idx, parameter in ipairs(project_table.parameters) do
             ----- Update with Envelopes 
             if parameter.envelope and GetEnvelopeBypass(parameter.envelope) then -- If envelope and not bypassed 
-                
+
                 -- Is envelope at a track?
                 local item = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_ITEM' )
                 local is_at_item = item ~= 0 and true or false

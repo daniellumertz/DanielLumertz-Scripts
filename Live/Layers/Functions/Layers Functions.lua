@@ -4,22 +4,31 @@
 --- FX 
 -------------
 
----Check track if it haves the Volume fx.
-function CheckLayerFX(track)
+---Check track if it haves the Volume fx. 
+---@param track MediaTrack
+---@param add boolean if not find then add it to the end of the fx chain.
+---@return number fx_idx return the fx_idx. -1 if not found. 0 Based
+function CheckLayerFX(track, add)
     local bol = false
-    local retval = reaper.TrackFX_AddByName( track, FXNAME, true, -1 )
-    print(retval)
+    local add_fx = add and 1 or 0 -- 1 will add if not found, 0 will only query. 
+    local fx_idx = reaper.TrackFX_AddByName( track, FXNAME, false, add_fx) 
+    return fx_idx
 end
+
+
 
 -------------
 --- Table 
 -------------
+
+-- Actions : 
+
 function AddSelectedTracksToTargets(proj, targets)
     for track in enumSelectedTracks(proj) do
         local target_table = CheckTargetsForTrack(proj,track)
         targets[track] = target_table or CreateTargetTable(track)
         -- FX
-        CheckLayerFX(track)
+        CheckLayerFX(track, true)
     end
 end
 
@@ -36,6 +45,16 @@ function CheckTargetsForTrack(proj,track)
     return false
 end
 
+function RemoveTarget(parameter, track)
+    local fx_idx = CheckLayerFX(track, false)
+    if fx_idx ~= -1 then
+        reaper.TrackFX_Delete(track, fx_idx)
+    end
+    parameter.targets[track] = nil
+end
+
+-- Create Tables: 
+
 function CreatePointTable()
     return {ce_point(0,0), ce_point(1,1)}
 end
@@ -47,7 +66,9 @@ function CreateTargetTable(track)
         track = track,
         value = 1,
         slopeup = 0,
-        slopedown = 0
+        slopedown = 0,
+        force_fx_pos = 0,
+        is_force_fx = true
     }
     return t
 end
@@ -70,7 +91,8 @@ end
 function CreateProjectConfigTable()
     local t = {
         parameters = {CreateParameterTable('P1')},
-        bypass = false
+        bypass = false,
+        remove_fx_atexit = true
         }
     return t
 end
