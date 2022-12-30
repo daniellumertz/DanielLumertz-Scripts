@@ -65,24 +65,19 @@ function AlternateItems(groups, trigger)
         group.selected = sel_idx - 1 -- group.selected is 0 based!!   
 
         -- get the selected item and take that will be unmuted/not muted
-        local sel_item, sel_take
-        if sel_idx > 0 then
-            sel_take = group[sel_idx].take
-            sel_item = reaper.GetMediaItemTake_Item(sel_take) -- 1 based
-            reaper.SetActiveTake( sel_take )
-        end
-        -- Apply mutting
-        for index, v in ipairs(group) do
-            local take = v.take 
-            -- mute/unmute
-            local item = reaper.GetMediaItemTake_Item(take)
-            local mute = (sel_item == item and 0) or 1
-            reaper.SetMediaItemInfo_Value(item, 'B_MUTE', mute)
-            -- select take
-        end
+        UpdateTakes(group, sel_idx)
         ::continue::
     end
     reaper.UpdateArrange()
+end
+
+--Select a take at the group table.
+---@param group table
+---@param idx number take idx at group table (1 based) 
+function AlternateSelectTake(group,idx)
+    print('here')
+    group.selected = idx - 1 -- group.selected is 0 based
+    UpdateTakes(group, idx)
 end
 
 ---Chackes if a used_idx table have a certain id
@@ -94,6 +89,24 @@ function UsedIdxHaveTake(used_idx_table,take)
     end
     return false
 end
+
+function UpdateTakes(group, sel_idx)
+    -- get the selected item and take that will be unmuted/not muted
+    local sel_item, sel_take
+    if sel_idx > 0 then
+        sel_take = group[sel_idx].take
+        sel_item = reaper.GetMediaItemTake_Item(sel_take) -- 1 based
+        reaper.SetActiveTake( sel_take )
+    end
+    -- Apply mutting
+    for index, v in ipairs(group) do
+        local take = v.take 
+        -- mute/unmute
+        local item = reaper.GetMediaItemTake_Item(take)
+        local mute = (sel_item == item and 0) or 1
+        reaper.SetMediaItemInfo_Value(item, 'B_MUTE', mute)
+    end
+end
 -------------------
 -- Group Operations
 -------------------
@@ -103,7 +116,9 @@ function CreateNewGroup(name)
                            selected = 0, -- saves last selected take (for playlist mode)
                            used_idx = {}, -- saves used idxes (for shuffle mode)
                            mode = 0,
-                           on = true} 
+                           on = true,
+                           doatloop = true,
+                           doatstop = true} 
     return default_table
 end
 

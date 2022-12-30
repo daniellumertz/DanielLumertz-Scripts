@@ -110,6 +110,7 @@ function TakeTab(group)
                 TempName = nil
                 TempWasOpen  = nil
             end
+            
 
             -- Drag
             if reaper.ImGui_BeginDragDropSource(ctx, reaper.ImGui_DragDropFlags_None()) then
@@ -131,6 +132,26 @@ function TakeTab(group)
                     is_save = true
                 end
                 reaper.ImGui_EndDragDropTarget(ctx)
+            end
+
+            --Double Click Select and enable 
+            if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx, 0) then
+                if not (reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Shift()) then
+                    AlternateSelectTake(group,k)
+                end
+                local item = reaper.GetMediaItemTake_Item(take)
+                --SetItemSelected()
+                reaper.SelectAllMediaItems( FocusedProj, false )
+                reaper.SetMediaItemSelected(item, true)
+                local start_time, end_time = reaper.GetSet_ArrangeView2( FocusedProj, false, 0, 0, 0, 0 )
+                local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+                if pos < start_time or pos > end_time then -- Item out of view, center the view at the item start
+                    local pad = 2/3
+                    local len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+                    local dif = end_time - start_time
+                    start_time, end_time = reaper.GetSet_ArrangeView2( FocusedProj, true, 0, 0, pos-(dif*1/3), pos+(dif*2/3))
+                end
+                reaper.UpdateArrange()
             end
 
             -- Probability box

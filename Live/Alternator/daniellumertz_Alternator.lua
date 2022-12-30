@@ -1,4 +1,5 @@
 -- @version 0.1
+-- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
@@ -29,7 +30,7 @@ ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/Randomizer Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/Alternator Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/GUI Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Imgui General Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Main Loop.lua') -- Functions for using the markov in reaper
