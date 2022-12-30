@@ -1,4 +1,5 @@
--- @version 0.1
+-- @version 0.1.1
+-- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
@@ -9,12 +10,6 @@
 
 
 -----TODO:
--- 0) try if I can break the gotocheck, goto function, overides
--- 5) MIDI/Key Trigger
-    -- Menus to learn at each button
-    -- MIDI learn table 
-
-
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -41,7 +36,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.1'
+Version = '0.1.1'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'

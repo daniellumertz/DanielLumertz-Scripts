@@ -27,7 +27,8 @@ function DefaultSettings()
         only_focus_project = false, -- only checks the focused project
         compensate = 2, -- Compensate the defer instability. -- too much will have timing problems (can jump regions much early). Too little will have more artifacts (when the marker is at the attack of a transient (common scenario))
         add_markers = false, -- add markers every time alternator is trigger. for debugging/understanding when it triggers positions.
-        trigger_when_paused = true -- if true it will execute goto actions when paused. if false it will just leave triggered
+        trigger_when_paused = true, -- if true it will execute goto actions when paused. if false it will just leave triggered
+        tooltips = false -- show le tooltip
     } -- Json file 
 
     GuiSettings = {

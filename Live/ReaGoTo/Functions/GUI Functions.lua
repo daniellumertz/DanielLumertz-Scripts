@@ -17,6 +17,7 @@ function PlaylistSelector(playlists)
         local is_save
         for playlist_key, playlist in ipairs(playlists) do -- iterate every playlist
             local open, keep = reaper.ImGui_BeginTabItem(ctx, ('%s###tab%d'):format(playlist.name, playlist_key), false) -- Start each tab
+            ToolTip(UserConfigs.tooltips,'This is a playlist. Right Click for more options.')        
 
             -- Popup to rename and delete
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
@@ -60,6 +61,7 @@ function PlaylistTab(playlist)
         reaper.ImGui_OpenPopup( ctx, 'Add Region/Marker##popup'..playlist.name )
         --Popup insert idx or name
     end
+    ToolTip(UserConfigs.tooltips,'Add a region/marker to the playlist')        
     AddRegionPopUp(playlist)
 
     -- Each region/marker
@@ -74,6 +76,7 @@ function PlaylistTab(playlist)
             local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
+            ToolTip(UserConfigs.tooltips,'This is a region/marker at the playlist. Double click to trigger a GOTO to that position. Right Click for more options. Drag to change the order.')        
 
             if project_table.is_triggered and tonumber(project_table.is_triggered:match('^goto(.+)')) == region_idx then
                 local alpha = MapRange(GUIButtomAnimationVal,-1,1,0.2,0.5) --adds alpha based on animation step
@@ -196,13 +199,15 @@ function RenameRegionMarkerPopUp(playlist, k)
     reaper.ImGui_SetNextItemWidth(ctx, 30)
     change, region_table.chance = reaper.ImGui_InputInt(ctx, 'Chance##'..k, region_table.chance, 0, 0)
     if region_table.chance < 0 then region_table.chance = 0 end
+    ToolTip(UserConfigs.tooltips,'When triggering a GOTO random this determine the change this region haves.')        
+
 
     -- Loop 
-
     if region_table.type == 'region' then
         reaper.ImGui_SameLine(ctx)
         _, region_table.loop = reaper.ImGui_Checkbox(ctx, 'Loop Region ##loopcheckbox'..k, region_table.loop)
     end
+    ToolTip(UserConfigs.tooltips,'When triggering this region make a loop around it.')        
 
     -- remove button
     if reaper.ImGui_Button(ctx, 'Remove Region/Marker', -FLTMIN) then
@@ -232,7 +237,7 @@ function RenamePlaylistPopUp(playlist, playlist_key, playlists)
     change, playlist.name = reaper.ImGui_InputText(ctx, "##renameinput", playlist.name)
     is_save = is_save or change
     -- delete
-    if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
+    if reaper.ImGui_Button(ctx, 'Delete Playlist',-FLTMIN) then
         reaper.ImGui_CloseCurrentPopup(ctx)
         table.remove(playlists,playlist_key)
         is_save = true
@@ -240,11 +245,12 @@ function RenamePlaylistPopUp(playlist, playlist_key, playlists)
 
     change, playlist.reset = reaper.ImGui_Checkbox(ctx, 'Reset at stop', playlist.reset)
     is_save = is_save or change
+    ToolTip(UserConfigs.tooltips,'When stopping/pausing the project the playlist will go back to the first region/marker.')        
 
     reaper.ImGui_SameLine(ctx)
     change, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
     is_save = is_save or change
-
+    ToolTip(UserConfigs.tooltips,'When the playlist loops around it will shuffle the region/markers order.')        
 
     -- Enter Close it fucking down
     if reaper.ImGui_IsKeyDown(ctx, 13) then
@@ -309,6 +315,8 @@ function TriggerButtons(playlists)
         pop_button_style(paint or paint2)
         MidiPopupButtons(ProjConfigs[FocusedProj].buttons.random.midi)
     end
+    ToolTip(UserConfigs.tooltips,'Goto a random region/marker at the playlist. If holding Ctrl/Command it can repeat itself.')        
+
 
     do -- Next Button
         reaper.ImGui_SameLine(ctx)
@@ -318,6 +326,8 @@ function TriggerButtons(playlists)
         if reaper.ImGui_Button(ctx, '>',button_size) or midi_trigger then
             SetGoTo(FocusedProj, trigger_string)
         end
+        ToolTip(UserConfigs.tooltips,'Goto next at the playlist.')        
+
         pop_button_style(paint)
         MidiPopupButtons(ProjConfigs[FocusedProj].buttons.next.midi)
     end
@@ -328,10 +338,10 @@ function TriggerButtons(playlists)
             if reaper.ImGui_Button(ctx, 'Cancel Trigger',-FLTMIN) or midi_trigger then
                 SetGoTo(FocusedProj, false)
             end
+            ToolTip(UserConfigs.tooltips,'Cancel trigger.')        
+
             MidiPopupButtons(ProjConfigs[FocusedProj].buttons.cancel.midi)
-
         end
-
     end
 end
 
@@ -358,7 +368,7 @@ function MenuBar()
                 local proj_table = ProjConfigs[FocusedProj]
                 local change, change2, change3, change4, change5, change6, change7
                 change, proj_table.moveview = reaper.ImGui_Checkbox(ctx, 'Move Arrange View at Go To', proj_table.moveview)
-                ToolTip(true, 'If need move arrange view position')
+                ToolTip(true, 'If move arrange view position when changing position.')
 
                 change2, proj_table.stop_trigger = reaper.ImGui_Checkbox(ctx, 'Stop Triggers', proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
@@ -370,7 +380,7 @@ function MenuBar()
 
                 if proj_table.is_marker  then
                     change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
-                    ToolTip(true, 'Goto Mark Identifier, every goto marker should start with this string.')
+                    ToolTip(UserConfigs.tooltips, 'Goto Mark Identifier, every goto marker should start with this string.\n\nAfter the indentifier is possible to use a overwrite trigger, like "#goto next" will always trigger the next region/marker at the playlist. Overwrite options are:\n\nnext=next at playlist.\nprev=prev at playlist\nrandom=random at playlist(filter current region)\nrandom_with_rep=random at playlist\ngoto..regionidx = goto a playlist idx\npos..seconds= go to a certain time in seconds\nqn..value = goto a certain position in quarter note\nbar..barnumber = goto a certainbar\nmark..mark_index = goto a certain mark\nretion..region_index = goto a region index\n\nCan also use {} to have multiple options that will chosen randomly, like {next,prev,prev,random} will choose randomly between this 4 options',300)
                 end
                 ------------------------------------------------ Unit
                 reaper.ImGui_Separator(ctx)
@@ -411,7 +421,9 @@ function MenuBar()
             end
 
             if reaper.ImGui_BeginMenu(ctx, 'Goto Settings') then
-                local change1, change2, change3, change4
+                local change1, change2, change3, change4, change5
+                change5, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show ToolTips', optional_shortcutIn, UserConfigs.tooltips)
+
                 change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
                 ToolTip(true, 'Only trigger ReaGoTo at the focused project.')
                 change2, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
@@ -430,7 +442,7 @@ function MenuBar()
                     reaper.ImGui_EndMenu(ctx)
                 end
 
-                if change1 or change2 or change3 or change4 then
+                if change1 or change2 or change3 or change4 or change5 then
                     SaveSettings(ScriptPath,SettingsFileName)
                 end
     
@@ -515,6 +527,8 @@ function MIDILearn(midi_table)
     if reaper.ImGui_Button(ctx, learn_text, -FLTMIN) then
         midi_table.is_learn = not midi_table.is_learn
     end
+    ToolTip(UserConfigs.tooltips,'Trigger with MIDI.')        
+
 
     if midi_table.is_learn then
         if MIDIInput[1] then
@@ -542,7 +556,9 @@ function MIDILearn(midi_table)
             midi_table.device = nil
             midi_table.is_learn = false
         end
+        ToolTip(UserConfigs.tooltips,'Remove the MIDI learned.')        
     end
+
 
     if midi_table.ch then 
         ImPrint('Channel : ',midi_table.ch)
@@ -550,6 +566,7 @@ function MIDILearn(midi_table)
         if reaper.ImGui_Button(ctx, 'X##ch') then
             midi_table.ch = nil
         end
+        ToolTip(UserConfigs.tooltips,'Remove the channel filter.')        
     end  
 
     if midi_table.device then 
@@ -559,13 +576,15 @@ function MIDILearn(midi_table)
         if reaper.ImGui_Button(ctx, 'X##dev') then
             midi_table.device = nil
         end
+        ToolTip(UserConfigs.tooltips,'Remove the device filter.')        
     end
+
 end
 
 function MidiPopupButtons(midi_table)
+    reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
     if reaper.ImGui_BeginPopupContextItem(ctx) then
         MIDILearn(midi_table)
-        reaper.ImGui_Text(ctx, '                                                          ')
         reaper.ImGui_EndPopup(ctx)
     end
 end

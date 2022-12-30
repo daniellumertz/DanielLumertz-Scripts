@@ -1,1 +1,1 @@
-{"Version":"0.1","UserConfigs":{"trigger_when_paused":true,"add_markers":false,"compensate":2,"only_focus_project":false},"GuiSettings":{"docked":0,"Pin":true}}
+{"GuiSettings":{"docked":0,"Pin":true},"UserConfigs":{"compensate":2,"tooltips":true,"trigger_when_paused":true,"add_markers":false,"only_focus_project":false},"Version":"0.1.1"}
