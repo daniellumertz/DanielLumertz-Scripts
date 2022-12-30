@@ -25,6 +25,7 @@ end
 function DefaultSettings()
     UserConfigs = {
         only_focus_project = false, -- only checks the focused project
+        tooltips = false
     } -- Json file 
 
     GuiSettings = {

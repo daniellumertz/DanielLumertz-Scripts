@@ -26,6 +26,7 @@ function ParametersTabs()
         -- For every parameter
         for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
             local open, keep = reaper.ImGui_BeginTabItem(ctx, ('%s###tab%d'):format(parameter.name, parameter_key), false) -- Start each tab
+            ToolTip(UserConfigs.tooltips,'This is a parameter tab. Right Click to rename or remove.')
 
             -- Popup to rename and delete
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
@@ -46,11 +47,12 @@ function ParametersTabs()
                 -- Targets part
                 reaper.ImGui_EndTabItem(ctx) 
             end
-
         end
 
         -- All parameters sliders
-        if reaper.ImGui_BeginTabItem(ctx, 'All', false) then-- Start each tab
+        local open = reaper.ImGui_BeginTabItem(ctx, 'All', false)
+        ToolTip(UserConfigs.tooltips,'This is a parameter tab. Right Click to rename or delete.')
+        if open then-- Start each tab
             if reaper.ImGui_BeginChild(ctx, 'AllParameters', -FLTMIN, 0, true, reaper.ImGui_WindowFlags_NoScrollbar()) then
                 for parameter_key, parameter in ipairs(parameters) do -- iterate every playlist
                     SliderParameter(parameter,parameter_key)
@@ -60,11 +62,14 @@ function ParametersTabs()
             reaper.ImGui_EndTabItem(ctx)
         end
 
+
         -- Add Parameter
         if reaper.ImGui_TabItemButton(ctx, '+', reaper.ImGui_TabItemFlags_Trailing() | reaper.ImGui_TabItemFlags_NoTooltip()) then -- Start each tab
             table.insert(parameters,CreateParameterTable('P'..#parameters+1)) -- TODO
             is_save = true
         end
+        ToolTip(UserConfigs.tooltips,'Create a new parameter.')
+
 
         if is_save then -- Save settings
             SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) -- TODO
@@ -87,7 +92,8 @@ function SliderParameter(parameter,parameter_key)
     -- pop size
     reaper.ImGui_PopFont(ctx)
 
-    -- tooltip
+    -- Show value
+    ToolTip(UserConfigs.tooltips,'This is the parameter slider, drag to change the parameter value.\nRight click for more options')
     if reaper.ImGui_IsItemHovered(ctx) then
         ToolTipSimple(parameter.name..' : '..RemoveDecimals(parameter.value,2))
     end
@@ -110,7 +116,7 @@ function TargetsTab(parameter, parameter_key)
         
         is_save = true
     end
-
+    ToolTip(UserConfigs.tooltips,'ADD selected track as targets for this parameter.\nHold alt to SET selected tracks as the targets for this parameter.\nEach track will only be in one parameter at the same time.')
 
     ---- Targets Curves and options
 
@@ -129,6 +135,8 @@ function TargetsTab(parameter, parameter_key)
         reaper.ImGui_PushStyleVar(ctx, reaper.ImGui_StyleVar_IndentSpacing(), 0)
 
         local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name)
+        ToolTip(UserConfigs.tooltips,'This is a track target. Right Click for more options.\n\nAt the curve editor:\nDouble Click = Add Point\nRight Click = Remove Point\nAlt + Left drag = Adjust segment tension\nAlt + Right Click = Reset segment tension\nShift drag = More Precision',400)
+
         -- Right click node
         TargetRightClick(parameter,target,track)
         -- Curve inside tree node
@@ -148,7 +156,6 @@ end
 
 function TargetRightClick(parameter,target,track)
     reaper.ImGui_SetNextWindowSizeConstraints( ctx,  150, -1, FLTMAX, FLTMAX)
-    reaper.ImGui_SetNextWindowBgAlpha(ctx, 0.75)
     if reaper.ImGui_BeginPopupContextItem(ctx) then
 
         TextCenter('Curve')
@@ -189,6 +196,7 @@ function TargetRightClick(parameter,target,track)
         end
         --bypass:
         _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass', target.bypass) -- will change at next loop
+        ToolTip(UserConfigs.tooltips,'Bypass target FX')        
 
         --------------------
         reaper.ImGui_Separator(ctx)
@@ -198,10 +206,14 @@ function TargetRightClick(parameter,target,track)
         reaper.ImGui_SetNextItemWidth(ctx, 45)
         _, target.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', target.slopeup, 0, 0, '%.2f')
         target.slopeup = LimitNumber(target.slopeup,0)
+        ToolTip(UserConfigs.tooltips,'How much time it will take to go from 0 to 1. This will be added to the Slope up from the parameter.')        
+
         -- Slope Down
         reaper.ImGui_SetNextItemWidth(ctx, 45)
         _, target.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', target.slopedown, 0, 0, '%.2f')
         target.slopedown = LimitNumber(target.slopedown,0)
+        ToolTip(UserConfigs.tooltips,'How much time it will take to go from 1 to 0. This will be added to the Slope down from the parameter.')        
+
         -- Remove button
         if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
             RemoveTarget(parameter, track)
@@ -245,11 +257,14 @@ function SliderPopUp(parameter, parameter_key)
         reaper.ImGui_SetNextItemWidth(ctx, 90)
         _, parameter.slopeup = reaper.ImGui_InputDouble(ctx, 'Slope Up', parameter.slopeup, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 0 to 1
         parameter.slopeup = LimitNumber(parameter.slopeup,0)
+        ToolTip(UserConfigs.tooltips,'How much time it will take to go from 0 to 1. In seconds.')
+
 
         --- Slopedown
         reaper.ImGui_SetNextItemWidth(ctx, 90)
         _, parameter.slopedown = reaper.ImGui_InputDouble(ctx, 'Slope Down', parameter.slopedown, 0, 0, '%.2f') -- TODO add tooltip saying this is the time it takes to get from 1 to 0
         parameter.slopedown = LimitNumber(parameter.slopedown,0)
+        ToolTip(UserConfigs.tooltips,'How much time it will take to go from 1 to 0. In seconds.')
 
         --- MIDI
         reaper.ImGui_Separator(ctx)
@@ -278,6 +293,8 @@ function EnvelopePopup(parameter)
             reaper.ShowMessageBox('Select some envelope!', ScriptName, 0)
         end
     end
+    ToolTip(UserConfigs.tooltips,'Control this parameter with a REAPER envelope.')
+
     if parameter.envelope then
         local retval, env_name = reaper.GetEnvelopeName(parameter.envelope)
         local track = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_TRACK' )
@@ -301,12 +318,14 @@ function EnvelopePopup(parameter)
         if reaper.ImGui_Button(ctx, 'X##envelope'..env_name) then
             parameter.envelope = false
         end
+        ToolTip(UserConfigs.tooltips,'Remove envelope follower.')
+
         ImPrint('From '..host_type..' : ',host_name)
     end
 end
 
 ---------   
--- MIDI
+-- Menu
 ---------
 
 function MenuBar()
@@ -330,10 +349,13 @@ function MenuBar()
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
             
             if reaper.ImGui_BeginMenu(ctx, 'Script Settings') then
-                local change1
+                local change1, change2
                 change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
-        
-                if change1 then
+                ToolTip(true, 'Only change parameters at the focused project.')
+
+                change2, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show Tooltips', optional_shortcutIn, UserConfigs.tooltips)
+
+                if change1 or change2 then
                     SaveSettings(ScriptPath,SettingsFileName)
                 end
 
@@ -343,8 +365,10 @@ function MenuBar()
             if reaper.ImGui_BeginMenu(ctx, 'Script Project Settings') then
                 local change1, change2
                 change1, ProjConfigs[FocusedProj].remove_fx_atexit = reaper.ImGui_MenuItem(ctx, 'At Exit Remove FXs', optional_shortcutIn, ProjConfigs[FocusedProj].remove_fx_atexit)
-                ToolTip(true,'Remove Layer FX from all target tracks when the script closes.')
+                ToolTip(true,'Remove Volume Layer FX from all target tracks when the script closes.')
                 change2, ProjConfigs[FocusedProj].bypass = reaper.ImGui_MenuItem(ctx, 'Bypass', optional_shortcutIn, ProjConfigs[FocusedProj].bypass)
+                ToolTip(UserConfigs.tooltips,'Bypass all Volume Layers FX in the project.')
+
         
                 if change1 or change2  then
                     SaveSettings(ScriptPath,SettingsFileName)
@@ -362,6 +386,7 @@ function MenuBar()
             if reaper.ImGui_MenuItem(ctx, 'Donate') then
                 open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
             end
+            ToolTip(true, 'Recommended donation 20$ - 40$')
 
             --if reaper.ImGui_MenuItem(ctx, 'Forum') then
             --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')

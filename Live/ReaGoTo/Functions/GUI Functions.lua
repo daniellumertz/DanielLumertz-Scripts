@@ -413,9 +413,9 @@ function MenuBar()
             if reaper.ImGui_BeginMenu(ctx, 'Goto Settings') then
                 local change1, change2, change3, change4
                 change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
-                ToolTip(true, 'Only trigger at the focused project, if more project are open they will consume less resources.')
+                ToolTip(true, 'Only trigger ReaGoTo at the focused project.')
                 change2, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
-                ToolTip(true, 'Execute goto action immediately when  REAPER is not playing.')
+                ToolTip(true, 'Execute goto action immediately when REAPER is not playing.')
     
                 change3, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
                 ToolTip(true, 'Mostly to debug where it is triggering the goto action.')

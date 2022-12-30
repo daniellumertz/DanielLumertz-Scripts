@@ -110,6 +110,7 @@ function MIDILearn(midi_table)
     if reaper.ImGui_Button(ctx, learn_text, -FLTMIN) then
         midi_table.is_learn = not midi_table.is_learn
     end
+    ToolTip(UserConfigs.tooltips,'Control this parameter via MIDI.')
 
     if midi_table.is_learn then
         if MIDIInput[1] then
@@ -137,6 +138,7 @@ function MIDILearn(midi_table)
             midi_table.device = nil
             midi_table.is_learn = false
         end
+        ToolTip(UserConfigs.tooltips,'Remove the MIDI follower.')
     end
 
     if midi_table.ch then 
@@ -145,6 +147,7 @@ function MIDILearn(midi_table)
         if reaper.ImGui_Button(ctx, 'X##ch') then
             midi_table.ch = nil
         end
+        ToolTip(UserConfigs.tooltips,'Remove the channel filter.')
     end  
 
     if midi_table.device then 
@@ -154,6 +157,7 @@ function MIDILearn(midi_table)
         if reaper.ImGui_Button(ctx, 'X##dev') then
             midi_table.device = nil
         end
+        ToolTip(UserConfigs.tooltips,'Remove the device filter.')
     end
     -- Optionally add a midi curve editor here
 end

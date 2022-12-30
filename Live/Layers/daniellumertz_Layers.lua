@@ -1,4 +1,4 @@
--- @version 0.0.4
+-- @version 0.1.0
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -41,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.0.1'
+Version = '0.1.0'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'
