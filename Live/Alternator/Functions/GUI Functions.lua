@@ -62,6 +62,7 @@ function TakeTab(group)
         end
         if reaper.ImGui_Selectable(ctx, 'Shuffle', false) then
             group.mode = 1
+            group.used_idx = TableiCopy(group) -- reset it 
             is_save = true
         end
         if reaper.ImGui_Selectable(ctx, 'Playlist', false) then
@@ -138,6 +139,7 @@ function TakeTab(group)
             if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx, 0) then
                 if not (reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Shift()) then
                     AlternateSelectTake(group,k)
+                    group.used_idx = TableiCopy(group) -- reset it 
                 end
                 local item = reaper.GetMediaItemTake_Item(take)
                 --SetItemSelected()
