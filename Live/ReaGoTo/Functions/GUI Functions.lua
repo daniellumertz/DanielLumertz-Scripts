@@ -489,6 +489,7 @@ function MenuBar()
             if reaper.ImGui_MenuItem(ctx, 'Donate') then
                 open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
             end
+            ToolTip(true, 'Recommended doantion 20$ - 40$')
 
             --if reaper.ImGui_MenuItem(ctx, 'Forum') then
             --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')

@@ -24,7 +24,8 @@ function DefaultSettings()
     UserConfigs = {
         only_focus_project = false, -- only checks the focused project
         compensate = 2, -- Compensate the defer instability. The bigger the compensation the earlier it will change before the loop end. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!
-        add_markers = false -- add markers every time alternator is trigger. for debugging/understanding when it triggers positions.
+        add_markers = false, -- add markers every time alternator is trigger. for debugging/understanding when it triggers positions.
+        tooltips = false
     } -- Json file 
 
     GuiSettings = {

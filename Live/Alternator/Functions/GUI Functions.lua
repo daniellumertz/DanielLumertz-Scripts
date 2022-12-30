@@ -17,6 +17,7 @@ function GroupSelector(groups)
         local is_save
         for group_key, group in ipairs(groups) do
             local open, keep = reaper.ImGui_BeginTabItem(ctx, ('%s###tab%d'):format(group.name, group_key), false) -- Start each tab
+            ToolTip(UserConfigs.tooltips,'This is an alternator Group. Right click to rename/delete.')        
 
             -- Popup to rename
             if reaper.ImGui_BeginPopupContextItem(ctx) then 
@@ -41,6 +42,8 @@ function GroupSelector(groups)
             table.insert(groups,CreateNewGroup('G'..#groups+1))
             is_save = true
         end
+        ToolTip(UserConfigs.tooltips,'Create a new Alternator Group.')        
+
 
         if is_save then -- Save settings
             SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj])
@@ -55,7 +58,9 @@ function TakeTab(group)
     -- Mode
     local text = (group.mode == 0 and 'Random') or (group.mode == 1 and 'Shuffle') or (group.mode == 2 and 'Playlist')
     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-    if reaper.ImGui_BeginCombo(ctx, '##ComboMode', text) then
+    local open = reaper.ImGui_BeginCombo(ctx, '##ComboMode', text)
+    ToolTip(UserConfigs.tooltips,'Alternator group mode')        
+    if open then
         if reaper.ImGui_Selectable(ctx, 'Random', false) then
             group.mode = 0
             is_save = true
@@ -81,6 +86,7 @@ function TakeTab(group)
         end
         is_save = true
     end
+    ToolTip(UserConfigs.tooltips,'Set Group items to the selected items. Hold ctrl to add to the group')        
 
     -- Each take
     local avail_x, avail_y = reaper.ImGui_GetContentRegionAvail(ctx)
@@ -93,6 +99,7 @@ function TakeTab(group)
             local retval, take_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..k, k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
+            ToolTip(UserConfigs.tooltips,'Right Click for more options. Drag to reorder. Double click to select + enable. Double click + ctrl/command to select.')        
 
 
             -- rename / delete take popup
@@ -157,6 +164,7 @@ function TakeTab(group)
             change, v.chance = reaper.ImGui_InputInt(ctx, '##'..take_name..k, v.chance, 0, 0)
             is_save = change or is_save
             if v.chance < 0 then v.chance = 0 end
+            ToolTip(UserConfigs.tooltips,'When the mode is "Random" use this to set the chance. At other modes set to 0 to disable this take.')        
         end
         reaper.ImGui_EndChild(ctx)
     end
@@ -164,9 +172,13 @@ function TakeTab(group)
     -- Triggers checkboxes
     local change
     change, group.doatstop = reaper.ImGui_Checkbox(ctx, 'At Stop', group.doatstop)
+    ToolTip(UserConfigs.tooltips,'When pausing/stopping it will trigger.')        
+
     is_save = change or is_save
     reaper.ImGui_SameLine(ctx)
     change, group.doatloop = reaper.ImGui_Checkbox(ctx, 'At Loop', group.doatloop)
+    ToolTip(UserConfigs.tooltips,'When looping it will trigger.')        
+
     is_save = change or is_save
     if is_save then -- Save settings
         SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj])
@@ -180,6 +192,8 @@ function TakeTab(group)
             AlternateItems({group},true)
         end
     end
+    ToolTip(UserConfigs.tooltips,'Click = Trigger focused group. Hold Ctrl to trigger all groups.')        
+
 end
 
 function RenameGroupPopUp(group)
@@ -243,6 +257,11 @@ function MenuBar()
             ToolTip(true, 'Only trigger at the focused project, if more project are open they will consume less resources.')
 
             _, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
+            ToolTip(true, 'Mostly to debug where it is triggering the goto action.')
+
+            _, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show tooltips', optional_shortcutIn, UserConfigs.tooltips)
+
+
             reaper.ImGui_Separator(ctx)
             if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
                 reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
@@ -288,6 +307,8 @@ function MenuBar()
             if reaper.ImGui_MenuItem(ctx, 'Donate') then
                 open_url('https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N')
             end
+            ToolTip(true, 'Recommended doantion 20$ - 40$')
+
 
             --if reaper.ImGui_MenuItem(ctx, 'Forum') then
             --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')

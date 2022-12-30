@@ -75,7 +75,6 @@ end
 ---@param group table
 ---@param idx number take idx at group table (1 based) 
 function AlternateSelectTake(group,idx)
-    print('here')
     group.selected = idx - 1 -- group.selected is 0 based
     UpdateTakes(group, idx)
 end
