@@ -10,12 +10,10 @@
 
 
 -----TODO:
---7) Code to bypass the fx(make it go to 1)
-
---2) continue Main code to set the fx
-    -- Set the parameter
-    --
-
+-- 1) Tooltips
+-- 2) Curve edtior tweaks 
+    -- Buttons
+    -- Point size
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')

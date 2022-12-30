@@ -74,8 +74,9 @@ function UpdateLayerFXValues()
                     local slopeup = target.slopeup + parameter.slopeup
                     local slopedown = target.slopedown + parameter.slopedown
                     target.value  = Slide(target.value,parameter.value,slopeup, slopedown,last_dif,0,1)
+                    -- Set the FX value
+                    UpdateLayerFXValue(target, track)
                 end
-                -- Set the FX value
             end
         end
     end    

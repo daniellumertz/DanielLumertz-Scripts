@@ -57,6 +57,12 @@ function Bypass(track, fx_idx, target, proj)
     end
 end
 
+function UpdateLayerFXValue(target, track)
+    local fx_idx = CheckLayerFX(track, false)
+    local fx_value = ce_evaluate_curve(target.curve,target.value)
+    reaper.TrackFX_SetParamNormalized(track, fx_idx, 0, fx_value)
+end
+
 
 -------------
 --- Table 
