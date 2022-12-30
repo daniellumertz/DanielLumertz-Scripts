@@ -1,6 +1,6 @@
 --@noindex
---version: 0.10
--- update select items
+--version: 0.11
+-- higher lever envaluate envelope
 
 
 ------- Iterate 
@@ -420,4 +420,20 @@ function GetEnvelopeRange(env)
   end
   
   error('unknown envelope type')
+end
+
+---Higher level function over reaper.Envelope_Evaluate. Return same values but if is an item adjust position for reaper.Envelope_Evaluate. If is at an item and position is out of bounds, return false.
+---@param envelope any
+---@param position any
+function EvaluateEnvelope(envelope, pos, samplerate, samplesRequested)
+    local item = reaper.GetEnvelopeInfo_Value( envelope, 'P_ITEM' )
+    local is_at_item = item ~= 0 and true or false
+    if is_at_item then -- Trim the envelope input to the item length
+        local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+        local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+        if pos < item_pos or pos > item_pos+item_len then return false end
+        pos = pos - item_pos
+    end
+    local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate(envelope, pos, samplerate, samplesRequested)
+    return retval, value, dVdS, ddVdS, dddVdS
 end

@@ -1,8 +1,8 @@
 --@noindex
 function main_loop()
     PushTheme()
-    demo.PushStyle(ctx)
-    demo.ShowDemoWindow(ctx)
+    --demo.PushStyle(ctx)
+    --demo.ShowDemoWindow(ctx)
     ----------- Pre GUI area
     if not reaper.ImGui_IsAnyItemActive(ctx) and not TableHaveAnything(PreventKeys) then 
         PassKeys()
@@ -47,7 +47,7 @@ function main_loop()
     
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
-    demo.PopStyle(ctx)
+    --demo.PopStyle(ctx)
     OldTime = CurrentTime
 
     if open then
