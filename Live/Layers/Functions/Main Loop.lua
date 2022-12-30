@@ -142,19 +142,11 @@ function UpdateParameterValuesInput()
         for parameter_idx, parameter in ipairs(project_table.parameters) do
             ----- Update with Envelopes 
             if parameter.envelope and GetEnvelopeBypass(parameter.envelope) then -- If envelope and not bypassed 
-
-                -- Is envelope at a track?
-                local item = reaper.GetEnvelopeInfo_Value( parameter.envelope, 'P_ITEM' )
-                local is_at_item = item ~= 0 and true or false
-                if is_at_item then -- Trim the envelope input to the item length
-                    local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
-                    local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
-                    if pos < item_pos or pos > item_pos+item_len then goto continue end
-                end
-                
+    
                 -- Get min and max, evaluate
+                local retval, value, dVdS, ddVdS, dddVdS = EvaluateEnvelope(parameter.envelope, pos, 0, 0) 
+                if not value then goto continue end -- item envelope and is out of bounds
                 local minValue, maxValue, centerValue = GetEnvelopeRange(parameter.envelope)
-                local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate(parameter.envelope, pos, 0, 0)
 
                 -- Normalize between 0 and 1
                 local scale_mode = reaper.GetEnvelopeScalingMode(parameter.envelope) -- Never 1 ? 

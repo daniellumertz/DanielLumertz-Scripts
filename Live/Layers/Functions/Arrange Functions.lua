@@ -1,6 +1,6 @@
 --@noindex
---version: 0.9
--- add envelope min,max,center
+--version: 0.11
+-- higher lever envaluate envelope
 
 
 ------- Iterate 
@@ -201,8 +201,11 @@ end
 ------ Actions
 ---Select A list of items or one item. Validate them first
 ---@param itemlist table List of items to select. {item1, item2, item3} as userdata. Or just the item
-function SelectItemList(itemlist)
-    reaper.SelectAllMediaItems( 0, false ) -- Deselect all selected items
+---@param unselect boolean optional, unselect before selecting? 
+function SelectItemList(itemlist, unselect, proj)
+    if unselect == nil then unselect = true end -- make it optional
+    proj = proj or 0
+    reaper.SelectAllMediaItems( proj, false ) -- Deselect all selected items
     if type(itemlist) == 'userdata' then itemlist = {itemlist} end
     for i, item in ipairs(itemlist) do
         if reaper.ValidatePtr2(0, item, 'MediaItem*') then
@@ -219,6 +222,25 @@ function CreateSelectedItemsTable()
         t[#t+1] = item
     end
     return t
+end
+
+
+---Select an item, or list of items. Option to moveview to the first item at the center of the screen using current zoom 
+---@param proj project
+---@param item item
+---@param moveview boolean move view to the first item?
+function SetItemSelected(proj, item, moveview)
+    SelectItemList(item, true, proj)
+    if not moveview then
+        return
+    end
+    if type(item) == 'table' then item = item[1] end -- just the first item
+    local start_time, end_time = reaper.GetSet_ArrangeView2( proj, false, 0, 0, 0, 0 )
+    local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+    if pos < start_time or pos > end_time then -- Item out of view, center the view at the item start
+        local dif = end_time - start_time
+        start_time, end_time = reaper.GetSet_ArrangeView2( proj, true, 0, 0, pos-(dif*1/3), pos+(dif*2/3))
+    end
 end
 
 ---Write an ext state at an item
@@ -398,4 +420,20 @@ function GetEnvelopeRange(env)
   end
   
   error('unknown envelope type')
+end
+
+---Higher level function over reaper.Envelope_Evaluate. Return same values but if is an item adjust position for reaper.Envelope_Evaluate. If is at an item and position is out of bounds, return false.
+---@param envelope any
+---@param position any
+function EvaluateEnvelope(envelope, pos, samplerate, samplesRequested)
+    local item = reaper.GetEnvelopeInfo_Value( envelope, 'P_ITEM' )
+    local is_at_item = item ~= 0 and true or false
+    if is_at_item then -- Trim the envelope input to the item length
+        local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+        local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+        if pos < item_pos or pos > item_pos+item_len then return false end
+        pos = pos - item_pos
+    end
+    local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate(envelope, pos, samplerate, samplesRequested)
+    return retval, value, dVdS, ddVdS, dddVdS
 end
