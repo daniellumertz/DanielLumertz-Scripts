@@ -56,7 +56,7 @@ ce_set_display_point_size(number value)
 
 
 local point_size           = 5
-local hit_expand           = 12
+local hit_expand           = 6
 local horizontal_detection = false
 local display_handles      = false
 local display_point_size   = 3
@@ -177,6 +177,7 @@ function ce_draw(ctx, points, id, w, h, values)
     local mx, my = reaper.ImGui_GetMousePos(ctx)
     local alt =  reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_Mod_Alt() > 0
     local shift = reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_Mod_Shift() > 0
+    local ctrl = reaper.ImGui_GetKeyMods(ctx) & reaper.ImGui_Mod_Ctrl() > 0
     local l_po, points_display, remove = points[1], {}, {}
     local any_hovered = false
     for i = 1, #points do
@@ -211,7 +212,7 @@ function ce_draw(ctx, points, id, w, h, values)
       local point_size, hit_expand = point_size*m, hit_expand*m
       local bx = x - point_size - hit_expand - wx
       local by = y - point_size - hit_expand - wy
-      local br = point_size*2 + hit_expand*2
+      local br = (point_size + hit_expand) * 2
       if not alt then
         reaper.ImGui_SetItemAllowOverlap(ctx)
         if horizontal_detection then
