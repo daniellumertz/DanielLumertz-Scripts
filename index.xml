@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="56127a3a48fba9da2b5a67aedc736c0eeb8c791e">
+<index version="1" name="Daniel Lumertz Scripts" commit="6b9e41005fceb2ed8e98af1e467abe79fed89a03">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -481,6 +481,30 @@
         <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/edf8f97062e5a4c779b376ef81a778ac5449229f/Live/Layers/Functions/Settings.lua</source>
         <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/edf8f97062e5a4c779b376ef81a778ac5449229f/Live/Layers/Functions/Theme.lua</source>
         <source type="effect" file="Layers Volume.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/edf8f97062e5a4c779b376ef81a778ac5449229f/Live/Layers/Layers%20Volume.jsfx</source>
+      </version>
+      <version name="0.2" author="Daniel Lumertz" time="2023-01-11T02:57:26Z">
+        <changelog><![CDATA[+ Add midi filter to the JSFX]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/daniellumertz_Layers.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/BirdBird Curve Editor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/BirdBird%20Curve%20Editor.lua</source>
+        <source file="Functions/Chunk Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Chunk%20Functions.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/FX%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/Imgui Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Imgui%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Imgui%20General%20Functions.lua</source>
+        <source file="Functions/Json Main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Json%20Main.lua</source>
+        <source file="Functions/Layers Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Layers%20Functions.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/MIDI Input Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/MIDI%20Input%20Functions.lua</source>
+        <source file="Functions/Main Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Main%20Loop.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Serialize Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Serialize%20Functions.lua</source>
+        <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Settings.lua</source>
+        <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Functions/Theme.lua</source>
+        <source type="effect" file="Layers Volume.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/Live/Layers/Layers%20Volume.jsfx</source>
       </version>
     </reapack>
   </category>
@@ -1548,6 +1572,27 @@
         <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f7bb51353c6821c3a5e9627620dfd45c1095ae4e/MIDI/MIDI%20Toolkit/Functions/Style.lua</source>
         <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f7bb51353c6821c3a5e9627620dfd45c1095ae4e/MIDI/MIDI%20Toolkit/Fonts/Poppins-Regular.ttf</source>
         <source file="Fonts/Symbols.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f7bb51353c6821c3a5e9627620dfd45c1095ae4e/MIDI/MIDI%20Toolkit/Fonts/Symbols.ttf</source>
+      </version>
+      <version name="1.1" author="Daniel Lumertz" time="2023-01-11T02:57:26Z">
+        <changelog><![CDATA[+ Remove harmonic and melodic intervals at mapper. ]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/DanielLumertz_MIDI%20Toolkit.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/ImGUI Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/ImGUI%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Imgui%20Functions.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Main%20Loop.lua</source>
+        <source file="Functions/Mapper Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Mapper%20Functions.lua</source>
+        <source file="Functions/Param Tables Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Param%20Tables%20Functions.lua</source>
+        <source file="Functions/Permutate Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Permutate%20Functions.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Functions/Style.lua</source>
+        <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Fonts/Poppins-Regular.ttf</source>
+        <source file="Fonts/Symbols.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6b9e41005fceb2ed8e98af1e467abe79fed89a03/MIDI/MIDI%20Toolkit/Fonts/Symbols.ttf</source>
       </version>
     </reapack>
   </category>
