@@ -5,15 +5,27 @@ desc:Layers Volume
 slider1:gain_db=1<0,1,0.01>gain (dB)
 
 @init
-  last_gain = gain_db
+  last_gain = gain_db;
+  
+  buf = 10000;
+  maxlen = 65536;
 @slider
   next_gain = gain_db
 @block
   nch=get_host_numchan();
   d_gain = (next_gain - last_gain)/samplesblock;
+  
+  // MIDI: (Filter all midi, including Sysex)
+  while ((recvlen = midirecv_buf(offset,buf,maxlen)) > 0) (
+    gain_db == 1 ? (
+      midisend_buf(offset,buf,recvlen); // passthrough
+    );
+  );
+  
 @sample
+  // AUDIO:
   loop(i=0; nch,
-    spl(i)*= last_gain;
+    spl(i)*= last_gain; 
     i += 1;
   );
   last_gain += d_gain;

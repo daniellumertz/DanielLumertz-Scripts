@@ -25,6 +25,7 @@ function GetParamsMapper(event_size,is_event)
             end
         end
     end
+    
     --  Get possible intervals
     local new_interval_list = {}
     for event_idx, event_table in pairs(param_list.interval) do
@@ -48,7 +49,7 @@ function GetParamsMapper(event_size,is_event)
     -- unify event parameters in just one string
     local stringfy_param_table = MidiTableParametersEventTogether(param_list) 
     -- create old_parameters_table that will be called mapper table -- for all parameters besides rhythm and intervals
-    local old_parameters_table = {pitch = {}, rhythm_qn = {}, measure_pos_qn = {}, vel = {}, interval = {}, harmonic_interval = {}, melodic_interval = {}}
+    local old_parameters_table = {pitch = {}, rhythm_qn = {}, measure_pos_qn = {}, vel = {}, interval = {}}
 
     local function  sort_using_first_value(a,b)
         local first_val = tonumber((a.old_value):match('^-?[%d.]+'))
@@ -56,12 +57,13 @@ function GetParamsMapper(event_size,is_event)
 
         return first_val < second_val 
     end
+
     -- Get each parameter value only once
     for param_string, _ in pairs(old_parameters_table) do
+        if not stringfy_param_table[param_string] then stringfy_param_table[param_string] = {} end
+
         local parameter_table = stringfy_param_table[param_string]
         for event_index, parameter in pairs(parameter_table) do
-            -- change the value if is interval (to get all, melodic, harmonic)
-
             local bol 
             --  check if already added the value
             for index, _ in ipairs(old_parameters_table[param_string]) do
@@ -102,8 +104,6 @@ function GetParamsMapper(event_size,is_event)
     local mapper_table = {}
     mapper_table['Pitch'] = old_parameters_table['pitch'] 
     mapper_table['Interval'] = old_parameters_table['interval']
-    mapper_table['M Interval'] = old_parameters_table['melodic_interval']
-    mapper_table['H Interval'] = old_parameters_table['harmonic_interval']
     mapper_table['Rhythm'] = old_parameters_table['rhythm_qn']
     mapper_table['Measure Pos'] = old_parameters_table['measure_pos_qn']
     mapper_table['Velocity'] = old_parameters_table['vel']

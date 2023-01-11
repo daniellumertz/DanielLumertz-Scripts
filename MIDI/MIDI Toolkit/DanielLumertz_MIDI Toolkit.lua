@@ -1,4 +1,4 @@
--- @version 1.0.5
+-- @version 1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
@@ -6,13 +6,13 @@
 --    [nomain] Fonts/*.ttf
 -- @license MIT
 -- @changelog
---    + Correct Sorting
+--    + Remove harmonic and melodic intervals at mapper. 
 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 ScriptName = 'MIDI Toolkit'
-Version = '1.0.5'
+Version = '1.1'
 
 --- Load functions
 local info = debug.getinfo(1, 'S');
@@ -56,7 +56,7 @@ for index, param_name in ipairs(ComboParam) do
     ReorderTable[param_name] = {}
 end
 -- Mapper 
-MapperComboParam = {'Pitch','Interval','H Interval','M Interval','Rhythm','Measure Pos','Velocity'}
+MapperComboParam = {'Pitch','Interval','Rhythm','Measure Pos','Velocity'}
 MapperTable = {}
 for index, param_name in ipairs(MapperComboParam) do
     MapperTable[param_name] = {}
