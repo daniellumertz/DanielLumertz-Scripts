@@ -1,26 +1,110 @@
 noindex: true
 author Daniel Lumertz
 
+// just to debug
+//options:gmem=VolumeController
+
 desc:Layers Volume
 slider1:gain_db=1<0,1,0.01>gain (dB)
 
-@init
+
+@init  
+  ext_noinit = 1.0; //this code not execute on start of playback or samplerate changes
   last_gain = gain_db;
   
   buf = 10000;
   maxlen = 65536;
+  // index at the table.
+  notes_poly = 256; // max number of polyphony 
+  pitch_v = notes_poly; // index from the table it start being pitch
+  channel_v = notes_poly*2; // index from the table it start being channel
+  note_count = 0
+  // notes_on is a table with [notes_poly] possible notes to store in it  it is divided in 3 part first between [0 - notes_poly-1] is a boolean if the note is turned on. between [ notes_poly - notes_poly*2-1] is the pitch, between [ notes_poly*2 - notes_poly*3-1] is the channel 
 @slider
-  next_gain = gain_db
+  next_gain = gain_db;
+  
 @block
   nch=get_host_numchan();
   d_gain = (next_gain - last_gain)/samplesblock;
   
   // MIDI: (Filter all midi, including Sysex)
   while ((recvlen = midirecv_buf(offset,buf,maxlen)) > 0) (
-    gain_db == 1 ? (
-      midisend_buf(offset,buf,recvlen); // passthrough
+    // slider is equal to 1 ( manage the notes on table + passtrough midi)
+    gain_db == 1 ? ( // passthrough
+    
+      // manage the note on table
+      buf[0]&0xF0 == 0x90 && buf[2] !=0 ? (
+        //////note on, add to the table
+        // find a clear index
+        note_count += 1;
+        bol = 1; 
+        cnt = 0;
+        while (bol) (
+          notes_on[cnt] == 0 ? (
+            notes_on[cnt] = 1;
+            notes_on[cnt + pitch_v] = buf[1]; // pitch
+            notes_on[cnt + channel_v] = buf[0]&0x0F; // channel
+            bol = 0; // break the loop 
+          );
+          cnt += 1;
+          cnt == notes_poly ? (
+            bol = 0 // break at the end
+          ); 
+        );
+      ):((buf[0]&0xF0 == $x80) | (buf[0]&0xF == 0x90 && msg3 == 0))?( //note off
+        /////note off, remove this note from the note on table
+        note_count -= 1;
+        note_count = max(0,note_count);// clamp at 0
+        bol = 1;
+        cnt = 0;
+        while (bol) (
+          notes_on[cnt] && notes_on[cnt + pitch_v] == buf[1] && notes_on[cnt + channel_v] == buf[0]&0x0F ? ( // same note and same channel
+            notes_on[cnt] = 0;
+            notes_on[cnt + pitch_v] = 0;
+            notes_on[cnt + channel_v] = 0;
+            bol = 0;
+          );
+          
+          cnt += 1;
+          cnt == notes_poly ? (
+            bol = 0 // break at the end
+          ); 
+        );
+        
+      ):( (buf[0]&0xF0 == $xB0) &&  buf[1] == 123 )?( // all notes off (CC 123)
+        // all notes off, clean the table
+        note_count = 0;
+        loop(cnt = 0; notes_poly,
+          notes_on[cnt] = 0;
+          notes_on[cnt + pitch_v] = 0;
+          notes_on[cnt + channel_v] = 0; 
+        );
+      ); 
+      
+      midisend_buf(offset,buf,recvlen); 
     );
   );
+  
+  // when less than 1 send notes off if needed
+  gain_db < 1 && note_count > 0 ? (  // if there is any note at the notes_on send notes off! clean the table
+    loop (cnt = 0; notes_poly,
+      notes_on[cnt] ? (
+        ch = notes_on[cnt + channel_v];
+        msg1 = 0x80|ch; 
+        msg2 = notes_on[cnt + pitch_v];
+        msg3 = 0;
+        midisend(0,msg1,msg2,msg3);  
+        notes_on[cnt] = 0; 
+        notes_on[cnt + pitch_v] = 0;
+        notes_on[cnt + channel_v] = 0; 
+      );
+      cnt += 1
+    );
+    note_count = 0;
+  );  
+  
+
+  //count_table(a);
   
 @sample
   // AUDIO:
