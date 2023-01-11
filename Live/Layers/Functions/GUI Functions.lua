@@ -150,7 +150,7 @@ function TargetsTab(parameter, parameter_key)
         reaper.ImGui_PopStyleVar(ctx)
     end
     if is_save then -- Save settings
-        SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) -- TODO
+        SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) 
     end
 end
 
@@ -194,8 +194,20 @@ function TargetRightClick(parameter,target,track)
             end
             reaper.ImGui_EndMenu(ctx)
         end
+
+        if reaper.ImGui_BeginMenu(ctx, 'FX MIDI Options') then
+            _, target.is_force_fx_settings = reaper.ImGui_Checkbox(ctx, "Force FX Settings", target.is_force_fx_settings)
+            ToolTip(true,'Force the '..FXNAME..' settings. Optionally is to set manually at the FX UI.')
+            if target.is_force_fx_settings then
+                _, target.is_fx_midi_chase = reaper.ImGui_Checkbox(ctx, "Chase MIDI", target.is_fx_midi_chase)
+                ToolTip(true,'When the parameter value is 1 it will chase midi notes that were filtered and are still playing.')
+                _, target.is_fx_chase_only_once = reaper.ImGui_Checkbox(ctx, "Chase MIDI Only Once", target.is_fx_chase_only_once)
+                ToolTip(true,'Chase each midi note just once. For cases where the parameter will be oscilating between 1(playing) and <1(not playing).')
+            end
+            reaper.ImGui_EndMenu(ctx)
+        end
         --bypass:
-        _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass', target.bypass) -- will change at next loop
+        _, target.bypass = reaper.ImGui_Checkbox(ctx, 'Bypass FX', target.bypass) -- will change at next loop
         ToolTip(UserConfigs.tooltips,'Bypass target FX')        
 
         --------------------
@@ -217,12 +229,17 @@ function TargetRightClick(parameter,target,track)
         -- Remove button
         if reaper.ImGui_Button(ctx, 'Remove Target',-FLTMIN) then
             RemoveTarget(parameter, track)
+            SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) 
+            TempTargetRightClick = nil
             reaper.ImGui_CloseCurrentPopup(ctx)
         end
 
+        TempTargetRightClick = target -- save when this closes
         reaper.ImGui_EndPopup(ctx)
+    elseif TempTargetRightClick == target then
+        TempTargetRightClick = nil
+        SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj]) 
     end
-    
 end
 
 ---------   

@@ -1,4 +1,4 @@
--- @version 0.2.2
+-- @version 0.3
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -7,7 +7,8 @@
 -- @changelog
 --    + Add midi filter to the JSFX
 --    + send note off when filtering MIDI
---    + options for the MIDI chasing
+--    + jsfx options for the MIDI chasing
+--    + gui options for the MIDI chasing
 -- @license MIT
 
 
@@ -43,7 +44,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.2.2'
+Version = '0.3'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'

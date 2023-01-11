@@ -33,8 +33,25 @@ function CheckFxPos(track, target, proj)
 
         if not is_at_position then
             reaper.TrackFX_CopyToTrack( track, fx_idx, track, dest_idx, true )
-            print('changing pos')
         end
+    end
+
+    if target.is_force_fx_settings then
+        local fx_idx = CheckLayerFX(track, false)
+        -- MIDI Chase
+        local param = 1
+        local forced_val = target.is_fx_midi_chase and 1 or 0 
+        local midi_chase, minval, maxval = reaper.TrackFX_GetParam(track, fx_idx, param)
+        if midi_chase ~= forced_val then
+            reaper.TrackFX_SetParamNormalized(track, fx_idx, param, forced_val)
+        end
+        -- MIDI Chase Once
+        local param = 2
+        local forced_val = target.is_fx_chase_only_once and 1 or 0 
+        local midi_chase, minval, maxval = reaper.TrackFX_GetParam(track, fx_idx, param)
+        if midi_chase ~= forced_val then
+            reaper.TrackFX_SetParamNormalized(track, fx_idx, param, forced_val)
+        end        
     end
     -- Bypass
     Bypass(track, fx_idx, target, proj)
@@ -114,7 +131,10 @@ function CreateTargetTable(track)
         slopeup = 0,
         slopedown = 0,
         force_fx_pos = 0,
-        is_force_fx = true
+        is_force_fx = true,
+        is_force_fx_settings = true,
+        is_fx_midi_chase = true,
+        is_fx_chase_only_once = false,
     }
     return t
 end
