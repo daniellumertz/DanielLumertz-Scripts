@@ -32,7 +32,6 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         bol = 0 // break at the end
       ); 
     );
-    table;
   );
   
   function remove_table(table,pitch,channel)
@@ -67,7 +66,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
       //////note on, add to the table
       // find a clear index
       temp_note_counter += 1;
-      note_table = add_to_table(note_table,buf[1],buf[0]&0x0F,buf[2]);
+      add_to_table(note_table,buf[1],buf[0]&0x0F,buf[2]);
       
     ):((buf[0]&0xF0 == $x80) | (buf[0]&0xF == 0x90 && buf[2] == 0))?( //note off
       /////note off, remove this note from the note on table
@@ -84,9 +83,9 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         note_table[cnt + pitch_v] = 0;
         note_table[cnt + channel_v] = 0; 
         note_table[cnt + velocity_v] = 0;
+        cnt += 1;
       );
     );
-    note_table;
   );
   ////////// Options
   ext_noinit = 1.0; //this code not execute on start of playback or samplerate changes
@@ -106,6 +105,8 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
   note_filter_count = 0; // count note on filtered while slidet at 0. to chase midi
   // notes_on is a table with [notes_poly] possible n otes to store in it  it is divided in 3 part first between [0 - notes_poly-1] is a boolean if the note is turned on. between [ notes_poly - notes_poly*2-1] is the pitch, between [ notes_poly*2 - notes_poly*3-1] is the channel 
   // note_on_filter same as note_on but for filtered notes when slider is at 0 
+  notes_on = 0;
+  note_on_filter = notes_poly*4;
 @slider
   next_gain = gain_db;
 
@@ -120,7 +121,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
     gain_db == 1 ? ( // passthrough
     
       temp_note_counter = note_count; 
-      note_on = manage_note_tabe (note_on,buf);
+      manage_note_tabe (note_on,buf);
       note_count = temp_note_counter;
       temp_note_counter = 0;
       
@@ -129,7 +130,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
     ) : (
     
       temp_note_counter = note_filter_count; 
-      note_on_filter = manage_note_tabe (note_on_filter,buf);
+      manage_note_tabe (note_on_filter,buf);
       note_filter_count = temp_note_counter;
       temp_note_counter = 0;
     );
@@ -149,7 +150,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         // send the note
         midisend(0,msg1,msg2,msg3);  
         !is_chase_once ? ( // if chase many time (not once) then add to the filtered table. Then if the user goes to 1 many times it will trigger many times the notes.
-          note_on_filter = add_to_table (note_on_filter,msg2,ch,vel);// add to the played notes
+          add_to_table (note_on_filter,msg2,ch,vel);// add to the played notes
           note_filter_count += 1;
         );
         
@@ -157,8 +158,9 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         notes_on[cnt + pitch_v] = 0;
         notes_on[cnt + channel_v] = 0; 
       );
-      cnt += 1  
+      cnt += 1;  
     );
+    cnt = 0;
     note_count = 0;
   ): gain_db == 1 && note_filter_count > 0 ? (
     loop (cnt = 0; notes_poly, 
@@ -169,10 +171,9 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         msg3 = note_on_filter[cnt + velocity_v];
         
         // send the note
-        gmem[22] = is_chase;
         is_chase ? (
           midisend(0,msg1,msg2,msg3);  
-          notes_on = add_to_table (notes_on,msg2,ch,msg3);// add to the played notes
+          add_to_table (notes_on,msg2,ch,msg3);// add to the played notes
           note_count += 1;
         );
         
@@ -182,8 +183,9 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         note_on_filter[cnt + channel_v] = 0; 
         
       );
-      cnt += 1
+      cnt += 1;
     );
+    cnt = 0;
     note_filter_count = 0;
   );  
   

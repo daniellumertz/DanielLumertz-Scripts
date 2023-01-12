@@ -1,4 +1,4 @@
--- @version 0.3
+-- @version 0.3.1
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -9,6 +9,7 @@
 --    + send note off when filtering MIDI
 --    + jsfx options for the MIDI chasing
 --    + gui options for the MIDI chasing
+--    + remove debug lines
 -- @license MIT
 
 
