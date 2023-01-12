@@ -203,6 +203,8 @@ function TargetRightClick(parameter,target,track)
                 ToolTip(true,'When the parameter value is 1 it will chase midi notes that were filtered and are still playing.')
                 _, target.is_fx_chase_only_once = reaper.ImGui_Checkbox(ctx, "Chase MIDI Only Once", target.is_fx_chase_only_once)
                 ToolTip(true,'Chase each midi note just once. For cases where the parameter will be oscilating between 1(playing) and <1(not playing).')
+                _, target.is_fx_midi_scale = reaper.ImGui_Checkbox(ctx, "Scale MIDI Velocity", target.is_fx_midi_scale)
+                ToolTip(true,'Scale the MIDI Note Velocity when curve value is between 0 and 1.')
             end
             reaper.ImGui_EndMenu(ctx)
         end

@@ -51,7 +51,14 @@ function CheckFxPos(track, target, proj)
         local midi_chase, minval, maxval = reaper.TrackFX_GetParam(track, fx_idx, param)
         if midi_chase ~= forced_val then
             reaper.TrackFX_SetParamNormalized(track, fx_idx, param, forced_val)
-        end        
+        end
+        -- MIDI Scale
+        local param = 3
+        local forced_val = target.is_fx_midi_scale and 1 or 0 
+        local midi_chase, minval, maxval = reaper.TrackFX_GetParam(track, fx_idx, param)
+        if midi_chase ~= forced_val then
+            reaper.TrackFX_SetParamNormalized(track, fx_idx, param, forced_val)
+        end   
     end
     -- Bypass
     Bypass(track, fx_idx, target, proj)
@@ -135,6 +142,7 @@ function CreateTargetTable(track)
         is_force_fx_settings = true,
         is_fx_midi_chase = true,
         is_fx_chase_only_once = false,
+        is_fx_midi_scale = false,
     }
     return t
 end

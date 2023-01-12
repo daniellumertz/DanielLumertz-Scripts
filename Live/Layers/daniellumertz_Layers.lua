@@ -1,4 +1,4 @@
--- @version 0.3.2
+-- @version 0.4
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -11,6 +11,7 @@
 --    + gui options for the MIDI chasing
 --    + remove debug lines
 --    + fix hanging midi notes
+--    + 
 -- @license MIT
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
@@ -42,7 +43,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.3.2'
+Version = '0.4'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'

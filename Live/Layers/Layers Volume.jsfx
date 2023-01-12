@@ -2,16 +2,16 @@ noindex: true
 author Daniel Lumertz
 
 // just to debug
-options:gmem=VolumeController
+//options:gmem=VolumeController
 
 desc:Layers Volume
 slider1:gain_db=1<0,1,0.01>gain (dB)
 slider2:is_chase=1<0,1,1{No,Yes}>Chase MIDI notes when gain slider goes to 1.
 slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
+slider4:is_scale_velocity=0<0,1,1{No,Yes}>Scale velocity.
 
 
 @init  
-
   function add_to_table (table,pitch,channel,velocity) // buf[1] , buf[0]&0x0F, buf[2]
   local(bol,cnt)
   global(notes_poly,channel_v, pitch_v, velocity_v)
@@ -58,7 +58,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
 
   function manage_note_tabe (note_table,buf) // table to add notes, midi messages, cnt of notes on
   local(bol, cnt)
-  global(temp_note_counter, notes_poly, channel_v, pitch_v, velocity_v, gmem) // before calling this function make temp_note_counter = the bariable that contains the note counter
+  global(temp_note_counter, notes_poly, channel_v, pitch_v, velocity_v) // before calling this function make temp_note_counter = the bariable that contains the note counter
   (
   
     // manage the note on table
@@ -70,7 +70,6 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
       
     ):((buf[0]&0xF0 == $x80) | (buf[0]&0xF == 0x90 && buf[2] == 0))?( //note off
       /////note off, remove this note from the note on table
-      gmem[4] = 456;
       temp_note_counter -= 1;
       temp_note_counter = max(0,temp_note_counter);// clamp at 0
       remove_table(note_table,buf[1],buf[0]&0x0F);
@@ -128,7 +127,7 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         vel = notes_on[cnt + velocity_v];
         msg3 = 0;
         
-        // send the note
+        // send the note 
         midisend(0,msg1,msg2,msg3);  
         !is_chase_once ? ( // if chase many time (not once) then add to the filtered table. Then if the user goes to 1 many times it will trigger many times the notes.
           add_to_table (note_on_filter,msg2,ch,vel);// add to the played notes
@@ -153,6 +152,13 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
         
         // send the note
         is_chase ? (
+        
+          //scale velocity
+          is_scale_velocity ? (
+            msg3 = msg3 * gain_db
+          );
+          
+          //send midi and add to the notes on table
           midisend(0,msg1,msg2,msg3);  
           add_to_table (notes_on,msg2,ch,msg3);// add to the played notes
           note_count += 1;
@@ -180,6 +186,10 @@ slider3:is_chase_once=0<0,1,1{No,Yes}>Chase once, when the slider goes to 1.
       note_count = temp_note_counter;
       temp_note_counter = 0;
       
+      // change note velocity if needed
+      is_scale_velocity && buf[0]&0xF0 == 0x90 ? (
+        buf[2] = buf[2] * gain_db;
+      );
       
       midisend_buf(offset,buf,recvlen); 
     ) : (
