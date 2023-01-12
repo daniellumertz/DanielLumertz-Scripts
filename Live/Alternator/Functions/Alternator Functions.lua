@@ -1,3 +1,4 @@
+--@noindex
 ---Alternate the takes, mute the items
 ---@param groups table Content the group tables
 ---@param trigger any 'loop' if a loop caused the trigger. 'stop' if a stop caused the trigger. true will force the group to trigger

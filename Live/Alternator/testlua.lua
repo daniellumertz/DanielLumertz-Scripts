@@ -1,3 +1,4 @@
+--@noindex
 ---Iterate function simillar as ipairs but on reverse
 ---@param t any
 function ipairs_reverse(t)
