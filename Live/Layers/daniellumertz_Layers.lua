@@ -41,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.4'
+Version = '0.4.1'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'
