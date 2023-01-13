@@ -1,17 +1,12 @@
--- @version 0.4
+-- @version 0.4.1
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [effect] Layers Volume.jsfx
 -- @changelog
---    + Add midi filter to the JSFX
---    + send note off when filtering MIDI
---    + jsfx options for the MIDI chasing
---    + gui options for the MIDI chasing
---    + remove debug lines
---    + fix hanging midi notes
---    + 
+--    + Fix Updating target values (at start, changing the curve editor)
+
 -- @license MIT
 
 -- TODO
@@ -68,6 +63,7 @@ TRUE_VALUE_COLOR = 0x42FAD230
 FXNAME = 'Layers Volume'
 
 -- Start
+IsFirstRun = true -- to force an update of the Fx in the first run.
 OldTime = reaper.time_precise()
 GuiInit()
 reaper.defer(main_loop())

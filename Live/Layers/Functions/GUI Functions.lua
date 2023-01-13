@@ -142,7 +142,11 @@ function TargetsTab(parameter, parameter_key)
         -- Curve inside tree node
         if open then
             local curve_editor_height = 75
-            ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {target.value})
+            local change = ce_draw(ctx, target.curve, 'target'..name, -FLTMIN, curve_editor_height, {target.value})
+            if change then -- if the curve was changed need to update the value, as it could have change (if change the Y for the current X)
+                target.is_update_ce = true
+            end
+            is_save = is_save or change
 
             reaper.ImGui_TreePop(ctx)
         end

@@ -60,7 +60,7 @@ end
 --- Update the parameter_true value and the target value. Update the FX value
 function UpdateLayerFXValues()
     -- Update True Value
-    local last_dif = CurrentTime - OldTime 
+    local last_dif = CurrentTime - OldTime -- best use time than frames (stutters...) + user set slope velocity in time.
     local proj_t = (UserConfigs.only_focus_project and {ProjConfigs[FocusedProj]}) or ProjConfigs -- if only_focus_project will be a table with the focused project only else will do for all open projectes
     for proj, project_table in pairs(proj_t) do
         for parameter_idx, parameter in ipairs(project_table.parameters) do
@@ -70,7 +70,8 @@ function UpdateLayerFXValues()
 
             -- set the target value(that is used to set the fx)
             for track, target in pairs(parameter.targets) do
-                if target.value ~= parameter.true_value then
+                if (target.value ~= parameter.true_value) or target.is_update_ce or IsFirstRun then -- if the value from the target is different from the parameter, if the curve was updated, if the script was initialized in this frame.
+                    target.is_update_ce = nil
                     local slopeup = target.slopeup + parameter.slopeup
                     local slopedown = target.slopedown + parameter.slopedown
                     target.value  = Slide(target.value,parameter.value,slopeup, slopedown,last_dif,0,1)
