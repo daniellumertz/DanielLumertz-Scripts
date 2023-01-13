@@ -14,6 +14,9 @@
 --    + 
 -- @license MIT
 
+-- TODO
+-- change curver needs to update fx and save the proj settings
+
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 

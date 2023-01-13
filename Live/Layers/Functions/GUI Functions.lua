@@ -134,7 +134,7 @@ function TargetsTab(parameter, parameter_key)
         local _, name = reaper.GetTrackName(track)
         reaper.ImGui_PushStyleVar(ctx, reaper.ImGui_StyleVar_IndentSpacing(), 0)
 
-        local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name)
+        local open = reaper.ImGui_TreeNode(ctx, 'Track : '..name..'##'..target_idx)
         ToolTip(UserConfigs.tooltips,'This is a track target. Right Click for more options.\n\nAt the curve editor:\nDouble Click = Add Point\nRight Click = Remove Point\nAlt + Left drag = Adjust segment tension\nAlt + Right Click = Reset segment tension\nShift drag = More Precision',400)
 
         -- Right click node
