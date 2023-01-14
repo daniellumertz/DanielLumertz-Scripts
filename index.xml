@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="f05ee844b1708a06319a11c6f3831ae0c053f9b7">
+<index version="1" name="Daniel Lumertz Scripts" commit="dffcadf2622c441ccfb0ef504547bf52655d1403">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -820,6 +820,27 @@
         <source file="Functions/Serialize Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/614db0155d948b517756ad6f0bcd53461f7fbc7d/Live/ReaGoTo/Functions/Serialize%20Functions.lua</source>
         <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/614db0155d948b517756ad6f0bcd53461f7fbc7d/Live/ReaGoTo/Functions/Settings.lua</source>
         <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/614db0155d948b517756ad6f0bcd53461f7fbc7d/Live/ReaGoTo/Functions/Theme.lua</source>
+      </version>
+      <version name="0.2" author="Daniel Lumertz" time="2023-01-14T10:41:27Z">
+        <changelog><![CDATA[+ Add Smooth seek ]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/daniellumertz_ReaGoTo.lua</source>
+        <source main="main" file="daniellumertz_ReaGoTo Add Project Marker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/daniellumertz_ReaGoTo%20Add%20Project%20Marker.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/FX%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/GoTo Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/GoTo%20Functions.lua</source>
+        <source file="Functions/Imgui Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Imgui%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Imgui%20General%20Functions.lua</source>
+        <source file="Functions/Json Main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Json%20Main.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Main%20Loop.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Serialize Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Serialize%20Functions.lua</source>
+        <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Settings.lua</source>
+        <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/dffcadf2622c441ccfb0ef504547bf52655d1403/Live/ReaGoTo/Functions/Theme.lua</source>
       </version>
     </reapack>
   </category>
