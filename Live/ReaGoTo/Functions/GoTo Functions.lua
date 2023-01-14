@@ -234,7 +234,9 @@ function CreateProjectConfigTable(proj)
             cancel = {
                 midi = CreateCleanMIDITable()
             }
-        }
+        },
+        is_force_goto = false, -- when true it will look for markers with the force indentifier and them will trigger goto commands
+        force_identifier = '#force', -- force identifier
     }   
     return t
 end

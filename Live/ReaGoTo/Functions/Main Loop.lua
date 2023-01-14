@@ -79,11 +79,11 @@ function GoToCheck()
         end
 
 
-        if not project_table.is_triggered then goto continue end
+        --if not project_table.is_triggered then goto continue end
 
     
         -- if playing and is_triggered then search the next Trigger point 
-        if is_play and project_table.is_triggered then
+        if is_play and (project_table.is_triggered or project_table.is_force_goto)then
 
             local trigger_point 
             local marker_name

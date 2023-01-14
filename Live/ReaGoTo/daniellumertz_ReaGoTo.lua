@@ -1,11 +1,13 @@
--- @version 0.2
+-- @version 0.2.1
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add Smooth seek 
+--    + Add Smooth seek support
+--    + Better Menu bar settings UI 
+--    + Immediately Alt mouse mod
 -- @license MIT
 
 

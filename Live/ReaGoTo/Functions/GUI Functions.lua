@@ -76,7 +76,7 @@ function PlaylistTab(playlist)
             local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
-            ToolTip(UserConfigs.tooltips,'This is a region/marker at the playlist. Double click to trigger a GOTO to that position. Right Click for more options. Drag to change the order.')        
+            ToolTip(UserConfigs.tooltips,'This is a region/marker at the playlist. Right Click for more options. Drag to change the order. Double click to trigger a GOTO to that position, hold alt and double click to execute the goto immediately.')        
 
             if project_table.is_triggered and tonumber(project_table.is_triggered:match('^goto(.+)')) == region_idx then
                 local alpha = MapRange(GUIButtomAnimationVal,-1,1,0.2,0.5) --adds alpha based on animation step
@@ -87,6 +87,9 @@ function PlaylistTab(playlist)
             local midi_trigger = CheckMIDITrigger(region_table.midi)
             if (reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx,0)) or midi_trigger then
                 SetGoTo(FocusedProj, 'goto'..region_idx)
+                if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then
+                    GoTo(ProjConfigs[FocusedProj].is_triggered,FocusedProj)
+                end
             end
 
             -- rename / delete take popup
@@ -293,7 +296,12 @@ function TriggerButtons(playlists)
         local paint = triggered_button_style(trigger_string)
         if reaper.ImGui_Button(ctx, '<',button_size) or midi_trigger then
             SetGoTo(FocusedProj, 'prev')
+            if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then
+                GoTo(ProjConfigs[FocusedProj].is_triggered,FocusedProj)
+            end
         end
+        ToolTip(UserConfigs.tooltips,'Goto previous at the playlist. Right click for MIDI Learn. Alt Click to execute immediataly.')        
+
         pop_button_style(paint)
         MidiPopupButtons(ProjConfigs[FocusedProj].buttons.prev.midi)
     end
@@ -311,11 +319,14 @@ function TriggerButtons(playlists)
         reaper.ImGui_SameLine(ctx)
         if reaper.ImGui_Button(ctx, '?',button_size) or midi_trigger then
             SetGoTo(FocusedProj, trigger_string)
+            if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then
+                GoTo(ProjConfigs[FocusedProj].is_triggered,FocusedProj)
+            end
         end
         pop_button_style(paint or paint2)
         MidiPopupButtons(ProjConfigs[FocusedProj].buttons.random.midi)
     end
-    ToolTip(UserConfigs.tooltips,'Goto a random region/marker at the playlist. If holding Ctrl/Command it can repeat itself.')        
+    ToolTip(UserConfigs.tooltips,'Goto a random region/marker at the playlist. If holding Ctrl/Command it can repeat itself. Right click for MIDI Learn. Alt Click to execute immediataly.')        
 
 
     do -- Next Button
@@ -325,8 +336,11 @@ function TriggerButtons(playlists)
         local paint = triggered_button_style(trigger_string)
         if reaper.ImGui_Button(ctx, '>',button_size) or midi_trigger then
             SetGoTo(FocusedProj, trigger_string)
+            if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Alt() then
+                GoTo(ProjConfigs[FocusedProj].is_triggered,FocusedProj)
+            end
         end
-        ToolTip(UserConfigs.tooltips,'Goto next at the playlist.')        
+        ToolTip(UserConfigs.tooltips,'Goto next at the playlist. Right click for MIDI Learn. Alt Click to execute immediataly.')        
 
         pop_button_style(paint)
         MidiPopupButtons(ProjConfigs[FocusedProj].buttons.next.midi)
