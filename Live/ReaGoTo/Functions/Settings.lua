@@ -76,10 +76,10 @@ end
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
     local table_copy = TableDeepCopy(config_table)
-    -- current playlist to 0
-    for playlist_key, playlist in ipairs(table_copy.playlists) do 
+    -- current playlist to 0 (Should I turn it on?)
+    --[[ for playlist_key, playlist in ipairs(table_copy.playlists) do 
         playlist.current = 0
-    end
+    end ]]
     -- remove triggers
     table_copy.is_triggered = false
     -- remove positions

@@ -1,4 +1,4 @@
--- @version 0.2.1
+-- @version 0.3
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
@@ -8,6 +8,8 @@
 --    + Add Smooth seek support
 --    + Better Menu bar settings UI 
 --    + Immediately Alt mouse mod
+--    + Add #force markers
+--    + Remove reset current playlists value at script exit
 -- @license MIT
 
 
@@ -38,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.2'
+Version = '0.3'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'

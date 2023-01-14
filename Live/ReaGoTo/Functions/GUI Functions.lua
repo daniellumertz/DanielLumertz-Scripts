@@ -379,34 +379,37 @@ function MenuBar()
         if reaper.ImGui_BeginMenu(ctx, 'Settings') then
             if reaper.ImGui_BeginMenu(ctx, 'Goto Project Settings') then
                 ------------------------------------------------ General
+                reaper.ImGui_Text(ctx, 'Geral:')
+
                 local proj_table = ProjConfigs[FocusedProj]
-                local change, change2, change3, change4, change5, change6, change7
-                change, proj_table.moveview = reaper.ImGui_Checkbox(ctx, 'Move Arrange View at Go To', proj_table.moveview)
+                local retval
+                _, proj_table.moveview = reaper.ImGui_Checkbox(ctx, 'Move Arrange View at Go To', proj_table.moveview)
                 ToolTip(true, 'If move arrange view position when changing position.')
 
-                change2, proj_table.stop_trigger = reaper.ImGui_Checkbox(ctx, 'Stop Triggers', proj_table.stop_trigger)
+                _, proj_table.stop_trigger = reaper.ImGui_Checkbox(ctx, 'Cancel Triggers at Project Stop.', proj_table.stop_trigger)
                 ToolTip(true, 'When stoping/pausing playback it will cancel any goto trigger.')
                 ------------------------------------------------ Marks
+                reaper.ImGui_NewLine(ctx)
                 reaper.ImGui_Separator(ctx)
+                reaper.ImGui_Text(ctx, 'Trigger Type:')
 
-                change4, proj_table.is_marker = reaper.ImGui_Checkbox(ctx, 'Use Goto Markers', proj_table.is_marker)
+                retval, proj_table.is_marker = reaper.ImGui_Checkbox(ctx, 'Use Goto Markers', proj_table.is_marker)
                 ToolTip(true, 'Trigger Goto at goto identified markers.')
-                if change4 and SmoothSettings.is_smoothseek then
+                if retval and SmoothSettings.is_smoothseek then
                     local new_val = proj_table.is_marker and 3 or 1 -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     reaper.SNM_SetIntConfigVar('smoothseek', new_val)
                     proj_table.grid.is_grid = false
                 end
 
                 if proj_table.is_marker  then
-                    change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
-                    ToolTip(UserConfigs.tooltips, 'Goto Mark Identifier, every goto marker should start with this string.\n\nAfter the indentifier is possible to use a overwrite trigger, like "#goto next" will always trigger the next region/marker at the playlist. Overwrite options are:\n\nnext=next at playlist.\nprev=prev at playlist\nrandom=random at playlist(filter current region)\nrandom_with_rep=random at playlist\ngoto..regionidx = goto a playlist idx\npos..seconds= go to a certain time in seconds\nqn..value = goto a certain position in quarter note\nbar..barnumber = goto a certainbar\nmark..mark_index = goto a certain mark\nretion..region_index = goto a region index\n\nCan also use {} to have multiple options that will chosen randomly, like {next,prev,prev,random} will choose randomly between this 4 options',300)
+                    _, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
+                    ToolTip(true, 'Goto Mark Identifier, every goto marker should start with this string.\n\nAfter the indentifier is possible to use a overwrite trigger, like "#goto next" will always trigger the next region/marker at the playlist. Overwrite options are:\n\nnext=next at playlist.\nprev=prev at playlist\nrandom=random at playlist(filter current region)\nrandom_with_rep=random at playlist\ngoto..regionidx = goto a playlist idx\npos..seconds= go to a certain time in seconds\nqn..value = goto a certain position in quarter note\nbar..barnumber = goto a certainbar\nmark..mark_index = goto a certain mark\nretion..region_index = goto a region index\n\nCan also use {} to have multiple options that will chosen randomly, like {next,prev,prev,random} will choose randomly between this 4 options',300)
                 end
+
                 ------------------------------------------------ Unit
-                reaper.ImGui_Separator(ctx)
-                
-                change5, proj_table.grid.is_grid = reaper.ImGui_Checkbox(ctx, 'Use Unit', proj_table.grid.is_grid)
+                retval, proj_table.grid.is_grid = reaper.ImGui_Checkbox(ctx, 'Use Unit', proj_table.grid.is_grid)
                 ToolTip(true, 'Trigger Goto by bars/whole note values.')
-                if change5 and SmoothSettings.is_smoothseek then
+                if retval and SmoothSettings.is_smoothseek then
                     local new_val = proj_table.grid.is_grid and 1 or 3 -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     reaper.SNM_SetIntConfigVar('smoothseek', new_val)
                     proj_table.is_marker = false
@@ -414,7 +417,7 @@ function MenuBar()
 
                 if proj_table.grid.is_grid then
                     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
-                    change6, proj_table.grid.unit_str = reaper.ImGui_InputText(ctx, '##inputval', proj_table.grid.unit_str)
+                    _, proj_table.grid.unit_str = reaper.ImGui_InputText(ctx, '##inputval', proj_table.grid.unit_str)
                     ToolTip(true, 'Use "bar" for bars as unit. Use numbers or fractions for whole notes values. 1 = whole note, 1/4 = quarter note, etc...')
 
                     
@@ -436,12 +439,23 @@ function MenuBar()
                     end
                 end
 
+                ---------------------------------------------- Force 
+                reaper.ImGui_NewLine(ctx)
+                reaper.ImGui_Separator(ctx)
+                reaper.ImGui_Text(ctx, 'Force Update:')
 
-                if change or change2 or change3 or change4 or change5 or change6 or change7 then
-                    SaveProjectSettings(FocusedProj, proj_table)
+                _, proj_table.is_force_goto = reaper.ImGui_Checkbox(ctx, 'Use Force Marks', proj_table.is_force_goto)
+                if proj_table.is_force_goto then 
+                    _, proj_table.force_identifier = reaper.ImGui_InputText(ctx, '##inputforcename', proj_table.force_identifier)
+                    ToolTip(true, 'Force Marker identifier. Start the marker name with this identifier and then add an goto command like: #force next or #force prev. \nPossible Commands are: \n\nnext=next at playlist.\nprev=prev at playlist\nrandom=random at playlist(filter current region)\nrandom_with_rep=random at playlist\ngoto..regionidx = goto a playlist idx\npos..seconds= go to a certain time in seconds\nqn..value = goto a certain position in quarter note\nbar..barnumber = goto a certainbar\nmark..mark_index = goto a certain mark\nretion..region_index = goto a region index\n\nCan also use {} to have multiple options that will chosen randomly, like {next,prev,prev,random} will choose randomly between this 4 options',300) 
                 end
 
+                TempGotoProjSettings = true -- save on close
+
                 reaper.ImGui_EndMenu(ctx)
+            elseif TempGotoProjSettings then
+                SaveProjectSettings(FocusedProj, ProjConfigs[FocusedProj])
+                TempGotoProjSettings = nil
             end
 
             if reaper.ImGui_BeginMenu(ctx, 'Goto Settings') then
@@ -530,20 +544,20 @@ function MenuBar()
                     local new_val = ((SmoothSettings.is_smoothseek and 1) or 0) | (((not SmoothSettings.is_bar) and 2) or 0)-- 3 = marker and smooth seek, 1 = bar and smooth seek
                     reaper.SNM_SetIntConfigVar('smoothseek', new_val)
                 end
-                ToolTip(true, '(Recommended turned on) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Definition: Smooth seek enables a more natural-sounding transition.')
+                ToolTip(true, '(Recommended turned on for better playback) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Smooth seek have some bugs, basically it needs 250ms to process an position change, be aware that you need 250ms of antecedence before the triggering point. When using with markeres an #goto makers need to be at least 250ms after the loop start, when using bar the size needs to be bigger than 250ms which is common.\nREAPER Definition: Smooth seek enables a more natural-sounding transition.')
 
                 if SmoothSettings.is_smoothseek then
                     if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Bars', SmoothSettings.is_bar) then
                         SmoothSettings.is_bar = true
                         reaper.SNM_SetIntConfigVar('smoothseek', 1) -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     end
-                    ToolTip(true, 'Changing smooth seek to bars will automatically change ReaGoto to trigger at bars.')
+                    ToolTip(true, 'Changing smooth seek to bars will automatically change ReaGoto to trigger at bars. Be aware that Reaper Smooth seek haves some bugs and because of that the size of a measure needs to be bigger than 250ms. If the bar is smaller goto wont be able to trigger. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
                     
                     if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Markers', not SmoothSettings.is_bar) then
                         SmoothSettings.is_bar = false
                         reaper.SNM_SetIntConfigVar('smoothseek', 3) -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     end
-                    ToolTip(true, 'Changing smooth seek to markers will automatically change ReaGoto to trigger #goto markers. Be aware that Smooth seek haves some bugs and because of that #goto at the start of the loop will have no effect, so place the markers at least 250ms away from the beginning of the loop. Also dont put any marker before 250ms from a #goto marker. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
+                    ToolTip(true, 'Changing smooth seek to markers will automatically change ReaGoto to trigger #goto markers. Be aware that Reaper Smooth seek haves some bugs and because of that #goto at the start of the loop will have no effect, so place the markers at least 250ms away from the beginning of the loop. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
 
                 end
 

@@ -47,7 +47,7 @@ function main_loop()
     reaper.ImGui_PopFont(ctx) -- Pop Font
     PopTheme()
     --demo.PopStyle(ctx)
-    GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_trigerred then change the playpos at last moment possible.
+    GoToCheck()  -- Check if need change playpos (need to be after the user input). If ProjConfigs[proj].is_triggered then change the playpos at last moment possible.
 
     if open then
         reaper.defer(main_loop)
@@ -77,65 +77,92 @@ function GoToCheck()
                 end
             end
         end
-
-
-        --if not project_table.is_triggered then goto continue end
-
     
         -- if playing and is_triggered then search the next Trigger point 
-        if is_play and (project_table.is_triggered or project_table.is_force_goto)then
-
-            local trigger_point 
-            local marker_name
-            local marker_point
+        if is_play and (project_table.is_triggered or project_table.is_force_goto) then
+ 
+            ---- Play variables
             local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
-            local next_marker_pos, loop_marker_pos, loop_start, loop_end -- position of the next #goto marker , positon of the next marker after loop region begin , loop position , loop end position  
-            local marker_distance -- saves the distance to trigger using markers (to compare with grids)
+            local loop_start, loop_end -- loop position , loop end position  
             if is_repeat then
                 loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
                 is_repeat = loop_start ~= loop_end-- Does it have an area selected? does it have repeat on ? 
             end
-            -------------------------- Markers
-            if project_table.is_marker then
-                local next_marker_name, loop_marker_name 
+            -- If markers get triggers overides
+            local delta =  time - project_table.oldtime -- for defer instability estimation
+            -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
+            local playrate = reaper.Master_GetPlayRate(proj)
+            local defer_in_proj_sec = (delta * UserConfigs.compensate) * playrate -- how much project sec each defer loop runs. avarage.
+
+            --- functions
+            local function proj_position_in_defer_range(trigger_point)        
+                local is_trigger_before = (trigger_point < pos) -- Trigger point is at the start of a loop.
+
+                local is_trigger -- should it trigger the GoTo function?
+                if not SmoothSettings.is_smoothseek then
+                    local distance = defer_in_proj_sec -- distance the trigger needs to be from the current position/loop start to trigger.
+        
+                    if not is_trigger_before then
+                        is_trigger = ((pos + distance) >= trigger_point) -- calculate based on triggering point after current position
+                    else
+                        is_trigger = (loop_start + (distance - (loop_end - pos))) >= trigger_point  -- calculate based on triggering point before current position and after loop start
+                    end
+                else
+                    local max_distance = SmoothSettings.min_time + defer_in_proj_sec -- minimum distance to trigger 
+                    local min_distance = SmoothSettings.min_time  -- minimum distance to trigger (there is a bug in reaper and smooth seek, if change the position before 200-250ms before the bar/marker it wont trigger, and can even break a loop)
+                    
+                    if not is_trigger_before then
+                        is_trigger = (pos + max_distance >= trigger_point) and (pos + min_distance < trigger_point) -- calculate based on triggering point after current position
+                    else
+                        --is_trigger = ((loop_start + (max_distance - (loop_end - pos))) >= trigger_point) and (((trigger_point - loop_start) + (loop_end-pos)) > min_distance)  -- because smooth seek trigger at regions ends and it needs to be 250ms triggered before it makes markers (250ms after the loop start) impossible. trying to trigger them will break the REAPER loop, another bug, best to remove this than break options. 
+                    end
+                end
+                return is_trigger
+            end
+
+            local function get_closest_marker(proj,pos,indentifier)
+                local marker_point, marker_name, marker_distance
+                local found_loop_marker
                 -- Loop markers
                 for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
                     -- Get the next marker
-                    if mark_pos > pos and name:match('^'..project_table.identifier) then -- Loop each marker (improve with a binary search later)
-                        next_marker_pos = mark_pos  
-                        next_marker_name = name
-                        break -- if have the next marker then it already had the opportunity of having the loop repeat 
+                    if mark_pos > pos and name:match('^'..indentifier) then -- Loop each marker (improve with a binary search later)
+                        marker_point = mark_pos
+                        marker_name = name
+                        marker_distance = mark_pos - pos
+                        return marker_point, marker_name, marker_distance  -- if have the next marker then it already had the opportunity of having the loop repeat 
                     end
+
                     -- If loop/repeat is ON then get the closest goto marker from the loop start
-                    if is_repeat and not loop_marker_pos and mark_pos >= loop_start and name:match('^'..project_table.identifier) then 
-                        loop_marker_pos = mark_pos
-                        loop_marker_name = name
+                    if is_repeat and not found_loop_marker and mark_pos >= loop_start and name:match('^'..indentifier) then
+                        found_loop_marker = true
+                        marker_point = mark_pos
+                        marker_name = name
+                        marker_distance = (loop_end - pos) + (mark_pos - loop_start)
                     end
                 end 
+            end
 
-                -- Get closest marker
-                local loop_distance, next_distance
-                if loop_marker_pos then 
-                    loop_distance = (loop_end - pos) + (loop_marker_pos - loop_start)
-                end
-                if next_marker_pos then
-                    next_distance = next_marker_pos - pos 
-                end
-                if (next_marker_pos and not loop_marker_pos) or (not next_marker_pos and loop_marker_pos) then -- only have one marker
-                    marker_point = next_marker_pos  or loop_marker_pos
-                    marker_distance = loop_distance or next_distance
-                    marker_name = next_marker_name  or loop_marker_name 
-                elseif next_marker_pos and loop_marker_pos then -- Compare markers position (closest from loop start vs next position marker)
-                    marker_point =    (next_distance < loop_distance and next_marker_pos)   or loop_marker_pos
-                    marker_distance = (next_distance < loop_distance and next_distance )    or loop_distance
-                    marker_name =     (next_distance < loop_distance and next_marker_name ) or loop_marker_name 
-                end
+            ---------- Find Force Marker, force marker are not trigger points
+            if project_table.is_force_goto and not project_table.is_triggered then
+                local force_pos, force_name, force_distance = get_closest_marker(proj,pos,project_table.force_identifier)
+
+                if force_pos and proj_position_in_defer_range(force_pos) then  -- Check if the force marker is inside range
+                    project_table.is_triggered = GetCommand(project_table.force_identifier,force_name) -- it might return false, but to be here  project_table.is_triggered needs to be false so it wont cancel triggered commands
+                end 
+            end
+            
+            if not project_table.is_triggered then goto notrigger end 
+
+            --------------------------------------- Find Trigger Points
+            -------------------------- Markers
+            local marker_name, marker_point, marker_distance -- name of the next marker,  position of the next marker ( to compare with next unit ), saves the distance to trigger using markers (to compare with grids)
+            if project_table.is_marker then
+                marker_point, marker_name, marker_distance = get_closest_marker(proj,pos,project_table.identifier)
             end
             ------------------------ Unit
             -- check if passed by any unit and increase the counter
-            local unit_point -- position to trigger 
-            local unit_distance -- distance until trigger
-
+            local unit_point, unit_distance -- position to trigger, distance until trigger
             if project_table.grid.is_grid then
                 local pos_qn = reaper.TimeMap2_timeToQN( proj, pos )
                 local retval, qnMeasureStart, qnMeasureEnd = reaper.TimeMap_QNToMeasures( proj, pos_qn )
@@ -150,54 +177,20 @@ function GoToCheck()
                 unit_distance = unit_point - pos
             end
 
-            ---------------------- Compare marker and unit get closest
+            ---------------------- Compare marker and unit get closest. Get trigger_point.
+            local trigger_point -- valid point from next unit/marker, to be checked if is in range
             if marker_point and unit_point then
                 trigger_point = marker_distance < unit_distance and marker_point or unit_point
             else 
                 trigger_point = marker_point or unit_point
             end
 
-
-            --local retval, division, swingmode, swingamt = reaper.GetSetProjectGrid( proj, false, 0, 0, 0 )
-
             ------- Change Player position if needed (Try to change as close to the marker as possible)
             if trigger_point then -- only if there is something to trigger to comapre to
-                -- If markers get triggers overides
-                local delta =  time - project_table.oldtime -- for defer instability estimation
-                -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
-                local playrate = reaper.Master_GetPlayRate(proj)
-                local is_trigger_before = (trigger_point < pos) -- Trigger point is at the start of a loop.
-                local defer_in_proj_sec = (delta * UserConfigs.compensate) * playrate -- how much project sec each defer loop runs. avarage.
-
-                local is_trigger -- should it trigger the GoTo function?
-                if not SmoothSettings.is_smoothseek then
-                    local distance = defer_in_proj_sec -- distance the trigger needs to be from the current position/loop start to trigger.
-
-                    if not is_trigger_before then
-                        is_trigger = (pos + distance >= trigger_point) -- calculate based on triggering point after current position
-                    else
-                        is_trigger = (loop_start + (distance - (loop_end - pos))) >= trigger_point  -- calculate based on triggering point before current position and after loop start
-                    end
-                else
-                    local max_distance = SmoothSettings.min_time + defer_in_proj_sec -- minimum distance to trigger 
-                    local min_distance = SmoothSettings.min_time  -- minimum distance to trigger (there is a bug in reaper and smooth seek, if change the position before 200-250ms before the bar/marker it wont trigger, and can even break a loop)
-                    
-                    if not is_trigger_before then
-                        is_trigger = (pos + max_distance >= trigger_point) and (pos + min_distance < trigger_point) -- calculate based on triggering point after current position
-                    else
-                        --is_trigger = ((loop_start + (max_distance - (loop_end - pos))) >= trigger_point) and (((trigger_point - loop_start) + (loop_end-pos)) > min_distance)  -- because smooth seek trigger at regions ends and it needs to be 250ms triggered before it makes markers (250ms after the loop start) impossible. trying to trigger them will break the REAPER loop, another bug, best to remove this than break options. 
-                    end
-                end
-
-                if is_trigger then
+                if proj_position_in_defer_range(trigger_point) then
                     -- check for trigger overies 
                     if marker_name then
-                        local goto_command = marker_name:match(project_table.identifier..'%s+(.+)')
-                        if not goto_command then goto continue end
-                        if ValidateCommand(goto_command) then
-                            project_table.is_triggered = goto_command
-                        end
-                        ::continue:: 
+                        project_table.is_triggered = GetCommand(project_table.identifier,marker_name) or project_table.is_triggered
                     end
                     ---- Goto ! 
                     GoTo(project_table.is_triggered,proj)
@@ -207,12 +200,11 @@ function GoToCheck()
                     end
                 end
             end
+            ::notrigger:: -- if it enter this scope with no trigger but with force option on. but didnt found any force marker in range
         elseif UserConfigs.trigger_when_paused and not is_play and project_table.is_triggered then -- receive goto orders when paused
             GoTo(project_table.is_triggered,proj)
         end
 
-
-        ::continue::
         -- Update values
         project_table.oldtime = time
         project_table.oldpos = pos

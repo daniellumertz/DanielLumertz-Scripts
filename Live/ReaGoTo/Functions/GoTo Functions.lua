@@ -151,6 +151,14 @@ function GoTo(reason,proj)
     proj_table.is_triggered = false
 end
 
+function GetCommand(identifier,marker_name )
+    local goto_command = marker_name:match(identifier..'%s+(.+)')
+    if not goto_command then return false end
+    if ValidateCommand(goto_command) then
+        return goto_command
+    end
+end
+
 function ValidateCommand(goto_command)
     local possible_commands = { 'next',
                                 'prev',	
@@ -170,6 +178,7 @@ function ValidateCommand(goto_command)
     end
     return false
 end
+
 ---Create/Cancel Goto triggers for project
 function SetGoTo(project, val)
     ProjConfigs[project].is_triggered = val
