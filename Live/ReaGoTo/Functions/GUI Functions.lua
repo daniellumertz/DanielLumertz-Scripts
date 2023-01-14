@@ -434,12 +434,13 @@ function MenuBar()
                 local _
                 _, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show ToolTips', optional_shortcutIn, UserConfigs.tooltips)
                 
-                _, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+                _, UserConfigs.only_focus_project = reaper.ImGui_Checkbox(ctx, 'Only Focused Project', UserConfigs.only_focus_project)
                 ToolTip(true, 'Only trigger ReaGoTo at the focused project.')
-                _, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
+
+                _, UserConfigs.trigger_when_paused = reaper.ImGui_Checkbox(ctx, 'Execute when not playing.', UserConfigs.trigger_when_paused)
                 ToolTip(true, 'Execute goto action immediately when REAPER is not playing.')
     
-                _, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
+                _, UserConfigs.add_markers = reaper.ImGui_Checkbox(ctx, 'Add Markers When Trigger', UserConfigs.add_markers)
                 ToolTip(true, 'Mostly to debug where it is triggering the goto action.')
 
                 reaper.ImGui_Separator(ctx)
@@ -467,7 +468,7 @@ function MenuBar()
 
             if reaper.ImGui_BeginMenu(ctx, 'Reaper Settings') then
                 ---- Buffering
-                reaper.ImGui_Text(ctx, 'Audio>Buffering')
+                reaper.ImGui_Text(ctx, 'Audio > Buffering')
 
                 reaper.ImGui_Text(ctx, 'Media Buffer Size:')
                 local change, num = reaper.ImGui_InputInt(ctx, '##Buffersize', reaper.SNM_GetIntConfigVar( 'workbufmsex', 0 ), 0, 0, 0)
@@ -482,8 +483,6 @@ function MenuBar()
                 if change then
                     reaper.SNM_SetIntConfigVar( 'workbuffxuims', num )
                 end
-                ----
-                reaper.ImGui_Separator(ctx) -------
                 ----
                 local render_configs = reaper.SNM_GetIntConfigVar('workrender', 0)
                 local is_anticipate = GetNbit(render_configs,0)
@@ -506,8 +505,10 @@ function MenuBar()
                 end
 
                 ---- Seeking
+                reaper.ImGui_NewLine(ctx)
                 reaper.ImGui_Separator(ctx)
-                reaper.ImGui_Text(ctx, 'Audio>Seeking')
+                reaper.ImGui_Text(ctx, 'Audio > Seeking')
+
 
                 local retval
                 retval, SmoothSettings.is_smoothseek = reaper.ImGui_Checkbox(ctx, 'Smooth Seek', SmoothSettings.is_smoothseek)
