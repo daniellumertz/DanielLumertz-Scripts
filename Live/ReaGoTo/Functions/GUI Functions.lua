@@ -377,6 +377,11 @@ function MenuBar()
 
                 change4, proj_table.is_marker = reaper.ImGui_Checkbox(ctx, 'Use Goto Markers', proj_table.is_marker)
                 ToolTip(true, 'Trigger Goto at goto identified markers.')
+                if change4 and SmoothSettings.is_smoothseek then
+                    local new_val = proj_table.is_marker and 3 or 1 -- 3 = marker and smooth seek, 1 = bar and smooth seek
+                    reaper.SNM_SetIntConfigVar('smoothseek', new_val)
+                    proj_table.grid.is_grid = false
+                end
 
                 if proj_table.is_marker  then
                     change3, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
@@ -387,6 +392,11 @@ function MenuBar()
                 
                 change5, proj_table.grid.is_grid = reaper.ImGui_Checkbox(ctx, 'Use Unit', proj_table.grid.is_grid)
                 ToolTip(true, 'Trigger Goto by bars/whole note values.')
+                if change5 and SmoothSettings.is_smoothseek then
+                    local new_val = proj_table.grid.is_grid and 1 or 3 -- 3 = marker and smooth seek, 1 = bar and smooth seek
+                    reaper.SNM_SetIntConfigVar('smoothseek', new_val)
+                    proj_table.is_marker = false
+                end
 
                 if proj_table.grid.is_grid then
                     reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
@@ -421,32 +431,34 @@ function MenuBar()
             end
 
             if reaper.ImGui_BeginMenu(ctx, 'Goto Settings') then
-                local change1, change2, change3, change4, change5
-                change5, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show ToolTips', optional_shortcutIn, UserConfigs.tooltips)
-
-                change1, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
+                local _
+                _, UserConfigs.tooltips = reaper.ImGui_MenuItem(ctx, 'Show ToolTips', optional_shortcutIn, UserConfigs.tooltips)
+                
+                _, UserConfigs.only_focus_project = reaper.ImGui_MenuItem(ctx, 'Only Focused Project', optional_shortcutIn, UserConfigs.only_focus_project)
                 ToolTip(true, 'Only trigger ReaGoTo at the focused project.')
-                change2, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
+                _, UserConfigs.trigger_when_paused = reaper.ImGui_MenuItem(ctx, 'Execute when not playing.', optional_shortcutIn, UserConfigs.trigger_when_paused)
                 ToolTip(true, 'Execute goto action immediately when REAPER is not playing.')
     
-                change3, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
+                _, UserConfigs.add_markers = reaper.ImGui_MenuItem(ctx, 'Add Markers When Trigger', optional_shortcutIn, UserConfigs.add_markers)
                 ToolTip(true, 'Mostly to debug where it is triggering the goto action.')
 
                 reaper.ImGui_Separator(ctx)
                 if reaper.ImGui_BeginMenu(ctx, 'Advanced') then
                     reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
-                    change4, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
+                    _, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
                     UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1
                     ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
     
                     reaper.ImGui_EndMenu(ctx)
                 end
 
-                if change1 or change2 or change3 or change4 or change5 then
-                    SaveSettings(ScriptPath,SettingsFileName)
-                end
+                TempGoToSettings = true -- to save when close
     
                 reaper.ImGui_EndMenu(ctx)
+            elseif TempGoToSettings then
+                SaveSettings(ScriptPath,SettingsFileName)
+
+                TempGoToSettings = nil
             end
 
 
@@ -454,6 +466,9 @@ function MenuBar()
             reaper.ImGui_Separator(ctx)
 
             if reaper.ImGui_BeginMenu(ctx, 'Reaper Settings') then
+                ---- Buffering
+                reaper.ImGui_Text(ctx, 'Audio>Buffering')
+
                 reaper.ImGui_Text(ctx, 'Media Buffer Size:')
                 local change, num = reaper.ImGui_InputInt(ctx, '##Buffersize', reaper.SNM_GetIntConfigVar( 'workbufmsex', 0 ), 0, 0, 0)
                 ToolTip(true, 'Lower Buffer will process the change of takes/change mute state faster, higher buffer settings will result in bigger delays to mute and unmute. For manipulating with audio items in live scenarios I recommend leaving at 0\n\nREAPER Definition: Media buffering uses RAM and CPU to avoid having to wait for disk IO. For systems with slower disks this should be set higher. Zero disables buffering. Default 1200 ')
@@ -470,13 +485,52 @@ function MenuBar()
                 ----
                 reaper.ImGui_Separator(ctx) -------
                 ----
-                reaper.ImGui_Text(ctx, 'Anticipate FX :')
-                local change, num = reaper.ImGui_InputInt(ctx, '##Renderahead', reaper.SNM_GetIntConfigVar( 'renderaheadlen', 0 ), 0, 0, 0)
-                ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD)')
-                if change then
-                    reaper.SNM_SetIntConfigVar( 'renderaheadlen', num )
+                local render_configs = reaper.SNM_GetIntConfigVar('workrender', 0)
+                local is_anticipate = GetNbit(render_configs,0)
+
+                local retval, new_v = reaper.ImGui_Checkbox(ctx, 'Anticipate FX', is_anticipate)
+                if retval then
+                    local render_val = ChangeBit(render_configs, 0, (new_v and 1 or 0)) -- 1 bit is the anticipate value
+                    print(render_configs, render_val)
+                    reaper.SNM_SetIntConfigVar('workrender', render_val)
+                end
+                ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD). Default: ON')
+
+                if is_anticipate then
+                    reaper.ImGui_Text(ctx, 'Anticipate FX Size :')
+                    local change, num = reaper.ImGui_InputInt(ctx, '##Renderahead', reaper.SNM_GetIntConfigVar( 'renderaheadlen', 0 ), 0, 0, 0)
+                    ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD). Default: 200')
+                    if change then
+                        reaper.SNM_SetIntConfigVar( 'renderaheadlen', num )
+                    end
                 end
 
+                ---- Seeking
+                reaper.ImGui_Separator(ctx)
+                reaper.ImGui_Text(ctx, 'Audio>Seeking')
+
+                local retval
+                retval, SmoothSettings.is_smoothseek = reaper.ImGui_Checkbox(ctx, 'Smooth Seek', SmoothSettings.is_smoothseek)
+                if retval then
+                    local new_val = ((SmoothSettings.is_smoothseek and 1) or 0) | (((not SmoothSettings.is_bar) and 2) or 0)-- 3 = marker and smooth seek, 1 = bar and smooth seek
+                    reaper.SNM_SetIntConfigVar('smoothseek', new_val)
+                end
+                ToolTip(true, '(Recommended turned on) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Definition: Smooth seek enables a more natural-sounding transition.')
+
+                if SmoothSettings.is_smoothseek then
+                    if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Bars', SmoothSettings.is_bar) then
+                        SmoothSettings.is_bar = true
+                        reaper.SNM_SetIntConfigVar('smoothseek', 1) -- 3 = marker and smooth seek, 1 = bar and smooth seek
+                    end
+                    ToolTip(true, 'Changing smooth seek to bars will automatically change ReaGoto to trigger at bars.')
+                    
+                    if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Markers', not SmoothSettings.is_bar) then
+                        SmoothSettings.is_bar = false
+                        reaper.SNM_SetIntConfigVar('smoothseek', 3) -- 3 = marker and smooth seek, 1 = bar and smooth seek
+                    end
+                    ToolTip(true, 'Changing smooth seek to markers will automatically change ReaGoto to trigger #goto markers. Be aware that Smooth seek haves some bugs and because of that #goto at the start of the loop will have no effect, so place the markers at least 250ms away from the beginning of the loop. Also dont put any marker before 250ms from a #goto marker. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
+
+                end
 
                 reaper.ImGui_EndMenu(ctx)
             end

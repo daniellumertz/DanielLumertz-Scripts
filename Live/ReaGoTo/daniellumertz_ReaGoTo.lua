@@ -1,11 +1,11 @@
--- @version 0.1.1
+-- @version 0.2
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Release
+--    + Add Smooth seek 
 -- @license MIT
 
 
@@ -36,7 +36,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.1.1'
+Version = '0.2'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
@@ -44,6 +44,7 @@ Settings()
 
 -- Project configs (Loaded in the main loop at CheckProjects()) Need to start with an blank table
 ProjConfigs = {}
+SmoothSettings = {min_time = 0.250}
 ExtKey = 'project_config' -- ext state key
 ProjPaths = {} -- Table with the paths for each project tab. ProjPaths[proj] = path
 

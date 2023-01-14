@@ -182,7 +182,7 @@ end
 function CreateNewPlaylist(name)
     local default_table = {name = name,
                            shuffle = false, -- saves used idxes (for shuffle mode)
-                           reset = true, -- at stop reset playlist current position to 0
+                           reset = false, -- at stop reset playlist current position to 0
                            current = 0, -- 0 means not in any region of this playlist, reset to 0 each stop?
                         } 
     return default_table

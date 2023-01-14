@@ -1,6 +1,6 @@
 --@noindex
---version: 0.6.2
--- Add new random keys
+--version: 0.7.2
+-- Add bitwise sections
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
@@ -455,6 +455,31 @@ function MapRange(value,min1,max1,min2,max2)
     return (value - min1) / (max1 - min1) * (max2 - min2) + min2
 end
 
+---Slide/Slope old_val in direction of new_val.
+---@param old_val number old value
+---@param new_val number value trying to be catched up
+---@param max_time_going_up number time it takes to go from min to max. 0 is instantaneos 
+---@param max_time_going_down number time it takes to go from max to min. 0 is instantaneos 
+---@param elapsed_time number time passed (normally calculated from last call)
+---@param min number minimum value
+---@param max number maximum value
+function Slide(old_val,new_val,max_time_going_up, max_time_going_down,elapsed_time,min,max)
+    local max_distance = max - min
+    local is_going_up = new_val > old_val 
+    local time  = (is_going_up and max_time_going_up) or max_time_going_down -- time it takes to go from 0to1 or 1to0, in seconds
+    if time <= 0 then -- no slide
+        return new_val
+    else
+        local speed = max_distance / time --speed of value/second
+        speed = speed * elapsed_time
+        speed = LimitNumber(speed, min, max) -- just in case
+        speed = is_going_up and speed or -speed
+        local result = old_val + speed
+        result = is_going_up and LimitNumber(result, min, new_val) or LimitNumber(result, new_val, max)
+        return result
+    end    
+end
+
 ---Generate a random number between min and max.
 ---@param min number minimum value
 ---@param max number maximum value
@@ -467,6 +492,11 @@ function RandomNumberFloat(min,max,is_include_max)
     random = MapRange(random,0,big_val,min,max) -- Scale the random value to the sum of the chances
 
     return random
+end
+
+function RemoveDecimals(num,decimal_places)
+    local int_num = math.floor(num * 10^decimal_places)
+    return int_num / 10^decimal_places    
 end
 
 --- Return dbval in linear value. 0 = -inf, 1 = 0dB, 2 = +6dB, etc...
@@ -527,5 +557,33 @@ function CompareVersion(check_version, min_version, max_version, separator)
     return true, nil
 end
 
+---------------------
+----------------- Numbers Bit operations
+---------------------
 
+---Get if the n bit(from right to left) of a number is 1. n is 0 based.
+---@param number number
+---@param n number bit from right to left, 0 based.
+---@return boolean
+function GetNbit(number,n)
+    return ((number & (2^n)) >> (n)) == 1
+end
+
+---Change a bit value from a number.
+---@param num number
+---@param n number bit number, from right to left, 0 based 
+---@param new_val number 0 or 1
+---@return number new value
+function ChangeBit(num, n, new_val)
+    if type(new_val) == "boolean" then
+        new_val = (new_val and 1) or 0
+    end
+    local mask = 1 << n
+    if new_val == 0 then
+        num = num & ~mask -- and operation with the opposite of the mask. (if an bite was 1 it will still be 1 unless its where the mask have an 0)
+    else
+        num = num | mask
+    end
+    return num
+end
 

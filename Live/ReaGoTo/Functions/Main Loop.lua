@@ -1,15 +1,18 @@
 --@noindex
 function main_loop()
+    ----------- Pre GUI area
+    CheckProjects()
+    CheckSmoothSeek()
+    MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
+
     PushTheme()
     --demo.PushStyle(ctx)
     --demo.ShowDemoWindow(ctx)
-    ----------- Pre GUI area
+
     if not reaper.ImGui_IsAnyItemActive(ctx) and not TableHaveAnything(PreventKeys) then 
         PassKeys()
     end
 
-    CheckProjects()
-    MIDIInput = GetMIDIInput() -- Global variable with the MIDI from current loop
 
     ------------ Window management area
     --- Flags
@@ -165,9 +168,28 @@ function GoToCheck()
                 local playrate = reaper.Master_GetPlayRate(proj)
                 local is_trigger_before = (trigger_point < pos) -- Trigger point is at the start of a loop.
                 local defer_in_proj_sec = (delta * UserConfigs.compensate) * playrate -- how much project sec each defer loop runs. avarage.
-                local is_trigger_between_defer = (pos + defer_in_proj_sec >= trigger_point)
 
-                if (not is_trigger_before and is_trigger_between_defer) or (is_trigger_before and (loop_start + (defer_in_proj_sec - (loop_end - pos))) >= trigger_point  )  then
+                local is_trigger -- should it trigger the GoTo function?
+                if not SmoothSettings.is_smoothseek then
+                    local distance = defer_in_proj_sec -- distance the trigger needs to be from the current position/loop start to trigger.
+
+                    if not is_trigger_before then
+                        is_trigger = (pos + distance >= trigger_point) -- calculate based on triggering point after current position
+                    else
+                        is_trigger = (loop_start + (distance - (loop_end - pos))) >= trigger_point  -- calculate based on triggering point before current position and after loop start
+                    end
+                else
+                    local max_distance = SmoothSettings.min_time + defer_in_proj_sec -- minimum distance to trigger 
+                    local min_distance = SmoothSettings.min_time  -- minimum distance to trigger (there is a bug in reaper and smooth seek, if change the position before 200-250ms before the bar/marker it wont trigger, and can even break a loop)
+                    
+                    if not is_trigger_before then
+                        is_trigger = (pos + max_distance >= trigger_point) and (pos + min_distance < trigger_point) -- calculate based on triggering point after current position
+                    else
+                        --is_trigger = ((loop_start + (max_distance - (loop_end - pos))) >= trigger_point) and (((trigger_point - loop_start) + (loop_end-pos)) > min_distance)  -- because smooth seek trigger at regions ends and it needs to be 250ms triggered before it makes markers (250ms after the loop start) impossible. trying to trigger them will break the REAPER loop, another bug, best to remove this than break options. 
+                    end
+                end
+
+                if is_trigger then
                     -- check for trigger overies 
                     if marker_name then
                         local goto_command = marker_name:match(project_table.identifier..'%s+(.+)')
@@ -199,9 +221,6 @@ function GoToCheck()
 
 end
 
-
-
-
 function CheckProjects()
     local projects_opened = {} -- to check if some project closed
     -- Check if some project opened
@@ -229,11 +248,10 @@ function CheckProjects()
         end
     end
 
-    --- Check if all regions are available 
-    -- Safe check if some take couldnt load (like if it was deleted). Remove if cant find
 
 
     for check_proj in enumProjects() do
+        --- Check if all regions are available 
         for playlist_key, playlist in ipairs(ProjConfigs[check_proj].playlists) do
             for rgn_k, region_table in ipairs_reverse(playlist) do   
                 local retval, marker_id = reaper.GetSetProjectInfo_String( check_proj, 'MARKER_INDEX_FROM_GUID:'..region_table.guid, '', false )
@@ -242,7 +260,36 @@ function CheckProjects()
                 end
             end
         end
+        -- if smooth seek then force reagoto proj_settings to match smooth seek (to be on the grid/marker)
+        if SmoothSettings.is_smoothseek then
+            if SmoothSettings.is_bar then
+                if not ProjConfigs[check_proj].grid.is_grid then
+                    ProjConfigs[check_proj].grid.is_grid = true
+                end
+
+                if ProjConfigs[check_proj].grid.unit ~= 'bar' then
+                    ProjConfigs[check_proj].grid.unit = 'bar'
+                end
+
+                if ProjConfigs[check_proj].is_marker then
+                    ProjConfigs[check_proj].is_marker = false
+                end
+            else
+                if not ProjConfigs[check_proj].is_marker then
+                    ProjConfigs[check_proj].is_marker = true
+                end
+
+                if ProjConfigs[check_proj].grid.is_grid then
+                    ProjConfigs[check_proj].grid.is_grid = false
+                end
+            end
+        end
     end
     FocusedProj = reaper.EnumProjects( -1 )
 end
 
+function CheckSmoothSeek()
+    local smoothseek = reaper.SNM_GetIntConfigVar('smoothseek', 0)
+    SmoothSettings.is_smoothseek = GetNbit(smoothseek,0)
+    SmoothSettings.is_bar = not GetNbit(smoothseek,1)
+end
