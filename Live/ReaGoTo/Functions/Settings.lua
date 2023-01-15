@@ -35,14 +35,15 @@ function DefaultSettings()
         Pin = true,
         docked = 0
     }
+
+    SmoothSettings = {min_time = 0.350} 
 end
-
-
 
 function SaveSettings(path,name)
     local settings = {
         UserConfigs = UserConfigs,
         GuiSettings = GuiSettings,
+        SmoothSeekTime = SmoothSettings.min_time,
         Version = Version
     }
     save_json(path , name, settings)
@@ -54,6 +55,7 @@ function LoadSettings(path,name)
     if load_version ~= Version then return false end
     UserConfigs = settings.UserConfigs
     GuiSettings = settings.GuiSettings
+    SmoothSettings = {min_time = settings.SmoothSeekTime}
     return true
 end
 

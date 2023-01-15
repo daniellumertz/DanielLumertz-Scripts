@@ -79,7 +79,7 @@ function GoToCheck()
         end
     
         -- if playing and is_triggered then search the next Trigger point 
-        if is_play and (project_table.is_triggered or project_table.is_force_goto) then
+        if is_play and (project_table.is_triggered or project_table.is_force_goto) and project_table.oldtime then
  
             ---- Play variables
             local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
@@ -95,11 +95,11 @@ function GoToCheck()
             local defer_in_proj_sec = (delta * UserConfigs.compensate) * playrate -- how much project sec each defer loop runs. avarage.
 
             --- functions
-            local function proj_position_in_defer_range(trigger_point)        
+            local function proj_position_in_defer_range(trigger_point, ignore_smooth)        
                 local is_trigger_before = (trigger_point < pos) -- Trigger point is at the start of a loop.
 
                 local is_trigger -- should it trigger the GoTo function?
-                if not SmoothSettings.is_smoothseek then
+                if not SmoothSettings.is_smoothseek or ignore_smooth then
                     local distance = defer_in_proj_sec -- distance the trigger needs to be from the current position/loop start to trigger.
         
                     if not is_trigger_before then
@@ -147,7 +147,7 @@ function GoToCheck()
             if project_table.is_force_goto and not project_table.is_triggered then
                 local force_pos, force_name, force_distance = get_closest_marker(proj,pos,project_table.force_identifier)
 
-                if force_pos and proj_position_in_defer_range(force_pos) then  -- Check if the force marker is inside range
+                if force_pos and proj_position_in_defer_range(force_pos, true) then  -- Check if the force marker is inside range
                     project_table.is_triggered = GetCommand(project_table.force_identifier,force_name) -- it might return false, but to be here  project_table.is_triggered needs to be false so it wont cancel triggered commands
                 end 
             end
@@ -156,6 +156,7 @@ function GoToCheck()
 
             --------------------------------------- Find Trigger Points
             -------------------------- Markers
+
             local marker_name, marker_point, marker_distance -- name of the next marker,  position of the next marker ( to compare with next unit ), saves the distance to trigger using markers (to compare with grids)
             if project_table.is_marker then
                 marker_point, marker_name, marker_distance = get_closest_marker(proj,pos,project_table.identifier)

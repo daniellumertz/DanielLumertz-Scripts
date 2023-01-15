@@ -478,6 +478,10 @@ function MenuBar()
                     UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1
                     ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
     
+                    reaper.ImGui_Text(ctx, 'Smooth seek anticipate (ms). Default is 0.350')
+                    _,  SmoothSettings.min_time = reaper.ImGui_InputDouble(ctx, '##antecipatesmooth', SmoothSettings.min_time, 0, 0, '%.3f')
+                    ToolTip(true, 'Unfortunatelly REAPER smooth seek have some bugs when the playhead position change just before the triggering moment, this can cause two things:\n\n1) It wont trigger on time\n\n2) It can break REAPER loops.\n\nUntil REAPER fix these bugs the workaround is to change the edit cursor much before the time position. Set the value here, default is 0.300sec if you are experiencing the bugs described increase it. If you need the antecipate to be lower then decrease it. With smooth seek markers after the loop start '..tostring(SmoothSettings.min_time)..'sec will have no effect.')
+
                     reaper.ImGui_EndMenu(ctx)
                 end
 
@@ -544,20 +548,20 @@ function MenuBar()
                     local new_val = ((SmoothSettings.is_smoothseek and 1) or 0) | (((not SmoothSettings.is_bar) and 2) or 0)-- 3 = marker and smooth seek, 1 = bar and smooth seek
                     reaper.SNM_SetIntConfigVar('smoothseek', new_val)
                 end
-                ToolTip(true, '(Recommended turned on for better playback) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Smooth seek have some bugs, basically it needs 250ms to process an position change, be aware that you need 250ms of antecedence before the triggering point. When using with markeres an #goto makers need to be at least 250ms after the loop start, when using bar the size needs to be bigger than 250ms which is common.\nREAPER Definition: Smooth seek enables a more natural-sounding transition.')
+                ToolTip(true, '(Recommended turned on for better playback) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Smooth seek have some bugs, basically it needs '..tostring(SmoothSettings.min_time)..'sec to process an position change, be aware that you need '..tostring(SmoothSettings.min_time)..'sec of antecedence before the triggering point. When using with markeres an #goto makers need to be at least '..tostring(SmoothSettings.min_time)..'sec after the loop start, when using bar the size needs to be bigger than '..tostring(SmoothSettings.min_time)..'sec which is common. If you are experiencing the playhead not looping or it not triggering where it should increase the smooth seek antecipate value at Goto Settings>Advanced. Se\nREAPER Definition: Smooth seek enables a more natural-sounding transition.')
 
                 if SmoothSettings.is_smoothseek then
                     if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Bars', SmoothSettings.is_bar) then
                         SmoothSettings.is_bar = true
                         reaper.SNM_SetIntConfigVar('smoothseek', 1) -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     end
-                    ToolTip(true, 'Changing smooth seek to bars will automatically change ReaGoto to trigger at bars. Be aware that Reaper Smooth seek haves some bugs and because of that the size of a measure needs to be bigger than 250ms. If the bar is smaller goto wont be able to trigger. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
+                    ToolTip(true, 'Changing smooth seek to bars will automatically change ReaGoto to trigger at bars. Be aware that Reaper Smooth seek haves some bugs and because of that the size of a measure needs to be bigger than '..tostring(SmoothSettings.min_time)..'sec. If the bar is smaller goto wont be able to trigger. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.  If you are experiencing the playhead not looping or it not triggering where it should increase the smooth seek antecipate value at Goto Settings>Advanced.')
                     
                     if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Markers', not SmoothSettings.is_bar) then
                         SmoothSettings.is_bar = false
                         reaper.SNM_SetIntConfigVar('smoothseek', 3) -- 3 = marker and smooth seek, 1 = bar and smooth seek
                     end
-                    ToolTip(true, 'Changing smooth seek to markers will automatically change ReaGoto to trigger #goto markers. Be aware that Reaper Smooth seek haves some bugs and because of that #goto at the start of the loop will have no effect, so place the markers at least 250ms away from the beginning of the loop. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.')
+                    ToolTip(true, 'Changing smooth seek to markers will automatically change ReaGoto to trigger #goto markers. Be aware that Reaper Smooth seek haves some bugs and because of that #goto at the start of the loop will have no effect, so place the markers at least '..tostring(SmoothSettings.min_time)..'sec away from the beginning of the loop. Hopefully REAPER devs will fix the bugs and this feature will have no drawbacks. I really cant do more here.  If you are experiencing the playhead not looping or it not triggering where it should increase the smooth seek antecipate value at Goto Settings>Advanced.')
 
                 end
 
