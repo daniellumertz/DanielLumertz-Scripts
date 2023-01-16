@@ -105,8 +105,7 @@ function TakeTab(group)
             -- rename / delete take popup
             if reaper.ImGui_BeginPopupContextItem(ctx) then
                 TempWasOpen = k
-                TempName = take_name -- Temporary holds the name as the user writes
-                local is_del = RenameTakePopUp(group, k)
+                local is_del = RenameTakePopUp(group, k, take_name)
                 if is_del then -- take was removed from table
                     TempName = nil
                     TempWasOpen  = nil
@@ -114,7 +113,11 @@ function TakeTab(group)
                 end
                 reaper.ImGui_EndPopup(ctx)
             elseif TempWasOpen == k then
-                retval, take_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', TempName, true)
+                if TempName ~= take_name then
+                    reaper.Undo_BeginBlock2(FocusedProj)
+                    retval, take_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', TempName, true)
+                    reaper.Undo_EndBlock2(FocusedProj, 'Rename Take', -1)
+                end
                 TempName = nil
                 TempWasOpen  = nil
             end
@@ -208,9 +211,10 @@ function RenameGroupPopUp(group)
     end
 end
 
-function RenameTakePopUp(group, k)
+function RenameTakePopUp(group, k, take_name)
     reaper.ImGui_Text(ctx, 'Edit name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
+        TempName = take_name -- Temporary holds the name as the user writes
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
     _, TempName = reaper.ImGui_InputText(ctx, "##renameinput", TempName)

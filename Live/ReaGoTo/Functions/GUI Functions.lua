@@ -74,8 +74,9 @@ function PlaylistTab(playlist)
             -- Each region/marker info:
             local _, region_id = reaper.GetSetProjectInfo_String( FocusedProj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
             local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
+            local selectable_name = (region_name == '' and region_idx+1) or region_name
             reaper.ImGui_SetNextItemWidth(ctx, 150)
-            local retval, p_selected = reaper.ImGui_Selectable(ctx, region_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
+            local retval, p_selected = reaper.ImGui_Selectable(ctx, selectable_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
             ToolTip(UserConfigs.tooltips,'This is a region/marker at the playlist. Right Click for more options. Drag to change the order. Double click to trigger a GOTO to that position, hold alt and double click to execute the goto immediately.')        
 
             if project_table.is_triggered and tonumber(project_table.is_triggered:match('^goto(.+)')) == region_idx then
@@ -104,7 +105,11 @@ function PlaylistTab(playlist)
                 end
                 reaper.ImGui_EndPopup(ctx)
             elseif TempWasOpen == region_idx then
-                reaper.SetProjectMarker2( FocusedProj, region_markrgnindexnumber, region_isrgn, region_pos, region_rgnend, TempName )
+                if TempName ~= region_name then
+                    reaper.Undo_BeginBlock2(FocusedProj)
+                    reaper.SetProjectMarker2( FocusedProj, region_markrgnindexnumber, region_isrgn, region_pos, region_rgnend, TempName )
+                    reaper.Undo_EndBlock2(FocusedProj, 'Rename Region', -1)
+                end
                 TempName = nil
                 TempWasOpen  = nil
                 PreventKeys.region_popup = nil

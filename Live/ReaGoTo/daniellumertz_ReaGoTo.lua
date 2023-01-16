@@ -1,4 +1,4 @@
--- @version 0.4.1
+-- @version 0.4.2
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
@@ -7,15 +7,13 @@
 -- @changelog
 --    + fix bug with markers at loop start
 --    + add undo points
+--    + add undo points to rename region 
 
 -- @license MIT
 
 
 -----TODO:
--- Undo points at renaming regions and markers
--- Add marker
--- Remove markers
--- Change time selection? meh maybe decide latter, or add as an option
+-- User Set to which region/marker to reset to. 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -42,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4.1'
+Version = '0.4.2'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
