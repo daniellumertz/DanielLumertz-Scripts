@@ -261,20 +261,45 @@ end
 --- Utility Marks 
 -------------
 
-function AddGotoMarker()
+function AddGotoMarker(is_force)
+    local action_name = is_force and 'Add Force Goto Marker' or 'Add Goto Marker'
+    reaper.Undo_BeginBlock2(FocusedProj)
+
     local is_play = reaper.GetPlayStateEx(FocusedProj)&1 == 1 -- is playing 
     local pos = (is_play and reaper.GetPlayPositionEx( FocusedProj )) or reaper.GetCursorPositionEx(FocusedProj) -- current pos
-    reaper.AddProjectMarker2(FocusedProj, false, pos, 0, ProjConfigs[FocusedProj].identifier, -1, 0)
+    local marker_name = is_force and ProjConfigs[FocusedProj].force_identifier or ProjConfigs[FocusedProj].identifier
+    reaper.AddProjectMarker2(FocusedProj, false, pos, 0, marker_name, -1, 0)
+
+    reaper.Undo_EndBlock2(FocusedProj, action_name, -1)
 end
 
-function DeleteGotoMarkersAtTimeSelection()
+function DeleteGotoMarkersAtTimeSelection(delete_force)
+    local action_name = delete_force and 'Delete Force Goto Marker at Time Selection' or 'Delete Goto Marker at Time Selection'
+    reaper.Undo_BeginBlock2(FocusedProj)
+
     local start, fim = reaper.GetSet_LoopTimeRange2( FocusedProj, false, false, 0, 0, false )
     local retval, num_markers, num_regions = reaper.CountProjectMarkers(FocusedProj)
     local cnt = num_markers + num_regions
     for i = cnt-1 , 0, -1 do
         local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, i )
-        if not isrgn and mark_pos >= start and mark_pos <= fim and name == ProjConfigs[FocusedProj].identifier then -- filter
+        if not isrgn and mark_pos >= start and mark_pos <= fim and (name:match('^'..ProjConfigs[FocusedProj].identifier) or (delete_force and name:match('^'..ProjConfigs[FocusedProj].force_identifier))) then -- filter
             reaper.DeleteProjectMarker( FocusedProj, markrgnindexnumber, false )
         end
     end
+
+    reaper.Undo_EndBlock2(FocusedProj, action_name, -1)
+end
+
+function RenameMarkers(proj, old_marker_id,new_marker_id)
+    reaper.Undo_BeginBlock2(FocusedProj)
+
+    for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, i in enumMarkers2(proj, 1) do
+        if name:match('^'..old_marker_id) then
+            name = name:gsub('^'..(old_marker_id)..'.?', new_marker_id)
+            print(name)
+            reaper.SetProjectMarker(markrgnindexnumber, isrgn, mark_pos, rgnend, name)
+        end
+    end
+
+    reaper.Undo_EndBlock2(FocusedProj, 'Rename Markers', -1)
 end

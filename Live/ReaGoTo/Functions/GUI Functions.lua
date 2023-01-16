@@ -402,8 +402,12 @@ function MenuBar()
                 end
 
                 if proj_table.is_marker  then
-                    _, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
+                    local old_name, change = proj_table.identifier, nil
+                    change, proj_table.identifier = reaper.ImGui_InputText(ctx, '##inputmarkername', proj_table.identifier)
                     ToolTip(true, 'Goto Mark Identifier, every goto marker should start with this string.\n\nAfter the indentifier is possible to use a overwrite trigger, like "#goto next" will always trigger the next region/marker at the playlist. Overwrite options are:\n\nnext=next at playlist.\nprev=prev at playlist\nrandom=random at playlist(filter current region)\nrandom_with_rep=random at playlist\ngoto..regionidx = goto a playlist idx\npos..seconds= go to a certain time in seconds\nqn..value = goto a certain position in quarter note\nbar..barnumber = goto a certainbar\nmark..mark_index = goto a certain mark\nretion..region_index = goto a region index\n\nCan also use {} to have multiple options that will chosen randomly, like {next,prev,prev,random} will choose randomly between this 4 options',300)
+                    --if change then -- intrusive
+                    --    RenameMarkers(FocusedProj, old_name,proj_table.identifier)
+                    --end
                 end
 
                 ------------------------------------------------ Unit
@@ -588,20 +592,26 @@ function MenuBar()
 
         DockBtn()
 
-        local mark_text, help_text, mark_func
-        if reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Ctrl() then
+        local mark_text, help_text, mark_func, arg
+        if  reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_LeftCtrl())  then
             mark_text = '-'
-            help_text = 'Delete all goto markers at time selection.'
+            help_text = 'Delete all goto markers at time selection. Hold Shift to also delete force markers.'
             mark_func = DeleteGotoMarkersAtTimeSelection
-
+            if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_LeftShift()) then
+                arg = true
+            end
         else
             mark_text = '+'
-            help_text = 'Add goto marker. Hold ctrl to delete.'
+            help_text = 'Add goto marker. Hold Shift to add an force marker. Hold ctrl to delete. '
             mark_func = AddGotoMarker
+            if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_LeftShift()) then
+                arg = true
+            end
         end
 
+
         if reaper.ImGui_MenuItem(ctx, mark_text) then
-            mark_func()
+            mark_func(arg)
         end
         ToolTip(true, help_text)
 

@@ -88,6 +88,7 @@ function GoToCheck()
                 loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
                 is_repeat = loop_start ~= loop_end-- Does it have an area selected? does it have repeat on ? 
             end
+            local is_inside_loop = is_repeat and pos <= loop_end and pos >= loop_start
             -- If markers get triggers overides
             local delta =  time - project_table.oldtime -- for defer instability estimation
             -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
@@ -124,13 +125,17 @@ function GoToCheck()
                 local marker_point, marker_name, marker_distance
                 local found_loop_marker
                 -- Loop markers
-                for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do 
+                for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber in enumMarkers2(proj, 1) do
+                    -- Marks outside range
+                    if is_inside_loop and mark_pos > loop_end then
+                        break
+                    end 
                     -- Get the next marker
                     if mark_pos > pos and name:match('^'..indentifier) then -- Loop each marker (improve with a binary search later)
                         marker_point = mark_pos
                         marker_name = name
                         marker_distance = mark_pos - pos
-                        return marker_point, marker_name, marker_distance  -- if have the next marker then it already had the opportunity of having the loop repeat 
+                        break  -- if have the next marker then it already had the opportunity of having the loop repeat 
                     end
 
                     -- If loop/repeat is ON then get the closest goto marker from the loop start
@@ -141,6 +146,7 @@ function GoToCheck()
                         marker_distance = (loop_end - pos) + (mark_pos - loop_start)
                     end
                 end 
+                return marker_point, marker_name, marker_distance 
             end
 
             ---------- Find Force Marker, force marker are not trigger points
@@ -211,7 +217,6 @@ function GoToCheck()
         project_table.oldpos = pos
         project_table.oldisplay = is_play
     end
-
 end
 
 function CheckProjects()
