@@ -121,6 +121,7 @@ function GoTo(reason,proj)
         goto_random(true)
     elseif reason:match('^goto') then
         local playlist_val = tonumber(reason:match('^goto'..'(.+)'))
+        playlist_val = LimitNumber(playlist_val, (#playlist == 0 and 0 or 1) ,#playlist)
         go_to_playlist_val(playlist_val)
     elseif reason:match('^pos') then
         local new_pos = tonumber(reason:match('pos%s-(%d+%.?%d*)'))

@@ -1,1 +1,1 @@
-{"Version":"0.4.1","GuiSettings":{"Pin":true,"docked":0},"SmoothSeekTime":0.35,"UserConfigs":{"add_markers":false,"tooltips":false,"trigger_when_paused":true,"compensate":2,"only_focus_project":false}}
+{"UserConfigs":{"tooltips":false,"add_markers":false,"only_focus_project":false,"compensate":2,"trigger_when_paused":true},"GuiSettings":{"Pin":true,"docked":0},"SmoothSeekTime":0.35,"Version":"0.4.2"}

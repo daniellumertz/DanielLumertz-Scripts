@@ -1,4 +1,4 @@
--- @version 0.4.2
+-- @version 0.4.3
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
@@ -8,6 +8,7 @@
 --    + fix bug with markers at loop start
 --    + add undo points
 --    + add undo points to rename region 
+--    + when using #goto goto x, clamp x value
 
 -- @license MIT
 
@@ -40,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4.2'
+Version = '0.4.3'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
