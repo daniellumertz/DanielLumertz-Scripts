@@ -1,16 +1,13 @@
--- @version 0.4
+-- @version 0.4.1
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add Smooth seek support
---    + Better Menu bar settings UI 
---    + Immediately Alt mouse mod
---    + Add #force markers
---    + Remove reset current playlists value at script exit
---    + Add smooth seek min time as an option
+--    + fix bug with markers at loop start
+--    + add undo points
+
 -- @license MIT
 
 
@@ -45,7 +42,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4'
+Version = '0.4.1'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
