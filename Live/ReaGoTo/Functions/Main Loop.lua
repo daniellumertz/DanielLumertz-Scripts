@@ -74,6 +74,20 @@ function GoToCheck()
             for playlist_idx,playlist in ipairs(project_table.playlists) do
                 if playlist.reset then
                     playlist.current = 1
+                    --- Create the loop around the region ( user testing )
+                    local region = playlist[playlist.current]
+                    if not region.type == 'region' then goto dontloop end
+                    local guid = region.guid -- region guid
+                    local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
+                    if not( marker_id == '') then   -- better safe than sorry
+                        local _, _, rgpos, rgnend, _, _ = reaper.EnumProjectMarkers2( proj, marker_id )
+                        if region.loop then
+                            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, rgpos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
+                        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
+                            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
+                        end
+                    end
+                    ::dontloop::
                 end
             end
         end
@@ -130,6 +144,7 @@ function GoToCheck()
                     if is_inside_loop and mark_pos > loop_end then
                         break
                     end 
+
                     -- Get the next marker
                     if mark_pos > pos and name:match('^'..indentifier) then -- Loop each marker (improve with a binary search later)
                         marker_point = mark_pos
@@ -139,7 +154,7 @@ function GoToCheck()
                     end
 
                     -- If loop/repeat is ON then get the closest goto marker from the loop start
-                    if is_repeat and not found_loop_marker and mark_pos >= loop_start and name:match('^'..indentifier) then
+                    if is_inside_loop and not found_loop_marker and mark_pos >= loop_start and name:match('^'..indentifier) then
                         found_loop_marker = true
                         marker_point = mark_pos
                         marker_name = name
@@ -152,7 +167,6 @@ function GoToCheck()
             ---------- Find Force Marker, force marker are not trigger points
             if project_table.is_force_goto and not project_table.is_triggered then
                 local force_pos, force_name, force_distance = get_closest_marker(proj,pos,project_table.force_identifier)
-
                 if force_pos and proj_position_in_defer_range(force_pos, true) then  -- Check if the force marker is inside range
                     project_table.is_triggered = GetCommand(project_table.force_identifier,force_name) -- it might return false, but to be here  project_table.is_triggered needs to be false so it wont cancel triggered commands
                 end 
