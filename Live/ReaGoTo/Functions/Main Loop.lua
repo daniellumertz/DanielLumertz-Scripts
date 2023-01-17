@@ -73,21 +73,27 @@ function GoToCheck()
             -- Reset playlist position for each playlist
             for playlist_idx,playlist in ipairs(project_table.playlists) do
                 if playlist.reset then
-                    playlist.current = 1
-                    --- Create the loop around the region ( user testing )
-                    local region = playlist[playlist.current]
-                    if not region.type == 'region' then goto dontloop end
-                    local guid = region.guid -- region guid
-                    local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
-                    if not( marker_id == '') then   -- better safe than sorry
-                        local _, _, rgpos, rgnend, _, _ = reaper.EnumProjectMarkers2( proj, marker_id )
-                        if region.loop then
-                            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, rgpos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
-                        elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
-                            local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
+                    playlist.reset_n = LimitNumber(playlist.reset_n,0,#playlist) -- In case user deleted some playlist, update maximum and min value of reset_n
+                    if playlist.reset_playhead then
+                        GoTo('goto'..playlist.reset_n, proj)
+                    else -- maybe create a goto flag for select 
+                        playlist.reset_n = LimitNumber(playlist.reset_n,0,#playlist) -- In case user deleted some playlist, update maximum and min value of reset_n
+                        playlist.current = playlist.reset_n
+                        --- Create the loop around the region ( user testing )
+                        local region = playlist[playlist.current]
+                        if type(region) ~= 'table' or not region.type == 'region' then goto dontloop end
+                        local guid = region.guid -- region guid
+                        local retval, marker_id = reaper.GetSetProjectInfo_String( proj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
+                        if not( marker_id == '') then   -- better safe than sorry
+                            local _, _, rgpos, rgnend, _, _ = reaper.EnumProjectMarkers2( proj, marker_id )
+                            if region.loop then
+                                local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, rgpos, rgnend, false) -- proj, isSet, isLoop, start, end, allowautoseek
+                            elseif region.type == 'region' then -- not looping a region will remove loop regions (maybe only if the loop region is in the region position/range)
+                                local start, fim = reaper.GetSet_LoopTimeRange2(proj, true, true, 0, 0, false) -- proj, isSet, isLoop, start, end, allowautoseek
+                            end
                         end
+                        ::dontloop::
                     end
-                    ::dontloop::
                 end
             end
         end

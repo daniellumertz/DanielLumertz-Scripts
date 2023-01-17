@@ -1,4 +1,4 @@
--- @version 0.4.4
+-- @version 0.4.5
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
@@ -10,6 +10,7 @@
 --    + add undo points to rename region 
 --    + when using #goto goto x, clamp x value
 --    + when reseting loop the region if need
+--    + add reseting playhead and resting value
 
 -- @license MIT
 
@@ -42,7 +43,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4.4'
+Version = '0.4.5'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'

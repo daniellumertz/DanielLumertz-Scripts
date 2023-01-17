@@ -253,12 +253,26 @@ function RenamePlaylistPopUp(playlist, playlist_key, playlists)
 
     change, playlist.reset = reaper.ImGui_Checkbox(ctx, 'Reset at stop', playlist.reset)
     is_save = is_save or change
-    ToolTip(UserConfigs.tooltips,'When stopping/pausing the project the playlist will go back to the first region/marker.')        
+    ToolTip(UserConfigs.tooltips,'When stopping/pausing the project the playlist will go back to the first region/marker.')    
 
-    reaper.ImGui_SameLine(ctx)
+    if playlist.reset then
+        reaper.ImGui_SameLine(ctx)
+        reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+        change, playlist.reset_n = reaper.ImGui_InputInt(ctx, "##resetnumber", playlist.reset_n, 0, 0)
+        if change then
+            playlist.reset_n = LimitNumber(playlist.reset_n,0,#playlist)
+        end
+        is_save = is_save or change
+        ToolTip(true,'When stopping/pausing the project the playlist will go to which playlist value?')    
+
+        change, playlist.reset_playhead = reaper.ImGui_Checkbox(ctx, 'Move Playhead at Reset', playlist.reset_playhead)
+        is_save = is_save or change
+        ToolTip(UserConfigs.tooltips,'When stopping/pausing the project move the playhead to the selected playlist value.')    
+    end
+
     change, playlist.shuffle = reaper.ImGui_Checkbox(ctx, 'Shuffle playlist at end.', playlist.shuffle)
     is_save = is_save or change
-    ToolTip(UserConfigs.tooltips,'When the playlist loops around it will shuffle the region/markers order.')        
+    ToolTip(UserConfigs.tooltips,'When the playlist loops around it will shuffle the region/markers order.')    
 
     -- Enter Close it fucking down
     if reaper.ImGui_IsKeyDown(ctx, 13) then
