@@ -17,6 +17,17 @@ end
 
 function CheckFxPos(track, target, proj)
     local fx_idx = CheckLayerFX(track, true) -- If there is not an FX then add it at the end
+    -- Check if anymore Layer fx added after this
+    do
+        local fx_cnt = reaper.TrackFX_GetCount( track )
+        for fx = fx_cnt-1, fx_idx+1, - 1 do
+            local retval, buf = reaper.TrackFX_GetFXName( track, fx )
+            local prefix = 'JS: '
+            if buf == prefix..FXNAME then
+                reaper.TrackFX_Delete( track, fx )
+            end
+        end
+    end
     -- Position
     if target.is_force_fx then
         local fx_cnt =  reaper.TrackFX_GetCount( track )
@@ -62,7 +73,6 @@ function CheckFxPos(track, target, proj)
     end
     -- Bypass
     Bypass(track, fx_idx, target, proj)
-
 end
 
 function RemoveLayerFXFromTrack(track)

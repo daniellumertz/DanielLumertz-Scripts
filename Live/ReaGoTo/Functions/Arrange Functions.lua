@@ -1,6 +1,7 @@
 --@noindex
---version: 0.13
+--version: 0.13.1
 -- update enum markers bugfix
+-- fix arrange position
 
 
 ------- Iterate 
@@ -300,7 +301,8 @@ end
 function GetArrangePosition(proj,x,y,main_hwnd) -- thanks birdbird
     local main_hwnd = main_hwnd or reaper.GetMainHwnd()
     local start_time, end_time = reaper.GetSet_ArrangeView2( proj, false, 0, 0, 0, 0 )
-    local arrange_window = reaper.JS_Window_FindChild( main_hwnd, 'trackview', true )
+    local arrange_window_id = 0x3E8 -- optionally could use reaper.JS_Window_FindChild( main_hwnd, 'trackview', true ), but it just work on windows
+    local arrange_window = reaper.JS_Window_FindChildByID(main_hwnd, arrange_window_id)
     local retval, left, top, right, bottom = reaper.JS_Window_GetRect( arrange_window )
 
     if x < left and x > right then return false end -- out of bounds

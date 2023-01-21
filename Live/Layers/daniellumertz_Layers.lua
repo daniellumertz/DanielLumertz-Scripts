@@ -1,4 +1,4 @@
--- @version 0.4.1
+-- @version 0.4.2
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -6,6 +6,7 @@
 --    [effect] Layers Volume.jsfx
 -- @changelog
 --    + Fix Updating target values (at start, changing the curve editor)
+--    + Check duplicate FXs
 
 -- @license MIT
 
@@ -40,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.4.1'
+Version = '0.4.2'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'
