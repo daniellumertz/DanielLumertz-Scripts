@@ -78,7 +78,7 @@ function TakeTab(group)
     end
 
     -- Button
-    if reaper.ImGui_Button(ctx, "Get Selected Items", -FLTMIN) then
+    if reaper.ImGui_Button(ctx, "Get Selected Takes", -FLTMIN) then
         if reaper.ImGui_GetKeyMods(ctx)  ==  reaper.ImGui_Mod_Ctrl() then
             AddToGroup(group)
         else
@@ -94,12 +94,13 @@ function TakeTab(group)
     if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*2, true) then
         for k, v in ipairs(group) do
             local take = v.take
+            local child_table = v.child_takes
 
             -- Each take name display:
             local retval, take_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..k, k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
-            ToolTip(UserConfigs.tooltips,'Right Click for more options. Drag to reorder. Double click to select + enable. Double click + ctrl/command to select.')        
+            ToolTip(UserConfigs.tooltips,'Right Click for more options. Drag to reorder.\nDouble click to select + enable.\nShift + double click to select the item and child items.')        
 
 
             -- rename / delete take popup
@@ -150,9 +151,14 @@ function TakeTab(group)
                 if not (reaper.ImGui_GetKeyMods(ctx) == reaper.ImGui_Mod_Shift()) then
                     AlternateSelectTake(group,k)
                     group.used_idx = TableiCopy(group) -- reset it 
+                else
+                    local to_be_selected = {}
+                    table.insert(to_be_selected, reaper.GetMediaItemTake_Item(take)) -- main item
+                    for child_idx, child_take in ipairs(child_table) do
+                        table.insert(to_be_selected, reaper.GetMediaItemTake_Item(child_take))
+                    end
+                    SetItemSelected(FocusedProj, to_be_selected, true)
                 end
-                local item = reaper.GetMediaItemTake_Item(take)
-                SetItemSelected(FocusedProj, item, true)
 
                 reaper.UpdateArrange()
             end
@@ -200,7 +206,7 @@ function TakeTab(group)
 end
 
 function RenameGroupPopUp(group)
-    reaper.ImGui_Text(ctx, 'Edit name:')
+    reaper.ImGui_Text(ctx, 'Edit group name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
         reaper.ImGui_SetKeyboardFocusHere(ctx)
     end
@@ -212,7 +218,7 @@ function RenameGroupPopUp(group)
 end
 
 function RenameTakePopUp(group, k, take_name)
-    reaper.ImGui_Text(ctx, 'Edit name:')
+    reaper.ImGui_Text(ctx, 'Edit take name:')
     if reaper.ImGui_IsWindowAppearing(ctx) then
         TempName = take_name -- Temporary holds the name as the user writes
         reaper.ImGui_SetKeyboardFocusHere(ctx)
@@ -231,13 +237,63 @@ function RenameTakePopUp(group, k, take_name)
         if retval then table.remove(group.used_idx, used_idx) end -- remove from the shuffle table ( if is there )
         return true
     end
+    -- Show Child
+    reaper.ImGui_Separator(ctx)
+    if reaper.ImGui_BeginMenu(ctx, 'Child Takes') then
+
+        MenuChildTakes(group,k)
+        
+        reaper.ImGui_EndMenu(ctx)
+    end
     -- Enter close popup
     if reaper.ImGui_IsKeyDown(ctx, 13) then
         reaper.ImGui_CloseCurrentPopup(ctx)
     end
 end
 
+function MenuChildTakes(group,k)
+    local w = 200
+    local take_table = group[k]
+    local child_table = take_table.child_takes
+    -- Button to add Child
+    if reaper.ImGui_Button(ctx, 'Get Selected Takes', w) then -- if holding alt then add
+        if reaper.ImGui_GetKeyMods(ctx)  ==  reaper.ImGui_Mod_Ctrl() then
+            Add_ChildTakes(take_table) 
+        else
+            Set_ChildTakes(take_table)
+        end
+    end
+    ToolTip(UserConfigs.tooltips,'Set child items to the selected items. Hold ctrl to add to the child group')        
 
+    -- Manage Current Child
+    for child_idx, child_take in ipairs(child_table) do
+        local retval, take_name = reaper.GetSetMediaItemTakeInfo_String(child_take, 'P_NAME', '', false)
+        local open_menu = reaper.ImGui_BeginMenu(ctx, take_name..'###'..tostring(child_take))
+        ToolTip(UserConfigs.tooltips,'Double click to select child item in arrange.')        
+        if open_menu then
+            --Rename
+            reaper.ImGui_Text(ctx, 'Edit take name:')
+            reaper.ImGui_SetNextItemWidth(ctx, w)
+            local change, new_name = reaper.ImGui_InputText(ctx, "##renameinput", take_name)
+            if change then 
+                local retval, _ = reaper.GetSetMediaItemTakeInfo_String(child_take, 'P_NAME', new_name, true)
+            end
+            -- Delete
+            if reaper.ImGui_Button(ctx, 'Remove Child Take', w) then
+                table.remove(child_table,child_idx)
+            end
+
+            reaper.ImGui_EndMenu(ctx)
+        end    
+        -- Double click to select the child item
+        if reaper.ImGui_IsItemHovered(ctx) and reaper.ImGui_IsMouseDoubleClicked(ctx, 0) then
+            local chil_item = reaper.GetMediaItemTake_Item(child_take)
+            SetItemSelected(FocusedProj, chil_item, true)
+            reaper.UpdateArrange()
+            
+        end
+    end    
+end
 
 function MenuBar()
     local function DockBtn()

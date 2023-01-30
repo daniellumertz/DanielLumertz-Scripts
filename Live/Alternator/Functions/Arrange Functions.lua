@@ -1,6 +1,7 @@
 --@noindex
---version: 0.11
--- higher lever envaluate envelope
+--version: 0.13.1
+-- update enum markers bugfix
+-- fix arrange position
 
 
 ------- Iterate 
@@ -126,10 +127,7 @@ function enumTakeEnvelopes(take)
     end
 end
 
--------
 -- Markers
--------
-
 
 ---Iterate fuction returns retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber using EnumProjectMarkers2
 ---@param proj ReaperProject project 
@@ -144,6 +142,7 @@ function enumMarkers2(proj, only_marker)
         while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
             i = i + 1
             local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber = reaper.EnumProjectMarkers2( proj, i )
+            if retval == 0 then break end
             if (only_marker == 0) or (only_marker == 1 and not isrgn) or (only_marker == 2  and isrgn) then -- filter
                 return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, i
             end
@@ -165,6 +164,7 @@ function enumMarkers3(proj, only_marker)
         while i < cnt do -- (i and Get) are 0 based. cnt is 1 based.
             i = i + 1
             local retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color = reaper.EnumProjectMarkers3( proj, i )
+            if retval == 0 then break end
             if (only_marker == 0) or (only_marker == 1 and not isrgn) or (only_marker == 2  and isrgn) then -- filter
                 return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i
             end
@@ -293,6 +293,25 @@ function CreateTimeQNTable() -- From JS Multitool THANKS THANKS THANKS!
     return tQNFromTime, tTimeFromQN -- Return related to project time
 end
 
+---Get Arrange Position from screen cordinates x and y, it checks if the x+y is at the arrange part, ruler dont count. Return false if out of x bounds.
+---@param proj project reaper project or 0
+---@param x number
+---@param y number
+---@param main_hwnd hwnd optional main_hwnd or nil (get inside the function)
+function GetArrangePosition(proj,x,y,main_hwnd) -- thanks birdbird
+    local main_hwnd = main_hwnd or reaper.GetMainHwnd()
+    local start_time, end_time = reaper.GetSet_ArrangeView2( proj, false, 0, 0, 0, 0 )
+    local arrange_window_id = 0x3E8 -- optionally could use reaper.JS_Window_FindChild( main_hwnd, 'trackview', true ), but it just work on windows
+    local arrange_window = reaper.JS_Window_FindChildByID(main_hwnd, arrange_window_id)
+    local retval, left, top, right, bottom = reaper.JS_Window_GetRect( arrange_window )
+
+    if x < left and x > right then return false end -- out of bounds
+
+    local cx, _ = reaper.JS_Window_ScreenToClient(arrange_window, x, 0) -- Converts the screen coordinates of a specified point on the screen to client-area coordinates.
+    local t = cx / (right - left) --distance along the arrange, in the range 0, 1
+    return  start_time + (end_time - start_time)*t
+end
+
 ---------
 ----- Marker / Region
 ---------
@@ -323,6 +342,35 @@ function GetMarkByID(proj,id,only_marker)
     return false
 end
 
+---comment
+---@param proj project
+---@param pos number
+---@param only_marker number  0 = both, 1 = only marker, 2 = only region. 1 is the default
+function GetClosestMarker(proj, pos, only_marker)
+    local previous = false
+    local previous_table = false
+    for retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i in enumMarkers3(proj, only_marker) do
+        if mark_pos > pos then 
+            if previous then -- compare marker before with next return closest.
+                if (pos-previous) <= (mark_pos-pos) then
+                    retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i = table.unpack(previous_table)
+                end
+            end
+            return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i
+        elseif mark_pos == pos then
+            return retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i
+        elseif mark_pos < pos  then
+            previous = mark_pos
+            previous_table = {retval, isrgn, mark_pos, rgnend, name, markrgnindexnumber, color, i}
+        end
+    end
+
+    if previous_table then -- in case there wasnt any markers after the marker before position
+        return table.unpack(previous_table)
+    else 
+        return false
+    end
+end
 -----------
 ------ Envelopes
 -----------
@@ -436,4 +484,14 @@ function EvaluateEnvelope(envelope, pos, samplerate, samplesRequested)
     end
     local retval, value, dVdS, ddVdS, dddVdS = reaper.Envelope_Evaluate(envelope, pos, samplerate, samplesRequested)
     return retval, value, dVdS, ddVdS, dddVdS
+end
+
+-----------
+------ Position
+-----------
+
+function GetCurrentPlayPosition(proj)
+    local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
+    local pos = (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
+    return pos
 end

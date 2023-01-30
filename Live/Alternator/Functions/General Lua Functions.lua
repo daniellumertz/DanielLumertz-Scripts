@@ -1,6 +1,7 @@
 --@noindex
---version: 0.6
--- Add ipairs reverse
+--version: 0.7.3
+-- Add bitwise sections
+-- Update check table has value
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
@@ -112,12 +113,14 @@ function TableValuesCompareCount(table1,table2) --Count values that are equal in
     return cnt
 end
 
----It uses ipairs if want to use in a table with strings as keys change to pairs
+---It uses ipairs if want to use in a table with strings as keys change to pairs with is_pairs(false by default)
 ---@param tab table table iterate to check values
 ---@param val any value to be checked
+---@param is_pairs boolean if true will use pairs. else will use ipairs
 ---@return boolean, any
-function TableHaveValue(tab, val) -- Check if table have val in the values. (Uses) 
-    for index, value in ipairs(tab) do
+function TableHaveValue(tab, val, is_pairs) -- Check if table have val in the values. (Uses) 
+    local func = is_pairs and pairs or ipairs
+    for index, value in func(tab) do
         if value == val then
             return true, index
         end
@@ -240,6 +243,54 @@ function TableKeys(t)
     end
     return new_table
 end
+
+---Return a table with all keys inside a table
+---@param t table
+---@return table
+function TableiKeys(t)
+    local new_table = {}
+    for key, value in ipairs(t) do
+        new_table[#new_table+1] = key
+    end
+    return new_table
+end
+
+
+---Create a new table with the values keys randomized. Only randomize key that are numbers. String keys keep the same value.
+---@param t any
+---@return table
+function RandomizeNewTable(t)
+    local new_t = {}
+    local keys =  TableiKeys(t) -- number keys
+    for k, v in pairs(t) do
+        if type(k) == 'number' then -- randomize position
+            local random_idx = math.random(#keys)
+            local new_k = keys[random_idx]
+            new_t[new_k] = v
+            table.remove(keys, random_idx)
+        else -- just add equal
+            new_t[k] = v
+        end
+    end
+
+    return new_t
+end
+
+---Randomize keys from a table. Only randomize key that are numbers. String keys keep the same value.
+---@param t table
+function RandomizeTable(t)
+    local old_table = TableDeepCopy(t)
+    local keys = TableiKeys(t)
+    for k, v in pairs(old_table) do
+        if type(k) == 'number' then
+            local random_idx = math.random(#keys)
+            local new_k = keys[random_idx]
+            t[new_k] = v
+            table.remove(keys, random_idx)
+        end
+    end    
+end
+
 
 
 ---Moves the values in a table to make it ascendent without gaps ex: t = {1 = 'a', 5 = 'c' ,9 = 'e'} will return {1 = 'a', 2 = 'c', 3 = 'e'}
@@ -374,6 +425,19 @@ function QuantizeNumber(num,quantize_value)
     return low_quantize
 end
 
+---Quantize a number upwards
+---@param number number value to be quantized
+---@param step_size number setep size 
+---@return number quantized_number
+function QuantizeUpwards(number, step_size)
+    local remainder = number % step_size
+    if remainder == 0 then
+        return number
+    else
+        return number + (step_size - remainder)
+    end
+end
+
 ---When inter = 1 return val1 when inter = 0 return val2, use decimal values (0-1) to interpolate
 ---@param val1 number
 ---@param val2 number
@@ -394,6 +458,31 @@ function MapRange(value,min1,max1,min2,max2)
     return (value - min1) / (max1 - min1) * (max2 - min2) + min2
 end
 
+---Slide/Slope old_val in direction of new_val.
+---@param old_val number old value
+---@param new_val number value trying to be catched up
+---@param max_time_going_up number time it takes to go from min to max. 0 is instantaneos 
+---@param max_time_going_down number time it takes to go from max to min. 0 is instantaneos 
+---@param elapsed_time number time passed (normally calculated from last call)
+---@param min number minimum value
+---@param max number maximum value
+function Slide(old_val,new_val,max_time_going_up, max_time_going_down,elapsed_time,min,max)
+    local max_distance = max - min
+    local is_going_up = new_val > old_val 
+    local time  = (is_going_up and max_time_going_up) or max_time_going_down -- time it takes to go from 0to1 or 1to0, in seconds
+    if time <= 0 then -- no slide
+        return new_val
+    else
+        local speed = max_distance / time --speed of value/second
+        speed = speed * elapsed_time
+        speed = LimitNumber(speed, min, max) -- just in case
+        speed = is_going_up and speed or -speed
+        local result = old_val + speed
+        result = is_going_up and LimitNumber(result, min, new_val) or LimitNumber(result, new_val, max)
+        return result
+    end    
+end
+
 ---Generate a random number between min and max.
 ---@param min number minimum value
 ---@param max number maximum value
@@ -406,6 +495,11 @@ function RandomNumberFloat(min,max,is_include_max)
     random = MapRange(random,0,big_val,min,max) -- Scale the random value to the sum of the chances
 
     return random
+end
+
+function RemoveDecimals(num,decimal_places)
+    local int_num = math.floor(num * 10^decimal_places)
+    return int_num / 10^decimal_places    
 end
 
 --- Return dbval in linear value. 0 = -inf, 1 = 0dB, 2 = +6dB, etc...
@@ -466,5 +560,34 @@ function CompareVersion(check_version, min_version, max_version, separator)
     return true, nil
 end
 
+---------------------
+----------------- Numbers Bit operations
+---------------------
+
+---Get if the n bit(from right to left) of a number is 1. n is 0 based.
+---@param number number
+---@param n number bit from right to left, 0 based.
+---@return boolean
+function GetNbit(number,n)
+    return ((number & (2^n)) >> (n)) == 1
+end
+
+---Change a bit value from a number.
+---@param num number
+---@param n number bit number, from right to left, 0 based 
+---@param new_val number 0 or 1
+---@return number new value
+function ChangeBit(num, n, new_val)
+    if type(new_val) == "boolean" then
+        new_val = (new_val and 1) or 0
+    end
+    local mask = 1 << n
+    if new_val == 0 then
+        num = num & ~mask -- and operation with the opposite of the mask. (if an bite was 1 it will still be 1 unless its where the mask have an 0)
+    else
+        num = num | mask
+    end
+    return num
+end
 
 

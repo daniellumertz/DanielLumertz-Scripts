@@ -1,24 +1,17 @@
--- @version 0.1.1
+-- @version 0.2
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Release
+--    + Add child Tracks
 -- @license MIT
 
 -----TODO:
--------------------------
--- Action to make all options at the end of the project
-    --Put all groups in first take
-    -- copy the user selected region 
-        -- To copy make a razor edit to the region area covering all tracks
-    -- Paste X seconds at the end of the project
-    -- Alternate in playlist the last group 
-        -- if go to 1 again them set the next group
-    -- etc
--- Forum Post
-
+-- Closing with remove take renames it
+-- Check if take is already at another group before adding (? utilizar sem e se incomodar botar check, nao colocar nas child porque elas podem ser combinadas comm mais de um take)
+-- add/set to just active take
+-- Child takes 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -45,7 +38,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.1.1'
+Version = '0.2.0'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'
