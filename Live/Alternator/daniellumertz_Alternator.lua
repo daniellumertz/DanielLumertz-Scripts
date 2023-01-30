@@ -1,10 +1,11 @@
--- @version 0.2
+-- @version 0.2.1
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + Add child Tracks
+--    + Fix Saving shuffle
 -- @license MIT
 
 -----TODO:
@@ -17,7 +18,7 @@
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
 
 
--- get script path
+-- get script path\
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 -- dofile all files inside functions folder
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
@@ -38,7 +39,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.2.0'
+Version = '0.2.1'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'

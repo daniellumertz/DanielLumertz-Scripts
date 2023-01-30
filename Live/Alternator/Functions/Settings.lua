@@ -73,12 +73,16 @@ end
 ---@param proj project reaper project 
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
-
+    -- Prepare the save table.
     local table_copy = TableDeepCopy(config_table)
     -- remove positions
     table_copy.oldpos = nil
     table_copy.oldisplay = nil
     table_copy.oldtime = nil
+    -- remove used_idx (for shuffle)
+    for idx_group, group in ipairs(table_copy.groups) do
+        group.used_idx = {}        
+    end
     SaveExtStateTable(proj, ScriptName, ExtKey, table_copy, true)
 end
 

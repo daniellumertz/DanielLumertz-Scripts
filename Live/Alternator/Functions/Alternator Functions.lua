@@ -163,12 +163,12 @@ function CreateNewGroup(name)
 end
 
 function AddToGroup(group)
-    print(reaper.GetSelectedMediaItem(nil, 0))
     for item in enumSelectedItems(FocusedProj) do
         for take in enumTakes(item) do
             group[#group+1] = {take = take, chance = 1, child_takes = {}}
         end
-    end    
+    end
+    group.used_idx = TableiCopy(group)   
 end
 
 function SetGroup(group)
