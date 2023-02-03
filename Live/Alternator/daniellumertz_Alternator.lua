@@ -1,4 +1,4 @@
--- @version 0.2.4
+-- @version 0.2.5
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
@@ -40,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.2.4'
+Version = '0.2.5'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'

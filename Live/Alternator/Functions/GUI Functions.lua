@@ -102,7 +102,7 @@ function TakeTab(group)
             local cur_x, cur_y = reaper.ImGui_GetCursorScreenPos(ctx)
             reaper.ImGui_PushClipRect(ctx, cur_x, cur_y, cur_x+avail_x-ci_size, cur_y+600, true) -- Clip the selectable text in case take name is long
             reaper.ImGui_SetNextItemWidth(ctx, 150)
-            local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..tostring(take), k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
+            local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..tostring(take)..k, k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
             reaper.ImGui_PopClipRect(ctx)
             ToolTip(UserConfigs.tooltips,'Right Click for more options. Drag to reorder.\nDouble click to select + enable.\nShift + double click to select the item and child items.')        
 
