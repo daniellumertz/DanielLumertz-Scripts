@@ -5,7 +5,7 @@ function GuiInit(ScriptName)
     FontText = reaper.ImGui_CreateFont('sans-serif', 14) -- Create the fonts you need
     reaper.ImGui_Attach(ctx, FontText)-- Attach the fonts you need
     --- Smaller Font for smaller widgets
-    FontTiny = reaper.ImGui_CreateFont('sans-serif', 10) 
+    FontTiny = reaper.ImGui_CreateFont('sans-serif', 12) 
     reaper.ImGui_Attach(ctx, FontTiny)
 end
 
@@ -91,6 +91,7 @@ function TakeTab(group)
     -- Each take
     local avail_x, avail_y = reaper.ImGui_GetContentRegionAvail(ctx)
     local line_size = reaper.ImGui_GetTextLineHeight(ctx)
+    local ci_size = 55 --chance_input_size
     if reaper.ImGui_BeginChild(ctx, 'GroupSelect', -FLTMIN, avail_y-line_size*2, true) then
         for k, v in ipairs(group) do
             local take = v.take
@@ -98,8 +99,11 @@ function TakeTab(group)
 
             -- Each take name display:
             local retval, take_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
+            local cur_x, cur_y = reaper.ImGui_GetCursorScreenPos(ctx)
+            reaper.ImGui_PushClipRect(ctx, cur_x, cur_y, cur_x+avail_x-ci_size, cur_y+600, true) -- Clip the selectable text in case take name is long
             reaper.ImGui_SetNextItemWidth(ctx, 150)
-            local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..k, k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
+            local retval, p_selected = reaper.ImGui_Selectable(ctx, take_name..'##'..tostring(take), k == group.selected+1, reaper.ImGui_SelectableFlags_AllowItemOverlap())
+            reaper.ImGui_PopClipRect(ctx)
             ToolTip(UserConfigs.tooltips,'Right Click for more options. Drag to reorder.\nDouble click to select + enable.\nShift + double click to select the item and child items.')        
 
 
@@ -166,11 +170,16 @@ function TakeTab(group)
             -- Probability box
             local change
             reaper.ImGui_SameLine(ctx)
-            reaper.ImGui_SetCursorPosX(ctx, Gui_W-110) -- change that to something flexible
-            reaper.ImGui_Text(ctx, 'Chance: ')
-            reaper.ImGui_SameLine(ctx)
-            reaper.ImGui_SetNextItemWidth(ctx, 30)
+            reaper.ImGui_SetCursorPosX(ctx, Gui_W-ci_size) -- change that to something flexible
+            --reaper.ImGui_SetCursorPosX(ctx, Gui_W-110) -- change that to something flexible
+            --reaper.ImGui_Text(ctx, 'Chance: ')
+            --reaper.ImGui_SameLine(ctx)
+            reaper.ImGui_SetNextItemWidth(ctx, -FLTMIN)
+            local current_y = reaper.ImGui_GetCursorPosY(ctx)
+            reaper.ImGui_PushFont(ctx, FontTiny)
+            reaper.ImGui_SetCursorPosY(ctx, current_y-2)
             change, v.chance = reaper.ImGui_InputInt(ctx, '##'..take_name..k, v.chance, 0, 0)
+            reaper.ImGui_PopFont(ctx)
             is_save = change or is_save
             if v.chance < 0 then v.chance = 0 end
             ToolTip(UserConfigs.tooltips,'When the mode is "Random" use this to set the chance. At other modes set to 0 to disable this take.')        
@@ -274,7 +283,7 @@ function MenuChildTakes(group,k)
             --Rename
             reaper.ImGui_Text(ctx, 'Edit take name:')
             reaper.ImGui_SetNextItemWidth(ctx, w)
-            local change, new_name = reaper.ImGui_InputText(ctx, "##renameinput", take_name)
+            local change, new_name = reaper.ImGui_InputText(ctx, "##renameinput"..tostring(child_take), take_name)
             if change then 
                 local retval, _ = reaper.GetSetMediaItemTakeInfo_String(child_take, 'P_NAME', new_name, true)
             end

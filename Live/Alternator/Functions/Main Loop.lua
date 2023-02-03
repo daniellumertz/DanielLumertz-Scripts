@@ -27,6 +27,7 @@ function main_loop()
         end
         SetDock = nil
     end
+    reaper.ImGui_SetNextWindowSizeConstraints(ctx, 200, 250, 6000, 6000)
     reaper.ImGui_PushFont(ctx, FontText) -- Says you want to start using a specific font
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..Version, true, window_flags)
 
@@ -142,7 +143,18 @@ function CheckProjects()
                 local take = take_table.take
                 if not reaper.ValidatePtr2(check_proj, take, 'MediaItem_Take*') then -- Remove missing takes@
                     table.remove(group,take_idx)
+                    goto continue
                 end
+
+                local child_table = take_table.child_takes
+                -- check child takes
+                for child_idx, child_take in ipairs_reverse(child_table) do
+                    if not reaper.ValidatePtr2(check_proj, child_take, 'MediaItem_Take*') then -- Remove missing takes@
+                        table.remove(child_table,take_idx)
+                    end
+                end
+
+                ::continue::
             end
         end
 

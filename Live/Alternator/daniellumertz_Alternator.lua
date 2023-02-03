@@ -1,4 +1,4 @@
--- @version 0.2.1
+-- @version 0.2.4
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
@@ -6,13 +6,14 @@
 -- @changelog
 --    + Add child Tracks
 --    + Fix Saving shuffle
+--    + Small ImGUI Fix child identifiers menus 
+--    + Check Child takes each frame
+--    + Fix small GUI Bug when deleting a take.
+--    + Fix widgets clutters
 -- @license MIT
 
 -----TODO:
--- Closing with remove take renames it
--- Check if take is already at another group before adding (? utilizar sem e se incomodar botar check, nao colocar nas child porque elas podem ser combinadas comm mais de um take)
 -- add/set to just active take
--- Child takes 
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
@@ -39,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.2.1'
+Version = '0.2.4'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'
