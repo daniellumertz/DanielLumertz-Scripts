@@ -1,5 +1,7 @@
 --@noindex
---version: 0.1
+--version: 0.1.1
+--changelog
+--Check if the getversion api work
 
 ---------------------
 ----------------- Extension Checker 
@@ -8,6 +10,7 @@
 --- Check if user REAPER version. min_version and max_version are optional
 function CheckREAPERVersion(min_version, max_version)
     local reaper_version = reaper.GetAppVersion():match('%d+%.%d+')
+    print(reaper_version)
     local bol, why = CompareVersion(reaper_version, min_version, max_version)
     if not bol then
         local text
@@ -42,6 +45,9 @@ function CheckSWS(min_version, max_version)
             elseif why == 'max' then
                 text = 'This script requires that SWS maximum version be : '..max_version..'.\nYour version is '..sws_version..'.\nWould you like to be redirected to the website of old version SWS Extension to downgrade it?'
                 url = 'https://www.sws-extension.org/download/old/'
+            elseif why == 'no_check' then -- if the Get Version API break, Just in case 
+                text = 'This version of the SWS seems have a faulty Get Version API Function please try updating it and report on the forums!'..'.\nWould you like to be redirected to the SWS Extension website to update it?' 
+                url = 'https://www.sws-extension.org/'
             end
             local ret = reaper.ShowMessageBox(text, 'Error - Missing Dependency', 4)
             if ret == 6 then
@@ -68,6 +74,8 @@ function CheckReaImGUI(min_version, max_version)
                 text = 'This script requires that ReaImgui minimum version be : '..min_version..'.\nYour version is '..reaimgui_version..'\nYou can update it through ReaPack.\nAfter installing an extension you must restart REAPER'
             elseif why == 'max' then
                 text = 'This script requires that ReaImgui maximum version be : '..max_version..'.\nYour version is '..reaimgui_version..'\nYou can update it through ReaPack.\nAfter installing an extension you must restart REAPER'
+            elseif why == 'no_check' then -- if the Get Version API break, Just in case 
+                text = 'This version of Imgui seems have a faulty Get Version API Function please try updating it and report on the forums!'
             end
             reaper.ShowMessageBox(text, 'Error - Dependency at Incompatible Version', 0)
             return false
@@ -91,6 +99,8 @@ function CheckJS(min_version, max_version)
                 text = 'This script requires that js_ReaScriptAPI minimum version be : '..min_version..'.\nYour version is '..js_version..'\nYou can update it through ReaPack.\nAfter installing an extension you must restart REAPER'
             elseif why == 'max' then
                 text = 'This script requires that js_ReaScriptAPI maximum version be : '..max_version..'.\nYour version is '..js_version..'\nYou can update it through ReaPack.\nAfter installing an extension you must restart REAPER'
+            elseif why == 'no_check' then -- if the Get Version API break, Just in case 
+                text = 'This version of js_ReaScriptAPI seems have a faulty Get Version API Function please try updating it and report on the forums!'
             end
             reaper.ShowMessageBox(text, 'Error - Dependency at Incompatible Version', 0)
             return false
@@ -106,6 +116,8 @@ end
 ---@return boolean retval did it passed the filters? 
 ---@return string why reason it didnt pass the filter. return 'min' or 'max'. if passed it will return nil
 function CompareVersion(check_version, min_version, max_version, separator)
+    if not check_version then return false, 'no_check' end -- Dont have the minimum version to return the version, shouldnt be needed as you can check reaper.APIExists before going into here
+    
     separator = separator or '.'
     local check_table = {}
     for version in check_version:gmatch('(%d+)'..separator..'?') do

@@ -1,11 +1,11 @@
--- @version 1.0.4
+-- @version 1.0.5
 -- @author Daniel Lumertz
 -- @provides
 --    [main=midi_editor] .
 --    [nomain] Functions/*.lua
 -- @license MIT
 -- @changelog
---    + Correct Sorting
+--    + check get version api update
 
 
 local info = debug.getinfo(1, 'S');
@@ -13,7 +13,6 @@ ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 --demo = dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/ReaImGui_Demo.lua')
-
 
 dofile(ScriptPath .. 'Functions/General Functions.lua') -- General Functions needed
 dofile(ScriptPath .. 'Functions/MIDI Functions.lua') -- General MIDI Functions needed
@@ -41,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 --- GUI
 Pin = true
 ScriptName = 'Markov Chains'
-Version = '1.0.4'
+Version = '1.0.5'
 
 --- Settings
 SettingsFileName = "User Settings"
