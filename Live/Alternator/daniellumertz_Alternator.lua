@@ -1,4 +1,4 @@
--- @version 0.2.5
+-- @version 0.2.6
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
@@ -10,6 +10,7 @@
 --    + Check Child takes each frame
 --    + Fix small GUI Bug when deleting a take.
 --    + Fix widgets clutters
+--    + Fix bug check if repeat is on
 -- @license MIT
 
 -----TODO:
@@ -40,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.2.5'
+Version = '0.2.6'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'

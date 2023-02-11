@@ -67,25 +67,28 @@ function AlternateLoop()
         local is_play = reaper.GetPlayStateEx(proj)&1 == 1 -- is playing 
         local pos =  (is_play and reaper.GetPlayPositionEx( proj )) or reaper.GetCursorPositionEx(proj) -- current pos
         local time = reaper.time_precise()
+        local loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
+        local is_repeat =  reaper.GetSetRepeat( -1 ) == 1 -- query = -1 
+        is_repeat = is_repeat and (loop_start ~= loop_end)-- Does it have an area selected? does it have repeat on ? 
 
-        if not FirstRun then
+        if not FirstRun then -- prevent it alternating at an stopped project
             -- if stoped
             if project_table.oldisplay and not is_play then
                 trigger = 'stop'
             end
 
+            -- At loop start and at stop reset AlteredAtThisLoop 
+            if (is_play and pos < project_table.oldpos) or (not is_play and project_table.oldisplay) then
+                project_table.is_loopchanged = false
+            end
+
             -- if looped (only if it is playing)
-            if is_play then
-                -- At loop start and at stop reset AlteredAtThisLoop 
-                if (is_play and pos < project_table.oldpos) or (not is_play and project_table.oldisplay) then
-                    project_table.is_loopchanged = false
-                end
+            if is_play and is_repeat and not project_table.is_loopchanged then
                 -- Calculate the delta time
-                local loop_start, loop_end = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
                 local delta =  time - project_table.oldtime
                 -- Estimate next defer cycle position, check if is after the loop end. Always estimate a little longer to compensate for defer instability. This can cause to trigger twice. Use a variable that reset each loop start to prevent that.
                 local playrate = reaper.Master_GetPlayRate(proj)
-                if is_play and not project_table.is_loopchanged and pos + (delta * UserConfigs.compensate) * playrate >= loop_end and project_table.oldpos < loop_end then 
+                if pos + (delta * UserConfigs.compensate) * playrate >= loop_end and project_table.oldpos < loop_end then 
                     trigger = 'loop'
                     project_table.is_loopchanged = true
                     if UserConfigs.add_markers then
@@ -93,8 +96,6 @@ function AlternateLoop()
                     end
                 end
             end
-        else
-            FirstRun = nil
         end
 
         -- Update values
@@ -105,6 +106,10 @@ function AlternateLoop()
         if trigger then 
             AlternateItems(project_table.groups, trigger)
         end
+    end
+
+    if FirstRun then 
+        FirstRun = nil
     end
 end
 
