@@ -1,4 +1,4 @@
--- @version 0.4.2
+-- @version 0.4.3
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
@@ -7,6 +7,7 @@
 -- @changelog
 --    + Fix Updating target values (at start, changing the curve editor)
 --    + Check duplicate FXs
+--    + Remove Layers FX when deleting Groups
 
 -- @license MIT
 
@@ -41,7 +42,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.4.2'
+Version = '0.4.3'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'

@@ -131,6 +131,13 @@ function RemoveTarget(parameter, track)
     parameter.targets[track] = nil
 end
 
+function RemoveGroup(proj, parameter_key)
+    local parameter_table = ProjConfigs[proj].parameters[parameter_key]
+    for track, target_table in pairs(parameter_table.targets) do
+        RemoveTarget(parameter_table, track)
+    end
+    table.remove(ProjConfigs[proj].parameters,parameter_key)
+end
 
 
 -- Create Tables: 

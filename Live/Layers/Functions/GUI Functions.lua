@@ -264,7 +264,8 @@ function RenameParameter(parameter, parameter_key)
     -- delete
     if reaper.ImGui_Button(ctx, 'Delete Group',-FLTMIN) then
         reaper.ImGui_CloseCurrentPopup(ctx)
-        table.remove(ProjConfigs[FocusedProj].parameters,parameter_key)
+        RemoveGroup(FocusedProj, parameter_key)
+        --table.remove(ProjConfigs[FocusedProj].parameters,parameter_key)
     end
 
     -- Enter Close it fucking down
