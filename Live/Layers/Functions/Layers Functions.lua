@@ -183,7 +183,7 @@ function CreateProjectConfigTable()
     local t = {
         parameters = {CreateParameterTable('P1')},
         bypass = false,
-        remove_fx_atexit = true
+        remove_fx_atexit = false
         }
     return t
 end
