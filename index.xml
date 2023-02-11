@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="199382688d6ecfa5292e907809e48e2d0a1fa114">
+<index version="1" name="Daniel Lumertz Scripts" commit="6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -450,6 +450,32 @@
         <source file="Functions/Serialize Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ef0a6723c6eab5993772743a71ea620fe7b30b86/Live/Alternator/Functions/Serialize%20Functions.lua</source>
         <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ef0a6723c6eab5993772743a71ea620fe7b30b86/Live/Alternator/Functions/Settings.lua</source>
         <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ef0a6723c6eab5993772743a71ea620fe7b30b86/Live/Alternator/Functions/Theme.lua</source>
+      </version>
+      <version name="0.2.6" author="Daniel Lumertz" time="2023-02-11T14:48:02Z">
+        <changelog><![CDATA[+ Add child Tracks
++ Fix Saving shuffle
++ Small ImGUI Fix child identifiers menus 
++ Check Child takes each frame
++ Fix small GUI Bug when deleting a take.
++ Fix widgets clutters
++ Fix bug check if repeat is on]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/daniellumertz_Alternator.lua</source>
+        <source file="Functions/Alternator Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Alternator%20Functions.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/FX%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/Imgui Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Imgui%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Imgui%20General%20Functions.lua</source>
+        <source file="Functions/Json Main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Json%20Main.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Main%20Loop.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Serialize Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Serialize%20Functions.lua</source>
+        <source file="Functions/Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Settings.lua</source>
+        <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6c74c5dd0a55e7a11e4c3bc70a52b828c4fa67d7/Live/Alternator/Functions/Theme.lua</source>
       </version>
     </reapack>
   </category>
