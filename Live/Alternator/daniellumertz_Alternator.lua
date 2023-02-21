@@ -1,16 +1,11 @@
--- @version 0.2.6
+-- @version 1.0.0
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Add child Tracks
---    + Fix Saving shuffle
---    + Small ImGUI Fix child identifiers menus 
---    + Check Child takes each frame
---    + Fix small GUI Bug when deleting a take.
---    + Fix widgets clutters
---    + Fix bug check if repeat is on
+--    + Release version 
+--    + Add links for videos and forum
 -- @license MIT
 
 -----TODO:
@@ -41,7 +36,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '0.2.6'
+Version = '1.0.0'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'

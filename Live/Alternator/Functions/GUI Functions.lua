@@ -342,9 +342,12 @@ function MenuBar()
             end
 
             if reaper.ImGui_BeginMenu(ctx, 'Reaper Settings') then
+                ---- Buffering
+                reaper.ImGui_Text(ctx, 'Audio > Buffering')
+
                 reaper.ImGui_Text(ctx, 'Media Buffer Size:')
                 local change, num = reaper.ImGui_InputInt(ctx, '##Buffersize', reaper.SNM_GetIntConfigVar( 'workbufmsex', 0 ), 0, 0, 0)
-                ToolTip(true, 'Lower Buffer will process the change of takes/change mute state faster, higher buffer settings will result in bigger delays to mute and unmute. For manipulating with audio items in live scenarios I recommend leaving at 0\n\nREAPER Definition: Media buffering uses RAM and CPU to avoid having to wait for disk IO. For systems with slower disks this should be set higher. Zero disables buffering. Default 1200 ')
+                ToolTip(true, 'Lower Buffer will process the change of takes/change mute state faster, higher buffer settings will result in bigger delays at project changes. For manipulating with audio items in live scenarios I recommend leaving at 0\n\nREAPER Definition: Media buffering uses RAM and CPU to avoid having to wait for disk IO. For systems with slower disks this should be set higher. Zero disables buffering. Default 1200 ')
                 if change then
                     reaper.SNM_SetIntConfigVar( 'workbufmsex', num )
                 end
@@ -356,16 +359,25 @@ function MenuBar()
                     reaper.SNM_SetIntConfigVar( 'workbuffxuims', num )
                 end
                 ----
-                reaper.ImGui_Separator(ctx) -------
-                ----
-                reaper.ImGui_Text(ctx, 'Anticipate FX :')
-                local change, num = reaper.ImGui_InputInt(ctx, '##Renderahead', reaper.SNM_GetIntConfigVar( 'renderaheadlen', 0 ), 0, 0, 0)
-                ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD)')
-                if change then
-                    reaper.SNM_SetIntConfigVar( 'renderaheadlen', num )
+                local render_configs = reaper.SNM_GetIntConfigVar('workrender', 0)
+                local is_anticipate = GetNbit(render_configs,0)
+
+                local retval, new_v = reaper.ImGui_Checkbox(ctx, 'Anticipate FX', is_anticipate)
+                if retval then
+                    local render_val = ChangeBit(render_configs, 0, (new_v and 1 or 0)) -- 1 bit is the anticipate value
+                    reaper.SNM_SetIntConfigVar('workrender', render_val)
                 end
+                ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD). Default: ON')
 
-
+                if is_anticipate then
+                    reaper.ImGui_Text(ctx, 'Anticipate FX Size :')
+                    local change, num = reaper.ImGui_InputInt(ctx, '##Renderahead', reaper.SNM_GetIntConfigVar( 'renderaheadlen', 0 ), 0, 0, 0)
+                    ToolTip(true, 'Render FX ahead. The lower the value more in real time the modifications will take effect, higher values spare more CPU. For live situations manipulating tracks with FX I recommend the lowest as possible. \n\n REAPER Definition: Use spare CPU to render FX ahead of time. This is beneficial regardless of CPU count, but may need to be disabled for use with some plug-ins(UAD). Default: 200')
+                    if change then
+                        reaper.SNM_SetIntConfigVar( 'renderaheadlen', num )
+                    end
+                end
+                
                 reaper.ImGui_EndMenu(ctx)
             end
             
@@ -379,9 +391,33 @@ function MenuBar()
             ToolTip(true, 'Recommended doantion 20$ - 40$')
 
 
-            --if reaper.ImGui_MenuItem(ctx, 'Forum') then
-            --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
-            --end
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?t=276313')
+            end
+
+            if reaper.ImGui_BeginMenu(ctx, 'Videos') then
+                if reaper.ImGui_MenuItem(ctx, 'Introduction') then
+                    open_url('https://youtu.be/dyoWlduQIAg')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Layers') then
+                    open_url('https://youtu.be/qfoRAYN-1q4')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Alternator') then
+                    open_url('https://youtu.be/Oh1xKXGrSFA')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'ReaGoTo') then
+                    open_url('https://youtu.be/mwXdwAlXXuU')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Advanced Settings') then
+                    open_url('https://youtu.be/KWM4EhEz8aY')
+                end  
+
+                reaper.ImGui_EndMenu(ctx)
+            end
 
             reaper.ImGui_EndMenu(ctx)
         end

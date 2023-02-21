@@ -1,14 +1,12 @@
--- @version 0.4.4
+-- @version 1.0.0
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [effect] Layers Volume.jsfx
 -- @changelog
---    + Fix Updating target values (at start, changing the curve editor)
---    + Check duplicate FXs
---    + Remove Layers FX when deleting Groups
---    + Change the default to not remove at exit
+--    + Release Version
+--    + Add videos and forum links
 
 -- @license MIT
 
@@ -43,7 +41,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '0.4.4'
+Version = '1.0.0'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'

@@ -1,18 +1,12 @@
--- @version 0.4.6
+-- @version 1.0.0
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + fix bug with markers at loop start
---    + add undo points
---    + add undo points to rename region 
---    + when using #goto goto x, clamp x value
---    + when reseting loop the region if need
---    + add reseting playhead and resting value
---    + Correct tooltip
-
+--    + Release version 
+--    + Add links for videos and forum
 -- @license MIT
 
 
@@ -44,7 +38,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4.6'
+Version = '1.0.0'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'

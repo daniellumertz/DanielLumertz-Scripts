@@ -412,9 +412,33 @@ function MenuBar()
             end
             ToolTip(true, 'Recommended donation 20$ - 40$')
 
-            --if reaper.ImGui_MenuItem(ctx, 'Forum') then
-            --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
-            --end
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?t=276313')
+            end
+
+            if reaper.ImGui_BeginMenu(ctx, 'Videos') then
+                if reaper.ImGui_MenuItem(ctx, 'Introduction') then
+                    open_url('https://youtu.be/dyoWlduQIAg')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Layers') then
+                    open_url('https://youtu.be/qfoRAYN-1q4')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Alternator') then
+                    open_url('https://youtu.be/Oh1xKXGrSFA')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'ReaGoTo') then
+                    open_url('https://youtu.be/mwXdwAlXXuU')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Advanced Settings') then
+                    open_url('https://youtu.be/KWM4EhEz8aY')
+                end  
+
+                reaper.ImGui_EndMenu(ctx)
+            end
 
             reaper.ImGui_EndMenu(ctx)
         end

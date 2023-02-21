@@ -527,7 +527,7 @@ function MenuBar()
 
                 reaper.ImGui_Text(ctx, 'Media Buffer Size:')
                 local change, num = reaper.ImGui_InputInt(ctx, '##Buffersize', reaper.SNM_GetIntConfigVar( 'workbufmsex', 0 ), 0, 0, 0)
-                ToolTip(true, 'Lower Buffer will process the change of takes/change mute state faster, higher buffer settings will result in bigger delays to mute and unmute. For manipulating with audio items in live scenarios I recommend leaving at 0\n\nREAPER Definition: Media buffering uses RAM and CPU to avoid having to wait for disk IO. For systems with slower disks this should be set higher. Zero disables buffering. Default 1200 ')
+                ToolTip(true, 'Lower Buffer will process the change of takes/change mute state faster, higher buffer settings will result in bigger delays at project changes. For manipulating with the playhead in live scenarios I recommend leaving at 0 or leave it as default and use smooth seek!\n\nREAPER Definition: Media buffering uses RAM and CPU to avoid having to wait for disk IO. For systems with slower disks this should be set higher. Zero disables buffering. Default 1200 ')
                 if change then
                     reaper.SNM_SetIntConfigVar( 'workbufmsex', num )
                 end
@@ -570,7 +570,7 @@ function MenuBar()
                     local new_val = ((SmoothSettings.is_smoothseek and 1) or 0) | (((not SmoothSettings.is_bar) and 2) or 0)-- 3 = marker and smooth seek, 1 = bar and smooth seek
                     reaper.SNM_SetIntConfigVar('smoothseek', new_val)
                 end
-                ToolTip(true, '(Recommended turned on for better playback) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Smooth seek have some bugs, basically it needs '..tostring(SmoothSettings.min_time)..'sec to process an position change, be aware that you need '..tostring(SmoothSettings.min_time)..'sec of antecedence before the triggering point. When using with markeres an #goto makers need to be at least '..tostring(SmoothSettings.min_time)..'sec after the loop start, when using bar the size needs to be bigger than '..tostring(SmoothSettings.min_time)..'sec which is common. If you are experiencing the playhead not looping or it not triggering where it should increase the smooth seek antecipate value at Goto Settings>Advanced. Se\nREAPER Definition: Smooth seek enables a more natural-sounding transition.')
+                ToolTip(true, '(Recommended turned on for better playback) With smooth seek it will change the playhead position exactly on the bar/#goto marker, will avoid gaps/stutters on the sound. When using Smooth seek you can only trigger ReaGoto via markers or via bars(unit), not both. REAPER Smooth seek have some bugs, basically it needs '..tostring(SmoothSettings.min_time)..'sec to process an position change, be aware that you need '..tostring(SmoothSettings.min_time)..'sec of antecedence before the triggering point. An #goto maker need to be at least '..tostring(SmoothSettings.min_time)..'sec after the loop start.\n\nIf you are experiencing that it is not triggering where it should, then try to increase the smooth seek antecipate value at Goto Settings>Advanced. \n\nREAPER Definition: Smooth seek enables a more natural-sounding transition.')
 
                 if SmoothSettings.is_smoothseek then
                     if reaper.ImGui_RadioButton(ctx, 'Smooth Seek at Bars', SmoothSettings.is_bar) then
@@ -600,10 +600,34 @@ function MenuBar()
             end
             ToolTip(true, 'Recommended doantion 20$ - 40$')
 
-            --if reaper.ImGui_MenuItem(ctx, 'Forum') then
-            --    open_url('https://forum.cockos.com/showthread.php?p=2606674#post2606674')
-            --end
+            if reaper.ImGui_MenuItem(ctx, 'Forum') then
+                open_url('https://forum.cockos.com/showthread.php?t=276313')
+            end
 
+            if reaper.ImGui_BeginMenu(ctx, 'Videos') then
+                if reaper.ImGui_MenuItem(ctx, 'Introduction') then
+                    open_url('https://youtu.be/dyoWlduQIAg')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Layers') then
+                    open_url('https://youtu.be/qfoRAYN-1q4')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Alternator') then
+                    open_url('https://youtu.be/Oh1xKXGrSFA')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'ReaGoTo') then
+                    open_url('https://youtu.be/mwXdwAlXXuU')
+                end  
+
+                if reaper.ImGui_MenuItem(ctx, 'Advanced Settings') then
+                    open_url('https://youtu.be/KWM4EhEz8aY')
+                end  
+
+                reaper.ImGui_EndMenu(ctx)
+            end
+            
             reaper.ImGui_EndMenu(ctx)
         end
         _, GuiSettings.Pin = reaper.ImGui_MenuItem(ctx, 'Pin', optional_shortcutIn, GuiSettings.Pin)
