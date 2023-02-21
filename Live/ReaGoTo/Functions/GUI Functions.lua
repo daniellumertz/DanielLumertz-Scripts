@@ -499,11 +499,11 @@ function MenuBar()
                     reaper.ImGui_Text(ctx, 'Compensate Defer. Default is 2')
                     _, UserConfigs.compensate = reaper.ImGui_InputDouble(ctx, '##CompensateValueinput', UserConfigs.compensate, 0, 0, '%.2f')
                     UserConfigs.compensate = UserConfigs.compensate > 1 and UserConfigs.compensate or 1
-                    ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the loop section, the muting/unmutting take some time to work, so it is better to do it a little earlier. NEVER SMALLER THAN 1!!')
+                    ToolTip(true, 'Compensate the defer instability. The bigger the compensation the earlier it will change playback position before the marker/region. The shorter more chances to not get the triggering point. NEVER SMALLER THAN 1!!')
     
                     reaper.ImGui_Text(ctx, 'Smooth seek anticipate (ms). Default is 0.350')
                     _,  SmoothSettings.min_time = reaper.ImGui_InputDouble(ctx, '##antecipatesmooth', SmoothSettings.min_time, 0, 0, '%.3f')
-                    ToolTip(true, 'Unfortunatelly REAPER smooth seek have some bugs when the playhead position change just before the triggering moment, this can cause two things:\n\n1) It wont trigger on time\n\n2) It can break REAPER loops.\n\nUntil REAPER fix these bugs the workaround is to change the edit cursor much before the time position. Set the value here, default is 0.300sec if you are experiencing the bugs described increase it. If you need the antecipate to be lower then decrease it. With smooth seek markers after the loop start '..tostring(SmoothSettings.min_time)..'sec will have no effect.')
+                    ToolTip(true, 'Unfortunatelly REAPER smooth seek have some bugs when the playhead position change just before the triggering moment, this can cause two things:\n\n1) It wont trigger on time\n\n2) It can break REAPER loops.\n\nUntil REAPER fix these bugs the workaround is to change the edit cursor much before the time position. Set the value here, default is 0.350sec if you are experiencing the bugs described increase the value. If you antecipation value is to high to be lower then decrease this value it. With smooth seek markers after the loop start '..tostring(SmoothSettings.min_time)..'sec will have no effect.')
 
                     reaper.ImGui_EndMenu(ctx)
                 end

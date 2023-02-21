@@ -1,4 +1,4 @@
--- @version 0.4.5
+-- @version 0.4.6
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
@@ -11,6 +11,7 @@
 --    + when using #goto goto x, clamp x value
 --    + when reseting loop the region if need
 --    + add reseting playhead and resting value
+--    + Correct tooltip
 
 -- @license MIT
 
@@ -43,7 +44,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '0.4.5'
+Version = '0.4.6'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
