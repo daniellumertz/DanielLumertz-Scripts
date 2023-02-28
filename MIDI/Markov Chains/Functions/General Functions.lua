@@ -57,13 +57,12 @@ function SubString(big_string,sub) -- Iterator function that return matches of s
         while true do
             local s, e =string.find(big_string,sub,start_char) -- Check if there is a match after start_char
             if s then
-                start_char = start_char + s
+                start_char = s + 1
                 return string.sub(big_string, s, e)
             else -- No more matches
                 break
             end
         end
-        start_char = 1
         return nil -- break for loop        
     end
 end
