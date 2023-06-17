@@ -36,6 +36,18 @@ function osc_encode(address, ...)
     return string.pack(format:format(addrlen, typelen), table.unpack(data))
 end
 
+--[[ Example sending osc
+  local msg2 = osc_encode('/foo', 'i', 1000, 'i', -1, 's', 'hello', 'f', 1.234, 'f', 5.678) -- Sending many Values types
+
+  -- change here to the host an port you want to contact
+  local host, port = "localhost", 9004
+  -- convert host name to ip address
+  local ip = assert(socket.dns.toip(host))
+  -- create a new UDP object
+  local udp = assert(socket.udp())
+  assert(udp:sendto(msg2, ip, port))
+]]
+
 ----------------- Receive
 -- This is actually a UDP Receive function...
 function ReceiveAll(udp) -- Will receive all values in that port. If there is a overflow it wont keep up in real time, as it gets one value per defer. 

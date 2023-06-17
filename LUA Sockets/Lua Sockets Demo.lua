@@ -1,4 +1,4 @@
--- @version 1.2
+-- @version 1.2.1
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua
@@ -9,8 +9,7 @@
 --    [nomain] socket module/socket/core.so.linux
 --    [nomain] socket module/*.lua
 -- @changelog
---    + Update core.so
---    + Point to Mavriq repository as default add a comentary recommending this method.
+--    + Update comment
 
 
 -- This is just a file for Reapack
