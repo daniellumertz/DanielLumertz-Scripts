@@ -3,7 +3,6 @@
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
---    [effect] Layers Volume.jsfx
 --    [main] Apply Generative Loops Config To Selected Item Notes.lua
 --    [nomain] Loops Teste.lua
 -- @changelog
@@ -11,6 +10,9 @@
 -- @license MIT
 
 -- TODO (## Items CANOT be inside itself region (error message))
+--dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+reaper.ClearConsole()
+
 
 ------ USER SETTINGS
 local clean_before_apply = true -- clean all items previously created and then paste new ones
@@ -49,6 +51,8 @@ local ortiginal_sel_tracks = CreateSelectedTracksTable(proj)
 local original_loop_start, original_loop_end = reaper.GetSet_LoopTimeRange2(proj, false, false, 0, 0, false)
 local original_envelope_sel = reaper.GetSelectedEnvelope( proj )
 local original_context =  reaper.GetCursorContext2( true )
+local original_start_time, original_end_time = reaper.GetSet_ArrangeView2( proj, false, 0, 0, 0, 0 )
+reaper.SelectAllMediaItems( proj, false ) -- for safeness remove any item selection
 
 -- Patterns
 local items_pattern = '$$$LOOP_CONFIG$$$'
@@ -60,19 +64,32 @@ local ext_state_key = 'ENO_LOOP'
 local loop_item_sign_literalize = literalize(loop_item_sign)
 local items_pattern_literalize = literalize(items_pattern)
 
-
 if clean_before_apply then 
     CleanAllItemsLoop(proj, ext_state_key)
+
+    for item in enumItems(proj) do -- Delete automation items
+        for take in enumTakes(item) do
+            for retval, tm_name, color in enumTakeMarkers(take) do 
+                if tm_name:match('^%s-'..loop_item_sign_literalize) then
+                    local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+                    local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+                    local item_end = item_pos + item_len
+                    DeleteAutomationItemsInRange(proj,item_pos,item_end,true,true)
+                end
+            end
+        end
+    end
 end
 
 local items = CreateItemsTable(proj)
+local banned_items = {} -- List of regions with banned_items ex {region_name = {take_name,take_name,take_name}}
 
 for k_item, item in ipairs(items) do
     local loop_possibilities = {}
     for take in enumTakes(item) do
         for retval, tm_name, color in enumTakeMarkers(take) do -- tm = take marker 
-            if tm_name:match('^'..loop_item_sign_literalize) then 
-                local user_region_id = tonumber(tm_name:match('^'..'%s*'..loop_item_sign_literalize..'%s*(%d+)')) -- 
+            if tm_name:match('^%s-'..loop_item_sign_literalize) then 
+                local user_region_id = tonumber(tm_name:match('^%s-'..loop_item_sign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
                 if user_region_id then --  ## MARKER! found in a take
 
                     local chance = tonumber(tm_name:lower():match(';'..'%s*'..loop_item_possibility..'%s*(%d+)')) or 100
@@ -106,7 +123,7 @@ for k_item, item in ipairs(items) do
     end
 
     -- Get region info
-    local retval, isrgn, region_start, region_end ,mark_name,markrgnindexnumber,color,region_id = GetMarkByID(proj,selected_mark.user_region_id,2)
+    local retval, isrgn, region_start, region_end ,region_name,region_user_id,color,region_id = GetMarkByID(proj,selected_mark.user_region_id,2)
     local region_len = region_end - region_start
     if not retval then goto continue end -- no marker with that ID
 
@@ -117,17 +134,30 @@ for k_item, item in ipairs(items) do
     local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
     local item_end = item_pos + item_len
-
-    -- Clear Automation Items
-    if clean_before_apply then
-        DeleteAutomationItemsInRange(proj,item_pos,item_end,true,true)
-    end
+    local item_rate = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PLAYRATE') 
+    local item_pitch = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PITCH') 
     
     -- Set cursor position
     reaper.SetEditCurPos2(proj, item_pos, false, false)
     
     -- Get Items in range
     local items_in_region = GetItemsInRange(proj,region_start,region_end,false,false)
+    -- Check if one of the items have the ## pattern
+    for k,check_item in ipairs_reverse(items_in_region) do
+        for check_take in enumTakes(check_item) do
+            for retval, tm_name, color in enumTakeMarkers(check_take) do -- tm = take marker 
+                if tm_name:match('^%s-'..loop_item_sign_literalize) then 
+                    if not banned_items[region_user_id] then
+                        banned_items[region_user_id] = {}
+                    end
+                    local retval, take_name = reaper.GetSetMediaItemTakeInfo_String(check_take, 'P_NAME', '', false)
+                    table.insert(banned_items[region_user_id],take_name)
+                    table.remove(items_in_region,k) -- remove item from the copy items list
+                end
+            end
+        end
+    end
+    tprint(banned_items)
     -- Get Automation Items in range 
 
     -- Copy Items
@@ -145,6 +175,7 @@ for k_item, item in ipairs(items) do
         else -- needs to copy everything
             loop_end = region_end
         end
+        local paste_len = loop_end - region_start
 
         local _, _ = reaper.GetSet_LoopTimeRange2(proj, true, true, region_start, loop_end, false)
 
@@ -159,14 +190,29 @@ for k_item, item in ipairs(items) do
         ------ Smart Copy
         reaper.SetCursorContext( 1, nil )
         reaper.Main_OnCommand(41383, 0) -- Edit: Copy items/tracks/envelope points (depending on focus) within time selection, if any (smart copy)
+        reaper.SelectAllMediaItems( proj, false ) -- After paste only the pasted items should be selected. This makes sure of it. For some reason there is a chance that just copy and paste wont just have the copied items.
         ------ Paste
         reaper.Main_OnCommand(42398, 0) -- Item: Paste items/tracks
+        -- Set information in new items
+        for new_item in enumSelectedItems(proj) do
+            reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
+            local new_item_len = reaper.GetMediaItemInfo_Value( new_item, 'D_LENGTH' )
+            local new_len
+            for new_take in enumTakes(new_item) do
+                local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
+                local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
+                local new_rate = new_take_rate * item_rate
+                new_len = new_item_len * (new_take_rate/new_rate) -- To change the rate and preserve the length (like it is stretching the item), only need to set once to the whole item:
 
-        for item in enumSelectedItems(proj) do
-            ------ Set items Timing, Rate, Pitch
-            reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
-
-        end 
+                local new_pitch = new_take_pitch + item_pitch
+                reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate) 
+                reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PITCH', new_pitch) 
+            end
+            reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_len)
+        end
+        ------ Need to manually set the cursor to consider the ## playrate
+        local new_cur_pos = cur_pos + (paste_len/item_rate)
+        reaper.SetEditCurPos2(proj, new_cur_pos, false, false) 
     end
 
     -- Copy Automation Items
@@ -189,7 +235,7 @@ for k_item, item in ipairs(items) do
                         -- Automation Items inside the range: 
 
                         local new_pos = paste_start + delta_pos
-                        if new_pos > item_end then 
+                        if new_pos >= item_end then 
                             break
                         end
 
@@ -199,7 +245,6 @@ for k_item, item in ipairs(items) do
                         local trim_end = math.min(paste_start + region_len,item_end)
                         TrimAutomationItem(env,idx,paste_start,trim_end) -- paste_pos, len_paste
                         CopyAutomationItemsInfo_Value(env, i,idx, {'D_PLAYRATE', 'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC'})
-                        -- reaper.GetSetAutomationItemInfo_String( env, idx, 'P_POOL_EXT:'..ext_state_key, ext_state_key, true ) dont work it is only for pools
 
                         -- change rate, randomize etc etc
                         
@@ -218,6 +263,23 @@ for k_item, item in ipairs(items) do
     ::continue::
 end
 
+-- Alert the user if some ## item is in a region 
+if #banned_items > 0 then
+    print('---------******---------')
+    print('---------******---------')
+    print('THERE ARE ## ITEMS INSIDE A REGION:')
+    print('!!!!!!!THESE ITEMS WONT BE COPIED!!!!')
+    for region_name,takes_table in pairs(banned_items) do
+        print('REMOVE AT REGION: ',region_name)
+        print('THE FOLLOWING TAKES:')
+        for k,take_name in ipairs(takes_table) do
+            print(take_name)
+        end
+    end
+    print('---------******---------')
+    print('---------******---------')
+end
+
 --- Restore original info
 reaper.SetOnlyTrackSelected(original_lt or reaper.GetTrack(proj, 0)) -- Last TOuched Track
 reaper.Main_OnCommand(40914,0) -- Set first selected track as last touched
@@ -226,6 +288,7 @@ SelectItemList(original_selection, true, proj) -- Selected Items
 SelectTrackList(ortiginal_sel_tracks, true, proj) -- Selected Tracks
 reaper.GetSet_LoopTimeRange2(proj, true, true, original_loop_start, original_loop_end, false) -- Time selection
 reaper.SetCursorContext( original_context, original_envelope_sel ) -- Context and Envelope Selected
+reaper.GetSet_ArrangeView2( proj, true, 0, 0, original_start_time, original_end_time )
 
 -- Update arrange
 reaper.UpdateArrange()

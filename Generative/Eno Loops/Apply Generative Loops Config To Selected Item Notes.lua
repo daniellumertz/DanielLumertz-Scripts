@@ -1,4 +1,3 @@
-
 --@noindex
 ------ Load Functions
 -- Function to dofile all files in a path
