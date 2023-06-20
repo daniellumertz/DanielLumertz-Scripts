@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="059db8a7a426051551fec3636711b51dece947f6">
+<index version="1" name="Daniel Lumertz Scripts" commit="b4d7afaba7d734f93ff2312a4b2f771d905c0ec6">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -89,6 +89,30 @@
         <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7ae82d857d52746130b9655283e5cc1132b4f297/Generative/Bartoker/Functions/General%20Lua%20Functions.lua</source>
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7ae82d857d52746130b9655283e5cc1132b4f297/Generative/Bartoker/Functions/MIDI%20Functions.lua</source>
         <source file="Functions/Saved Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7ae82d857d52746130b9655283e5cc1132b4f297/Generative/Bartoker/Functions/Saved%20Chunks.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="Generative/Eno Loops">
+    <reapack name="Apply Generative Loops.lua" type="script" desc="Generative Loops">
+      <version name="0.1" author="Daniel Lumertz" time="2023-06-20T11:21:53Z">
+        <changelog><![CDATA[+ beta]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Apply%20Generative%20Loops.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/ENO UI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/ENO%20UI%20Functions.lua</source>
+        <source file="Functions/Eno Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/Eno%20Functions.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/FX%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/Imgui Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/Imgui%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/Imgui%20General%20Functions.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/MIDI Input Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/MIDI%20Input%20Functions.lua</source>
+        <source file="Functions/OSC.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/OSC.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Functions/Theme.lua</source>
+        <source main="main" file="Apply Generative Loops Config To Selected Item Notes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Apply%20Generative%20Loops%20Config%20To%20Selected%20Item%20Notes.lua</source>
+        <source file="Loops Teste.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/b4d7afaba7d734f93ff2312a4b2f771d905c0ec6/Generative/Eno%20Loops/Loops%20Teste.lua</source>
       </version>
     </reapack>
   </category>
