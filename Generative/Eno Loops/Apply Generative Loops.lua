@@ -209,12 +209,11 @@ for k_item, item in ipairs(items) do
         for index, new_item in ipairs(sel_table) do
             reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
             local new_item_pos = reaper.GetMediaItemInfo_Value(new_item, 'D_POSITION')
-            local rate_ratio
+            local rate_ratio = 1/item_rate
             for new_take in enumTakes(new_item) do
                 local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
                 local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
                 local new_rate = new_take_rate * item_rate
-                rate_ratio = new_take_rate/new_rate -- old_playrate / newest playrate 
 
                 local new_pitch = new_take_pitch + item_pitch
                 reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate) 
