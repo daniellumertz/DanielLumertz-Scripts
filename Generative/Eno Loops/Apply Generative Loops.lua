@@ -9,7 +9,7 @@
 --    + beta
 -- @license MIT
 
--- TODO (## Items CANOT be inside itself region (error message))
+-- TODO turn off ripple edit and move with items
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 reaper.ClearConsole()
 
@@ -74,7 +74,7 @@ if clean_before_apply then
                     local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
                     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
                     local item_end = item_pos + item_len
-                    DeleteAutomationItemsInRange(proj,item_pos,item_end,true,true)
+                    DeleteAutomationItemsInRange(proj,item_pos,item_end,true,false)
                 end
             end
         end
@@ -157,17 +157,17 @@ for k_item, item in ipairs(items) do
             end
         end
     end
-    tprint(banned_items)
     -- Get Automation Items in range 
 
     -- Copy Items
     while #items_in_region > 0 and true do
         -- Check if need to break
+        
         local cur_pos = reaper.GetCursorPosition()
-        if cur_pos >= item_end then break end -- BREAK        
+        if RemoveDecimals(cur_pos,3) >= RemoveDecimals(item_end,3) then break end -- BREAK need to round to 3 decimal places as the time selection (for smart copy) wont go so small      
 
         ----- Set Time Selection To Smart Copy
-        local remaning_len = item_end - cur_pos -- how many in time need to be pasted
+        local remaning_len = (item_end - cur_pos) * item_rate-- how many in time need to be pasted
 
         local loop_end 
         if (region_start + remaning_len) < region_end then -- if needs to copy a smaller area than all the region 
@@ -187,28 +187,78 @@ for k_item, item in ipairs(items) do
         ------ Select Items
         SelectItemList(items_in_region, false, proj) --(Needs to do everyitme as pasting change item selection and last touched track)
 
-        ------ Smart Copy
+        ------ Smart Copy TODO REMAKE THE SCRIPT WITHOUT USING SMART COPY AND PASTE but keep to this demo
         reaper.SetCursorContext( 1, nil )
         reaper.Main_OnCommand(41383, 0) -- Edit: Copy items/tracks/envelope points (depending on focus) within time selection, if any (smart copy)
         reaper.SelectAllMediaItems( proj, false ) -- After paste only the pasted items should be selected. This makes sure of it. For some reason there is a chance that just copy and paste wont just have the copied items.
         ------ Paste
-        reaper.Main_OnCommand(42398, 0) -- Item: Paste items/tracks
+        while true do -- For some reason there is a chance of not pasting the items, check if pasted by counting items
+            reaper.Main_OnCommand(42398, 0) -- Item: Paste items/tracks
+            if reaper.CountSelectedMediaItems(proj) ~= 0 then
+                break
+                --return
+            end
+        end
+
         -- Set information in new items
+        local sel_table = {}
         for new_item in enumSelectedItems(proj) do
+            sel_table[#sel_table+1] = new_item
+        end
+
+        for index, new_item in ipairs(sel_table) do
             reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
-            local new_item_len = reaper.GetMediaItemInfo_Value( new_item, 'D_LENGTH' )
-            local new_len
+            local new_item_pos = reaper.GetMediaItemInfo_Value(new_item, 'D_POSITION')
+            local rate_ratio
             for new_take in enumTakes(new_item) do
                 local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
                 local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
                 local new_rate = new_take_rate * item_rate
-                new_len = new_item_len * (new_take_rate/new_rate) -- To change the rate and preserve the length (like it is stretching the item), only need to set once to the whole item:
+                rate_ratio = new_take_rate/new_rate -- old_playrate / newest playrate 
 
                 local new_pitch = new_take_pitch + item_pitch
                 reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate) 
                 reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PITCH', new_pitch) 
             end
-            reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_len)
+            -- To change the rate and preserve the length (like it is stretching the item):
+            local new_item_len = reaper.GetMediaItemInfo_Value( new_item, 'D_LENGTH' )
+            local new_len =  new_item_len * rate_ratio
+            reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_len) 
+            local new_item_fadein = reaper.GetMediaItemInfo_Value( new_item, 'D_FADEINLEN' )
+            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEINLEN', new_item_fadein * rate_ratio )
+            local new_item_fadeout = reaper.GetMediaItemInfo_Value( new_item, 'D_FADEOUTLEN' )
+            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEOUTLEN', new_item_fadeout * rate_ratio)
+            local new_pos = cur_pos + ((new_item_pos - cur_pos) * rate_ratio)
+            reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_pos)
+
+            -- Stretch the envelope (this wont work properlly as it still using copy paste. todo remove the copy paste and make a proper function to make copies with envelopes) the problem with the current version is that multiple items will scramble the envelope of the others when stretching. also very slow. It is possible to do this way but would need to do it after all items are placed and not in the iteration
+            --[[ if  reaper.SNM_GetIntConfigVar('envattach',3)&1 == 1 then -- check if move envelope with items is on, if is move copied envelopes together
+                local new_item_track = reaper.GetMediaItem_Track(new_item)
+                for envelope in enumTrackEnvelopes(new_item_track) do
+
+                    local env_points = {} -- need to get the information, calculate new values, for all underlying points and then delete the points and insert new ones.  
+                    for retval, time, value, shape, tension, selected, idx in enumTrackEnvelopesPointsEx(envelope, -1) do -- -1 to only get points on the underlying envelope
+                        --check if is underlying
+                        if time >= new_item_pos and time <= new_item_pos + new_item_len then -- using old item position to get the underlying envelopes that were copied with the item
+                            local new_time = cur_pos + ((time - cur_pos) * rate_ratio)
+                            env_points[#env_points+1] = { time = new_time, value = value, shape = shape, tension = tension, selected = selected, idx = idx, is_insert = true}
+                        elseif time > new_pos and time <= new_pos + new_len then--points in the new position that needs to be deleted.
+                            env_points[#env_points+1] = {is_insert = false,idx = idx} 
+                        elseif time > math.max(new_item_pos + new_item_len, new_pos + new_len) then -- after this item pasted position or new position. (gets the bigger value between the two)
+                            break
+                        end
+                    end
+                    for index, point_table in ipairs_reverse(env_points) do
+                        reaper.DeleteEnvelopePointEx(envelope, -1, point_table.idx)
+                    end
+                    for index, point_table in ipairs(env_points) do
+                        if point_table.is_insert then
+                            reaper.InsertEnvelopePointEx(envelope, -1, point_table.time, point_table.value, point_table.shape, point_table.tension, point_table.selected, true)
+                        end
+                    end
+                    reaper.Envelope_SortPointsEx( envelope, -1)
+                end
+            end ]]            
         end
         ------ Need to manually set the cursor to consider the ## playrate
         local new_cur_pos = cur_pos + (paste_len/item_rate)
@@ -227,29 +277,34 @@ for k_item, item in ipairs(items) do
                 local final_pos = len + pos
 
                 if final_pos > region_start then -- Automation item in the range
+                    local rate = reaper.GetSetAutomationItemInfo(env, i, 'D_PLAYRATE', 0, false)
+                    local new_rate = rate * item_rate
+                    local rate_ratio = rate/new_rate
+
                     local delta_pos = pos - region_start-- distance from region start (can be negative if the ai start before the region)
 
                     local paste_start = item_pos
+                    local paste_end = paste_start + (region_len  * rate_ratio)
                     local remaning_len = item_len -- how many in time need to be pasted
                     while true do -- paste multiple times
                         -- Automation Items inside the range: 
 
-                        local new_pos = paste_start + delta_pos
+                        local new_pos = paste_start + (delta_pos * rate_ratio)
                         if new_pos >= item_end then 
                             break
                         end
 
                         local ai_id = reaper.GetSetAutomationItemInfo(env, i, 'D_POOL_ID', 0, false)
-
-                        local idx = reaper.InsertAutomationItem(env, ai_id, new_pos, len)
-                        local trim_end = math.min(paste_start + region_len,item_end)
+                        local idx = reaper.InsertAutomationItem(env, ai_id, new_pos, len * rate_ratio)
+                        local trim_end = math.min(paste_start + paste_end,item_end)
+                        CopyAutomationItemsInfo_Value(env, i,idx, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC'})
+                        reaper.GetSetAutomationItemInfo(env, idx, 'D_PLAYRATE', new_rate, true)
                         TrimAutomationItem(env,idx,paste_start,trim_end) -- paste_pos, len_paste
-                        CopyAutomationItemsInfo_Value(env, i,idx, {'D_PLAYRATE', 'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC'})
 
                         -- change rate, randomize etc etc
                         
-                        paste_start = paste_start + region_len
-                        if paste_start > item_end then 
+                        paste_start = paste_start + (region_len/item_rate)
+                        if RemoveDecimals(paste_start,3) >= RemoveDecimals(item_end,3) then 
                             break
                         end
                     end

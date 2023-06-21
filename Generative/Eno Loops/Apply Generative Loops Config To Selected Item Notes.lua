@@ -17,8 +17,6 @@ ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 dofile_all(ScriptPath..'/'..'Functions')
 
 
-
-
 local proj = 0
 local items_pattern = '$$$LOOP_CONFIG$$$'
 local base_setting = [[
@@ -29,18 +27,26 @@ local base_setting = [[
     $Playrate Randomize: 0
     $Playrate Random Quantize: 0
     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$]]
+ExtStatePatterns()
 
-reaper.Undo_BeginBlock2(proj)
+ScriptName = 'Generative Loops Item Options'
+Version = '0.0.1'
 
-for selected_item in enumSelectedItems(proj) do
-    local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( selected_item, 'P_NOTES', '', false )
-    local literal = literalize(items_pattern)
-    print(stringNeedBig:match(literal) )
-    if not stringNeedBig:match(literal) then
-        stringNeedBig = items_pattern..'\n'..base_setting..'\n'..stringNeedBig
-        local retval, _ = reaper.GetSetMediaItemInfo_String( selected_item, 'P_NOTES', stringNeedBig, true )
-    end
+--- Defaults
+function SetDefaults()
+    RandomizeTakes = false
+    TakeChance = 1
+    TimeRandomMin = 0
+    TimeRandomMax = 0
+    TimeQuantize = 0
+    PitchRandomMin = 0
+    PitchRandomMax = 0
+    PitchQuantize = 0
+    PlayRateRandomMin = 1 -- cannot be 0!
+    PlayRateRandomMax = 1 -- cannot be 0!
+    PlayRateQuantize = 0
 end
 
-
-reaper.Undo_EndBlock2(proj, 'Apply Eno Loop Config To Selected Item Notes', -1)
+SetDefaults()
+GuiInit(ScriptName)
+main_loop()

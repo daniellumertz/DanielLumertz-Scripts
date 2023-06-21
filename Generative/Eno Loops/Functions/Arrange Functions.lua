@@ -165,6 +165,24 @@ function enumTakeEnvelopes(take)
     end
 end
 
+-- Envelope Points
+
+---Get the points on a track envelope. 
+---@param env envelope
+---@param autoitem_idx integer From REAPER docs: autoitem_idx=-1 for the underlying envelope, 0 for the first automation item on the envelope, etc. For automation items, pass autoitem_idx|0x10000000 to base ptidx on the number of points in one full loop iteration, even if the automation item is trimmed so that not all points are visible.
+---@return function iterate retval, time, value, shape, tension, selected, idx
+function enumTrackEnvelopesPointsEx(env, autoitem_idx)
+    local cnt = reaper.CountEnvelopePointsEx( env, autoitem_idx )
+    local i = 0
+    return function ()
+        while i < cnt do
+            local retval, time, value, shape, tension, selected = reaper.GetEnvelopePointEx( env, autoitem_idx, i )
+            i = i + 1
+            return retval, time, value, shape, tension, selected, i-1
+        end
+        return nil
+    end
+end
 
 -- Markers
 
@@ -346,7 +364,7 @@ end
 ---@param value string value to store 
 ---@return boolean
 function SetItemExtState(item, extname, key, value)
-    local  retval, item_pos = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, value, true )
+    local  retval, extstate = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, value, true )
     return retval
 end
 
@@ -357,8 +375,8 @@ end
 ---@return boolean retval
 ---@return string value
 function GetItemExtState(item, extname, key)
-    local retval, saved_original_pos = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, '', false )
-    return retval, saved_original_pos
+    local retval, extstate = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..extname..': '..key, '', false )
+    return retval, extstate
 end
 
 ---Return a list with all items in a time range
@@ -389,6 +407,33 @@ function GetItemsInRange(proj,start_range,fim_range,only_start_in_range,only_end
     end
     return item_list
 end
+
+-----------
+--------- Take
+-----------
+
+---Write an ext state at an item
+---@param item MediaItem
+---@param extname string name of the ext state section
+---@param key string name of the key inside the extname section
+---@param value string value to store 
+---@return boolean
+function SetTakeExtState(item, extname, key, value)
+    local  retval, extstate = reaper.GetSetMediaItemTakeInfo_String( item, 'P_EXT:'..extname..': '..key, value, true )
+    return retval
+end
+
+---Return the item ext state value
+---@param item MediaItem
+---@param extname string name of the ext state section
+---@param key string name of the key inside the extname section
+---@return boolean retval
+---@return string value
+function GetTakeExtState(item, extname, key)
+    local retval, extstate = reaper.GetSetMediaItemTakeInfo_String( item, 'P_EXT:'..extname..': '..key, '', false )
+    return retval, extstate
+end
+
 
 -----------
 --------- Time / QN

@@ -28,3 +28,18 @@ function CleanAllItemsLoop(proj, ext_pattern)
     end ]]
 end
 
+function ExtStatePatterns()
+    Ext_Name = 'Gen_Loops'
+
+    Ext_RandomizeTake = 'RandTakes'    
+    Ext_TakeChance = 'TakeChance'    
+    Ext_MinTime = 'MinTime'    
+    Ext_MaxTime = 'MaxTime'    
+    Ext_QuantizeTime = 'QuantizeTime'    
+    Ext_MinPitch = 'MinPitch'    
+    Ext_MaxPitch = 'MaxPitch'
+    Ext_QuantizePitch = 'QuantizePitch'    
+    Ext_MinRate = 'MinRate'    
+    Ext_MaxRate = 'MaxRate'    
+    Ext_QuantizeRate = 'QuantizeRate'    
+end
