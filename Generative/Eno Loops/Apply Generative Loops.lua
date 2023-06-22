@@ -9,7 +9,7 @@
 --    + beta
 -- @license MIT
 
--- TODO turn off ripple edit and move with items
+-- TODO stop pasting if ## is inside the area it is pasting into, maybe instead of banning items stop pasting is better
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 reaper.ClearConsole()
 
@@ -42,6 +42,7 @@ local proj = 0
 -- Start 
 reaper.PreventUIRefresh(1)
 reaper.Undo_BeginBlock2(proj)
+ExtStatePatterns() -- load ext state name variable 
 
 --- Saves information
 local original_pos = reaper.GetCursorPositionEx( proj )
@@ -53,6 +54,11 @@ local original_envelope_sel = reaper.GetSelectedEnvelope( proj )
 local original_context =  reaper.GetCursorContext2( true )
 local original_start_time, original_end_time = reaper.GetSet_ArrangeView2( proj, false, 0, 0, 0, 0 )
 reaper.SelectAllMediaItems( proj, false ) -- for safeness remove any item selection
+local original_envattach = reaper.SNM_GetIntConfigVar('envattach',5)
+local original_ripple = reaper.SNM_GetIntConfigVar('projripedit',5)
+-- Turn off envelope move with items and ripple edit
+reaper.SNM_SetIntConfigVar('envattach',0) -- turn off envattach (envelope move with items)
+reaper.SNM_SetIntConfigVar('projripedit',0) -- turn off ripple eddit
 
 -- Patterns
 local items_pattern = '$$$LOOP_CONFIG$$$'
@@ -63,6 +69,9 @@ local ext_state_key = 'ENO_LOOP'
 
 local loop_item_sign_literalize = literalize(loop_item_sign)
 local items_pattern_literalize = literalize(items_pattern)
+
+-- Items Random options 
+local rnd_values = SetDefaults()
 
 if clean_before_apply then 
     CleanAllItemsLoop(proj, ext_state_key)
@@ -134,7 +143,9 @@ for k_item, item in ipairs(items) do
     local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
     local item_end = item_pos + item_len
-    local item_rate = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PLAYRATE') 
+    local item_rate = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PLAYRATE')
+    local rate_ratio = 1/item_rate
+ 
     local item_pitch = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PITCH') 
     
     -- Set cursor position
@@ -208,8 +219,10 @@ for k_item, item in ipairs(items) do
 
         for index, new_item in ipairs(sel_table) do
             reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
+            -- Get item random values
+            GetOptionsItemTake(rnd_values, item)
+            -- Get item info 
             local new_item_pos = reaper.GetMediaItemInfo_Value(new_item, 'D_POSITION')
-            local rate_ratio = 1/item_rate
             for new_take in enumTakes(new_item) do
                 local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
                 local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
@@ -343,6 +356,8 @@ SelectTrackList(ortiginal_sel_tracks, true, proj) -- Selected Tracks
 reaper.GetSet_LoopTimeRange2(proj, true, true, original_loop_start, original_loop_end, false) -- Time selection
 reaper.SetCursorContext( original_context, original_envelope_sel ) -- Context and Envelope Selected
 reaper.GetSet_ArrangeView2( proj, true, 0, 0, original_start_time, original_end_time )
+reaper.SNM_SetIntConfigVar('envattach',original_envattach) 
+reaper.SNM_SetIntConfigVar('projripedit',original_ripple)
 
 -- Update arrange
 reaper.UpdateArrange()

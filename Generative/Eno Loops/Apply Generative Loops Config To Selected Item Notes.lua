@@ -32,21 +32,8 @@ ExtStatePatterns()
 ScriptName = 'Generative Loops Item Options'
 Version = '0.0.1'
 
---- Defaults
-function SetDefaults()
-    RandomizeTakes = false
-    TakeChance = 1
-    TimeRandomMin = 0
-    TimeRandomMax = 0
-    TimeQuantize = 0
-    PitchRandomMin = 0
-    PitchRandomMax = 0
-    PitchQuantize = 0
-    PlayRateRandomMin = 1 -- cannot be 0!
-    PlayRateRandomMax = 1 -- cannot be 0!
-    PlayRateQuantize = 0
-end
 
-SetDefaults()
+
+rnd_values = SetDefaults()
 GuiInit(ScriptName)
 main_loop()

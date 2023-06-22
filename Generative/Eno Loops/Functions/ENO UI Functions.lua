@@ -2,7 +2,7 @@
 function GuiInit(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
-    Gui_W,Gui_H= 250,360
+    Gui_W,Gui_H= 250,385
     FLT_MIN, FLT_MAX = reaper.ImGui_NumericLimits_Float()
     
     --- Text Font
@@ -54,67 +54,73 @@ function main_loop()
 end
 
 function SelectedItemsGUI()
-    GetOptions()
+    local item = reaper.GetSelectedMediaItem(proj, 0)
+    local take = reaper.GetActiveTake(item)
+    if OldTake ~= take then -- only when chaning the selected take, so it dont constantly change value
+        GetOptions(rnd_values, item, take)
+    end
+    OldTake = take
+
     local change
     local w_av,  h_av = reaper.ImGui_GetContentRegionAvail(ctx)
     reaper.ImGui_PushItemWidth(ctx, w_av-150)
 
-    change, RandomizeTakes = reaper.ImGui_Checkbox(ctx, 'Randomize Takes', RandomizeTakes)
+    change, rnd_values.RandomizeTakes = reaper.ImGui_Checkbox(ctx, 'Randomize Takes', rnd_values.RandomizeTakes)
     if change then
         ApplyOptions()
     end
     --reaper.ImGui_SameLine(ctx)
-    change, TakeChance = reaper.ImGui_InputDouble(ctx, 'Take Chance', TakeChance, 0, 0, "%.1f")
+    change, rnd_values.TakeChance = reaper.ImGui_InputDouble(ctx, 'Take Chance', rnd_values.TakeChance, 0, 0, "%.1f")
     if change then
         ApplyOptions()
     end
 
     reaper.ImGui_Separator(ctx) ------------------------
-    change, TimeRandomMin = reaper.ImGui_InputDouble(ctx, 'Time Random Min', TimeRandomMin, 0, 0, "%.3f")
+    change, rnd_values.TimeRandomMin = reaper.ImGui_InputDouble(ctx, 'Time Random Min', rnd_values.TimeRandomMin, 0, 0, "%.3f")
     if change then
-        if TimeRandomMin > TimeRandomMax then TimeRandomMax = TimeRandomMin end
+        if rnd_values.TimeRandomMin > rnd_values.TimeRandomMax then rnd_values.TimeRandomMax = rnd_values.TimeRandomMin end
         ApplyOptions()
     end
-    change, TimeRandomMax = reaper.ImGui_InputDouble(ctx, 'Time Random Max', TimeRandomMax, 0, 0, "%.3f")
+    change, rnd_values.TimeRandomMax = reaper.ImGui_InputDouble(ctx, 'Time Random Max', rnd_values.TimeRandomMax, 0, 0, "%.3f")
     if change then
-        if TimeRandomMin > TimeRandomMax then TimeRandomMin = TimeRandomMax end
+        if rnd_values.TimeRandomMin > rnd_values.TimeRandomMax then rnd_values.TimeRandomMin = rnd_values.TimeRandomMax end
         ApplyOptions()
     end
-    change, TimeQuantize = reaper.ImGui_InputDouble(ctx, 'Time Quantize (sec)', TimeQuantize, 0, 0, "%.3f")
+    change, rnd_values.TimeQuantize = reaper.ImGui_InputDouble(ctx, 'Time Quantize (sec)', rnd_values.TimeQuantize, 0, 0, "%.3f")
     if change then
         ApplyOptions()
     end
         
     reaper.ImGui_Separator(ctx) ------------------------
-    change, PitchRandomMin = reaper.ImGui_InputDouble(ctx, 'Pitch Random Min', PitchRandomMin, 0, 0, "%.3f")
+    change, rnd_values.PitchRandomMin = reaper.ImGui_InputDouble(ctx, 'Pitch Random Min', rnd_values.PitchRandomMin, 0, 0, "%.3f")
     if change then
-        if PitchRandomMin > PitchRandomMax then PitchRandomMax = PitchRandomMin end
+        if rnd_values.PitchRandomMin > rnd_values.PitchRandomMax then rnd_values.PitchRandomMax = rnd_values.PitchRandomMin end
         ApplyOptions()
     end
-    change, PitchRandomMax = reaper.ImGui_InputDouble(ctx, 'Pitch Random Max', PitchRandomMax, 0, 0, "%.3f")
+    change, rnd_values.PitchRandomMax = reaper.ImGui_InputDouble(ctx, 'Pitch Random Max', rnd_values.PitchRandomMax, 0, 0, "%.3f")
     if change then
-        if PitchRandomMin > PitchRandomMax then PitchRandomMin = PitchRandomMax end
+        if rnd_values.PitchRandomMin > rnd_values.PitchRandomMax then rnd_values.PitchRandomMin = rnd_values.PitchRandomMax end
         ApplyOptions()
     end
-    change, PitchQuantize = reaper.ImGui_InputDouble(ctx, 'Pitch Quantize', PitchQuantize, 0, 0, "%.3f")
+    change, rnd_values.PitchQuantize = reaper.ImGui_InputDouble(ctx, 'Pitch Quantize', rnd_values.PitchQuantize, 0, 0, "%.3f")
     if change then
         ApplyOptions()
     end
 
     reaper.ImGui_Separator(ctx) ------------------------
-    change, PlayRateRandomMin = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Min', PlayRateRandomMin, 0, 0, "%.3f")
+    change, rnd_values.PlayRateRandomMin = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Min', rnd_values.PlayRateRandomMin, 0, 0, "%.3f")
     if change then
-        PlayRateRandomMin = (PlayRateRandomMin == 0 and 0.001) or PlayRateRandomMin -- cant have a play rate of 0 
-        if PlayRateRandomMin > PlayRateRandomMax then PlayRateRandomMax = PlayRateRandomMin end
+        rnd_values.PlayRateRandomMin = (rnd_values.PlayRateRandomMin == 0 and 0.001) or rnd_values.PlayRateRandomMin -- cant have a play rate of 0 
+        if rnd_values.PlayRateRandomMin > rnd_values.PlayRateRandomMax then rnd_values.PlayRateRandomMax = rnd_values.PlayRateRandomMin end
         ApplyOptions()
     end
-    change, PlayRateRandomMax = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Max', PlayRateRandomMax, 0, 0, "%.3f")
+    change, rnd_values.PlayRateRandomMax = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Max', rnd_values.PlayRateRandomMax, 0, 0, "%.3f")
     if change then
-        PlayRateRandomMax = (PlayRateRandomMax == 0 and 0.001) or PlayRateRandomMax-- cant have a play rate of 0 
-        if PlayRateRandomMin > PlayRateRandomMax then PlayRateRandomMin = PlayRateRandomMax end
+        rnd_values.PlayRateRandomMax = (rnd_values.PlayRateRandomMax == 0 and 0.001) or rnd_values.PlayRateRandomMax-- cant have a play rate of 0 
+        if rnd_values.PlayRateRandomMin > rnd_values.PlayRateRandomMax then rnd_values.PlayRateRandomMin = rnd_values.PlayRateRandomMax end
         ApplyOptions()
     end
-    change, PlayRateQuantize = reaper.ImGui_InputDouble(ctx, 'Play Rate Quantize', PlayRateQuantize, 0, 0, "%.3f")
+    change, rnd_values.PlayRateQuantize = reaper.ImGui_InputDouble(ctx, 'Play Rate Quantize', rnd_values.PlayRateQuantize, 0, 0, "%.3f")
     if change then
         ApplyOptions()
     end
@@ -127,82 +133,40 @@ function SelectedItemsGUI()
     if reaper.ImGui_Button(ctx, 'Paste Settings', -FLT_MIN) then
         PasteOptions()
     end
-end
-
-function GetOptions()
-    local first_item = reaper.GetSelectedMediaItem(proj, 0)
-    local take = reaper.GetActiveTake(first_item)
-
-    if OldTake ~= take then -- only when chaning the selected take, so it dont constantly change value
-        local retval, min_time = GetTakeExtState(take, Ext_Name, Ext_MinTime) -- check with just one if present then get all
-        if min_time ~= '' then
-            RandomizeTakes = (select(2, GetItemExtState(first_item, Ext_Name, Ext_RandomizeTake))) == 'true'
-            TakeChance = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_TakeChance)))
-            TimeRandomMin = tonumber(min_time)
-            TimeRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxTime)))
-            TimeQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizeTime)))
-            PitchRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinPitch)))
-            PitchRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxPitch)))
-            PitchQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizePitch)))
-            PlayRateRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinRate)))-- cannot be 0!
-            PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxRate))) -- cannot be 0!
-            PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizeRate)))
-        else -- current item dont have ext states values load default
-            SetDefaults()
-        end
+    if reaper.ImGui_Button(ctx, 'Reset Settings', -FLT_MIN) then
+        ResetToDefault()
     end
-
-    OldTake = take
-end
-
-function GetTakeOptions()
-    
 end
 
 function ApplyOptions()
     for selected_item in enumSelectedItems(proj) do
         local take = reaper.GetActiveTake(selected_item)
-        SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(RandomizeTakes))
-        SetTakeExtState(take, Ext_Name, Ext_TakeChance, TakeChance)
-        SetTakeExtState(take, Ext_Name, Ext_MinTime, TimeRandomMin)
-        SetTakeExtState(take, Ext_Name, Ext_MaxTime, TimeRandomMax)
-        SetTakeExtState(take, Ext_Name, Ext_QuantizeTime, TimeQuantize)
-        SetTakeExtState(take, Ext_Name, Ext_MinPitch, PitchRandomMin)
-        SetTakeExtState(take, Ext_Name, Ext_MaxPitch, PitchRandomMax)
-        SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, PitchQuantize)
-        SetTakeExtState(take, Ext_Name, Ext_MinRate, PlayRateRandomMin) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_MaxRate, PlayRateRandomMax) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, PlayRateQuantize)
+        SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(rnd_values.RandomizeTakes))
+        SetTakeExtState(take, Ext_Name, Ext_TakeChance, tostring(rnd_values.TakeChance))
+        SetItemExtState(selected_item, Ext_Name, Ext_MinTime, tostring(rnd_values.TimeRandomMin))
+        SetItemExtState(selected_item, Ext_Name, Ext_MaxTime, tostring(rnd_values.TimeRandomMax))
+        SetItemExtState(selected_item, Ext_Name, Ext_QuantizeTime, tostring(rnd_values.TimeQuantize))
+        SetTakeExtState(take, Ext_Name, Ext_MinPitch, tostring(rnd_values.PitchRandomMin))
+        SetTakeExtState(take, Ext_Name, Ext_MaxPitch, tostring(rnd_values.PitchRandomMax))
+        SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, tostring(rnd_values.PitchQuantize))
+        SetTakeExtState(take, Ext_Name, Ext_MinRate, tostring(rnd_values.PlayRateRandomMin)) -- cannot be 0!
+        SetTakeExtState(take, Ext_Name, Ext_MaxRate, tostring(rnd_values.PlayRateRandomMax)) -- cannot be 0!
+        SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, tostring(rnd_values.PlayRateQuantize))
     end    
 end
 
+function ResetToDefault()
+    rnd_values = SetDefaults()
+    ApplyOptions()    
+end
+
 function CopyOptions()
-    CopyRandomizeTakes = RandomizeTakes
-    CopyTakeChance = TakeChance
-    CopyTimeRandomMin = TimeRandomMin
-    CopyTimeRandomMax = TimeRandomMax
-    CopyTimeQuantize = TimeQuantize
-    CopyPitchRandomMin = PitchRandomMin
-    CopyPitchRandomMax = PitchRandomMax
-    CopyPitchQuantize = PitchQuantize
-    CopyPlayRateRandomMin = PlayRateRandomMin -- cannot be 0!
-    CopyPlayRateRandomMax = PlayRateRandomMax -- cannot be 0!
-    CopyPlayRateQuantize = PlayRateQuantize
+    CopyRndValues = TableCopy(rnd_values)
 end
 
 function PasteOptions()
-    if CopyTimeRandomMin then
-        RandomizeTakes = CopyRandomizeTakes
-        TakeChance = CopyTakeChance
-        TimeRandomMin = CopyTimeRandomMin
-        TimeRandomMax = CopyTimeRandomMax
-        TimeQuantize = CopyTimeQuantize
-        PitchRandomMin = CopyPitchRandomMin
-        PitchRandomMax = CopyPitchRandomMax
-        PitchQuantize = CopyPitchQuantize
-        PlayRateRandomMin = CopyPlayRateRandomMin -- cannot be 0!
-        PlayRateRandomMax = CopyPlayRateRandomMax -- cannot be 0!
-        PlayRateQuantize = CopyPlayRateQuantize
+    if CopyRndValues then
+        rnd_values = TableCopy(CopyRndValues)
         ApplyOptions()
     else
         print('Copy Something First!')
