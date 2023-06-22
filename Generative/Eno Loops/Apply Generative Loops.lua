@@ -83,7 +83,7 @@ if clean_before_apply then
                     local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
                     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
                     local item_end = item_pos + item_len
-                    DeleteAutomationItemsInRange(proj,item_pos,item_end,true,false)
+                    DeleteAutomationItemsInRange(proj,item_pos,item_end,false,false)
                 end
             end
         end
@@ -220,28 +220,60 @@ for k_item, item in ipairs(items) do
         for index, new_item in ipairs(sel_table) do
             reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
             -- Get item random values
-            GetOptionsItemTake(rnd_values, item)
+            GetOptionsItemTake(rnd_values, new_item)
+            -- Randomize Take
+            local active_take
+            if rnd_values.RandomizeTakes then
+                local random_take = {}
+                for new_take in enumTakes(new_item) do
+                    local chance = tonumber(select(2, GetTakeExtState(new_take, Ext_Name, Ext_TakeChance)))
+                    if chance == '' then
+                        chance = 1
+                    end
+                    random_take[#random_take+1] = {weight = chance, take = new_take}
+                end
+                local k,v = TableRandomWithWeight(random_take)
+                active_take = v.take
+                reaper.SetActiveTake(active_take)
+            else
+                active_take = reaper.GetActiveTake(new_item)              
+            end
+            
             -- Get item info 
             local new_item_pos = reaper.GetMediaItemInfo_Value(new_item, 'D_POSITION')
+            local active_take_random_rate = 1 -- need to save how much the random rate changed the active take to change the length and fades.
             for new_take in enumTakes(new_item) do
+                GetOptionsItemTake(rnd_values, nil, new_take)
                 local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
-                local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
-                local new_rate = new_take_rate * item_rate
+                local random_rate = RandomNumberFloat(rnd_values.PlayRateRandomMin,rnd_values.PlayRateRandomMax, true)
+                random_rate = QuantizeNumber(random_rate,rnd_values.PlayRateQuantize)
+                local new_rate = (new_take_rate * item_rate) * random_rate
+                if new_take == active_take then 
+                    active_take_random_rate = random_rate
+                end
 
-                local new_pitch = new_take_pitch + item_pitch
+                local new_take_pitch = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PITCH')
+                local random_pitch = RandomNumberFloat(rnd_values.PitchRandomMin,rnd_values.PitchRandomMax, true)
+                random_pitch = QuantizeNumber(random_pitch,rnd_values.PitchQuantize)
+                local new_pitch = new_take_pitch + item_pitch + random_pitch
+
                 reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate) 
-                reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PITCH', new_pitch) 
+                reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PITCH', new_pitch + random_pitch) 
             end
+            local rate_inversive = rate_ratio * (1/active_take_random_rate) 
             -- To change the rate and preserve the length (like it is stretching the item):
             local new_item_len = reaper.GetMediaItemInfo_Value( new_item, 'D_LENGTH' )
-            local new_len =  new_item_len * rate_ratio
+            local new_len =  new_item_len * rate_inversive
             reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_len) 
             local new_item_fadein = reaper.GetMediaItemInfo_Value( new_item, 'D_FADEINLEN' )
-            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEINLEN', new_item_fadein * rate_ratio )
+            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEINLEN', new_item_fadein * rate_inversive )
             local new_item_fadeout = reaper.GetMediaItemInfo_Value( new_item, 'D_FADEOUTLEN' )
-            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEOUTLEN', new_item_fadeout * rate_ratio)
+            reaper.SetMediaItemInfo_Value(new_item, 'D_FADEOUTLEN', new_item_fadeout * rate_inversive)
             local new_pos = cur_pos + ((new_item_pos - cur_pos) * rate_ratio)
-            reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_pos)
+            local random_time = RandomNumberFloat(rnd_values.TimeRandomMin,rnd_values.TimeRandomMax, true)
+            random_time = QuantizeNumber(random_time,rnd_values.TimeQuantize)
+            reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_pos + random_time)
+
 
             -- Stretch the envelope (this wont work properlly as it still using copy paste. todo remove the copy paste and make a proper function to make copies with envelopes) the problem with the current version is that multiple items will scramble the envelope of the others when stretching. also very slow. It is possible to do this way but would need to do it after all items are placed and not in the iteration
             --[[ if  reaper.SNM_GetIntConfigVar('envattach',3)&1 == 1 then -- check if move envelope with items is on, if is move copied envelopes together

@@ -1,6 +1,8 @@
 --@noindex
---version: 0.8
+--version: 0.8.1
 -- fix RandomNumberFloat
+-- Quantize number with 0 argument #2 value arent quantized
+-- Add TableRandomWithWeight
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
@@ -379,6 +381,33 @@ function ipairs_reverse(t)
         return nil
     end
 end
+
+---Return a key from a table randomly, if the value of a key is a table with a .weight key inside it then it will use that weight. ex: {{weight = 2, etc...},{weight = 2.7,etc...},'hello'}. This uses ipairs so the table values must have number indexes.
+---@param t table
+---
+function TableRandomWithWeight(t)
+    local function get_weight(v)
+        if type(v) == 'table' then
+            return v.weight or 1
+        else 
+            return 1
+        end
+    end
+
+    local sum = 0
+    for k,v in ipairs(t) do
+        sum = sum + get_weight(v)
+    end
+    local random_number = RandomNumberFloat(0,sum,false)
+    local sum_weights = 0
+    for k, v in ipairs(t) do
+        local w = get_weight(v)
+        sum_weights = sum_weights + w
+        if sum_weights > random_number then
+            return k, v
+        end
+    end   
+end
 ---------------------
 ----------------- MISC
 ---------------------
@@ -418,6 +447,7 @@ end
 ---@param num number number to be quantized
 ---@param quantize number quantize value
 function QuantizeNumber(num,quantize_value)
+    if quantize_value == 0 then return num end
     local up_value = (num + (quantize_value/2))
     local low_quantize = ((up_value / quantize_value)//1)*quantize_value
     return low_quantize
