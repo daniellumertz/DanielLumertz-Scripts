@@ -99,7 +99,6 @@ function GetLoopOptions(item,take) -- Return a table with the options {Randomize
     local default = SetDefaultsLoopItem()
     if item then
         local retval, randomize_takes = GetItemExtState(item, Ext_Name, Ext_Loop_RandomizeTake) -- check with just one if present then get all
-        print(randomize_takes)
         if randomize_takes ~= '' then
             t.RandomizeTakes = randomize_takes == 'true'
         else

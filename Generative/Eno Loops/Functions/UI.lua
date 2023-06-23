@@ -63,7 +63,6 @@ function SelectedItemsGUI()
     local take = reaper.GetActiveTake(item)
     if OldTake ~= take then -- only when chaning the selected take, so it dont constantly change value
         rnd_values = GetOptions(rnd_values, item, take)
-        print(rnd_values.TimeRandomMin)
     end
     OldTake = take
 
