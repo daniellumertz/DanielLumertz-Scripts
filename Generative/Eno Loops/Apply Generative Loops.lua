@@ -146,7 +146,8 @@ for k_item, item in ipairs(items) do
     local item_end = item_pos + item_len
     local item_rate = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PLAYRATE')
     local rate_ratio = 1/item_rate
- 
+    local rate_table = {} -- when randomizing the rate when pasting the items need to save the sequence of random value to use whhen copying automation items! if not randomizing will just write 1,1,1,1,
+
     local item_pitch = reaper.GetMediaItemTakeInfo_Value(selected_mark.take, 'D_PITCH') 
     
     -- Set cursor position
@@ -172,7 +173,12 @@ for k_item, item in ipairs(items) do
     -- Get Automation Items in range 
 
     -- Copy Items
-    while #items_in_region > 0 and true do
+    local original_item_rate = item_rate
+    while #items_in_region > 0 and true do  
+        local random_rate = RandomNumberFloatQuantized(selected_mark.playrate_min, selected_mark.playrate_max, true, selected_mark.playrate_quantize)
+        item_rate = original_item_rate * random_rate
+        rate_ratio = 1/item_rate
+        rate_table[#rate_table+1] = random_rate
         -- Check if need to break
         
         local cur_pos = reaper.GetCursorPosition()
@@ -247,8 +253,7 @@ for k_item, item in ipairs(items) do
             for new_take in enumTakes(new_item) do
                 GetOptionsItemTake(rnd_values, nil, new_take)
                 local new_take_rate = reaper.GetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE') 
-                local random_rate = RandomNumberFloat(rnd_values.PlayRateRandomMin,rnd_values.PlayRateRandomMax, true)
-                random_rate = QuantizeNumber(random_rate,rnd_values.PlayRateQuantize)
+                local random_rate = RandomNumberFloatQuantized(rnd_values.PlayRateRandomMin,rnd_values.PlayRateRandomMax, true,rnd_values.PlayRateQuantize)
                 local new_rate = (new_take_rate * item_rate) * random_rate
                 if new_take == active_take then 
                     active_take_random_rate = random_rate
@@ -310,6 +315,9 @@ for k_item, item in ipairs(items) do
         local new_cur_pos = cur_pos + (paste_len/item_rate)
         reaper.SetEditCurPos2(proj, new_cur_pos, false, false) 
     end
+    item_rate = original_item_rate
+    rate_ratio = 1/item_rate
+
 
     -- Copy Automation Items
     for track in enumTracks(proj) do
@@ -332,7 +340,14 @@ for k_item, item in ipairs(items) do
                     local paste_start = item_pos
                     local paste_end = paste_start + (region_len  * rate_ratio)
                     local remaning_len = item_len -- how many in time need to be pasted
+
+                    local pasting_idx = 1
                     while true do -- paste multiple times
+                        local random_rate = rate_table[pasting_idx] or RandomNumberFloatQuantized(selected_mark.playrate_min, selected_mark.playrate_max, true, selected_mark.playrate_quantize)
+                        local item_rate = item_rate * random_rate
+                        local rate_ratio = 1/item_rate
+                        local new_rate = new_rate * random_rate
+                        pasting_idx = pasting_idx + 1
                         -- Automation Items inside the range: 
 
                         local new_pos = paste_start + (delta_pos * rate_ratio)
@@ -354,6 +369,8 @@ for k_item, item in ipairs(items) do
                             break
                         end
                     end
+                    item_rate = original_item_rate
+                    rate_ratio = 1/item_rate
                 end
                     
                 i = i + 1

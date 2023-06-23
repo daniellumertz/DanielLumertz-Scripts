@@ -525,6 +525,16 @@ function RandomNumberFloat(min,max,is_include_max)
     return random
 end
 
+---Generate a random number between min and max, quantize it.
+---@param min number minimum value
+---@param max number maximum value
+---@param is_include_max boolean if true it can result on the max value
+---@return number
+function RandomNumberFloatQuantized(min,max,is_include_max,quantize)
+    local num = RandomNumberFloat(min,max,is_include_max)
+    return QuantizeNumber(num, quantize)    
+end
+
 function RemoveDecimals(num,decimal_places)
     local int_num = math.floor(num * 10^decimal_places)
     return int_num / 10^decimal_places    
