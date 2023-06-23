@@ -8,7 +8,7 @@
 -- @changelog
 --    + beta
 -- @license MIT
-
+-- TODO APPLY OFFSET AT AI
 -- TODO stop pasting if ## is inside the area it is pasting into, maybe instead of banning items stop pasting is better
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 reaper.ClearConsole()
@@ -94,36 +94,43 @@ for k_item, item in ipairs(items) do
             if tm_name:match('^%s-'..LoopItemSign_literalize) then 
                 local user_region_id = tonumber(tm_name:match('^%s-'..LoopItemSign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
                 if user_region_id then --  ## MARKER! found in a take
-
-                    local chance = tonumber(tm_name:lower():match(';'..'%s*'..loop_item_possibility..'%s*(%d+)')) or 100
-                    local weight = tonumber(tm_name:lower():match(';'..'%s*'..loop_item_weight..'%s*(%d+)')) or 1
-                    loop_possibilities[#loop_possibilities+1] = {chance = chance, weight = weight, tm_name = tm_name, take = take, user_region_id = user_region_id}
+                    local take_options = GetLoopOptions(nil,take)
+                    local weight = take_options.TakeChance
+                    local playrate_min = take_options.PlayRateRandomMin
+                    local playrate_max = take_options.PlayRateRandomMax
+                    local playrate_quantize = take_options.PlayRateQuantize
+                    loop_possibilities[take] = {chance = chance, weight = weight, tm_name = tm_name, take = take, user_region_id = user_region_id, playrate_min = playrate_min, playrate_max = playrate_max, playrate_quantize = playrate_quantize}
 
                     break -- will only catch the first marker on a take
                 end
             end
         end
     end
-    if #loop_possibilities == 0 then goto continue end -- no ## marker in this item
+    if TableLen(loop_possibilities) == 0 then goto continue end -- no ## marker in this item
 
-    -- select one of the takes 
-    local sum_chance = 0
-    for key, possibility_table in ipairs(loop_possibilities) do
-        sum_chance = sum_chance + possibility_table.weight
-    end
-    local random_number = RandomNumberFloat(0,sum_chance,false)
-    local addiction_weights = 0
+    -- Get Item options
+    local item_options = GetLoopOptions(item,nil)
     local selected_mark 
-    for key, possibility_table in ipairs(loop_possibilities) do
-        addiction_weights = addiction_weights + possibility_table.weight
-        if addiction_weights > random_number then
-            selected_mark = possibility_table
-            break
+    if item_options.RandomizeTakes then
+        -- select one of the takes 
+        local sum_chance = 0
+        for key, possibility_table in pairs(loop_possibilities) do
+            sum_chance = sum_chance + possibility_table.weight
         end
+        local random_number = RandomNumberFloat(0,sum_chance,false)
+        local addiction_weights = 0
+        for take, possibility_table in pairs(loop_possibilities) do
+            addiction_weights = addiction_weights + possibility_table.weight
+            if addiction_weights > random_number then
+                selected_mark = possibility_table
+                break
+            end
+        end
+    else
+        local take = reaper.GetActiveTake(item)
+        selected_mark = loop_possibilities[take]
     end
-    if selected_mark.chance < math.random(0,100) then -- trigger the chance of not playing
-        goto continue 
-    end
+
 
     -- Get region info
     local retval, isrgn, region_start, region_end ,region_name,region_user_id,color,region_id = GetMarkByID(proj,selected_mark.user_region_id,2)
@@ -228,7 +235,7 @@ for k_item, item in ipairs(items) do
                     random_take[#random_take+1] = {weight = chance, take = new_take}
                 end
                 local k,v = TableRandomWithWeight(random_take)
-                active_take = v.take
+                active_take = (v and v.take) or reaper.GetActiveTake(new_item) -- if chances are 0 use active take
                 reaper.SetActiveTake(active_take)
             else
                 active_take = reaper.GetActiveTake(new_item)              

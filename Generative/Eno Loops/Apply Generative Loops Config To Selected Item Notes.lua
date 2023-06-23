@@ -22,6 +22,8 @@ local proj = 0
 ScriptName = 'Generative Loops Item Options'
 Version = '0.0.1'
 
+ExtStatePatterns() 
 rnd_values = SetDefaults()
+LoopOption = SetDefaultsLoopItem()
 GuiInit(ScriptName)
 main_loop()

@@ -4,8 +4,6 @@ function CleanAllItemsLoop(proj, ext_state_key, ext_pattern)
     local delete_list = {}
     for item in enumItems(proj) do
         local retval, stringNeedBig = GetItemExtState(item,ext_state_key,ext_pattern)
-
-        print(stringNeedBig)
         --local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_pattern, '', false )
         if stringNeedBig ~= '' then 
             table.insert(delete_list,item)
@@ -33,6 +31,7 @@ end
 
 --- rnd_values is a table that this function will write on. Get for items and take
 function GetOptions(rnd_values, item, take)
+    local rnd_values = {}
     local retval, min_time = GetItemExtState(item, Ext_Name, Ext_MinTime) -- check with just one if present then get all
     if min_time ~= '' then
         rnd_values.RandomizeTakes = (select(2, GetItemExtState(item, Ext_Name, Ext_RandomizeTake))) == 'true'
@@ -49,6 +48,7 @@ function GetOptions(rnd_values, item, take)
     else -- current item dont have ext states values load default
         rnd_values = SetDefaults()
     end
+    return rnd_values
 end
 
 -- Alternative to GetOptions that just get from item and/or take to make it faster
@@ -93,6 +93,37 @@ function GetOptionsItemTake(rnd_values, item, take)
     end
 end
 
+
+function GetLoopOptions(item,take) -- Return a table with the options {RandomizeTakes = bol, TakeChance = 1, PlayRateRandomMin = 1, PlayRateRandomMax = 1, PlayRateQuantize = 0}}
+    local t = {}
+    local default = SetDefaultsLoopItem()
+    if item then
+        local retval, randomize_takes = GetItemExtState(item, Ext_Name, Ext_Loop_RandomizeTake) -- check with just one if present then get all
+        print(randomize_takes)
+        if randomize_takes ~= '' then
+            t.RandomizeTakes = randomize_takes == 'true'
+        else
+            t.RandomizeTakes = default.RandomizeTakes
+        end
+    end
+
+    if take then
+        local retval, chance = GetTakeExtState(take, Ext_Name, Ext_Loop_TakeChance)
+        if chance ~= '' then
+            t.TakeChance = tonumber(chance)
+            t.PlayRateRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MinRate)))
+            t.PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate)))
+            t.PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeRate)))
+        else
+            t.TakeChance = default.TakeChance
+            t.PlayRateRandomMin = default.PlayRateRandomMin
+            t.PlayRateRandomMax = default.PlayRateRandomMax
+            t.PlayRateQuantize = default.PlayRateQuantize
+        end
+    end    
+    return t    
+end
+
 --- Defaults
 function SetDefaults()
     local rnd_values = {}
@@ -109,6 +140,17 @@ function SetDefaults()
     rnd_values.PlayRateQuantize = 0
     return rnd_values
 end
+
+function SetDefaultsLoopItem()
+    local t = {}
+    t.PlayRateRandomMin = 1
+    t.PlayRateRandomMax = 1
+    t.PlayRateQuantize = 0
+    t.TakeChance = 1
+    t.RandomizeTakes = false
+    return t    
+end
+
 
 function ExtStatePatterns()
     Ext_Name = 'Gen_Loops'
@@ -137,6 +179,18 @@ function ExtStatePatterns()
     LoopItemExt = 'GenItemLoop'
 end
 
-function IsLoopItem(item)
-    
+--- Return true if at least one item take is an ## item
+function IsLoopItemSelected()
+    for item in enumSelectedItems(proj) do
+        for take in enumTakes(item) do
+            for retval, tm_name, color in enumTakeMarkers(take) do -- tm = take marker 
+                if tm_name:match('^%s-'..LoopItemSign_literalize) then 
+                    local user_region_id = tonumber(tm_name:match('^%s-'..LoopItemSign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
+                    if user_region_id then --  ## MARKER! found in a take
+                        return user_region_id
+                    end
+                end
+            end
+        end
+    end
 end
