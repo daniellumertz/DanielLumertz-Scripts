@@ -1,10 +1,13 @@
 --@noindex
-function CleanAllItemsLoop(proj, ext_pattern)
+function CleanAllItemsLoop(proj, ext_state_key, ext_pattern)
     ext_pattern = literalize(ext_pattern)
     local delete_list = {}
     for item in enumItems(proj) do
-        local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_pattern, '', false )
-        if stringNeedBig:match(ext_pattern) then 
+        local retval, stringNeedBig = GetItemExtState(item,ext_state_key,ext_pattern)
+
+        print(stringNeedBig)
+        --local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_pattern, '', false )
+        if stringNeedBig ~= '' then 
             table.insert(delete_list,item)
         end
     end
@@ -67,7 +70,7 @@ function GetOptionsItemTake(rnd_values, item, take)
     end
 
     if take then
-        local retval, chance = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_TakeChance)))
+        local retval, chance = GetTakeExtState(take, Ext_Name, Ext_TakeChance)
         if chance ~= '' then
             rnd_values.TakeChance = tonumber(chance)
             rnd_values.PitchRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinPitch)))
@@ -77,6 +80,7 @@ function GetOptionsItemTake(rnd_values, item, take)
             rnd_values.PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxRate))) -- cannot be 0!
             rnd_values.PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizeRate)))
         else -- current take dont have ext states values load default
+
             local defaults = SetDefaults()
             rnd_values.TakeChance = defaults.TakeChance
             rnd_values.PitchRandomMin = defaults.PitchRandomMin
@@ -120,4 +124,19 @@ function ExtStatePatterns()
     Ext_MinRate = 'MinRate'    
     Ext_MaxRate = 'MaxRate'    
     Ext_QuantizeRate = 'QuantizeRate'    
+    --for ## items
+    Ext_Loop_RandomizeTake = 'LoopRandTakes'
+    Ext_Loop_TakeChance = 'LoopTakeChance'
+    Ext_Loop_MinRate = 'LoopMinRate'
+    Ext_Loop_MaxRate = 'LoopMaxRate'
+    Ext_Loop_QuantizeRate = 'LoopQuantizeRate' 
+    --Loop items
+    LoopItemSign = '##' -- Items must start with ## and be followed by the region name
+    LoopItemSign_literalize = literalize(LoopItemSign)
+    -- Item created by the script
+    LoopItemExt = 'GenItemLoop'
+end
+
+function IsLoopItem(item)
+    
 end

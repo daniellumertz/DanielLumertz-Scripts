@@ -33,6 +33,7 @@ function main_loop()
     if visible then
         --- GUI MAIN: 
         if reaper.CountSelectedMediaItems(proj) ~= 0 then
+            local bol = IsLoopItemSelected()
             SelectedItemsGUI()
         else
             reaper.ImGui_Text(ctx, 'Select Some Item')

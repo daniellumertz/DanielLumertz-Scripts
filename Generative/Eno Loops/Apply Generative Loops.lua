@@ -61,25 +61,19 @@ reaper.SNM_SetIntConfigVar('envattach',0) -- turn off envattach (envelope move w
 reaper.SNM_SetIntConfigVar('projripedit',0) -- turn off ripple eddit
 
 -- Patterns
-local items_pattern = '$$$LOOP_CONFIG$$$'
-local loop_item_sign = '##' -- Items must start with ## and be followed by the region name
 local loop_item_possibility = 'p'
 local loop_item_weight = 'w'
-local ext_state_key = 'ENO_LOOP'
-
-local loop_item_sign_literalize = literalize(loop_item_sign)
-local items_pattern_literalize = literalize(items_pattern)
 
 -- Items Random options 
 local rnd_values = SetDefaults()
 
 if clean_before_apply then 
-    CleanAllItemsLoop(proj, ext_state_key)
+    CleanAllItemsLoop(proj, Ext_Name, LoopItemExt)
 
     for item in enumItems(proj) do -- Delete automation items
         for take in enumTakes(item) do
             for retval, tm_name, color in enumTakeMarkers(take) do 
-                if tm_name:match('^%s-'..loop_item_sign_literalize) then
+                if tm_name:match('^%s-'..LoopItemSign_literalize) then
                     local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
                     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
                     local item_end = item_pos + item_len
@@ -97,8 +91,8 @@ for k_item, item in ipairs(items) do
     local loop_possibilities = {}
     for take in enumTakes(item) do
         for retval, tm_name, color in enumTakeMarkers(take) do -- tm = take marker 
-            if tm_name:match('^%s-'..loop_item_sign_literalize) then 
-                local user_region_id = tonumber(tm_name:match('^%s-'..loop_item_sign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
+            if tm_name:match('^%s-'..LoopItemSign_literalize) then 
+                local user_region_id = tonumber(tm_name:match('^%s-'..LoopItemSign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
                 if user_region_id then --  ## MARKER! found in a take
 
                     local chance = tonumber(tm_name:lower():match(';'..'%s*'..loop_item_possibility..'%s*(%d+)')) or 100
@@ -157,7 +151,7 @@ for k_item, item in ipairs(items) do
     for k,check_item in ipairs_reverse(items_in_region) do
         for check_take in enumTakes(check_item) do
             for retval, tm_name, color in enumTakeMarkers(check_take) do -- tm = take marker 
-                if tm_name:match('^%s-'..loop_item_sign_literalize) then 
+                if tm_name:match('^%s-'..LoopItemSign_literalize) then 
                     if not banned_items[region_user_id] then
                         banned_items[region_user_id] = {}
                     end
@@ -218,7 +212,8 @@ for k_item, item in ipairs(items) do
         end
 
         for index, new_item in ipairs(sel_table) do
-            reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
+            SetItemExtState(new_item,Ext_Name,LoopItemExt,'true')
+            --reaper.GetSetMediaItemInfo_String( new_item, 'P_EXT:'..ext_state_key, ext_state_key, true ) -- using the key as identifier, could be anything, unless I want to add more things at the same key
             -- Get item random values
             GetOptionsItemTake(rnd_values, new_item)
             -- Randomize Take
