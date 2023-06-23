@@ -3,12 +3,12 @@
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
---    [main] Apply Generative Loops Config To Selected Item Notes.lua
---    [nomain] Loops Teste.lua
+--    [main] daniellumertz_Generative Items Settings GUI.lua
+--    [main] daniellumertz_Delete All Generated Items.lua
 -- @changelog
 --    + beta
 -- @license MIT
--- TODO APPLY OFFSET AT AI
+-- Only delete if the items are above an # 
 -- TODO stop pasting if ## is inside the area it is pasting into, maybe instead of banning items stop pasting is better
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 reaper.ClearConsole()
@@ -68,9 +68,9 @@ local loop_item_weight = 'w'
 local rnd_values = SetDefaults()
 
 if clean_before_apply then 
-    CleanAllItemsLoop(proj, Ext_Name, LoopItemExt)
+    --CleanAllItemsLoop(proj, Ext_Name, LoopItemExt)
 
-    for item in enumItems(proj) do -- Delete automation items
+    for item in enumItems(proj) do -- Delete automation items and items inside loop items range
         for take in enumTakes(item) do
             for retval, tm_name, color in enumTakeMarkers(take) do 
                 if tm_name:match('^%s-'..LoopItemSign_literalize) then
@@ -78,6 +78,15 @@ if clean_before_apply then
                     local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
                     local item_end = item_pos + item_len
                     DeleteAutomationItemsInRange(proj,item_pos,item_end,false,false)
+                    -- items
+                    local items_in_range = GetItemsInRange(proj,item_pos,item_end,false,false)
+                    for k, item_range in ipairs(items_in_range) do
+                        local retval, stringNeedBig = GetItemExtState(item_range,Ext_Name,LoopItemExt)
+                        --local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_pattern, '', false )
+                        if stringNeedBig ~= '' then 
+                            reaper.DeleteTrackMediaItem( reaper.GetMediaItem_Track(item_range), item_range )
+                        end
+                    end
                 end
             end
         end
@@ -358,7 +367,7 @@ for k_item, item in ipairs(items) do
                         local ai_id = reaper.GetSetAutomationItemInfo(env, i, 'D_POOL_ID', 0, false)
                         local idx = reaper.InsertAutomationItem(env, ai_id, new_pos, len * rate_ratio)
                         local trim_end = math.min(paste_start + paste_end,item_end)
-                        CopyAutomationItemsInfo_Value(env, i,idx, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC'})
+                        CopyAutomationItemsInfo_Value(env, i,idx, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC', 'D_STARTOFFS'})
                         reaper.GetSetAutomationItemInfo(env, idx, 'D_PLAYRATE', new_rate, true)
                         TrimAutomationItem(env,idx,paste_start,trim_end) -- paste_pos, len_paste
 

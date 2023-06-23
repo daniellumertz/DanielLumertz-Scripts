@@ -2,7 +2,7 @@
 function GuiInit(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
-    Gui_W,Gui_H= 250,385
+    Gui_W,Gui_H= 250,412
     FLT_MIN, FLT_MAX = reaper.ImGui_NumericLimits_Float()
     
     --- Text Font
@@ -40,7 +40,12 @@ function main_loop()
                 LoopItemGUI()
             end
         else
-            reaper.ImGui_Text(ctx, 'Select Some Item')
+            reaper.ImGui_Text(ctx, '--- Select Some Item ---')
+        end
+        reaper.ImGui_Separator(ctx)
+        if reaper.ImGui_Button(ctx, 'Apply Generative Loops', -FLT_MIN) then
+            local command = reaper.NamedCommandLookup('_RSd814491aaee8f3200e2fce379d5b51faa9e07a02')
+            reaper.Main_OnCommand(command, 0)
         end
         ------------
         reaper.ImGui_End(ctx)
