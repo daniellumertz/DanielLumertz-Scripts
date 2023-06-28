@@ -29,6 +29,18 @@ function CleanAllItemsLoop(proj, ext_state_key, ext_pattern)
     end ]]
 end
 
+---Remove the ext state from items
+---@param sel_items table table with the items numerically
+---@param ext_state_key any
+---@param ext_pattern any
+function RemoveItemExtState(item, ext_state_key, ext_pattern)
+    local retval, stringNeedBig = GetItemExtState(item,ext_state_key,ext_pattern)
+    --local retval, stringNeedBig = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:'..ext_pattern, '', false )
+    if stringNeedBig ~= '' then 
+        SetItemExtState(item,ext_state_key,ext_pattern,'')
+    end
+end
+
 --- rnd_values is a table that this function will write on. Get for items and take
 function GetOptions(rnd_values, item, take)
     local rnd_values = {}

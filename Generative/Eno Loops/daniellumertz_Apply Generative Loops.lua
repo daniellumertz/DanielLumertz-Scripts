@@ -5,6 +5,7 @@
 --    [nomain] Functions/*.lua
 --    [main] daniellumertz_Generative Items Settings GUI.lua
 --    [main] daniellumertz_Delete All Generated Items.lua
+--    [main] daniellumertz_Remove Generative Loops Tag From Selected Items.lua
 -- @changelog
 --    + beta
 -- @license MIT
