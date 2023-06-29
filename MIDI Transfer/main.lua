@@ -106,7 +106,7 @@ function CopyMIDI(item, track)-- Copy an Item to Track
     return new_item
 end
 
-function CopyMediaItem(y, track, ch, first_new , last_new, n_tracks_imported ) -- Copy Item to track and leave only channel ch/MIDI track. Also reset GUID. IGUID to copies
+function CopyMediaItem(y, track, ch, first_new , last_new ) -- Copy Item to track and leave only channel ch/MIDI track. Also reset GUID. IGUID to copies
     local rename = "!MTr CH "..ch..' - '..map[y].font_name   
     
     local old_list = DeleteOld(track, map[y].font_name, ch, y) -- Create A list of the '!MTr CH %d+ -' Items with their proprieties, positions and if cross with font. And delete them.
@@ -252,6 +252,11 @@ function ImportMIDI(path, start)
         last_num = reaper.GetMediaTrackInfo_Value(last, 'IP_TRACKNUMBER') 
         if last_num == -1 then last_num = reaper.CountTracks(0) end
     end
+    --------------Get MIDI info
+    local file = assert(io.open(path, "rb"))
+    local midi_tracks_count = midi.processHeader(file) - 1
+
+    file:close()
     --------------Import and Get Info
     reaper.SetEditCurPos( start, false, false )
 
@@ -269,12 +274,12 @@ function ImportMIDI(path, start)
     reaper.SetEditCurPos( last_cursor, false, false )
     LoadSelectedItems(items_fold)
     LoadSelectedTracks(tracks_fold)
-    return last_num+1, new_last_num, n_tracks_imported -- First Track with the new Midi Items, Last Track with the new MIDI Items, N of tracks
+    return last_num+1, new_last_num, midi_tracks_count == n_tracks_imported -- First Track with the new Midi Items, Last Track with the new MIDI Items, if the n_tracks created matches the MIDI file (if not break this)
 end
 
 function main_tr()
     for i = 1, #map do 
-        if map[i].track_order == 0 or map[i].track_order == 1 and ValidadeOnline(i) then -- If in MIDI Ch mode just go without waiting get online to track order check it first.
+        if map[i].track_order == 0 or (map[i].track_order == 1 and ValidadeOnline(i)) then -- If in MIDI Ch mode just go without waiting get online to track order check it first.
             local _, _, _, lastmod, _, _, _, _, _, _, _, _ = reaper.JS_File_Stat(map[i].source)
             if lastmod ~= map[i].old or manual_up == true then -- just execute if the file was mod
                 if map[i].update_on_start == 1 or map[i].old  then  -- If update on start is on It doesn't matter if there is old or not If it is off It just matter if map[i].old is not nil
@@ -282,13 +287,25 @@ function main_tr()
                         reaper.Undo_BeginBlock2(0)
                         reaper.PreventUIRefresh(1)
                         GetMapTime(i)
+                        local first_new, last_new, is_expand_checked
                         if map[i].track_order == 1 then -- Set to MIDI Tracks
-                            first_new, last_new, n_tracks_imported = ImportMIDI(map[i].source, map[i].start)
+                            while true do
+                                first_new, last_new, is_expand_checked = ImportMIDI(map[i].source, map[i].start)
+                                if not is_expand_checked then
+                                    reaper.ShowMessageBox('When using "MIDI Track" option you NEED to check "Expand X MIDI Tracks to new REAPER tracks" checkbox at the MIDI File Import Window!', 'MIDI Transfer', 0)
+                                    for track_i = last_new-1, first_new-1, -1 do -- delete tracks created
+                                        local tr = reaper.GetTrack(0, track_i)
+                                        reaper.DeleteTrack(tr)
+                                    end
+                                else
+                                    break
+                                end
+                            end
                         end
                         for k, v in pairs(map[i]) do-- Do for all Channels/MIDI Tracks set in map
                             if type(k) == 'number' then -- If k == number this means is refering to a channel 
                                 for map_tr = 1, #map[i][k] do -- Do for all Reaper Tracks inside the table of channel. map_tr == The n order of tracks set in the table 
-                                    CopyMediaItem(i, map[i][k][map_tr], k, first_new , last_new, n_tracks_imported )
+                                    CopyMediaItem(i, map[i][k][map_tr], k, first_new , last_new )
                                 end
                             end
                         end

@@ -608,9 +608,17 @@
     --Font
         function btn_funca()
             if reaper.CountSelectedMediaItems(0) > 0 then
-                local val = GUI.Val('Font_box')
-                map[val] = SetFonts(map[val])
-                UpdateDisplay(GUI.Val('Font_box'))
+                local get_sel_item = reaper.GetSelectedMediaItem(0, 0)
+                local take = reaper.GetActiveTake(get_sel_item)
+                local is_midi = reaper.TakeIsMIDI(take)
+                if is_midi then
+                    local val = GUI.Val('Font_box')
+                    map[val] = SetFonts(map[val])
+                    UpdateDisplay(GUI.Val('Font_box'))
+                else
+                    reaper.ShowMessageBox('Please Select an MIDI Item As Source', 'MIDI Transfer', 0)
+                end
+
             else
                 reaper.ShowMessageBox('Select an MIDI Item', 'MIDI Transfer', 0)
             end

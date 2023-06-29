@@ -160,6 +160,9 @@ function ValidateStart()
 end 
 
 function ValidadeOnline(i) -- Check if Item is online
+    if not map[i].font_PCM and reaper.ValidatePtr2(0, map[i].font_take, 'MediaItem_Take*') then --tries to recover the PCM if needed
+        map[i].font_PCM = reaper.GetMediaItemTake_Source(map[i].font_take )
+    end
     local bol = reaper.CF_GetMediaSourceOnline( map[i].font_PCM )
     return bol
 end
@@ -190,7 +193,8 @@ function SetseltoFonts() -- return a table with font info
 end
 
 function SetFonts(list) -- Set all fonts info. please insert map list
-    if ValidateSelFont() == false then return end
+    if ValidateSelFont() == false then return false end
+
     list.font_item = reaper.GetSelectedMediaItem(0, 0)
     list.font_take = reaper.GetMediaItemTake(list.font_item, 0)
     list.font_PCM = reaper.GetMediaItemTake_Source( list.font_take )
@@ -587,6 +591,7 @@ function MapToSaveMap(map)
 end
 
 function SaveMT() --Saves MIDI Transfer into the project
+    tprint (map)
     local save = MapToSaveMap(map)
     local save = table.save(save)
     reaper.SetProjExtState( 0, 'MTr', 'Map', save)

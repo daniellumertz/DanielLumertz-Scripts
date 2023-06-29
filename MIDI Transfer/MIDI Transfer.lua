@@ -1,25 +1,31 @@
--- @version 1.34
+-- @version 1.36
 -- @author Daniel Lumertz
 -- @provides
+--    [main] Clear MIDI Transfer Settings at Current Project.lua
 --    [nomain] Table to string.lua
 --    [nomain] Core.lua
 --    [nomain] General Functions.lua
 --    [nomain] GUI.lua
 --    [nomain] main.lua
+--    [nomain] Reaper Functions.lua
 --    [nomain] map_func.lua
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Fix bug trying to get items without takes
---    + Fix bug with MIDI that requires more time to set the chunk
---    + If Color Items == off then keep item colors
+--    + Prevent getting non midi items as source
+--    + Check versions
+--    + Add Clear function
+--    + Enforce the Expand checkbox
+--    + Enforce .font_PCM exists
 
 
-script_version = "1.34"
+script_version = "1.36"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 ------------------------------
+dofile(script_path .. 'Reaper Functions.lua') -- Functions to check versions
+if not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.71') then return end -- Check Extensions
 
 dofile(script_path .. 'General Functions.lua') -- General Functions needed
 dofile(script_path .. 'Table to string.lua') -- General Functions needed
@@ -38,5 +44,10 @@ end
 -------
 dofile(script_path .. 'Core.lua') --Lokasenna GUI s2
 dofile(script_path .. 'GUI.lua') -- The GUI it self =x
+tprint (map)
+
+
+package.path = package.path .. ";" .. script_path ..'\\?.lua'    -- Add current folder/socket module for looking at .so
+midi = require "midi_lua"
 
 
