@@ -591,7 +591,6 @@ function MapToSaveMap(map)
 end
 
 function SaveMT() --Saves MIDI Transfer into the project
-    tprint (map)
     local save = MapToSaveMap(map)
     local save = table.save(save)
     reaper.SetProjExtState( 0, 'MTr', 'Map', save)
