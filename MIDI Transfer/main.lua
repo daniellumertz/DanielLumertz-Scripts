@@ -108,7 +108,6 @@ end
 
 function CopyMediaItem(y, track, ch, first_new , last_new ) -- Copy Item to track and leave only channel ch/MIDI track. Also reset GUID. IGUID to copies
     local rename = "!MTr CH "..ch..' - '..map[y].font_name   
-    
     local old_list = DeleteOld(track, map[y].font_name, ch, y) -- Create A list of the '!MTr CH %d+ -' Items with their proprieties, positions and if cross with font. And delete them.
     local new_item = {}
 
@@ -120,8 +119,9 @@ function CopyMediaItem(y, track, ch, first_new , last_new ) -- Copy Item to trac
         reaper.GetSetMediaItemTakeInfo_String(new_take, "P_NAME", rename, true)
         LoadSelectedItems(items_list)
     elseif map[y].track_order == 1 and ch ~= 0 then
-        local imp_track_n = first_new + ch - 1
-        local imp_tracks = reaper.GetTrack(0, imp_track_n-1)
+        local imp_track_n = (first_new - 1)  + ch - 1
+        if imp_track_n > last_new-1 then goto continue end -- Trying to get a channel that isnt in the midi item
+        local imp_tracks = reaper.GetTrack(0, imp_track_n)
         local imp_item = reaper.GetTrackMediaItem( imp_tracks, 0 )
         new_item[1] = CopyMIDI(imp_item, track)
         new_take = reaper.GetMediaItemTake( new_item[1], 0 )
@@ -184,6 +184,7 @@ function CopyMediaItem(y, track, ch, first_new , last_new ) -- Copy Item to trac
             end  
         end
     end
+    ::continue::
 end
 
 function SoloChannel(take, ch) 

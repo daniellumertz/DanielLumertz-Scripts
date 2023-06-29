@@ -1,4 +1,4 @@
--- @version 1.36
+-- @version 1.37
 -- @author Daniel Lumertz
 -- @provides
 --    [main] Clear MIDI Transfer Settings at Current Project.lua
@@ -17,6 +17,7 @@
 --    + Add Clear function
 --    + Enforce the Expand checkbox
 --    + Enforce .font_PCM exists
+--    + MIDI Track Option bugfix: Prevent copying channels if they arent in the midi file
 
 
 script_version = "1.36"
@@ -44,7 +45,6 @@ end
 -------
 dofile(script_path .. 'Core.lua') --Lokasenna GUI s2
 dofile(script_path .. 'GUI.lua') -- The GUI it self =x
-tprint (map)
 
 
 package.path = package.path .. ";" .. script_path ..'\\?.lua'    -- Add current folder/socket module for looking at .so
