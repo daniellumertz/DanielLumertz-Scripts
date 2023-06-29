@@ -1,4 +1,4 @@
--- @version 1.37
+-- @version 1.37.1
 -- @author Daniel Lumertz
 -- @provides
 --    [main] Clear MIDI Transfer Settings at Current Project.lua
@@ -20,7 +20,7 @@
 --    + MIDI Track Option bugfix: Prevent copying channels if they arent in the midi file
 
 
-script_version = "1.36"
+script_version = "1.37.1"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
