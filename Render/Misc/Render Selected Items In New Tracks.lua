@@ -1,3 +1,9 @@
+-- @version 0.1
+-- @author Daniel Lumertz
+-- @provides
+--    [nomain] Functions/*.lua
+-- @changelog
+--    + release
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 function dofile_all(path)
@@ -61,4 +67,4 @@ end
 reaper.PreventUIRefresh(-1)
 reaper.UpdateArrange()
 reaper.UpdateTimeline()
-reaper.Undo_EndBlock2(proj, 'Add Time sig to grid', -1)
+reaper.Undo_EndBlock2(proj, 'Render Selected Items in New Tracks', -1)

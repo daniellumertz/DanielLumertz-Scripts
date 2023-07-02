@@ -1,3 +1,5 @@
+--@noindex
+
 ---Reads exactly count bytes from the given stream, raising an error if it can't.
 ---@param stream file* The stream to read from.
 ---@param count integer The count of bytes to read.
