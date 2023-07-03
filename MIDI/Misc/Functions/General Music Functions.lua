@@ -1,5 +1,6 @@
 --@noindex
---v 0.1.0
+--v 0.1.1
+-- Add chromatic to circle
 
 function NumberToNote(number, is_sharp, is_octave, center_c_octave) -- Number, boolean(optional), boolean(optional), number(optional)
     if center_c_octave == nil then
@@ -126,4 +127,20 @@ function GetClosestNote(note,new_pitch_class,octave_size)
             return (note - note_pitch_class) + new_pitch_class + octave_size -- return a octave higher
         end
     end
+end
+
+----- Diatonic Scales / Circle of Fifths
+---Get note in chromatic order c = 0, c# = 1... and return in circle of fifths order F = -1, C = 0, G = 1
+---@param note number chromatic note (0 to 11)
+---@param circle_root number optional number that is the 0 at the circle f = -1, 0 = c, 1 = g etc
+---@return number note circle of fifths number (-5 to 6)
+function ChromaticToCircleOfFifths(note, circle_root)
+    circle_root = circle_root or 0
+    note = (note * 7) % 12 -- (0-11) put in the circle of fifths order ... F = 11, C = 0, G = 1...
+    note = (note - circle_root)  % 12
+    if note > 6 then
+        note = note - 12
+    end
+
+    return note
 end

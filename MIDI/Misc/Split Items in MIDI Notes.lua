@@ -11,6 +11,9 @@
 
 local copy_only_notes = false -- if true wont copy CC, aftertouch etc...
 local trim_at_item_edge = true -- if true will trim the notes at the item edges
+local rename_items_to_pitch = true
+
+
 
 
 -------------------------------
@@ -34,10 +37,11 @@ local ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 local folder_name = 'Functions'
 
 --dofile_all(script_path..'/'..folder_name)
-dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/REAPER Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/MIDI Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/Arrange Functions.lua') 
+dofile(ScriptPath .. 'Functions/General Lua Functions.lua') 
+dofile(ScriptPath .. 'Functions/General Music Functions.lua') 
+dofile(ScriptPath .. 'Functions/REAPER Functions.lua') 
+dofile(ScriptPath .. 'Functions/MIDI Functions.lua') 
 
 -------------------------------
 -------   SCRIPT     ----------
@@ -97,16 +101,20 @@ for item in enumSelectedItems(proj) do
  
             reaper.SetMediaItemTakeInfo_Value( new_take, 'D_PLAYRATE', rate )
             reaper.SetMediaItemTakeInfo_Value( new_take, 'D_STARTOFFS', take_off + ((new_start-item_pos)*rate))
-
+            
             reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_start)
             reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', (new_fim - new_start))
 
+            if rename_items_to_pitch then
+                --local meta = GetMIDINoteMetaEvents(take, noteidx) -- todo get the meta event and determine if is sharp or flat
+                local new_name = NumberToNote(pitch) 
+                reaper.GetSetMediaItemTakeInfo_String(new_take, 'P_NAME', new_name, true)
+            end
             ::skip_note::
         end
         ::continue::
     end
 end
-
 reaper.PreventUIRefresh(-1)
 reaper.UpdateArrange()
 reaper.UpdateTimeline()

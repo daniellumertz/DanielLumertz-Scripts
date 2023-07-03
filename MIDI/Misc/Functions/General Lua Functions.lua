@@ -628,4 +628,3 @@ function ChangeBit(num, n, new_val)
     return num
 end
 
-

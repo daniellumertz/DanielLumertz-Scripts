@@ -1,4 +1,4 @@
--- @version 0.1
+-- @version 0.1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
@@ -57,8 +57,19 @@ for k, item in ipairs(sel_items) do
     reaper.GetSet_LoopTimeRange2(proj, true, true, pos, fim, false)
     reaper.Main_OnCommand(render, 0) --_SWS_AWRENDERSTEREOSMART SWS/AW: Render tracks to stereo stem tracks, obeying time selection
     reaper.SetMediaTrackInfo_Value(track, 'B_MUTE', mute)
-    reaper.ShowConsoleMsg('halo')
-
+    -- Set new track and new item names
+    --get
+    local take = reaper.GetActiveTake(item)
+    local retval, name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
+    --local retval, name_track = reaper.GetSetMediaTrackInfo_String(track, 'P_NAME', '', false)
+    -- set
+    local new_track = reaper.GetSelectedTrack(proj, 0) -- the new track
+    local new_item = reaper.GetTrackMediaItem(new_track,0)
+    local new_take = reaper.GetActiveTake(new_item)
+    local testret, testname = reaper.GetSetMediaItemTakeInfo_String(new_take, 'P_NAME', '', false)
+    reaper.GetSetMediaItemTakeInfo_String(new_take, 'P_NAME', name, true)
+    reaper.GetSetMediaTrackInfo_String(new_track, 'P_NAME', name, true)
+    
     for restore_item, mute_val in pairs(item_table_mute) do
         reaper.SetMediaItemInfo_Value(restore_item, 'B_MUTE', mute_val)
     end
