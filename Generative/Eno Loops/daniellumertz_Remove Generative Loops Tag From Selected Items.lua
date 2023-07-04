@@ -19,7 +19,6 @@ dofile_all(ScriptPath..'/'..'Functions')
 
 ------- Check Requirements
 if not CheckReaImGUI('0.8.6.1') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.80') then return end -- Check Extensions
-dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
 
 
 local proj = 0
@@ -32,4 +31,6 @@ end
 reaper.PreventUIRefresh(-1)
 reaper.UpdateArrange()
 reaper.Undo_EndBlock2(proj, 'Delete All Generated Items', -1)
+
+
 

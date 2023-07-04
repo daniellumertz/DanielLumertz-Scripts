@@ -368,7 +368,7 @@ for k_item, item in ipairs(items) do
                         local ai_id = reaper.GetSetAutomationItemInfo(env, i, 'D_POOL_ID', 0, false)
                         local idx = reaper.InsertAutomationItem(env, ai_id, new_pos, len * rate_ratio)
                         local trim_end = math.min(paste_start + paste_end,item_end)
-                        CopyAutomationItemsInfo_Value(env, i,idx, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC', 'D_STARTOFFS'})
+                        CopyAutomationItemsInfo_Value(env, env, i,idx, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC', 'D_STARTOFFS'})
                         reaper.GetSetAutomationItemInfo(env, idx, 'D_PLAYRATE', new_rate, true)
                         TrimAutomationItem(env,idx,paste_start,trim_end) -- paste_pos, len_paste
 
