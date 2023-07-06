@@ -1,3 +1,4 @@
+-- @noindex
 ---Imgui Custom Widget for a slider with multiple grabbers.
 ---@param ctx ctx imgui ctx
 ---@param label string unique widget label

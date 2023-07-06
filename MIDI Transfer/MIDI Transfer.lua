@@ -1,4 +1,4 @@
--- @version 1.37.2
+-- @version 1.37.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main] Clear MIDI Transfer Settings at Current Project.lua
@@ -16,7 +16,7 @@
 --    + bug fix add midi_lua to the reapack
 
 
-script_version = "1.37.2"
+script_version = "1.37.3"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder

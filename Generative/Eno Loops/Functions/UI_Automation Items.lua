@@ -1,3 +1,4 @@
+-- @noindex
 function GuiInitAI(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
