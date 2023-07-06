@@ -30,7 +30,6 @@ for item in enumSelectedItems(proj) do
 end
 reaper.PreventUIRefresh(-1)
 reaper.UpdateArrange()
-reaper.Undo_EndBlock2(proj, 'Delete All Generated Items', -1)
-
+reaper.Undo_EndBlock2(proj, 'Remove Generative Loops Tags', -1)
 
 

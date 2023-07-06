@@ -1,8 +1,6 @@
 --@noindex
---version: 0.8.1
--- fix RandomNumberFloat
--- Quantize number with 0 argument #2 value arent quantized
--- Add TableRandomWithWeight
+--version: 0.9
+-- Add IsRangeInRange
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
@@ -596,6 +594,37 @@ function CompareVersion(check_version, min_version, max_version, separator)
     end
 
     return true, nil
+end
+
+---Returns if range 1 is in the range 2
+---@param range1_start any
+---@param range1_end any
+---@param range2_start any
+---@param range2_end any
+---@param only_start_in_range boolean only if tange 1 start inside range 2 (includding the start point)
+---@param only_end_in_range boolean only if tange 1 end inside range 2 (includding the end point)
+---@return boolean bol checks if is in range using only_start and only_end arguments
+---@return boolean is_before all range1 happens before range2 (includding if range1 end point == range2 start point)
+---@return boolean is_after all range1 happens after range2 (includding if range1 start point == range2 end point)
+function IsRangeInRange(range1_start,range1_end,range2_start,range2_end,only_start_in_range,only_end_in_range)
+    local bol = false
+
+    if range1_start >= range2_end then -- start after range (after this only items that start before range2 end point )
+        return false, false, true
+    end 
+    
+    if only_start_in_range and range1_start < range2_start then -- filter if only_start_in_range 
+        local is_before = range1_end <= range2_start
+        return false, is_before, false
+    end    
+    
+    if only_end_in_range and range1_end > range2_end then -- filter if only_end_in_range
+        local is_after = range1_start >= range2_end
+        return false, false, is_after
+    end 
+    
+    local is_in_range = range1_end > range2_start 
+    return is_in_range, not is_in_range, false
 end
 
 ---------------------
