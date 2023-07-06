@@ -7,17 +7,13 @@
 --    [nomain] General Functions.lua
 --    [nomain] GUI.lua
 --    [nomain] main.lua
+--    [nomain] midi_lua.lua
 --    [nomain] Reaper Functions.lua
 --    [nomain] map_func.lua
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + Prevent getting non midi items as source
---    + Check versions
---    + Add Clear function
---    + Enforce the Expand checkbox
---    + Enforce .font_PCM exists
---    + MIDI Track Option bugfix: Prevent copying channels if they arent in the midi file
+--    + bug fix add midi_lua to the reapack
 
 
 script_version = "1.37.2"
@@ -47,7 +43,7 @@ dofile(script_path .. 'Core.lua') --Lokasenna GUI s2
 dofile(script_path .. 'GUI.lua') -- The GUI it self =x
 
 
-package.path = package.path .. ";" .. script_path ..'\\?.lua'    -- Add current folder/socket module for looking at .so
+package.path = package.path .. ";" .. script_path ..'\\?.lua'    -- Add current folder for getting modules
 midi = require "midi_lua"
 
 
