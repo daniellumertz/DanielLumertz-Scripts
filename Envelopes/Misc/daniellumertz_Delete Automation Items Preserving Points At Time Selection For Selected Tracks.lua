@@ -1,7 +1,9 @@
--- @version 1.1
+-- @version 1.2
 -- @author Daniel Lumertz
 -- @changelog
---    + Fix for macos
+--    + Include functions fix
+-- @provides
+--    [nomain] Functions/*.lua
 
 ------ USER SETTINGS
 local clean_before_apply = true -- clean all items previously created and then paste new ones
