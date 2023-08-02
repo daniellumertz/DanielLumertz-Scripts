@@ -1,4 +1,4 @@
--- @version 0.1
+-- @version 0.1.2
 -- @description Generative Loops
 -- @author Daniel Lumertz
 -- @provides
@@ -7,7 +7,7 @@
 --    [main] daniellumertz_Delete All Generated Items.lua
 --    [main] daniellumertz_Remove Generative Loops Tag From Selected Items.lua
 -- @changelog
---    + beta
+--    + fix dofile_all for linux and macos
 -- @license MIT
 -- Only delete if the items are above an # 
 -- TODO stop pasting if ## is inside the area it is pasting into, maybe instead of banning items stop pasting is better
@@ -19,20 +19,21 @@ reaper.ClearConsole()
 local clean_before_apply = true -- clean all items previously created and then paste new ones
 ------ Load Functions
 -- Function to dofile all files in a path
+local os_separator = package.config:sub(1,1)
 function dofile_all(path)
     local i = 0
     while true do 
         local file = reaper.EnumerateFiles( path, i )
         i = i + 1
         if not file  then break end 
-        dofile(path..'/'..file)
+        dofile(path..os_separator..file)
     end
 end
 
 -- get script path
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
 -- dofile all files inside functions folder
-dofile_all(ScriptPath..'/'..'Functions')
+dofile_all(ScriptPath..os_separator..'Functions')
 
 ------- Check Requirements
 if not CheckReaImGUI('0.8.6.1') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.80') then return end -- Check Extensions

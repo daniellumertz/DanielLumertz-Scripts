@@ -1,18 +1,19 @@
--- @version 0.1.1
+-- @version 0.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
 --    + release
---dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+--fix for macos
 
+local os_separator = package.config:sub(1,1)
 function dofile_all(path)
     local i = 0
     while true do 
         local file = reaper.EnumerateFiles( path, i )
         i = i + 1
         if not file  then break end 
-        dofile(path..'/'..file)
+        dofile(path..os_separator..file)
     end
 end
 
@@ -21,7 +22,7 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folde
 
 local folder_name = 'Functions'
 
-dofile_all(script_path..'/'..folder_name)
+dofile_all(script_path..os_separator..folder_name)
 
 -------------------------------
 -------   SCRIPT     ----------

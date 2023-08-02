@@ -1,9 +1,9 @@
--- @version 0.1
+-- @version 0.1.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + release
+--    + remove dofile_all
 
 -------------------------------
 -------   User Settings -------
@@ -21,22 +21,12 @@ local rename_items_to_pitch = true
 -------------------------------
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
-function dofile_all(path)
-    local i = 0
-    while true do 
-        local file = reaper.EnumerateFiles( path, i )
-        i = i + 1
-        if not file  then break end 
-        dofile(path..'/'..file)
-    end
-end
 
 local info = debug.getinfo(1,'S')
 local ScriptPath = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
 
 local folder_name = 'Functions'
 
---dofile_all(script_path..'/'..folder_name)
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') 
 dofile(ScriptPath .. 'Functions/General Lua Functions.lua') 
 dofile(ScriptPath .. 'Functions/General Music Functions.lua') 

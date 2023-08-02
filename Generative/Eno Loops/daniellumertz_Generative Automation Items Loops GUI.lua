@@ -1,21 +1,9 @@
 --@noindex
 dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 ------ Load Functions
--- Function to dofile all files in a path
-function dofile_all(path)
-    local i = 0
-    while true do 
-        local file = reaper.EnumerateFiles( path, i )
-        i = i + 1
-        if not file  then break end 
-        dofile(path..'/'..file)
-    end
-end
 
 -- get script path
 ScriptPath = debug.getinfo(1,'S').source:match[[^@?(.*[\/])[^\/]-$]]
--- dofile all files inside functions folder
---dofile_all(ScriptPath..'/'..'Functions')
 
 dofile(ScriptPath .. 'Functions/Arrange Functions.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/General Lua Functions.lua') -- Functions for using the markov in reaper
