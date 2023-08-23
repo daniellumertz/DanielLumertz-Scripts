@@ -1,12 +1,11 @@
--- @version 1.0.0
+-- @version 1.0.1
 -- @description Layers
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [effect] Layers Volume.jsfx
 -- @changelog
---    + Release Version
---    + Add videos and forum links
+--    + Fix atexit trying to reach project when reaper is closing
 
 -- @license MIT
 
@@ -41,7 +40,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Layers'
-Version = '1.0.0'
+Version = '1.0.1'
 
 -- Load Settings
 SettingsFileName = 'Layers Settings'

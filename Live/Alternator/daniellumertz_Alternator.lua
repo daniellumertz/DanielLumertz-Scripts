@@ -1,11 +1,10 @@
--- @version 1.0.0
+-- @version 1.0.1
 -- @description Alternator
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Release version 
---    + Add links for videos and forum
+--    + Fix atexit trying to reach project when reaper is closing
 -- @license MIT
 
 -----TODO:
@@ -36,7 +35,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'Alternator'
-Version = '1.0.0'
+Version = '1.0.1'
 
 -- Load Settings
 SettingsFileName = 'alternator settings'

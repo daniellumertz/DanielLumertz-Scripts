@@ -1,12 +1,12 @@
--- @version 1.0.0
+-- @version 1.0.1
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Release version 
---    + Add links for videos and forum
+--    + Fix atexit trying to reach project when reaper is closing
+--    + Fix gathering region idxes for GUI 
 -- @license MIT
 
 
@@ -38,7 +38,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '1.0.0'
+Version = '1.0.1'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'

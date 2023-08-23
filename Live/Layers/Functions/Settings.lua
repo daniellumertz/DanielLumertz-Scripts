@@ -72,6 +72,7 @@ end
 ---@param proj project reaper project 
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
+    if not reaper.ValidatePtr(proj,'ReaProject*') then return false end
     -- if need to change any information on the table do it here
     SaveExtStateTable(proj, ScriptName, ExtKey, config_table, true)
 end
@@ -107,7 +108,7 @@ function LoadExtStateTable(proj, script_name, key, convert_GUID)
 end
 
 ---Save at project ext state convert user data to guid
----@param proj Project Reaper project to save to 
+---@param proj ReaProject Reaper project to save to 
 ---@param script_name string ext state will use the script name to store information
 ---@param key string ext state will use this key inside the script name area to store information
 ---@param tabela table table you want to save. User data Takes, Tracks, Items are converted user data to GUID. 

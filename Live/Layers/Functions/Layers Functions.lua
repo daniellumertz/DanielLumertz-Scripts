@@ -227,5 +227,5 @@ function AtExit()
             end
         end
     end
-    Save()    
+    Save() --Remember, when atexit function is triggered reaper already closed the projects. So this wont save in the extstates, the script saves as user change things!
 end

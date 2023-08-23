@@ -74,7 +74,7 @@ function PlaylistTab(playlist)
             -- Each region/marker info:
             local _, region_id = reaper.GetSetProjectInfo_String( FocusedProj, 'MARKER_INDEX_FROM_GUID:'..guid, '', false )
             local retval, region_isrgn, region_pos, region_rgnend, region_name, region_markrgnindexnumber = reaper.EnumProjectMarkers2( FocusedProj, region_id) 
-            local selectable_name = (region_name == '' and region_idx+1) or region_name
+            local selectable_name = (region_name == '' and region_markrgnindexnumber) or region_name
             reaper.ImGui_SetNextItemWidth(ctx, 150)
             local retval, p_selected = reaper.ImGui_Selectable(ctx, selectable_name..'##'..region_idx, region_idx == playlist.current, reaper.ImGui_SelectableFlags_AllowItemOverlap() )
             ToolTip(UserConfigs.tooltips,'This is a region/marker at the playlist. Right Click for more options. Drag to change the order. Double click to trigger a GOTO to that position, hold alt and double click to execute the goto immediately.')        

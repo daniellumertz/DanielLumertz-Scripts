@@ -77,6 +77,7 @@ end
 ---@param proj project reaper project 
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
+    if not reaper.ValidatePtr(proj,'ReaProject*') then return false end
     local table_copy = TableDeepCopy(config_table)
     -- current playlist to 0 (Should I turn it on?)
     --[[ for playlist_key, playlist in ipairs(table_copy.playlists) do 

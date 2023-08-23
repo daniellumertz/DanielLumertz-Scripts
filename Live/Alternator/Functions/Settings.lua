@@ -73,6 +73,7 @@ end
 ---@param proj project reaper project 
 ---@param config_table table ProjConfig[proj]
 function SaveProjectSettings(proj, config_table)
+    if not reaper.ValidatePtr(proj,'ReaProject*') then return false end
     -- Prepare the save table.
     local table_copy = TableDeepCopy(config_table)
     -- remove positions

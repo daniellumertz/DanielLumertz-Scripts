@@ -1,10 +1,10 @@
 --@noindex
---version: 0.7
--- Add Slide
+--version: 0.10
+-- add fileprint 
+-- add gettime
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
-
 function print(...) 
     local t = {}
     for i, v in ipairs( { ... } ) do
@@ -13,6 +13,35 @@ function print(...)
     reaper.ShowConsoleMsg( table.concat( t, " " ) .. "\n" )
 end
 
+---Create a txt file, or append in already created, some information 
+---@param path string path with a file name as : "C:\\Users\\DSL\\Downloads\\test files\\hello.txt"
+---@param ... any something to print, it will be converted using tostring, pass as much arguments as needs, they will be concatenated with ' '
+function filePrint(path,...)
+    local t = {}
+    for i, v in ipairs( { ... } ) do
+        t[i] = tostring( v )
+    end
+    local txt =  table.concat( t, " " )
+
+    -- Specify the file path and name
+    local file_path = path
+
+    -- Open the file for writing
+    local file = io.open(file_path, "a")
+
+    if file then
+        -- Append at the file
+        file:write('\n'..txt)
+        
+        -- Close the file
+        file:close()
+        --print("File created and data written successfully.")
+        return true
+    else
+        --print("Error opening the file for writing.")
+        return false
+    end
+end
 
 
 function tprint (tbl, indent)
@@ -42,8 +71,13 @@ end
 function CalcTime(start)
     print(reaper.time_precise() - start)
 end
-  
 
+---Return time as a string in hour:min:sec
+function getTime()
+    local time = os.date("*t")
+    local hour = ("%02d:%02d:%02d"):format(time.hour, time.min, time.sec)
+    return hour
+end
 
 ---------------------
 ----------------- Strings 
@@ -54,23 +88,22 @@ function table.subs(tbl, val) -- Insert something at the end of the table and re
 end
 
 
+
 function SubString(big_string,sub) -- Iterator function that return matches of sub in big_string. More less like gmatch but allow soberpossed macheses like in "ababc" trying to get "ab." will retunr "aba","abc"
     local start_char = 1
     return function ()
         while true do
             local s, e =string.find(big_string,sub,start_char) -- Check if there is a match after start_char
             if s then
-                start_char = start_char + s
+                start_char = s + 1
                 return string.sub(big_string, s, e)
             else -- No more matches
                 break
             end
         end
-        start_char = 1
         return nil -- break for loop        
     end
 end
-
 ---------------------
 ----------------- Tables
 ---------------------
@@ -112,12 +145,14 @@ function TableValuesCompareCount(table1,table2) --Count values that are equal in
     return cnt
 end
 
----It uses ipairs if want to use in a table with strings as keys change to pairs
+---It uses ipairs if want to use in a table with strings as keys change to pairs with is_pairs(false by default)
 ---@param tab table table iterate to check values
 ---@param val any value to be checked
+---@param is_pairs boolean if true will use pairs. else will use ipairs
 ---@return boolean, any
-function TableHaveValue(tab, val) -- Check if table have val in the values. (Uses) 
-    for index, value in ipairs(tab) do
+function TableHaveValue(tab, val, is_pairs) -- Check if table have val in the values. (Uses) 
+    local func = is_pairs and pairs or ipairs
+    for index, value in func(tab) do
         if value == val then
             return true, index
         end
@@ -378,6 +413,33 @@ function ipairs_reverse(t)
         return nil
     end
 end
+
+---Return a key from a table randomly, if the value of a key is a table with a .weight key inside it then it will use that weight. ex: {{weight = 2, etc...},{weight = 2.7,etc...},'hello'}. This uses ipairs so the table values must have number indexes.
+---@param t table
+---
+function TableRandomWithWeight(t)
+    local function get_weight(v)
+        if type(v) == 'table' then
+            return v.weight or 1
+        else 
+            return 1
+        end
+    end
+
+    local sum = 0
+    for k,v in ipairs(t) do
+        sum = sum + get_weight(v)
+    end
+    local random_number = RandomNumberFloat(0,sum,false)
+    local sum_weights = 0
+    for k, v in ipairs(t) do
+        local w = get_weight(v)
+        sum_weights = sum_weights + w
+        if sum_weights > random_number then
+            return k, v
+        end
+    end   
+end
 ---------------------
 ----------------- MISC
 ---------------------
@@ -417,6 +479,7 @@ end
 ---@param num number number to be quantized
 ---@param quantize number quantize value
 function QuantizeNumber(num,quantize_value)
+    if quantize_value == 0 then return num end
     local up_value = (num + (quantize_value/2))
     local low_quantize = ((up_value / quantize_value)//1)*quantize_value
     return low_quantize
@@ -486,12 +549,22 @@ end
 ---@param is_include_max boolean if true it can result on the max value
 ---@return number
 function RandomNumberFloat(min,max,is_include_max)
-    local sub = (is_include_max and 0) or -1 --  -1 because it cant never be the max value. Lets say we want to choose random between a and b a have 2/3 chance and b 1/3. If the random value is from 0 - 2(not includded) it is a, if the value is from 2 - 3(not includded) it is b. 
+    local sub = (is_include_max and 0) or 1 --  -1 because it cant never be the max value. Lets say we want to choose random between a and b a have 2/3 chance and b 1/3. If the random value is from 0 - 2(not includded) it is a, if the value is from 2 - 3(not includded) it is b. 
     local big_val = 1000000 -- the bigger the number the bigger the resolution. Using 1M right now
     local random = math.random(0,big_val-sub) -- Generating a very big value to be Scaled to the sum of the chances, for enabling floats.
     random = MapRange(random,0,big_val,min,max) -- Scale the random value to the sum of the chances
 
     return random
+end
+
+---Generate a random number between min and max, quantize it.
+---@param min number minimum value
+---@param max number maximum value
+---@param is_include_max boolean if true it can result on the max value
+---@return number
+function RandomNumberFloatQuantized(min,max,is_include_max,quantize)
+    local num = RandomNumberFloat(min,max,is_include_max)
+    return QuantizeNumber(num, quantize)    
 end
 
 function RemoveDecimals(num,decimal_places)
@@ -557,5 +630,65 @@ function CompareVersion(check_version, min_version, max_version, separator)
     return true, nil
 end
 
+---Returns if range 1 is in the range 2
+---@param range1_start any
+---@param range1_end any
+---@param range2_start any
+---@param range2_end any
+---@param only_start_in_range boolean only if tange 1 start inside range 2 (includding the start point)
+---@param only_end_in_range boolean only if tange 1 end inside range 2 (includding the end point)
+---@return boolean bol checks if is in range using only_start and only_end arguments
+---@return boolean is_before all range1 happens before range2 (includding if range1 end point == range2 start point)
+---@return boolean is_after all range1 happens after range2 (includding if range1 start point == range2 end point)
+function IsRangeInRange(range1_start,range1_end,range2_start,range2_end,only_start_in_range,only_end_in_range)
+    local bol = false
+
+    if range1_start >= range2_end then -- start after range (after this only items that start before range2 end point )
+        return false, false, true
+    end 
+    
+    if only_start_in_range and range1_start < range2_start then -- filter if only_start_in_range 
+        local is_before = range1_end <= range2_start
+        return false, is_before, false
+    end    
+    
+    if only_end_in_range and range1_end > range2_end then -- filter if only_end_in_range
+        local is_after = range1_start >= range2_end
+        return false, false, is_after
+    end 
+    
+    local is_in_range = range1_end > range2_start 
+    return is_in_range, not is_in_range, false
+end
+
+---------------------
+----------------- Numbers Bit operations
+---------------------
+
+---Get if the n bit(from right to left) of a number is 1. n is 0 based.
+---@param number number
+---@param n number bit from right to left, 0 based.
+---@return boolean
+function GetNbit(number,n)
+    return ((number & (2^n)) >> (n)) == 1
+end
+
+---Change a bit value from a number.
+---@param num number
+---@param n number bit number, from right to left, 0 based 
+---@param new_val number 0 or 1
+---@return number new value
+function ChangeBit(num, n, new_val)
+    if type(new_val) == "boolean" then
+        new_val = (new_val and 1) or 0
+    end
+    local mask = 1 << n
+    if new_val == 0 then
+        num = num & ~mask -- and operation with the opposite of the mask. (if an bite was 1 it will still be 1 unless its where the mask have an 0)
+    else
+        num = num | mask
+    end
+    return num
+end
 
 
