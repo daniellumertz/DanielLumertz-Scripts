@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="061c105464035db5c032e3eca1b033b084c2591e">
+<index version="1" name="Daniel Lumertz Scripts" commit="82052b0221c7c16730efea886a32c92840af8370">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -43,6 +43,21 @@
       <version name="1.1" author="Daniel Lumertz" time="2023-08-02T16:33:34Z">
         <changelog><![CDATA[+ Fix for macos]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/061c105464035db5c032e3eca1b033b084c2591e/Envelopes/Misc/daniellumertz_Delete%20Automation%20Items%20Preserving%20Points%20At%20Time%20Selection%20For%20Selected%20Tracks.lua</source>
+      </version>
+      <version name="1.2" author="Daniel Lumertz" time="2023-08-02T16:50:55Z">
+        <changelog><![CDATA[+ Include functions fix]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/daniellumertz_Delete%20Automation%20Items%20Preserving%20Points%20At%20Time%20Selection%20For%20Selected%20Tracks.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/FX Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/FX%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/Imgui Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/Imgui%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/Imgui%20General%20Functions.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/MIDI Input Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/MIDI%20Input%20Functions.lua</source>
+        <source file="Functions/OSC.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/OSC.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/82052b0221c7c16730efea886a32c92840af8370/Envelopes/Misc/Functions/REAPER%20Functions.lua</source>
       </version>
     </reapack>
     <reapack name="Toggle Show Only Select Envelope and Show All Envelopes.lua" type="script">
