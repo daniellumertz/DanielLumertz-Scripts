@@ -1,4 +1,4 @@
--- @version 1.37.3
+-- @version 1.38
 -- @author Daniel Lumertz
 -- @provides
 --    [main] Clear MIDI Transfer Settings at Current Project.lua
@@ -13,10 +13,10 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + bug fix add midi_lua to the reapack
+--    + bug fix require of midi_lua for unix OS
 
 
-script_version = "1.37.3"
+script_version = "1.38"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
@@ -43,7 +43,7 @@ dofile(script_path .. 'Core.lua') --Lokasenna GUI s2
 dofile(script_path .. 'GUI.lua') -- The GUI it self =x
 
 
-package.path = package.path .. ";" .. script_path ..'\\?.lua'    -- Add current folder for getting modules
+package.path = package.path .. ";" .. script_path ..'/?.lua'    -- Add current folder for getting modules
 midi = require "midi_lua"
 
 
