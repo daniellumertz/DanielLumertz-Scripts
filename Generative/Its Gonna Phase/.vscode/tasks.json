@@ -1,0 +1,29 @@
+{   
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Reaper Script",
+            "type": "shell",
+            "command": "C:/Program Files/REAPER (x64)/reaper.exe",
+            "args": [
+                "-nonewinst",
+                "C:\\Users\\DSL\\AppData\\Roaming\\REAPER\\Scripts\\Meus\\DanielLumertz-Scripts\\Generative\\Its Gonna Phase\\daniellumertz_Its Gonna Phase.lua" //${file}
+                //"${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug Script",
+            "command": "${command:workbench.action.debug.start}"
+        },
+        {
+            "label": "Debug and Run",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "Debug Script",
+                "Run Reaper Script"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

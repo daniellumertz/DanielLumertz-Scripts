@@ -168,21 +168,55 @@ function LoopItemGUI()
     if change then
         ApplyLoopOptions()
     end
-
+    ----------------------------------------------------- PlayRate
     reaper.ImGui_Separator(ctx) ------------------------
-    change, LoopOption.PlayRateRandomMin = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Min', LoopOption.PlayRateRandomMin, 0, 0, "%.3f")
+    change, LoopOption.PlayRateRandomMin = reaper.ImGui_InputDouble(ctx, 'Playrate Random Min', LoopOption.PlayRateRandomMin, 0, 0, "%.3f")
     if change then
         LoopOption.PlayRateRandomMin = (LoopOption.PlayRateRandomMin <= 0 and 0.001) or LoopOption.PlayRateRandomMin -- cant have a play rate of 0 
         if LoopOption.PlayRateRandomMin > LoopOption.PlayRateRandomMax then LoopOption.PlayRateRandomMax = LoopOption.PlayRateRandomMin end
         ApplyLoopOptions()
     end
-    change, LoopOption.PlayRateRandomMax = reaper.ImGui_InputDouble(ctx, 'Play Rate Random Max', LoopOption.PlayRateRandomMax, 0, 0, "%.3f")
+    change, LoopOption.PlayRateRandomMax = reaper.ImGui_InputDouble(ctx, 'Playrate Random Max', LoopOption.PlayRateRandomMax, 0, 0, "%.3f")
     if change then
         LoopOption.PlayRateRandomMax = (LoopOption.PlayRateRandomMax <= 0 and 0.001) or LoopOption.PlayRateRandomMax-- cant have a play rate of 0 
         if LoopOption.PlayRateRandomMin > LoopOption.PlayRateRandomMax then LoopOption.PlayRateRandomMin = LoopOption.PlayRateRandomMax end
         ApplyLoopOptions()
     end
-    change, LoopOption.PlayRateQuantize = reaper.ImGui_InputDouble(ctx, 'Play Rate Quantize', LoopOption.PlayRateQuantize, 0, 0, "%.3f")
+    change, LoopOption.PlayRateQuantize = reaper.ImGui_InputDouble(ctx, 'Playrate Quantize', LoopOption.PlayRateQuantize, 0, 0, "%.3f")
+    if change then
+        ApplyLoopOptions()
+    end
+    ----------------------------------------------------- Pitch
+    reaper.ImGui_Separator(ctx) ------------------------
+    change, LoopOption.PitchRandomMin = reaper.ImGui_InputDouble(ctx, 'Pitch Random Min', LoopOption.PitchRandomMin, 0, 0, "%.3f")
+    if change then
+        if LoopOption.PitchRandomMin > LoopOption.PitchRandomMax then LoopOption.PitchRandomMax = LoopOption.PitchRandomMin end
+        ApplyLoopOptions()
+    end
+    change, LoopOption.PitchRandomMax = reaper.ImGui_InputDouble(ctx, 'Pitch Random Max', LoopOption.PitchRandomMax, 0, 0, "%.3f")
+    if change then
+        if LoopOption.PitchRandomMin > LoopOption.PitchRandomMax then LoopOption.PitchRandomMin = LoopOption.PitchRandomMax end
+        ApplyLoopOptions()
+    end
+    change, LoopOption.PitchQuantize = reaper.ImGui_InputDouble(ctx, 'Pitch Quantize', LoopOption.PitchQuantize, 0, 0, "%.3f")
+    if change then
+        ApplyLoopOptions()
+    end
+    ----------------------------------------------------- Length
+    reaper.ImGui_Separator(ctx) ------------------------
+    change, LoopOption.LengthRandomMin = reaper.ImGui_InputDouble(ctx, 'Length Random Min', LoopOption.LengthRandomMin, 0, 0, "%.3f")
+    if change then
+        LoopOption.LengthRandomMin = (LoopOption.LengthRandomMin <= 0 and 0.001) or LoopOption.LengthRandomMin -- cant have a length of 0 
+        if LoopOption.LengthRandomMin > LoopOption.LengthRandomMax then LoopOption.LengthRandomMax = LoopOption.LengthRandomMin end
+        ApplyLoopOptions()
+    end
+    change, LoopOption.LengthRandomMax = reaper.ImGui_InputDouble(ctx, 'Length Random Max', LoopOption.LengthRandomMax, 0, 0, "%.3f")
+    if change then
+        LoopOption.LengthRandomMax = (LoopOption.LengthRandomMax <= 0 and 0.001) or LoopOption.LengthRandomMax-- cant have a length of 0 
+        if LoopOption.LengthRandomMin > LoopOption.LengthRandomMax then LoopOption.LengthRandomMin = LoopOption.LengthRandomMax end
+        ApplyLoopOptions()
+    end
+    change, LoopOption.LengthQuantize = reaper.ImGui_InputDouble(ctx, 'Length Quantize', LoopOption.LengthQuantize, 0, 0, "%.3f")
     if change then
         ApplyLoopOptions()
     end
@@ -201,36 +235,7 @@ function LoopItemGUI()
     OldTake = take    
 end
 
------ Loop Items
-function ApplyLoopOptions()
-    for selected_item in enumSelectedItems(proj) do
-        local take = reaper.GetActiveTake(selected_item)
-        SetItemExtState(selected_item, Ext_Name, Ext_Loop_RandomizeTake, tostring(LoopOption.RandomizeTakes))
-        SetTakeExtState(take, Ext_Name, Ext_Loop_TakeChance, tostring(LoopOption.TakeChance))
-        SetTakeExtState(take, Ext_Name, Ext_Loop_MinRate, tostring(LoopOption.PlayRateRandomMin)) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate, tostring(LoopOption.PlayRateRandomMax)) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeRate, tostring(LoopOption.PlayRateQuantize))
-    end    
-end
 
-
------ Items
-function ApplyOptions()
-    for selected_item in enumSelectedItems(proj) do
-        local take = reaper.GetActiveTake(selected_item)
-        SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(rnd_values.RandomizeTakes))
-        SetTakeExtState(take, Ext_Name, Ext_TakeChance, tostring(rnd_values.TakeChance))
-        SetItemExtState(selected_item, Ext_Name, Ext_MinTime, tostring(rnd_values.TimeRandomMin))
-        SetItemExtState(selected_item, Ext_Name, Ext_MaxTime, tostring(rnd_values.TimeRandomMax))
-        SetItemExtState(selected_item, Ext_Name, Ext_QuantizeTime, tostring(rnd_values.TimeQuantize))
-        SetTakeExtState(take, Ext_Name, Ext_MinPitch, tostring(rnd_values.PitchRandomMin))
-        SetTakeExtState(take, Ext_Name, Ext_MaxPitch, tostring(rnd_values.PitchRandomMax))
-        SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, tostring(rnd_values.PitchQuantize))
-        SetTakeExtState(take, Ext_Name, Ext_MinRate, tostring(rnd_values.PlayRateRandomMin)) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_MaxRate, tostring(rnd_values.PlayRateRandomMax)) -- cannot be 0!
-        SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, tostring(rnd_values.PlayRateQuantize))
-    end    
-end
 
 function ResetToDefault()
     rnd_values = SetDefaults()

@@ -63,7 +63,7 @@ function GetOptions(rnd_values, item, take)
     return rnd_values
 end
 
--- Alternative to GetOptions that just get from item and/or take to make it faster
+-- Alternative to GetOptions that just get from item and/or take to make it faster. I dont like this function try to remove
 function GetOptionsItemTake(rnd_values, item, take)
     if item then
         local retval, min_time = GetItemExtState(item, Ext_Name, Ext_MinTime) -- check with just one if present then get all
@@ -125,11 +125,27 @@ function GetLoopOptions(item,take) -- Return a table with the options {Randomize
             t.PlayRateRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MinRate)))
             t.PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate)))
             t.PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeRate)))
+
+            t.PitchRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MinPitch)))
+            t.PitchRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxPitch)))
+            t.PitchQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantiePitch)))
+
+            t.LengthRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MinLength)))
+            t.LengthRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxLength)))
+            t.LengthQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeLength)))
         else
             t.TakeChance = default.TakeChance
             t.PlayRateRandomMin = default.PlayRateRandomMin
             t.PlayRateRandomMax = default.PlayRateRandomMax
             t.PlayRateQuantize = default.PlayRateQuantize
+
+            t.PitchRandomMin = default.PitchRandomMin
+            t.PitchRandomMax = default.PitchRandomMax
+            t.PitchQuantize = default.PitchQuantize
+
+            t.LengthRandomMin = default.LengthRandomMin
+            t.LengthRandomMax = default.LengthRandomMax
+            t.LengthQuantize = default.LengthQuantize
         end
     end    
     return t    
@@ -157,14 +173,59 @@ function SetDefaultsLoopItem()
     t.PlayRateRandomMin = 1
     t.PlayRateRandomMax = 1
     t.PlayRateQuantize = 0
+    t.PitchRandomMin = 0
+    t.PitchRandomMax = 0
+    t.PitchQuantize = 0
+    t.LengthRandomMin = 1
+    t.LengthRandomMax = 1
+    t.LengthQuantize = 0
     t.TakeChance = 1
     t.RandomizeTakes = false
     return t    
 end
 
+----- Loop Items
+function ApplyLoopOptions()
+    for selected_item in enumSelectedItems(proj) do
+        local take = reaper.GetActiveTake(selected_item)
+        SetItemExtState(selected_item, Ext_Name, Ext_Loop_RandomizeTake, tostring(LoopOption.RandomizeTakes))
+        SetTakeExtState(take, Ext_Name, Ext_Loop_TakeChance, tostring(LoopOption.TakeChance))
+
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MinRate, tostring(LoopOption.PlayRateRandomMin)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate, tostring(LoopOption.PlayRateRandomMax)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeRate, tostring(LoopOption.PlayRateQuantize))
+
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MinPitch, tostring(LoopOption.PitchRandomMin)) 
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxPitch, tostring(LoopOption.PitchRandomMax)) 
+        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantiePitch, tostring(LoopOption.PitchQuantize))
+
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MinLength, tostring(LoopOption.LengthRandomMin)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxLength, tostring(LoopOption.LengthRandomMax)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeLength, tostring(LoopOption.LengthQuantize))
+    end    
+end
+
+
+----- Items
+function ApplyOptions()
+    for selected_item in enumSelectedItems(proj) do
+        local take = reaper.GetActiveTake(selected_item)
+        SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(rnd_values.RandomizeTakes))
+        SetTakeExtState(take, Ext_Name, Ext_TakeChance, tostring(rnd_values.TakeChance))
+        SetItemExtState(selected_item, Ext_Name, Ext_MinTime, tostring(rnd_values.TimeRandomMin))
+        SetItemExtState(selected_item, Ext_Name, Ext_MaxTime, tostring(rnd_values.TimeRandomMax))
+        SetItemExtState(selected_item, Ext_Name, Ext_QuantizeTime, tostring(rnd_values.TimeQuantize))
+        SetTakeExtState(take, Ext_Name, Ext_MinPitch, tostring(rnd_values.PitchRandomMin))
+        SetTakeExtState(take, Ext_Name, Ext_MaxPitch, tostring(rnd_values.PitchRandomMax))
+        SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, tostring(rnd_values.PitchQuantize))
+        SetTakeExtState(take, Ext_Name, Ext_MinRate, tostring(rnd_values.PlayRateRandomMin)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_MaxRate, tostring(rnd_values.PlayRateRandomMax)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, tostring(rnd_values.PlayRateQuantize))
+    end    
+end
 
 function ExtStatePatterns()
-    Ext_Name = 'Gen_Loops'
+    Ext_Name = 'daniellumertz_ItsGonnaPhase'
 
     Ext_RandomizeTake = 'RandTakes'    
     Ext_TakeChance = 'TakeChance'    
@@ -182,12 +243,18 @@ function ExtStatePatterns()
     Ext_Loop_TakeChance = 'LoopTakeChance'
     Ext_Loop_MinRate = 'LoopMinRate'
     Ext_Loop_MaxRate = 'LoopMaxRate'
-    Ext_Loop_QuantizeRate = 'LoopQuantizeRate' 
+    Ext_Loop_QuantizeRate = 'LoopQuantizeRate'
+    Ext_Loop_MinPitch = 'LoopMinPitch'
+    Ext_Loop_MaxPitch = 'LoopMaxPitch'
+    Ext_Loop_QuantiePitch = 'LoopQuantizePitch'
+    Ext_Loop_MinLength = 'LoopMinLength'
+    Ext_Loop_MaxLength = 'LoopMaxLength'
+    Ext_Loop_QuantizeLength = 'LoopQuantizeLength'
     --Loop items
     LoopItemSign = '##' -- Items must start with ## and be followed by the region name
     LoopItemSign_literalize = literalize(LoopItemSign)
     -- Item created by the script
-    LoopItemExt = 'GenItemLoop'
+    LoopItemExt = 'daniellumertz_PhaseItem'
 end
 
 --- Return true if at least one item take is an ## item
