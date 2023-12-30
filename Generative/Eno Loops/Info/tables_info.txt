@@ -1,0 +1,26 @@
+--@noindex
+
+At ItsGonnaPhase()
+loop_items_list:
+    item*:
+        len: n
+        pos: n
+        randomize: b
+        randomize_paste: b
+        fim: n
+        takes:
+            n:
+                take: take*
+                pitch: n
+                rate: n
+                chance: n
+                rate_min: n
+                rate_max: n
+                rate_q: n
+                pitch_min: n
+                pitch_max: n
+                pitch_q: n
+                region:
+                    region_start: n
+                    region_end: n
+                    region_id: n

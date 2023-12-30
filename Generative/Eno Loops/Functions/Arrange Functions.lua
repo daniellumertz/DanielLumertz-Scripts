@@ -1,7 +1,6 @@
 --@noindex
---version: 0.17
--- Get Track Idx
--- Copy Item to track 
+--version: 0.18
+-- Crop item
 
 
 ------- Iterate 
@@ -336,6 +335,34 @@ function CreateSelectedItemsTable(proj)
         t[#t+1] = item
     end
     return t
+end
+
+---Crop Item position keeping elements on the same place
+---@param item item
+---@param new_start_pos number optional new start position in seconds
+---@param new_end_pos number optional new end position in seconds
+---@param start number optional original start position in seconds, if not provided function will get it, provide if you already have and save resources 
+---@param length number optional original length position in seconds, if not provided function will get it, provide if you already have and save resources 
+function CropItem(item, new_start_pos, new_end_pos, start, length)
+    start = start or reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+    length = length or reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+    local fim = start + length
+    if new_end_pos then
+        local dif = fim - new_end_pos
+        reaper.SetMediaItemLength( item, length - dif, false )
+        length = length - dif
+    end
+    if new_start_pos then
+        local dif = new_start_pos - start
+        reaper.SetMediaItemPosition(item, new_start_pos, false)
+        reaper.SetMediaItemLength( item, length - dif, false )
+
+        for take in enumTakes(item) do
+            local offset = reaper.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS')            
+            local rate = reaper.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE')            
+            reaper.SetMediaItemTakeInfo_Value( take, 'D_STARTOFFS' , offset + (dif*rate) )
+        end
+    end    
 end
 
 ---Return a list with all items in a project
@@ -775,22 +802,30 @@ function DeleteAutomationItemsInRange(proj,start_range,fim_range,only_start_in_r
     end        
 end
 
-function TrimAutomationItem(env,ai_id,start,fim)
-    local pos = reaper.GetSetAutomationItemInfo(env, ai_id, 'D_POSITION', 0, false)
-    local len = reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', 0, false)
-    if fim and (pos + len) > fim then
-        local dif = (pos + len) - fim 
-        len = len - dif -- Update len value that might be used at the trim start
-        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', len, true)
+---Crop Automation Item position keeping elements on the same place
+---@param item item
+---@param new_start_pos number optional new start position in seconds
+---@param new_end_pos number optional new end position in seconds
+---@param start number optional original start position in seconds, if not provided function will get it, provide if you already have and save resources 
+---@param length number optional original length position in seconds, if not provided function will get it, provide if you already have and save resources 
+function CropAutomationItem(env, ai_id, new_start_pos, new_end_pos, start, length)
+    start = start or reaper.GetSetAutomationItemInfo(env, ai_id, 'D_POSITION', 0, false)
+    length = length or reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', 0, false)
+    local fim = start + length
+    if new_end_pos then
+        local dif = fim - new_end_pos
+        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', length - dif, true)
+        length = length - dif
     end
-    if start and pos < start then
+    if new_start_pos then
+        local dif = new_start_pos - start
         local off_set = reaper.GetSetAutomationItemInfo(env, ai_id, 'D_STARTOFFS', 0, false) 
-        local playrate = reaper.GetSetAutomationItemInfo(env, ai_id, 'D_PLAYRATE', 0, false) 
-        local dif = start - pos
-        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_POSITION', start, true) 
+        local playrate = reaper.GetSetAutomationItemInfo(env, ai_id, 'D_PLAYRATE', 0, false)
+
+        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_POSITION', new_start_pos, true)
         reaper.GetSetAutomationItemInfo(env, ai_id, 'D_STARTOFFS', (dif*playrate)+off_set, true)
-        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', len-dif, true)
-    end
+        reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', length-dif, true)
+    end    
 end
 
 ---Copy information values between ai from origem to destino, all info are strings in table string 
