@@ -2,7 +2,7 @@
 function GuiInit(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
-    Gui_W,Gui_H= 250,412
+    Gui_W,Gui_H= 250,435
     FLT_MIN, FLT_MAX = reaper.ImGui_NumericLimits_Float()
     
     --- Text Font
@@ -20,7 +20,7 @@ function main_loop()
     end
 
     --- Window management
-    local window_flags = reaper.ImGui_WindowFlags_NoResize()  --reaper.ImGui_WindowFlags_MenuBar() -- | reaper.ImGui_WindowFlags_NoResize() | 
+    local window_flags = reaper.ImGui_WindowFlags_NoResize() | reaper.ImGui_WindowFlags_MenuBar()  --reaper.ImGui_WindowFlags_MenuBar() -- | reaper.ImGui_WindowFlags_NoResize() | 
     if Pin then 
         window_flags = window_flags | reaper.ImGui_WindowFlags_TopMost()
     end 
@@ -31,6 +31,8 @@ function main_loop()
 
     local _ --  values I will throw away
     if visible then
+        -- Menu Bar
+        MenuBar()
         --- GUI MAIN: 
         if reaper.CountSelectedMediaItems(proj) ~= 0 then
             local bol = IsLoopItemSelected()
@@ -44,8 +46,9 @@ function main_loop()
         end
         reaper.ImGui_Separator(ctx)
         if reaper.ImGui_Button(ctx, 'Apply Generative Loops', -FLT_MIN) then
-            local command = reaper.NamedCommandLookup('_RSd814491aaee8f3200e2fce379d5b51faa9e07a02')
-            reaper.Main_OnCommand(command, 0)
+            ItsGonnaPhase(0)
+            --local command = reaper.NamedCommandLookup('_RSd814491aaee8f3200e2fce379d5b51faa9e07a02')
+            --reaper.Main_OnCommand(command, 0)
         end
         ------------
         reaper.ImGui_End(ctx)
@@ -168,6 +171,13 @@ function LoopItemGUI()
     if change then
         ApplyLoopOptions()
     end
+
+    if LoopOption.RandomizeTakes then
+        change, LoopOption.RandomizeEachPaste = reaper.ImGui_Checkbox(ctx, 'Randomize Takes Each Paste', LoopOption.RandomizeEachPaste)
+        if change then
+            ApplyLoopOptions()
+        end
+    end
     ----------------------------------------------------- PlayRate
     reaper.ImGui_Separator(ctx) ------------------------
     change, LoopOption.PlayRateRandomMin = reaper.ImGui_InputDouble(ctx, 'Playrate Random Min', LoopOption.PlayRateRandomMin, 0, 0, "%.3f")
@@ -199,24 +209,6 @@ function LoopItemGUI()
         ApplyLoopOptions()
     end
     change, LoopOption.PitchQuantize = reaper.ImGui_InputDouble(ctx, 'Pitch Quantize', LoopOption.PitchQuantize, 0, 0, "%.3f")
-    if change then
-        ApplyLoopOptions()
-    end
-    ----------------------------------------------------- Length
-    reaper.ImGui_Separator(ctx) ------------------------
-    change, LoopOption.LengthRandomMin = reaper.ImGui_InputDouble(ctx, 'Length Random Min', LoopOption.LengthRandomMin, 0, 0, "%.3f")
-    if change then
-        LoopOption.LengthRandomMin = (LoopOption.LengthRandomMin <= 0 and 0.001) or LoopOption.LengthRandomMin -- cant have a length of 0 
-        if LoopOption.LengthRandomMin > LoopOption.LengthRandomMax then LoopOption.LengthRandomMax = LoopOption.LengthRandomMin end
-        ApplyLoopOptions()
-    end
-    change, LoopOption.LengthRandomMax = reaper.ImGui_InputDouble(ctx, 'Length Random Max', LoopOption.LengthRandomMax, 0, 0, "%.3f")
-    if change then
-        LoopOption.LengthRandomMax = (LoopOption.LengthRandomMax <= 0 and 0.001) or LoopOption.LengthRandomMax-- cant have a length of 0 
-        if LoopOption.LengthRandomMin > LoopOption.LengthRandomMax then LoopOption.LengthRandomMin = LoopOption.LengthRandomMax end
-        ApplyLoopOptions()
-    end
-    change, LoopOption.LengthQuantize = reaper.ImGui_InputDouble(ctx, 'Length Quantize', LoopOption.LengthQuantize, 0, 0, "%.3f")
     if change then
         ApplyLoopOptions()
     end
@@ -271,4 +263,17 @@ end
 function ResetToLoopDefault()
     LoopOption = SetDefaultsLoopItem()
     ApplyLoopOptions()
+end
+
+function MenuBar()
+    if reaper.ImGui_BeginMenuBar(ctx) then
+        if reaper.ImGui_BeginMenu(ctx, 'Settings') then
+            local _
+            _, Settings.PasteItems = reaper.ImGui_MenuItem(ctx, 'Paste Items', nil, Settings.PasteItems)
+            _, Settings.PasteAutomation = reaper.ImGui_MenuItem(ctx, 'Paste Automation Items', nil, Settings.PasteAutomation)
+            _, Settings.ClearArea = reaper.ImGui_MenuItem(ctx, 'Clear Area Before Pasting', nil, Settings.ClearArea)
+            reaper.ImGui_EndMenu(ctx)
+        end
+        reaper.ImGui_EndMenuBar(ctx)
+    end
 end

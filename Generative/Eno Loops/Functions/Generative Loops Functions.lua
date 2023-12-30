@@ -113,8 +113,10 @@ function GetLoopOptions(item,take) -- Return a table with the options {Randomize
         local retval, randomize_takes = GetItemExtState(item, Ext_Name, Ext_Loop_RandomizeTake) -- check with just one if present then get all
         if randomize_takes ~= '' then
             t.RandomizeTakes = randomize_takes == 'true'
+            t.RandomizeEachPaste = select(2,GetItemExtState(item, Ext_Name, Ext_Loop_RandomizeEachPaste)) == 'true' -- check with just one if present then get all
         else
             t.RandomizeTakes = default.RandomizeTakes
+            t.RandomizeEachPaste = default.RandomizeEachPaste
         end
     end
 
@@ -130,9 +132,6 @@ function GetLoopOptions(item,take) -- Return a table with the options {Randomize
             t.PitchRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxPitch)))
             t.PitchQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantiePitch)))
 
-            t.LengthRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MinLength)))
-            t.LengthRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_MaxLength)))
-            t.LengthQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeLength)))
         else
             t.TakeChance = default.TakeChance
             t.PlayRateRandomMin = default.PlayRateRandomMin
@@ -142,10 +141,6 @@ function GetLoopOptions(item,take) -- Return a table with the options {Randomize
             t.PitchRandomMin = default.PitchRandomMin
             t.PitchRandomMax = default.PitchRandomMax
             t.PitchQuantize = default.PitchQuantize
-
-            t.LengthRandomMin = default.LengthRandomMin
-            t.LengthRandomMax = default.LengthRandomMax
-            t.LengthQuantize = default.LengthQuantize
         end
     end    
     return t    
@@ -176,20 +171,29 @@ function SetDefaultsLoopItem()
     t.PitchRandomMin = 0
     t.PitchRandomMax = 0
     t.PitchQuantize = 0
-    t.LengthRandomMin = 1
-    t.LengthRandomMax = 1
-    t.LengthQuantize = 0
     t.TakeChance = 1
     t.RandomizeTakes = false
+    t.RandomizeEachPaste = true
     return t    
 end
 
+function SetDefaultSettings()
+    local t = {}
+    t.PasteItems = true -- Paste Items
+    t.PasteAutomation = true -- Paste AI
+    t.ClearArea = true -- Clear Previousm made items before pasting new ones
+    return t
+end
+
 ----- Loop Items
+
+-- Apply to all selected items and takes (for UI)
 function ApplyLoopOptions()
     for selected_item in enumSelectedItems(proj) do
         local take = reaper.GetActiveTake(selected_item)
         SetItemExtState(selected_item, Ext_Name, Ext_Loop_RandomizeTake, tostring(LoopOption.RandomizeTakes))
         SetTakeExtState(take, Ext_Name, Ext_Loop_TakeChance, tostring(LoopOption.TakeChance))
+        SetItemExtState(selected_item, Ext_Name, Ext_Loop_RandomizeEachPaste, tostring(LoopOption.RandomizeEachPaste))
 
         SetTakeExtState(take, Ext_Name, Ext_Loop_MinRate, tostring(LoopOption.PlayRateRandomMin)) -- cannot be <=0!
         SetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate, tostring(LoopOption.PlayRateRandomMax)) -- cannot be <=0!
@@ -199,10 +203,27 @@ function ApplyLoopOptions()
         SetTakeExtState(take, Ext_Name, Ext_Loop_MaxPitch, tostring(LoopOption.PitchRandomMax)) 
         SetTakeExtState(take, Ext_Name, Ext_Loop_QuantiePitch, tostring(LoopOption.PitchQuantize))
 
-        SetTakeExtState(take, Ext_Name, Ext_Loop_MinLength, tostring(LoopOption.LengthRandomMin)) -- cannot be <=0!
-        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxLength, tostring(LoopOption.LengthRandomMax)) -- cannot be <=0!
-        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeLength, tostring(LoopOption.LengthQuantize))
     end    
+end
+
+-- Apply to specific items and takes (for setting defaults)
+function ApplyLoopOptionsForTakeItem(take, item, table_settings)
+    if item then
+        SetItemExtState(item, Ext_Name, Ext_Loop_RandomizeTake, tostring(table_settings.RandomizeTakes))
+        SetItemExtState(item, Ext_Name, Ext_Loop_RandomizeEachPaste, tostring(table_settings.RandomizeEachPaste))
+    end
+    
+    if take then
+        SetTakeExtState(take, Ext_Name, Ext_Loop_TakeChance, tostring(table_settings.TakeChance))
+
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MinRate, tostring(table_settings.PlayRateRandomMin)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxRate, tostring(table_settings.PlayRateRandomMax)) -- cannot be <=0!
+        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantizeRate, tostring(table_settings.PlayRateQuantize))
+
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MinPitch, tostring(table_settings.PitchRandomMin)) 
+        SetTakeExtState(take, Ext_Name, Ext_Loop_MaxPitch, tostring(table_settings.PitchRandomMax)) 
+        SetTakeExtState(take, Ext_Name, Ext_Loop_QuantiePitch, tostring(table_settings.PitchQuantize))
+    end
 end
 
 
@@ -241,15 +262,13 @@ function ExtStatePatterns()
     --for ## items
     Ext_Loop_RandomizeTake = 'LoopRandTakes'
     Ext_Loop_TakeChance = 'LoopTakeChance'
+    Ext_Loop_RandomizeEachPaste = 'LoopRandomizeEachPaste'
     Ext_Loop_MinRate = 'LoopMinRate'
     Ext_Loop_MaxRate = 'LoopMaxRate'
     Ext_Loop_QuantizeRate = 'LoopQuantizeRate'
     Ext_Loop_MinPitch = 'LoopMinPitch'
     Ext_Loop_MaxPitch = 'LoopMaxPitch'
     Ext_Loop_QuantiePitch = 'LoopQuantizePitch'
-    Ext_Loop_MinLength = 'LoopMinLength'
-    Ext_Loop_MaxLength = 'LoopMaxLength'
-    Ext_Loop_QuantizeLength = 'LoopQuantizeLength'
     --Loop items
     LoopItemSign = '##' -- Items must start with ## and be followed by the region name
     LoopItemSign_literalize = literalize(LoopItemSign)

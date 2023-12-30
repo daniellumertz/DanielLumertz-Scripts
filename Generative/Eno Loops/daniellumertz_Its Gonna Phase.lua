@@ -24,8 +24,11 @@ local proj = 0
 ScriptName = 'Generative Loops Item Options'
 Version = '0.0.1'
 
-ExtStatePatterns() 
-rnd_values = SetDefaults()
-LoopOption = SetDefaultsLoopItem()
+ExtStatePatterns() -- Ext state keys saved in the items
+rnd_values = SetDefaults() -- Item Random settings showed at the GUI 
+LoopOption = SetDefaultsLoopItem() -- ##Item Random settings showed at the GUI 
+Settings = SetDefaultSettings() -- TODO save this in a json
+
+
 GuiInit(ScriptName)
 main_loop()
