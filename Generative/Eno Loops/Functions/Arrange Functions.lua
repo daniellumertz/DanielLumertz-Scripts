@@ -1,6 +1,7 @@
 --@noindex
---version: 0.16
---  organize get in range automation items
+--version: 0.17
+-- Get Track Idx
+-- Copy Item to track 
 
 
 ------- Iterate 
@@ -253,7 +254,7 @@ function SelectTrackList(tracklist, unselect, proj)
     end
 end
 
----Create a table with the selected items
+---Create a table with the selected Tracks
 ---comment
 ---@param proj proj proj or nil(sane as 0)
 ---@param wantmaster boolean want master track?
@@ -315,6 +316,16 @@ function SelectItemList(itemlist, unselect, proj)
             reaper.SetMediaItemSelected(item, true)
         end
     end
+end
+
+-- Copy an item to a track and position
+function CopyMediaItemToTrack( item, track, position ) -- Thanks Amagalma s2
+    local _, chunk = reaper.GetItemStateChunk( item, "", false )
+    chunk = chunk:gsub("{.-}", "") -- Reaper auto-generates all GUIDs
+    local new_item = reaper.AddMediaItemToTrack( track )
+    reaper.SetItemStateChunk( new_item, chunk, false )
+    reaper.SetMediaItemInfo_Value( new_item, "D_POSITION" , position )
+    return new_item
 end
 
 ---Create a table with the selected items
@@ -433,6 +444,16 @@ function GetTakeExtState(item, extname, key)
     return retval, extstate
 end
 
+---Return the index of a take in a item. 0 based
+function GetTakeIndex(item, take)
+    local idx = 0
+    for loop_take in enumTakes(item) do
+        if take == loop_take then
+            return idx
+        end
+        idx = idx + 1
+    end
+end
 
 -----------
 --------- Time / QN

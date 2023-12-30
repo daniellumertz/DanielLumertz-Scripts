@@ -1,28 +1,33 @@
 function ItsGonnaPhase(proj)
     -- Functions
+    
+    --- Get an hash item and its table return the active take OR a random take. Take and take index
+    ---@param item any
+    ---@param item_table any
+    ---@return take, number
     local function RandomizeTake(item, item_table)
         if item_table.randomize then
             -- select one of the takes 
             local sum_chance = 0
-            for take, take_table in ipairs(item_table.takes) do
+            for take_idx, take_table in ipairs(item_table.takes) do
                 if type(take_table) == 'table' then
                     sum_chance = sum_chance + take_table.chance
                 end
             end
             local random_number = RandomNumberFloat(0,sum_chance,false)
             local addiction_weights = 0
-            for take, take_table in ipairs(item_table.takes) do
+            for take_idx, take_table in ipairs(item_table.takes) do
                 addiction_weights = addiction_weights + take_table.chance
                 if addiction_weights > random_number then
-                    return take
+                    return take_table.take, take_idx
                 end
             end
         else
-            return reaper.GetActiveTake(item)
+            local take = reaper.GetActiveTake(item)
+            local take_idx = GetTakeIndex(item, take)
+            return take, take_idx
         end
     end
-    ------ USER SETTINGS
-    local clean_before_apply = true -- clean all items previously created and then paste new ones
 
     -- Get all ## Items non muted, and their configs
     local loop_items_list = {}
@@ -95,7 +100,7 @@ function ItsGonnaPhase(proj)
     end
 
     -- Cleaning old items
-    if clean_before_apply then 
+    if Settings.ClearArea then 
         --CleanAllItemsLoop(proj, Ext_Name, LoopItemExt)
         for item, item_table in pairs(loop_items_list) do
             -- AI
@@ -112,9 +117,16 @@ function ItsGonnaPhase(proj)
     end
 
     -- Paste:
-    for item, item_table in pairs(loop_items_list) do
-        local take = RandomizeTake(item, item_table)
+    if Settings.PasteAutomation or Settings.PasteItems then
+        for hash_item, hash_item_table in pairs(loop_items_list) do
+            local take = RandomizeTake(hash_item, hash_item_table) -- Get a random take if hash_item_table.randomize or get active take
+            
+
+            
+        end
     end
+
+
 
     -- For every non muted ## item
         -- Clean area

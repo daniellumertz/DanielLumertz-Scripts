@@ -274,6 +274,14 @@ function MenuBar()
             _, Settings.ClearArea = reaper.ImGui_MenuItem(ctx, 'Clear Area Before Pasting', nil, Settings.ClearArea)
             reaper.ImGui_EndMenu(ctx)
         end
+
+        if reaper.ImGui_BeginMenu(ctx, 'About') then
+            local _
+            _, Settings.PasteItems = reaper.ImGui_MenuItem(ctx, 'Paste Items', nil, Settings.PasteItems)
+            _, Settings.PasteAutomation = reaper.ImGui_MenuItem(ctx, 'Paste Automation Items', nil, Settings.PasteAutomation)
+            _, Settings.ClearArea = reaper.ImGui_MenuItem(ctx, 'Clear Area Before Pasting', nil, Settings.ClearArea)
+            reaper.ImGui_EndMenu(ctx)
+        end
         reaper.ImGui_EndMenuBar(ctx)
     end
 end
