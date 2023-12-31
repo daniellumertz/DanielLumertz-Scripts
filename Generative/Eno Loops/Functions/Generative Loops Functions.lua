@@ -105,6 +105,63 @@ function GetOptionsItemTake(rnd_values, item, take)
     end
 end
 
+--Yet another alternative that return a table with all values structure is
+--t:
+--  TimeRandomMin: n
+--  RandomizeTakes: B
+--  TimeRandomMax: n
+--  TimeQuantize: n
+--  takes:
+--      take*:
+--          TakeChance: B
+--          PitchRandomMin: n
+--          PitchRandomMax: n
+--          PitchQuantize: n
+--          PlayRateRandomMin: n
+--          PlayRateRandomMax: n
+--          PlayRateQuantize: n
+function GetOptionsItemInATable(item)
+    local t = {}
+    local defaults = SetDefaults()
+    local retval, min_time = GetItemExtState(item, Ext_Name, Ext_MinTime) -- check with just one if present then get all
+    if min_time ~= '' then
+        t.TimeRandomMin = tonumber(min_time)
+        t.RandomizeTakes = (select(2, GetItemExtState(item, Ext_Name, Ext_RandomizeTake))) == 'true'
+        t.TimeRandomMax = tonumber(select(2, GetItemExtState(item, Ext_Name, Ext_MaxTime)))    
+        t.TimeQuantize = tonumber(select(2, GetItemExtState(item, Ext_Name, Ext_QuantizeTime)))
+    else
+        t.TimeRandomMin = defaults.TimeRandomMin
+        t.RandomizeTakes = defaults.RandomizeTakes
+        t.TimeRandomMax = defaults.TimeRandomMax
+        t.TimeQuantize = defaults.TimeQuantize
+    end
+
+    t.takes = {}
+    for take in enumTakes(item) do
+        t.takes[take] = {}
+        local tk_t = t.takes[take]
+        local retval, chance = GetTakeExtState(take, Ext_Name, Ext_TakeChance)
+        if chance ~= '' then
+            tk_t.TakeChance = tonumber(chance)
+            tk_t.PitchRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinPitch)))
+            tk_t.PitchRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxPitch)))
+            tk_t.PitchQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizePitch)))
+            tk_t.PlayRateRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinRate)))-- cannot be 0!
+            tk_t.PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxRate))) -- cannot be 0!
+            tk_t.PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizeRate)))
+        else -- current take dont have ext states values load default
+            tk_t.TakeChance = defaults.TakeChance
+            tk_t.PitchRandomMin = defaults.PitchRandomMin
+            tk_t.PitchRandomMax = defaults.PitchRandomMax
+            tk_t.PitchQuantize = defaults.PitchQuantize
+            tk_t.PlayRateRandomMin = defaults.PlayRateRandomMin -- cannot be 0!
+            tk_t.PlayRateRandomMax = defaults.PlayRateRandomMax-- cannot be 0!
+            tk_t.PlayRateQuantize = defaults.PlayRateQuantize
+        end
+    end
+
+    return t   
+end
 
 function GetLoopOptions(item,take) -- Return a table with the options {RandomizeTakes = bol, TakeChance = 1, PlayRateRandomMin = 1, PlayRateRandomMax = 1, PlayRateQuantize = 0}}
     local t = {}

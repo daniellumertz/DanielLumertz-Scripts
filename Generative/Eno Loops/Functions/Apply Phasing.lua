@@ -123,6 +123,8 @@ function ItsGonnaPhase(proj)
         end
     end
 
+    -- Create table to store information about items being pasted (save resources)
+    local oi_settings = {} -- table containing all settings from original items that were cought in a region in a pasting. Structure defined at GetOptionsItemInATable 
     -- Paste:
     local safe_paste_maxvalue = 10000 -- Set a celling of how many pastes to avoid complete freeze
     if Settings.PasteAutomation or Settings.PasteItems then
@@ -131,10 +133,11 @@ function ItsGonnaPhase(proj)
             local take, take_idx
             local pasting_pos = hash_item_table.pos
             local pasting_idx = 0 -- count how many paste it had done
-            while pasting_pos <= hash_item_table.fim do
+            while pasting_pos < hash_item_table.fim do
                 -- Get take
                 if pasting_idx == 0 or (hash_item_table.randomizepaste and hash_item_table.randomize) then -- Change take value for first paste or every paste
                     take, take_idx = RandomizeTake(hash_item, hash_item_table)
+                    take_idx = take_idx + 1
                 end
                 local take_table = hash_item_table.takes[take_idx]
                 local region_table = take_table.region
@@ -149,16 +152,33 @@ function ItsGonnaPhase(proj)
                 if Settings.PasteItems then
                     local paste_items = GetItemsInRange(proj,region_table.region_start,region_table.region_end,false,false) -- This is getting items that start and end off the range! So remember to crop them each paste! 
                     for k, item in ipairs(paste_items) do
+                        -- get information about the item
+                        if not oi_settings[item] then 
+                            oi_settings[item] = GetOptionsItemInATable(item)
+                        end
                         -- Paste Item
                         local track = reaper.GetMediaItemTrack(item)
                         local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
                         local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
                         local item_end = (item_pos + item_len)
                         local dif = item_pos - region_table.region_start  -- Difference between region start and original item position
-                        CopyMediaItemToTrack(item, track, pasting_pos + dif)
+                        local new_item = CopyMediaItemToTrack(item, track, pasting_pos + dif)
                         -- Crop to pasting start and pasting start + region length (don't consider the rate now, in order to crop properlly)
-                        
-                        -- Apply randomizations
+                        if item_pos < region_table.region_start then -- If original item started before the region
+                            CropItem(new_item, pasting_pos, nil)
+                        end 
+                        if item_end > region_table.region_end then -- If original item passed the region end 
+                            CropItem(new_item, nil, pasting_pos + region_table.region_end - region_table.region_start) -- Crop using the length of the region
+                        end 
+                        -- Get information about the new item
+                        local new_item_pos = reaper.GetMediaItemInfo_Value(new_item, 'D_POSITION')
+                        local new_item_len = reaper.GetMediaItemInfo_Value(new_item, 'D_LENGTH')
+                        local new_item_end = new_item_pos + new_item_len
+                        -- Apply randomizations and hash pitch + hash rate
+                        --Position
+                        local rnd_time = RandomNumberFloatQuantized(oi_settings[item].TimeRandomMin,oi_settings[item].TimeRandomMax, true, oi_settings[item].TimeQuantize)
+                        print(rnd_time)
+                        reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_item_pos + rnd_time)
                     end 
                 end
 

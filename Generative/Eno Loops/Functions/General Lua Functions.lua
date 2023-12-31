@@ -1,10 +1,9 @@
 --@noindex
---version: 0.9
--- Add IsRangeInRange
+--version: 0.11
+-- get files names
 ---------------------
 ----------------- Debug/Prints 
 ---------------------
-
 function print(...) 
     local t = {}
     for i, v in ipairs( { ... } ) do
@@ -13,6 +12,35 @@ function print(...)
     reaper.ShowConsoleMsg( table.concat( t, " " ) .. "\n" )
 end
 
+---Create/append a file with some string 
+---@param path string path with a file name as : "C:\\Users\\DSL\\Downloads\\test files\\hello.txt"
+---@param ... any something to print, it will be converted using tostring, pass as much arguments as needs, they will be concatenated with ' '
+function filePrint(path,...)
+    local t = {}
+    for i, v in ipairs( { ... } ) do
+        t[i] = tostring( v )
+    end
+    local txt =  table.concat( t, " " )
+
+    -- Specify the file path and name
+    local file_path = path
+
+    -- Open the file for writing
+    local file = io.open(file_path, "a")
+
+    if file then
+        -- Append at the file
+        file:write('\n'..txt)
+        
+        -- Close the file
+        file:close()
+        --print("File created and data written successfully.")
+        return true
+    else
+        --print("Error opening the file for writing.")
+        return false
+    end
+end
 
 
 function tprint (tbl, indent)
@@ -42,8 +70,13 @@ end
 function CalcTime(start)
     print(reaper.time_precise() - start)
 end
-  
 
+---Return time as a string in hour:min:sec
+function getTime()
+    local time = os.date("*t")
+    local hour = ("%02d:%02d:%02d"):format(time.hour, time.min, time.sec)
+    return hour
+end
 
 ---------------------
 ----------------- Strings 
@@ -527,6 +560,7 @@ end
 ---@param min number minimum value
 ---@param max number maximum value
 ---@param is_include_max boolean if true it can result on the max value
+---@param quantize number quantize value
 ---@return number
 function RandomNumberFloatQuantized(min,max,is_include_max,quantize)
     local num = RandomNumberFloat(min,max,is_include_max)
@@ -657,4 +691,28 @@ function ChangeBit(num, n, new_val)
     return num
 end
 
+---------------------
+----------------- Files
+---------------------
 
+
+---Returns file path, without file name
+---@param file_path string
+---@return string
+function GetFilePath(file_path)
+    return file_path:match('(.+)[\\?/?]')
+end
+
+---Return File name without extension
+---@param file_path string
+---@return string
+function GetFileName(file_path)
+    return file_path:match('.*[\\?/?](.+)%..+$')    
+end
+
+---Gets File path and return the extension, like "wav" or "avi". Without the dot!
+---@param file_path string
+---@return string
+function GetFileExtension(file_path)
+    return file_path:match('%.(.+)$')
+end
