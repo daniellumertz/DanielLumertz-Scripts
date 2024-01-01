@@ -1,4 +1,6 @@
 function ItsGonnaPhase(proj)
+
+
     -- Functions
     
     --- Get an hash item and its table return the active take OR a random take. Take and take index
@@ -175,6 +177,16 @@ function ItsGonnaPhase(proj)
                         local new_item_len = reaper.GetMediaItemInfo_Value(new_item, 'D_LENGTH')
                         local new_item_end = new_item_pos + new_item_len
                         -- Apply randomizations
+                        -- Position
+                        local rnd_time = RandomNumberFloatQuantized(oi_settings[item].TimeRandomMin,oi_settings[item].TimeRandomMax, true, oi_settings[item].TimeQuantize)
+                        local new_pos = new_item_pos + rnd_time
+                        -- Delete Items placed after the end of a hash item. 
+                        if new_pos >= hash_item_table.fim then
+                            reaper.DeleteTrackMediaItem( oi_settings[item].track, new_item)
+                            goto continue
+                        end
+                        reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_pos)
+
                         local new_length
                         if #oi_settings[item].takes > 0 then  -- Only items with takes (not notes items)
                             -- Take
@@ -204,18 +216,25 @@ function ItsGonnaPhase(proj)
                             new_length = oi_settings[item].item_len / hash_rate
                             reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_length)
                         end
-                        -- Position
-                        local rnd_time = RandomNumberFloatQuantized(oi_settings[item].TimeRandomMin,oi_settings[item].TimeRandomMax, true, oi_settings[item].TimeQuantize)
-                        local new_pos = new_item_pos + rnd_time
-                        reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_pos)
+                        -- Delete Item that end before the start the hash item
+                        if new_pos + new_length <= hash_item_table.pos then
+                            reaper.DeleteTrackMediaItem( oi_settings[item].track, new_item)
+                            goto continue
+                        end
+                        -- Selected 
+                        if oi_settings[item].selected == 1 then
+                            reaper.SetMediaItemInfo_Value(new_item, 'B_UISEL', 0)
+                        end
                         -- Apply ExtState
                         SetItemExtState(new_item,Ext_Name,LoopItemExt,'true')
-                        -- Delete Items placed after the end of a hash item. Crop item to the end of the hash item
-                        if new_pos >= hash_item_table.fim then
-                            reaper.DeleteTrackMediaItem( oi_settings[item].track, new_item)
-                        elseif (new_pos + new_length) > hash_item_table.fim then
-                            CropItem(new_item, nil, hash_item_table.fim, new_pos, new_length)
+                        -- Crop item to the end of the hash item
+                        if (new_pos + new_length) > hash_item_table.fim then
+                            CropItem(new_item, nil, hash_item_table.fim)
                         end
+                        if new_pos < hash_item_table.pos then
+                            CropItem(new_item, hash_item_table.pos , nil)
+                        end
+                        ::continue::
                     end 
                 end
 

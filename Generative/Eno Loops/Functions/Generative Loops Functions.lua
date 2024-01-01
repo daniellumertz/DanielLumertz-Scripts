@@ -107,6 +107,7 @@ end
 
 --Yet another alternative that return a table with all values structure is
 --t:
+--  selected: b
 --  item_pos: n
 --  item_len: n
 --  item_end: n
@@ -148,7 +149,8 @@ function GetOptionsItemInATable(item)
     t.item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
     t.item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
     t.item_end = (t.item_pos + t.item_len)
-
+    t.selected = reaper.GetMediaItemInfo_Value(item, 'B_UISEL')
+    
     t.takes = {}
     for take in enumTakes(item) do
         t.takes[#t.takes+1] = {take = take}
@@ -304,17 +306,19 @@ end
 function ApplyOptions()
     for selected_item in enumSelectedItems(proj) do
         local take = reaper.GetActiveTake(selected_item)
-        SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(rnd_values.RandomizeTakes))
-        SetTakeExtState(take, Ext_Name, Ext_TakeChance, tostring(rnd_values.TakeChance))
-        SetItemExtState(selected_item, Ext_Name, Ext_MinTime, tostring(rnd_values.TimeRandomMin))
-        SetItemExtState(selected_item, Ext_Name, Ext_MaxTime, tostring(rnd_values.TimeRandomMax))
-        SetItemExtState(selected_item, Ext_Name, Ext_QuantizeTime, tostring(rnd_values.TimeQuantize))
-        SetTakeExtState(take, Ext_Name, Ext_MinPitch, tostring(rnd_values.PitchRandomMin))
-        SetTakeExtState(take, Ext_Name, Ext_MaxPitch, tostring(rnd_values.PitchRandomMax))
-        SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, tostring(rnd_values.PitchQuantize))
-        SetTakeExtState(take, Ext_Name, Ext_MinRate, tostring(rnd_values.PlayRateRandomMin)) -- cannot be <=0!
-        SetTakeExtState(take, Ext_Name, Ext_MaxRate, tostring(rnd_values.PlayRateRandomMax)) -- cannot be <=0!
-        SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, tostring(rnd_values.PlayRateQuantize))
+        if take then
+            SetItemExtState(selected_item, Ext_Name, Ext_RandomizeTake, tostring(rnd_values.RandomizeTakes))
+            SetTakeExtState(take, Ext_Name, Ext_TakeChance, tostring(rnd_values.TakeChance))
+            SetItemExtState(selected_item, Ext_Name, Ext_MinTime, tostring(rnd_values.TimeRandomMin))
+            SetItemExtState(selected_item, Ext_Name, Ext_MaxTime, tostring(rnd_values.TimeRandomMax))
+            SetItemExtState(selected_item, Ext_Name, Ext_QuantizeTime, tostring(rnd_values.TimeQuantize))
+            SetTakeExtState(take, Ext_Name, Ext_MinPitch, tostring(rnd_values.PitchRandomMin))
+            SetTakeExtState(take, Ext_Name, Ext_MaxPitch, tostring(rnd_values.PitchRandomMax))
+            SetTakeExtState(take, Ext_Name, Ext_QuantizePitch, tostring(rnd_values.PitchQuantize))
+            SetTakeExtState(take, Ext_Name, Ext_MinRate, tostring(rnd_values.PlayRateRandomMin)) -- cannot be <=0!
+            SetTakeExtState(take, Ext_Name, Ext_MaxRate, tostring(rnd_values.PlayRateRandomMax)) -- cannot be <=0!
+            SetTakeExtState(take, Ext_Name, Ext_QuantizeRate, tostring(rnd_values.PlayRateQuantize))
+        end
     end    
 end
 
@@ -349,18 +353,34 @@ function ExtStatePatterns()
     LoopItemExt = 'daniellumertz_PhaseItem'
 end
 
---- Return true if at least one item take is an ## item
+-- remove the Generated item ext state for all selected items
+function RemoveGenExtState()
+    for item in enumItems(proj) do
+        SetItemExtState(item, Ext_Name, LoopItemExt, '' )
+    end
+end
+
+--- Return true if at least one item take is an ## item, also return if an item generated with this script is selected
 function IsLoopItemSelected()
+    local is_loop_item, is_gen_item
     for item in enumSelectedItems(proj) do
         for take in enumTakes(item) do
             for retval, tm_name, color in enumTakeMarkers(take) do -- tm = take marker 
                 if tm_name:match('^%s-'..LoopItemSign_literalize) then 
                     local user_region_id = tonumber(tm_name:match('^%s-'..LoopItemSign_literalize..'%s-(%d+)')) -- to check if the id is right and not misspelled
                     if user_region_id then --  ## MARKER! found in a take
-                        return user_region_id
+                        is_loop_item = true
                     end
                 end
             end
         end
+
+        is_gen_item = is_gen_item or GetItemExtState(item,Ext_Name,LoopItemExt)
+
+        if is_loop_item == true and is_gen_item == true then -- Dont need to check for more if both are true
+            break
+        end
     end
+    return is_loop_item, is_gen_item
 end
+

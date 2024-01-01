@@ -35,8 +35,10 @@ function main_loop()
         MenuBar()
         --- GUI MAIN: 
         if reaper.CountSelectedMediaItems(proj) ~= 0 then
-            local bol = IsLoopItemSelected()
-            if not bol then
+            local is_loop_item, is_gen_item = IsLoopItemSelected()
+            if is_gen_item then
+                GeneratedItemsGUI()
+            elseif not is_loop_item then
                 SelectedItemsGUI()
             else
                 LoopItemGUI()
@@ -227,7 +229,11 @@ function LoopItemGUI()
     OldTake = take    
 end
 
-
+function GeneratedItemsGUI()
+    if reaper.ImGui_Button(ctx, 'Remove Link', -FLT_MIN) then
+        RemoveGenExtState()
+    end
+end
 
 function ResetToDefault()
     rnd_values = SetDefaults()

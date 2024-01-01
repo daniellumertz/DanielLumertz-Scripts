@@ -348,9 +348,9 @@ function CropItem(item, new_start_pos, new_end_pos, start, length)
     length = length or reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
     local fim = start + length
     if new_end_pos then
-        local dif = fim - new_end_pos
-        reaper.SetMediaItemLength( item, length - dif, false )
-        length = length - dif
+        local dif = new_end_pos - start
+        reaper.SetMediaItemLength( item, dif, false )
+        length = dif
     end
     if new_start_pos then
         local dif = new_start_pos - start
