@@ -107,42 +107,56 @@ end
 
 --Yet another alternative that return a table with all values structure is
 --t:
+--  item_pos: n
+--  item_len: n
+--  item_end: n
+--  track: track*
+--  --ext states
 --  TimeRandomMin: n
---  RandomizeTakes: B
+--  randomize: B
 --  TimeRandomMax: n
 --  TimeQuantize: n
 --  takes:
---      take*:
---          TakeChance: B
+--      n:
+--          take = take
+--          chance: n
 --          PitchRandomMin: n
 --          PitchRandomMax: n
 --          PitchQuantize: n
 --          PlayRateRandomMin: n
 --          PlayRateRandomMax: n
 --          PlayRateQuantize: n
+--          pitch: n
+--          rate: n
+--          offset: n
 function GetOptionsItemInATable(item)
     local t = {}
     local defaults = SetDefaults()
     local retval, min_time = GetItemExtState(item, Ext_Name, Ext_MinTime) -- check with just one if present then get all
     if min_time ~= '' then
         t.TimeRandomMin = tonumber(min_time)
-        t.RandomizeTakes = (select(2, GetItemExtState(item, Ext_Name, Ext_RandomizeTake))) == 'true'
+        t.randomize = (select(2, GetItemExtState(item, Ext_Name, Ext_RandomizeTake))) == 'true'
         t.TimeRandomMax = tonumber(select(2, GetItemExtState(item, Ext_Name, Ext_MaxTime)))    
         t.TimeQuantize = tonumber(select(2, GetItemExtState(item, Ext_Name, Ext_QuantizeTime)))
     else
         t.TimeRandomMin = defaults.TimeRandomMin
-        t.RandomizeTakes = defaults.RandomizeTakes
+        t.randomize = defaults.RandomizeTakes
         t.TimeRandomMax = defaults.TimeRandomMax
         t.TimeQuantize = defaults.TimeQuantize
     end
+    -- normal info
+    t.track = reaper.GetMediaItemTrack(item)
+    t.item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+    t.item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+    t.item_end = (t.item_pos + t.item_len)
 
     t.takes = {}
     for take in enumTakes(item) do
-        t.takes[take] = {}
-        local tk_t = t.takes[take]
+        t.takes[#t.takes+1] = {take = take}
+        local tk_t = t.takes[#t.takes] -- shortchut name
         local retval, chance = GetTakeExtState(take, Ext_Name, Ext_TakeChance)
         if chance ~= '' then
-            tk_t.TakeChance = tonumber(chance)
+            tk_t.chance = tonumber(chance)
             tk_t.PitchRandomMin = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MinPitch)))
             tk_t.PitchRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxPitch)))
             tk_t.PitchQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizePitch)))
@@ -150,7 +164,7 @@ function GetOptionsItemInATable(item)
             tk_t.PlayRateRandomMax = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_MaxRate))) -- cannot be 0!
             tk_t.PlayRateQuantize = tonumber(select(2, GetTakeExtState(take, Ext_Name, Ext_QuantizeRate)))
         else -- current take dont have ext states values load default
-            tk_t.TakeChance = defaults.TakeChance
+            tk_t.chance = defaults.TakeChance
             tk_t.PitchRandomMin = defaults.PitchRandomMin
             tk_t.PitchRandomMax = defaults.PitchRandomMax
             tk_t.PitchQuantize = defaults.PitchQuantize
@@ -158,7 +172,10 @@ function GetOptionsItemInATable(item)
             tk_t.PlayRateRandomMax = defaults.PlayRateRandomMax-- cannot be 0!
             tk_t.PlayRateQuantize = defaults.PlayRateQuantize
         end
-    end
+        tk_t.pitch = reaper.GetMediaItemTakeInfo_Value(take, 'D_PITCH')
+        tk_t.offset =  reaper.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS')
+        tk_t.rate = reaper.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE')
+    end    
 
     return t   
 end

@@ -18,6 +18,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 
 local proj = 0
+local reaper = reaper
 
 ScriptName = 'Its Gonna Phase'
 Version = '0.0.1'

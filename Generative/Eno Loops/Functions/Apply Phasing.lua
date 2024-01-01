@@ -141,7 +141,7 @@ function ItsGonnaPhase(proj)
                 end
                 local take_table = hash_item_table.takes[take_idx]
                 local region_table = take_table.region
-                -- Get hash Radomize values
+                -- Get hash Radomize values per paste
                 local hash_random_rate = RandomNumberFloatQuantized(take_table.rate_min, take_table.rate_max, true, take_table.rate_q)
                 local hash_rate = take_table.rate * hash_random_rate
                 local hash_random_pitch = RandomNumberFloatQuantized(take_table.pitch_min, take_table.pitch_max, true, take_table.pitch_q)
@@ -156,18 +156,14 @@ function ItsGonnaPhase(proj)
                         if not oi_settings[item] then 
                             oi_settings[item] = GetOptionsItemInATable(item)
                         end
-                        -- Paste Item
-                        local track = reaper.GetMediaItemTrack(item)
-                        local item_pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
-                        local item_len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
-                        local item_end = (item_pos + item_len)
-                        local dif = item_pos - region_table.region_start  -- Difference between region start and original item position
-                        local new_item = CopyMediaItemToTrack(item, track, pasting_pos + dif)
+                        -- Paste Items
+                        local dif = oi_settings[item].item_pos - region_table.region_start  -- Difference between region start and original item position
+                        local new_item = CopyMediaItemToTrack(item, oi_settings[item].track, pasting_pos + dif)
                         -- Crop to pasting start and pasting start + region length (don't consider the rate now, in order to crop properlly)
-                        if item_pos < region_table.region_start then -- If original item started before the region
+                        if oi_settings[item].item_pos < region_table.region_start then -- If original item started before the region
                             CropItem(new_item, pasting_pos, nil)
                         end 
-                        if item_end > region_table.region_end then -- If original item passed the region end 
+                        if oi_settings[item].item_end > region_table.region_end then -- If original item passed the region end 
                             CropItem(new_item, nil, pasting_pos + region_table.region_end - region_table.region_start) -- Crop using the length of the region
                         end 
                         -- Get information about the new item
@@ -175,9 +171,29 @@ function ItsGonnaPhase(proj)
                         local new_item_len = reaper.GetMediaItemInfo_Value(new_item, 'D_LENGTH')
                         local new_item_end = new_item_pos + new_item_len
                         -- Apply randomizations and hash pitch + hash rate
-                        --Position
+                        -- Take
+                        local new_take, new_take_idx, _
+                        if oi_settings[item].randomize then
+                            _, new_take_idx = RandomizeTake(item, oi_settings[item])
+                            new_take_idx = new_take_idx - 1 
+                            new_take = reaper.GetTake(new_item, new_take_idx)
+                            reaper.SetActiveTake(new_take)
+                        end
+                        new_take = new_take or reaper.GetActiveTake(new_item)
+                        new_take_idx = new_take_idx or GetTakeIndex(new_item,new_take)
+                        local oi_take_table = oi_settings[item].takes[new_take_idx+1]
+                        -- Pitch
+                        local rnd_pitch = RandomNumberFloatQuantized(oi_take_table.PitchRandomMin,oi_take_table.PitchRandomMax, true, oi_take_table.PitchQuantize)
+                        local new_pitch = hash_pitch + rnd_pitch + oi_take_table.pitch -- (hash_item pitch + random hash_item_pitch) + random pitch + original pitch 
+                        reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PITCH', new_pitch)
+                        -- Rate
+                        local rnd_rate = RandomNumberFloatQuantized(oi_take_table.PlayRateRandomMin,oi_take_table.PlayRateRandomMax, true, oi_take_table.PlayRateQuantize)
+                        local new_rate = hash_rate * rnd_rate * oi_take_table.rate -- (hash_item rate * random hash_item_rate) * random pitch + original pitch 
+                        reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate)
+                        local new_length = oi_settings[item].item_len / (new_rate/oi_take_table.rate)
+                        reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_length)
+                        -- Position
                         local rnd_time = RandomNumberFloatQuantized(oi_settings[item].TimeRandomMin,oi_settings[item].TimeRandomMax, true, oi_settings[item].TimeQuantize)
-                        print(rnd_time)
                         reaper.SetMediaItemInfo_Value(new_item, 'D_POSITION', new_item_pos + rnd_time)
                     end 
                 end
