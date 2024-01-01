@@ -128,7 +128,6 @@ end
 --          PlayRateQuantize: n
 --          pitch: n
 --          rate: n
---          offset: n
 function GetOptionsItemInATable(item)
     local t = {}
     local defaults = SetDefaults()
@@ -173,7 +172,7 @@ function GetOptionsItemInATable(item)
             tk_t.PlayRateQuantize = defaults.PlayRateQuantize
         end
         tk_t.pitch = reaper.GetMediaItemTakeInfo_Value(take, 'D_PITCH')
-        tk_t.offset =  reaper.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS')
+        --tk_t.offset =  reaper.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS')
         tk_t.rate = reaper.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE')
     end    
 
