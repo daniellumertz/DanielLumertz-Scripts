@@ -802,6 +802,7 @@ function DeleteAutomationItemsInRange(proj,start_range,fim_range,only_start_in_r
     end        
 end
 
+
 ---Crop Automation Item position keeping elements on the same place
 ---@param item item
 ---@param new_start_pos number optional new start position in seconds
@@ -813,9 +814,9 @@ function CropAutomationItem(env, ai_id, new_start_pos, new_end_pos, start, lengt
     length = length or reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', 0, false)
     local fim = start + length
     if new_end_pos then
-        local dif = fim - new_end_pos
+        local dif = new_end_pos - start
         reaper.GetSetAutomationItemInfo(env, ai_id, 'D_LENGTH', length - dif, true)
-        length = length - dif
+        length = dif
     end
     if new_start_pos then
         local dif = new_start_pos - start

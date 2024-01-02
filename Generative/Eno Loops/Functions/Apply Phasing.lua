@@ -127,6 +127,7 @@ function ItsGonnaPhase(proj)
 
     -- Create table to store information about items being pasted (save resources)
     local oi_settings = {} -- table containing all settings from original items that were cought in a region in a pasting. Structure defined at GetOptionsItemInATable 
+    local oai_settings = {} -- table containing all settings from original automation items
     -- Paste:
     local safe_paste_maxvalue = 10000 -- Set a celling of how many pastes to avoid complete freeze
     if Settings.PasteAutomation or Settings.PasteItems then
@@ -239,7 +240,79 @@ function ItsGonnaPhase(proj)
                 end
 
                 if Settings.PasteAutomation then
-                    
+                    for track in enumTracks(proj) do
+                        for env in enumTrackEnvelopes(track) do
+                            local add_list = {} -- table with containing all information about the ai that needs to be added in the end
+                            --add_list:
+                                --i:
+                                    --o_idx: n --original idx
+                                    --pos:  n
+                                    --len:  n
+                                    --end:  n
+                                    --rate: n
+                                    --offset:n
+                                    --pool:n
+                                    --baseline:n
+                                    --loop:n
+                                    --amp:n
+                            local ai_list = GetAutomationItemsInRange(env, region_table.region_start,region_table.region_end,false,false) -- Need to crop to region
+                            for k, ai_idx in ipairs(ai_list) do
+                                -- Get information from source
+                                local source_info = GetOptionsAutomationItemInATable(env,ai_idx)
+                                source_info.pos = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_POSITION', 0, false)
+                                source_info.len = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_LENGTH', 0, false)
+                                source_info.fim = source_info.pos + source_info.len
+                                source_info.offset = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_STARTOFFS', 0, false)
+                                source_info.rate = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_PLAYRATE', 0, false)
+
+                                -- Define new values
+                                -- Position
+                                local dif = source_info.pos - region_table.region_start
+                                if dif < 0 then -- if item start before the region needs to crop (add offset reduce length) and set the dif to 0 and position to region_start
+                                    source_info.pos = region_table.region_start
+                                    source_info.offset = source_info.offset - dif
+                                    source_info.len = source_info.len + dif
+                                    dif = 0
+                                end
+                                dif = dif / hash_rate
+                                local new_pos = pasting_pos + dif 
+                                -- Length
+                                if source_info.len + source_info.pos > region_table.region_end then -- if item is over the region crop it (reduce length)
+                                    source_info.len = region_table.region_end - source_info.pos
+                                end
+                                local new_len = source_info.len
+                                -- Rate
+                                local new_rate = source_info.rate * hash_rate
+                                new_len = new_len / (new_rate/source_info.rate)
+                                -- Crop end
+                                if new_pos + new_len > hash_item_table.fim then
+                                    new_len = hash_item_table.fim - new_pos                           
+                                end
+
+                                add_list[k] = {
+                                    pool = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_POOL_ID', 0, false),
+                                    loop = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_LOOPSRC', 0, false),
+                                    amp = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_AMPLITUDE', 0, false),
+                                    baseline = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_BASELINE', 0, false),
+                                    pos = new_pos,
+                                    len = new_len,
+                                    rate = new_rate,
+                                    offset = source_info.offset
+                                }
+                            end
+
+                            for k, ai_info in ipairs(add_list) do -- needs two loops as this will change ai_idxes
+                                local idx = reaper.InsertAutomationItem(env, ai_info.pool, ai_info.pos, ai_info.len)
+                                reaper.GetSetAutomationItemInfo( env, idx, 'D_STARTOFFS', ai_info.offset, true )
+                                reaper.GetSetAutomationItemInfo( env, idx, 'D_PLAYRATE', ai_info.rate, true )
+                                                                
+                                
+                                reaper.GetSetAutomationItemInfo( env, idx, 'D_LOOPSRC', ai_info.loop, true )                               
+                                reaper.GetSetAutomationItemInfo( env, idx, 'D_AMPLITUDE', ai_info.amp, true )                               
+                                reaper.GetSetAutomationItemInfo( env, idx, 'D_BASELINE', ai_info.baseline, true )
+                            end
+                        end
+                    end
                 end
                 -- Update pasting_pos
                 pasting_pos = pasting_pos + paste_len
@@ -256,25 +329,24 @@ function ItsGonnaPhase(proj)
             end
         end 
     end
-
-
-
-    -- For every non muted ## item
-        -- Clean area
-        -- Get take, item  Options and region 
-            -- While paste start <= ## item end
-                -- Get Randomize Loop values 
-                    -- Pitch
-                    -- Rate
-                    -- Take / or active take if no randomization
-                -- Determinate pasting start and end
-                -- Using while loop current pasting position < length of current pasting:
-                    -- Copy non ## items in the region! If paste items
-                        -- apply randomizations 
-                    -- copy AI!  If Paste AI
-                        -- apply randomizations 
-        -- Restore saved settings 
 end
+
+-- Logic Scheme
+-- For every non muted ## item
+    -- Clean area
+    -- Get take, item  Options and region 
+        -- While paste start <= ## item end
+            -- Get Randomize Loop values 
+                -- Pitch
+                -- Rate
+                -- Take / or active take if no randomization
+            -- Determinate pasting start and end
+            -- Using while loop current pasting position < length of current pasting:
+                -- Copy non ## items in the region! If paste items
+                    -- apply randomizations 
+                -- copy AI!  If Paste AI
+                    -- apply randomizations 
+    -- Restore saved settings 
                     
 
 --[[

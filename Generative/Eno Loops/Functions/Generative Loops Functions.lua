@@ -181,6 +181,22 @@ function GetOptionsItemInATable(item)
     return t   
 end
 
+--t:
+    --pos:
+    --len:
+    --fim:
+    --rate:
+    --selected:
+function GetOptionsAutomationItemInATable(env,ai_idx)
+    local t = {}
+    t.pos = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_POSITION', 0, false)
+    t.len = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_LENGTH', 0, false)
+    t.fim = t.pos + t.len
+    t.selected = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_UISEL', 0, false)
+    t.rate = reaper.GetSetAutomationItemInfo(env, ai_idx, 'D_PLAYRATE', 0, false)
+    return t
+end
+
 function GetLoopOptions(item,take) -- Return a table with the options {RandomizeTakes = bol, TakeChance = 1, PlayRateRandomMin = 1, PlayRateRandomMax = 1, PlayRateQuantize = 0}}
     local t = {}
     local default = SetDefaultsLoopItem()
