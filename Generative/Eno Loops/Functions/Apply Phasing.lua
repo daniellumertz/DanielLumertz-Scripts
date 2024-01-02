@@ -127,7 +127,6 @@ function ItsGonnaPhase(proj)
 
     -- Create table to store information about items being pasted (save resources)
     local oi_settings = {} -- table containing all settings from original items that were cought in a region in a pasting. Structure defined at GetOptionsItemInATable 
-    local oai_settings = {} -- table containing all settings from original automation items
     -- Paste:
     local safe_paste_maxvalue = 10000 -- Set a celling of how many pastes to avoid complete freeze
     if Settings.PasteAutomation or Settings.PasteItems then
@@ -270,7 +269,7 @@ function ItsGonnaPhase(proj)
                                 local dif = source_info.pos - region_table.region_start
                                 if dif < 0 then -- if item start before the region needs to crop (add offset reduce length) and set the dif to 0 and position to region_start
                                     source_info.pos = region_table.region_start
-                                    source_info.offset = source_info.offset - dif
+                                    source_info.offset = source_info.offset - (dif*source_info.rate)
                                     source_info.len = source_info.len + dif
                                     dif = 0
                                 end
