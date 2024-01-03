@@ -119,6 +119,24 @@ function TableCheckValues(t, ...) -- Made by CF
     return t
 end
 
+---Insert a value in a table, can contain a inner table that didnt exist previouslly. like TableInsert(t, 1, 2, 3)
+---@param t any
+---@param ... any 
+function TableInsert(t, ...)
+    local n = select('#', ...)
+    for i = 1, n - 2 do
+        local k = select(i, ...)
+        local v = t[k]
+        if type(v) ~= 'table' then
+            assert(not v)
+            v = {}
+            t[k] = v
+        end
+        t = v
+    end
+    t[select(n - 1, ...)] = select(n, ...)
+end
+
 
 function TableValuesCompareAtLeastOne(table1,table2) -- At least one in common
     for key, item in pairs(table1) do
@@ -560,6 +578,7 @@ end
 ---@param min number minimum value
 ---@param max number maximum value
 ---@param is_include_max boolean if true it can result on the max value
+---@param quantize number quantize value
 ---@return number
 function RandomNumberFloatQuantized(min,max,is_include_max,quantize)
     local num = RandomNumberFloat(min,max,is_include_max)

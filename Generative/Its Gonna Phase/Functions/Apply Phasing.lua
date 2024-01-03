@@ -1,3 +1,4 @@
+--@noindex
 function ItsGonnaPhase(proj)
 
 

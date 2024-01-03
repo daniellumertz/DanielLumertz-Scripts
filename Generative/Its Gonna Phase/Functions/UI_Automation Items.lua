@@ -1,4 +1,4 @@
--- @noindex
+--@noindex
 function GuiInitAI(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
@@ -193,7 +193,7 @@ function apply_ai_gen()
                     reaper.GetSetAutomationItemInfo(env_destination, new_ai, 'D_PLAYRATE', new_rate, true)
                     local trim_end = math.min(paste_start + paste_len, fim) -- trim items that goes beyond paste
                     CopyAutomationItemsInfo_Value(env_source, env_destination, ai, new_ai, {'D_BASELINE', 'D_AMPLITUDE', 'D_LOOPSRC', 'D_STARTOFFS'})
-                    TrimAutomationItem(env_destination,new_ai,paste_start,trim_end) -- paste start, end loop
+                    CropAutomationItem(env_destination,new_ai,paste_start,trim_end) -- paste start, end loop
                     
                 end
                 paste_start = paste_start + paste_len
