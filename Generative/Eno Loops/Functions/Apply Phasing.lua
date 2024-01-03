@@ -108,6 +108,14 @@ function ItsGonnaPhase(proj)
         end
     end
 
+    if not TableHaveAnything(loop_items_list) then
+        return false
+    end
+
+    -- Start applying
+    reaper.PreventUIRefresh(1)
+    reaper.Undo_BeginBlock2(proj)
+
     -- Cleaning old items
     if Settings.ClearArea then 
         --CleanAllItemsLoop(proj, Ext_Name, LoopItemExt)
@@ -131,6 +139,7 @@ function ItsGonnaPhase(proj)
     local safe_paste_maxvalue = 10000 -- Set a celling of how many pastes to avoid complete freeze
     if Settings.PasteAutomation or Settings.PasteItems then
         for hash_item, hash_item_table in pairs(loop_items_list) do
+            if not reaper.ValidatePtr2(proj, hash_item, 'MediaItem*') then goto continue2 end -- In case the hash item were deleted in the cleaning old items area. (Can happen if user make a generated item an hash item)
             -- Paste Items and AI
             local take, take_idx
             local pasting_pos = hash_item_table.pos
@@ -152,7 +161,7 @@ function ItsGonnaPhase(proj)
                 local paste_len = (region_table.region_end - region_table.region_start) * (1/hash_rate)
                 ----------------------
                 if Settings.PasteItems then
-                    local paste_items = GetItemsInRange(proj,region_table.region_start,region_table.region_end,false,false) -- This is getting items that start and end off the range! So remember to crop them each paste! 
+                    local paste_items = GetNonHashItemsInRange(proj,region_table.region_start,region_table.region_end,false,false) -- This is getting items that start and end off the range! So remember to crop them each paste! 
                     for k, item in ipairs(paste_items) do
                         -- get information about the item
                         if not oi_settings[item] then 
@@ -209,11 +218,11 @@ function ItsGonnaPhase(proj)
                             local new_rate = hash_rate * rnd_rate * oi_take_table.rate -- (hash_item rate * random hash_item_rate) * random pitch + original pitch 
                             reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PLAYRATE', new_rate)
                             -- Length
-                            new_length = oi_settings[item].item_len / (new_rate/oi_take_table.rate)
+                            new_length = new_item_len / (new_rate/oi_take_table.rate)
                             reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_length)
                         else -- Note items
                             -- Length
-                            new_length = oi_settings[item].item_len / hash_rate
+                            new_length = new_item_len / hash_rate
                             reaper.SetMediaItemInfo_Value(new_item, 'D_LENGTH', new_length)
                         end
                         -- Delete Item that end before the start the hash item
@@ -235,7 +244,7 @@ function ItsGonnaPhase(proj)
                             CropItem(new_item, hash_item_table.pos , nil)
                         end
                         ::continue::
-                    end 
+                    end
                 end
 
                 if Settings.PasteAutomation then
@@ -317,7 +326,7 @@ function ItsGonnaPhase(proj)
                 pasting_pos = pasting_pos + paste_len
                 -- Secure While Loop Ceiling
                 pasting_idx = pasting_idx + 1
-                if pasting_idx >= safe_paste_maxvalue then -- TODO Test this
+                if pasting_idx >= safe_paste_maxvalue then 
                     local ret = reaper.ShowMessageBox('Its Gonna Phase have been pasting for quite some time, continue pasting?', 'Its Gonna Phase', 3)
                     if ret == 6 then -- YES
                         safe_paste_maxvalue = safe_paste_maxvalue * 2
@@ -326,8 +335,14 @@ function ItsGonnaPhase(proj)
                     end
                 end
             end
+            ::continue2:: 
         end 
     end
+    
+    reaper.UpdateArrange()
+    reaper.PreventUIRefresh(-1)
+    reaper.Undo_EndBlock2(proj, 'Apply Phasing', -1)
+    return true
 end
 
 -- Logic Scheme

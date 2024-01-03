@@ -1,4 +1,11 @@
 --@noindex
+-- TODO
+-- Check AI script
+-- Clean functions/scripts
+-- Rename folder
+-- Add this as the main script
+-- Setup for reapack
+
 -- Debugger
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 -- get script path\

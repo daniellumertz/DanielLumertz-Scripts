@@ -400,3 +400,40 @@ function IsLoopItemSelected()
     return is_loop_item, is_gen_item
 end
 
+
+---Return a list with all items in a time range, excluding hash items
+---@param proj project
+---@param start_range number beginning of the range (start point are includded in the range)
+---@param fim_range number end of the range (end points are not includded in the range)
+---@param only_start_in_range boolean only get items that start inside the range (if start at start_range it is includded)
+---@param only_end_in_range boolean only get items that end inside the range (if end at the fim_range it is includded)
+function GetNonHashItemsInRange(proj,start_range,fim_range,only_start_in_range,only_end_in_range)
+    local item_list = {}
+    for track in enumTracks(proj) do
+        for item in enumTrackItems(track) do 
+            for take in enumTakes(item) do -- Dont copy hash items!
+                for retval, tm_name, color in enumTakeMarkers(take) do -- tm = take marker 
+                    if tm_name:match('^%s-'..LoopItemSign_literalize) then 
+                        goto continue
+                    end
+                end
+            end
+
+            local pos = reaper.GetMediaItemInfo_Value( item, 'D_POSITION')
+
+            if only_start_in_range and pos < start_range then goto continue end -- filter if only_start_in_range 
+            if pos >= fim_range then break end -- start after range. break
+
+            local len = reaper.GetMediaItemInfo_Value( item, 'D_LENGTH')
+            local final_pos = len + pos
+            if only_end_in_range and final_pos > fim_range then goto continue end -- filter if only_end_in_range
+
+            if final_pos > start_range then
+                item_list[#item_list+1] = item
+            end
+
+            ::continue::
+        end
+    end
+    return item_list
+end
