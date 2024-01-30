@@ -14,7 +14,7 @@ assert(udp:setsockname("127.0.0.1",9004)) -- Set IP and PORT
 
 ---- Functions
 function print(val)
-    reaper.ShowConsoleMsg(tostring(val)..'\n')
+    reaper.ShowConsoleMsg('\n'..tostring(val))
 end
 
 local function Main()
@@ -26,7 +26,6 @@ local function Main()
   end
 
 	reaper.defer(Main)
-
 end
 
 

@@ -1,6 +1,10 @@
 -- @noindex
-function print(val)
-  reaper.ShowConsoleMsg(tostring(val)..'\n')
+function print(...) 
+  local t = {}
+  for i, v in ipairs( { ... } ) do
+      t[i] = tostring( v )
+  end
+  reaper.ShowConsoleMsg( table.concat( t, " " ) .. "\n" )
 end
 
 local info = debug.getinfo(1, 'S');
@@ -14,8 +18,7 @@ local socket = require('socket.core')
 require('osc')
 
 -- Defnining some cool messages to send via OSC 
-local msg1 = osc_encode('/oscillator/4/frequency', 'f', 4420.0)
-print('sending'..msg1)
+local msg1 = osc_encode('/oscillator/4/frequency', 'f', 44220.0)
 local msg2 = osc_encode('/foo', 'i', 1000, 'i', -1, 's', 'hello', 'f', 1.234, 'f', 5.678) -- Sending many Values types
 ---msg3 = nº selected items 
 local cnt = reaper.CountSelectedMediaItems(0)
