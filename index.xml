@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="6a60757aa783d2f93da9e3ca3148c3c4375de17b">
+<index version="1" name="Daniel Lumertz Scripts" commit="c21a9612d22bdb961de7c67187a72d0459176c25">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -1613,6 +1613,28 @@
         <source file="socket module/socket.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6a60757aa783d2f93da9e3ca3148c3c4375de17b/LUA%20Sockets/socket%20module/socket.lua</source>
         <source file="socket module/tp.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6a60757aa783d2f93da9e3ca3148c3c4375de17b/LUA%20Sockets/socket%20module/tp.lua</source>
         <source file="socket module/url.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6a60757aa783d2f93da9e3ca3148c3c4375de17b/LUA%20Sockets/socket%20module/url.lua</source>
+      </version>
+      <version name="2.2" author="Daniel Lumertz, Mavriq" time="2024-01-31T18:49:17Z">
+        <changelog><![CDATA[+ Update To REAPER V7]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/Lua%20Sockets%20Demo.lua</source>
+        <source main="main" file="Receive Sockets Demo.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/Receive%20Sockets%20Demo.lua</source>
+        <source main="main" file="Send Sockets Demo.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/Send%20Sockets%20Demo.lua</source>
+        <source main="main" file="Test with Luasocket functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/Test%20with%20Luasocket%20functions.lua</source>
+        <source file="socket module/socket/core.dll">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/socket/core.dll</source>
+        <source file="socket module/socket/core.so">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/socket/core.so</source>
+        <source file="socket module/socket/core.so.linux">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/socket/core.so.linux</source>
+        <source file="socket module/ftp.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/ftp.lua</source>
+        <source file="socket module/headers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/headers.lua</source>
+        <source file="socket module/http.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/http.lua</source>
+        <source file="socket module/ltn12.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/ltn12.lua</source>
+        <source file="socket module/mbox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/mbox.lua</source>
+        <source file="socket module/mime.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/mime.lua</source>
+        <source file="socket module/mobdebug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/mobdebug.lua</source>
+        <source file="socket module/osc.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/osc.lua</source>
+        <source file="socket module/smtp.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/smtp.lua</source>
+        <source file="socket module/socket.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/socket.lua</source>
+        <source file="socket module/tp.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/tp.lua</source>
+        <source file="socket module/url.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/c21a9612d22bdb961de7c67187a72d0459176c25/LUA%20Sockets/socket%20module/url.lua</source>
       </version>
     </reapack>
   </category>
