@@ -1,4 +1,4 @@
--- @version 2.2
+-- @version 2.3
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua
@@ -10,4 +10,5 @@
 --    [nomain] socket module/*.lua
 -- @changelog
 --    + Update To REAPER V7
+--    + Add mobdebug and dkjson lua files for debuggers 
 
