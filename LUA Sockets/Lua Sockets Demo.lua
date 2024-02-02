@@ -1,4 +1,4 @@
--- @version 2.3
+-- @version 2.3.1
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua

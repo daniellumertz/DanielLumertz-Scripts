@@ -1,3 +1,4 @@
+-- @noindex
 -- Module options:
 local always_use_lpeg = false
 local register_global_module_table = false
