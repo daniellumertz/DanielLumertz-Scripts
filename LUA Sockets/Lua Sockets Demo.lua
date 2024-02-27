@@ -1,4 +1,4 @@
--- @version 2.3.1
+-- @version 3.0.0
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua
@@ -9,6 +9,8 @@
 --    [nomain] socket module/socket/core.so.linux
 --    [nomain] socket module/*.lua
 -- @changelog
---    + Update To REAPER V7
---    + Add mobdebug and dkjson lua files for debuggers 
+--    + Update the osc functions to a osc module
+--    + Update the examples to use the modules
+--    + New function to encode/decode osc
+--    + New function to iterate osc/udp
 
