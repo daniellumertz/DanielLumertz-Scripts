@@ -13,8 +13,6 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
 package.cpath = package.cpath .. ";" .. script_path .. "/socket module/?."..extension  -- Add current folder/socket module for looking at .dll (need for loading basic luasocket)
 package.path = package.path .. ";" .. script_path .. "/socket module/?.lua" -- Add current folder/socket module for looking at .lua ( Only need for loading the other functions packages lua osc.lua, url.lua etc... You can change those files path and update this line)ssssssssssssssssssssssssssssssssssss
 
---require("mobdebug").start() 
-
 -- Functions
 function print(...) 
   local t = {}
@@ -29,7 +27,7 @@ local socket = require('socket.core')
 local osc = require('osc')
 
 -- Define the udp, ip, port
-local host, port = "localhost", 9004
+local host, port = "localhost", 9005
 -- convert host name to ip address
 local ip = assert(socket.dns.toip(host))
 -- create a new UDP object
@@ -40,6 +38,6 @@ local msg1 = osc.encode('/track 1/fx parameters', 666, 3.14, 'hello world!')-- e
 local msg2 = osc.encode('/project/0/number of tracks', reaper.CountTracks(0))
 
 -- Send message
-udp:sendto(msg1, ip, port)
+--udp:sendto(msg1, ip, port)
 udp:sendto(msg2, ip, port)
 

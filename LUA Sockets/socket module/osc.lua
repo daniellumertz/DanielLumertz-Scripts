@@ -47,7 +47,6 @@ end
 ---@return string address the address of the message
 ---@return table values the values from this message
 function OSC.decode(msg)
-  print('msg: ', msg)
   local addr = msg:match('(.-)\0')
   local types, values_msg = msg:match(',(%a*)(.*)') -- get the types in a string, always after the comma. can be "i","f","s","b".
   local prepend_size = 4 - ((types:len() + 1) % 4) -- +1 because need to consider the comma at types
