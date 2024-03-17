@@ -1,10 +1,10 @@
--- @version 0.0.1
+-- @version 1.0.0
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
 --    [nomain] Info/*.txt
 -- @changelog
---    + First Release at Reapack
+--    + Second Release at Reapack
 
 -- TODO
 -- Setup for reapack
@@ -31,7 +31,7 @@ local proj = 0
 local reaper = reaper
 
 ScriptName = 'Its Gonna Phase'
-Version = '0.0.1'
+Version = '1.0.0'
 
 ExtStatePatterns() -- Ext state keys saved in the items
 rnd_values = SetDefaults() -- Item Random settings showed at the GUI 

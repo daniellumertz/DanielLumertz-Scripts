@@ -22,7 +22,7 @@ function ItsGonnaPhase(proj)
             for take_idx, take_table in ipairs(item_table.takes) do
                 addiction_weights = addiction_weights + take_table.chance
                 if addiction_weights > random_number then
-                    return take_table.take, take_idx
+                    return take_table.take, take_idx-1
                 end
             end
         else
@@ -203,7 +203,6 @@ function ItsGonnaPhase(proj)
                             local new_take, new_take_idx, _
                             if oi_settings[item].randomize then
                                 _, new_take_idx = RandomizeTake(item, oi_settings[item])
-                                new_take_idx = new_take_idx - 1 
                                 new_take = reaper.GetTake(new_item, new_take_idx)
                                 reaper.SetActiveTake(new_take)
                             end
