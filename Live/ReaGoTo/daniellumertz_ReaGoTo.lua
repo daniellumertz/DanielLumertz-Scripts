@@ -30,7 +30,7 @@ dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/GoTo Functions.lua') -- Functions for using the markov in reaper
 
 if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.71') then return end -- Check Extensions
 dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
