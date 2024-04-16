@@ -244,7 +244,7 @@ end
 function GetKeyName(code)
     local Keycode = KeyCodeList()
     for key, value in pairs(Keycode) do
-        if code == value then return value end
+        if code == value then return key end
     end
     return false
 end
@@ -252,136 +252,133 @@ end
 function KeyCodeList() -- https://cherrytree.at/misc/vk.htm , http://www.kbdedit.com/manual/low_level_vk_list.html , https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
     local Keycode = {}
     -- Mouse
-    Keycode['LBUTTON']   =	1	
-    Keycode['RBUTTON']   =	2	
-    Keycode['CANCEL']    =	3	
-    Keycode['MBUTTON']   =	4
-    Keycode['XBUTTON1']  =	5
-    Keycode['XBUTTON2']  =	6
+    Keycode['LBUTTON']   = 1
+    Keycode['RBUTTON']   = 2
+    Keycode['CANCEL']    = 3
+    Keycode['MBUTTON']   = 4
+    Keycode['XBUTTON1']  = 5
+    Keycode['XBUTTON2']  = 6
     -- Things
-    Keycode['BACK']	    =   8	--BACKSPACE key
-    Keycode['TAB']	    =   9	--TAB key
-    Keycode['CLEAR']	    =   12	--CLEAR key
-    Keycode['RETURN']    =   13
-    Keycode['CAPITAL']   =   20 -- Capslock
-    Keycode['ESC']    =   27 -- ESC
+    Keycode['BACK']      = 8  --BACKSPACE key
+    Keycode['TAB']       = 9  --TAB key
+    Keycode['CLEAR']     = 12 --CLEAR key
+    Keycode['RETURN']    = 13
+    Keycode['CAPITAL']   = 20 -- Capslock
+    Keycode['ESC']       = 27 -- ESC
 
-    Keycode['SPACE']	    = 32	--SPACEBAR
-    Keycode['PRIOR']	    = 33	--PAGE UP key
-    Keycode['NEXT']	    = 34	--PAGE DOWN key
-    Keycode['END']	    = 35	--END key
-    Keycode['HOME']	    = 36	--HOME key
-    Keycode['LEFT']	    = 37	--LEFT ARROW key
-    Keycode['UP']	    = 38	--UP ARROW key
-    Keycode['RIGHT']	    = 39	--RIGHT ARROW key
-    Keycode['DOWN']	    = 40	--DOWN ARROW key
-    Keycode['SELECT']    = 41	--SELECT key
-    Keycode['PRINT']	    = 42	--PRINT key
-    Keycode['EXECUTE']	= 43	--EXECUTE key
-    Keycode['SNAPSHOT']	= 44	--PRINT SCREEN key
-    Keycode['INSERT']	= 45	--INS key
-    Keycode['DELETE']	= 46	--DEL key
-    Keycode['HELP']	    = 47    --Help Key
+    Keycode['SPACE']     = 32 --SPACEBAR
+    Keycode['PRIOR']     = 33 --PAGE UP key
+    Keycode['NEXT']      = 34 --PAGE DOWN key
+    Keycode['END']       = 35 --END key
+    Keycode['HOME']      = 36 --HOME key
+    Keycode['LEFT']      = 37 --LEFT ARROW key
+    Keycode['UP']        = 38 --UP ARROW key
+    Keycode['RIGHT']     = 39 --RIGHT ARROW key
+    Keycode['DOWN']      = 40 --DOWN ARROW key
+    Keycode['SELECT']    = 41 --SELECT key
+    Keycode['PRINT']     = 42 --PRINT key
+    Keycode['EXECUTE']   = 43 --EXECUTE key
+    Keycode['SNAPSHOT']  = 44 --PRINT SCREEN key
+    Keycode['INSERT']    = 45 --INS key
+    Keycode['DELETE']    = 46 --DEL key
+    Keycode['HELP']      = 47 --Help Key
     -- ModKeys
-    Keycode['CTRL']         =   17  -- SHIFT
-    Keycode['SHIFT']        =   16 -- CONTROL
-    Keycode['ALT']          =   18 -- MENU
-    
-    Keycode['LWIN']      =	91 -- Left Windows key (Microsoft® Natural® keyboard)
-    Keycode['RWIN']      =	92 -- Right Windows key (Natural keyboard)
-    
-	
-    --Numbers
-    Keycode['0'] = 48
-    Keycode['1'] = 49
-    Keycode['2'] = 50
-    Keycode['3'] = 51
-    Keycode['4'] = 52
-    Keycode['5'] = 53
-    Keycode['6'] = 54
-    Keycode['7'] = 55
-    Keycode['8'] = 56
-    Keycode['9'] = 57
-    --Letters
-    Keycode['A'] = 65
-    Keycode['B'] = 66
-    Keycode['C'] = 67
-    Keycode['D'] = 68
-    Keycode['E'] = 69
-    Keycode['F'] = 70
-    Keycode['G'] = 71
-    Keycode['H'] = 72
-    Keycode['I'] = 73
-    Keycode['J'] = 74
-    Keycode['K'] = 75
-    Keycode['L'] = 76
-    Keycode['M'] = 77
-    Keycode['N'] = 78
-    Keycode['O'] = 79
-    Keycode['P'] = 80
-    Keycode['Q'] = 81
-    Keycode['R'] = 82
-    Keycode['S'] = 83
-    Keycode['T'] = 84
-    Keycode['U'] = 85
-    Keycode['V'] = 86
-    Keycode['W'] = 87
-    Keycode['X'] = 88
-    Keycode['Y'] = 89
-    Keycode['Z'] = 90
-    --Numlock
-    Keycode['N0'] =	96
-    Keycode['N1'] =	97
-    Keycode['N2'] =	98
-    Keycode['N3'] =	99
-    Keycode['N4'] =	100
-    Keycode['N5'] =	101
-    Keycode['N6'] =	102
-    Keycode['N7'] =	103
-    Keycode['N8'] =	104
-    Keycode['N9'] =	105
+    Keycode['CTRL']      = 17 -- SHIFT
+    Keycode['SHIFT']     = 16 -- CONTROL
+    Keycode['ALT']       = 18 -- MENU
 
-    Keycode['N*']	=   106 --	Multiply key
-    Keycode['N+']	    =   107 --	Add key
-    Keycode['SEPARATOR']	=   108 --	Separator key
-    Keycode['N-']	=   109 --	Subtract key
-    Keycode['N,']	=   110 --	Decimal key
-    Keycode['N.']	=   194 --	Comma key
-    Keycode['N/']	=   111 --	Divide key
+    Keycode['LWIN']      = 91 -- Left Windows key (Microsoft® Natural® keyboard)
+    Keycode['RWIN']      = 92 -- Right Windows key (Natural keyboard)
+    --Numbers
+    Keycode['0']         = 48
+    Keycode['1']         = 49
+    Keycode['2']         = 50
+    Keycode['3']         = 51
+    Keycode['4']         = 52
+    Keycode['5']         = 53
+    Keycode['6']         = 54
+    Keycode['7']         = 55
+    Keycode['8']         = 56
+    Keycode['9']         = 57
+    --Letters
+    Keycode['A']         = 65
+    Keycode['B']         = 66
+    Keycode['C']         = 67
+    Keycode['D']         = 68
+    Keycode['E']         = 69
+    Keycode['F']         = 70
+    Keycode['G']         = 71
+    Keycode['H']         = 72
+    Keycode['I']         = 73
+    Keycode['J']         = 74
+    Keycode['K']         = 75
+    Keycode['L']         = 76
+    Keycode['M']         = 77
+    Keycode['N']         = 78
+    Keycode['O']         = 79
+    Keycode['P']         = 80
+    Keycode['Q']         = 81
+    Keycode['R']         = 82
+    Keycode['S']         = 83
+    Keycode['T']         = 84
+    Keycode['U']         = 85
+    Keycode['V']         = 86
+    Keycode['W']         = 87
+    Keycode['X']         = 88
+    Keycode['Y']         = 89
+    Keycode['Z']         = 90
+    --Numlock
+    Keycode['N0']        = 96
+    Keycode['N1']        = 97
+    Keycode['N2']        = 98
+    Keycode['N3']        = 99
+    Keycode['N4']        = 100
+    Keycode['N5']        = 101
+    Keycode['N6']        = 102
+    Keycode['N7']        = 103
+    Keycode['N8']        = 104
+    Keycode['N9']        = 105
+
+    Keycode['N*']        = 106   --	Multiply key
+    Keycode['N+']        = 107   --	Add key
+    Keycode['SEPARATOR'] = 108   --	Separator key
+    Keycode['N-']        = 109   --	Subtract key
+    Keycode['N,']        = 110   --	Decimal key
+    Keycode['N.']        = 194   --	Comma keyç;
+    Keycode['N/']        = 111   --	Divide key
     --- F
-    Keycode['F1']    =	112 --	F1 key
-    Keycode['F2']    =	113 --	F2 key
-    Keycode['F3']    =	114 --	F3 key
-    Keycode['F4']    =	115 --	F4 key
-    Keycode['F5']    =	116 --	F5 key
-    Keycode['F6']    =	117 --	F6 key
-    Keycode['F7']    =	118 --	F7 key
-    Keycode['F8']    =	119 --	F8 key
-    Keycode['F9']    =	120 --	F9 key
-    Keycode['F10']   =	121 --	F10 key
-    Keycode['F11']   =	122 --	F11 key
-    Keycode['F12']   =	123 --	F12 key
-    Keycode['F13']   =	124 --	F13 key
-    Keycode['F14']   =	125 --	F14 key
-    Keycode['F15']   =	126 --	F15 key
-    Keycode['F16']   =	127 --	F16 key
+    Keycode['F1']        = 112   --	F1 key
+    Keycode['F2']        = 113   --	F2 key
+    Keycode['F3']        = 114   --	F3 key
+    Keycode['F4']        = 115   --	F4 key
+    Keycode['F5']        = 116   --	F5 key
+    Keycode['F6']        = 117   --	F6 key
+    Keycode['F7']        = 118   --	F7 key
+    Keycode['F8']        = 119   --	F8 key
+    Keycode['F9']        = 120   --	F9 key
+    Keycode['F10']       = 121   --	F10 key
+    Keycode['F11']       = 122   --	F11 key
+    Keycode['F12']       = 123   --	F12 key
+    Keycode['F13']       = 124   --	F13 key
+    Keycode['F14']       = 125   --	F14 key
+    Keycode['F15']       = 126   --	F15 key
+    Keycode['F16']       = 127   --	F16 key
     -- Dots
-    Keycode['Ç'] =  	186 --	Windows 2000: For the US standard keyboard, the ';:ç' key
-    Keycode['+'] =   187 --	Windows 2000: For any country/region, the '+' key
-    Keycode[','] =  188 --	Windows 2000: For any country/region, the ',' key
-    Keycode['-'] =  189 --	Windows 2000: For any country/region, the '-' key
-    Keycode['.'] = 190 --	Windows 2000: For any country/region, the '.' key
-    Keycode['/'] =  	191 --	Windows 2000: For the US standard keyboard, the '/?' key
-    Keycode['`'] =  	192 --	Windows 2000: For the US standard keyboard, the '`~' key
+    Keycode['Ç']         = 186   --	Windows 2000: For the US standard keyboard, the ';:ç' key
+    Keycode['+']         = 187   --	Windows 2000: For any country/region, the '+' key
+    Keycode[',']         = 188   --	Windows 2000: For any country/region, the ',' key
+    Keycode['-']         = 189   --	Windows 2000: For any country/region, the '-' key
+    Keycode['.']         = 190   --	Windows 2000: For any country/region, the '.' key
+    Keycode['/']         = 191   --	Windows 2000: For the US standard keyboard, the '/?' key
+    Keycode['`']         = 192   --	Windows 2000: For the US standard keyboard, the '`~' key
     --Keycode['?'] =  	193 --	Windows 2000: For the US standard keyboard, the '`~' key
 
-    Keycode['['] =  	219 --	Windows 2000: For the US standard keyboard, the '[{' key
-    Keycode['\\'] =  	220 --	Windows 2000: For the US standard keyboard, the '\\|' key
-    Keycode[']'] =  	221 --	Windows 2000: For the US standard keyboard, the ']}' key
-    Keycode['\''] =  	222 --	Windows 2000: For the US standard keyboard, the 'single-quote/double-quote' key
-    Keycode['OEM_8'] =  	223 --	???
-    Keycode['OEM_102'] =    226 --	Windows 2000: Either the angle bracket key or the backslash key on the RT 102-key keyboard
-
+    Keycode['[']         = 219  --	Windows 2000: For the US standard keyboard, the '[{' key
+    Keycode['\\']        = 220  --	Windows 2000: For the US standard keyboard, the '\\|' key
+    Keycode[']']         = 221  --	Windows 2000: For the US standard keyboard, the ']}' key
+    Keycode['\'']        = 222  --	Windows 2000: For the US standard keyboard, the 'single-quote/double-quote' key
+    Keycode['OEM_8']     = 223  --	???
+    Keycode['OEM_102']   = 226  --	Windows 2000: Either the angle bracket key or the backslash key on the RT 102-key keyboard
     -- Others
 --[[     Keycode['LSHIFT'] =	160 --	Left SHIFT key
     Keycode['RSHIFT'] =	161 --	Right SHIFT key

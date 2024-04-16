@@ -108,7 +108,7 @@ function RenamePopup(i)
         
         _, Snapshot[i].Name = reaper.ImGui_InputText(ctx, "##Rename"..i, Snapshot[i].Name, reaper.ImGui_InputTextFlags_AutoSelectAll())
         
-        if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, 13) then
+        if reaper.ImGui_Button(ctx, 'Close', -1) or reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_Enter()) then
             if Snapshot[i].Name == '' then Snapshot[i].Name = 'Snapshot '..i end -- If Name == '' Is difficult to see in the GUI
             if Snapshot[i].Name == 'Stevie' then PrintStevie() end -- =)
             SaveSnapshotConfig() 
@@ -271,27 +271,27 @@ function LearnWindow(i)
         end
 
         reaper.ImGui_Text(ctx, 'Key: '..(Snapshot[i].Shortcut or ''))
-        
 
-        for char, keycode in pairs(KeyCodeList()) do
-            if reaper.ImGui_IsKeyReleased(ctx, keycode) then
-                local check = true
-                -- Check if Key is already used
-                for check_i, value in pairs(Snapshot) do 
-                    if  Snapshot[check_i].Shortcut == char then
-                        check = false
-                    end
+
+        if ReleasedKeys[1] then
+            local k = ReleasedKeys[1]
+            local char = GetKeyName(k)
+            local check = true
+            -- Check if Key is already used
+            for check_i, value in pairs(Snapshot) do 
+                if  Snapshot[check_i].Shortcut == char then
+                    check = false
                 end
-                
-                if check then 
-                    Snapshot[i].Shortcut = char
-                    CloseForcePreventShortcuts()
-                    TempPopup_i = nil
-                    SaveSnapshotConfig()
-                    reaper.ImGui_CloseCurrentPopup(ctx)
-                else -- Key Clicked is in Use
-                    print('Key Already Used In Snapshot')
-                end
+            end
+            
+            if check then 
+                Snapshot[i].Shortcut = char
+                CloseForcePreventShortcuts()
+                TempPopup_i = nil
+                SaveSnapshotConfig()
+                reaper.ImGui_CloseCurrentPopup(ctx)
+            else -- Key Clicked is in Use
+                print('Key Already Used In Snapshot')
             end
         end
 
@@ -384,69 +384,39 @@ function GuiLoadChunkOption()
     end
 end
 
-function PassThorughOld() -- Actions to pass keys though GUI to REAPER. Find a better way
-    if reaper.ImGui_IsKeyPressed(ctx, 32, false) then-- Space
-        
-        reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
-    end
-
-    local ctrl = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl())
-    local shift = reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift())
-
-    if ctrl and shift then 
-        if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
-            reaper.Main_OnCommand(40030, 0) -- Edit: Redo
-        end
-    elseif ctrl then 
-        if reaper.ImGui_IsKeyPressed(ctx, 90, false) then-- z
-            reaper.Main_OnCommand(40029, 0) -- Edit: Undo
-        end
-    end
-end
-
-function FilterPassThorugh(key_name)
+function FilterPassThorugh(key_code, keycodes)
     for i,v in pairs(Snapshot) do 
-        if Snapshot[i].Shortcut == key_name then return true end
+        if Snapshot[i].Shortcut and keycodes[Snapshot[i].Shortcut] == key_code then  -- Snapshot[i].Shortcut is the string at KeyCodeList keys
+            return true
+        end
     end
     return false
 end
 
 
 function PassThorugh() -- Might be a little tough on resource
+    if (not reaper.ImGui_IsWindowFocused(ctx, reaper.ImGui_FocusedFlags_AnyWindow())) or reaper.ImGui_IsAnyItemActive(ctx) then return end -- Only when Script haves the focus
     --Get keys pressed
-    local keycodes = KeyCodeList()
     local active_keys = {}
-    for key_name, key_val in pairs(keycodes) do
-        if FilterPassThorugh(key_name) then goto continue end 
-        if reaper.ImGui_IsKeyPressed(ctx, key_val, true) then -- true so holding will perform many times
-            active_keys[#active_keys+1] = key_val
-        end
-        ::continue::
+    --local keys = reaper.JS_VKeys_GetState(0)
+    for idx, k in ipairs(HeldKeys) do
+        if not FilterPassThorugh(k, KEYCODES) then 
+            active_keys[#active_keys+1] = k
+        end 
     end
 
     -- mods
-    local mods = reaper.ImGui_GetKeyMods(ctx)
     if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModCtrl()) then active_keys[#active_keys+1] = 17 end -- ctrl
     if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModShift()) then active_keys[#active_keys+1] = 16 end -- Shift
     if reaper.ImGui_IsKeyDown(ctx, reaper.ImGui_Key_ModAlt()) then active_keys[#active_keys+1] = 18 end -- Alt (NOT WORKING)
 
 
     --Send Message
-    if LastWindowFocus then 
-        if #active_keys > 0  then
-            for k, key_val in pairs(active_keys) do
-                PostKey(LastWindowFocus, key_val)
-            end
+    if #active_keys > 0  then
+        for k, key_val in pairs(active_keys) do
+            PostKey(reaper.GetMainHwnd(), key_val)
         end
     end
-
-    -- Get focus window (if not == Script Title)
-    local win_focus = reaper.JS_Window_GetFocus()
-    local win_name = reaper.JS_Window_GetTitle( win_focus )
-
-    if LastWindowFocus ~= win_focus and (win_name == 'trackview' or win_name == 'midiview')  then -- focused win title is different from script title? INSERT HERE HOW YOU NAME THE SCRIPT
-        LastWindowFocus = win_focus
-    end    
 end
 
 function ConfigsMenu()
