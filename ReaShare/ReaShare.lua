@@ -1,4 +1,4 @@
--- @version 0.1.3
+-- @version 0.1.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Modules/*.lua
@@ -44,7 +44,7 @@ GUI.req("Classes/Class - TextEditor.lua")()
 if missing_lib then return 0 end
 
 local script_name = 'ReaShare'
-local script_v = '0.1.3'
+local script_v = '0.1.4'
 --- GUI WINDOW BASIC
 GUI.name = script_name..' '..script_v
 GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 200, 400
