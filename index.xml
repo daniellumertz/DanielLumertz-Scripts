@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="7fd36305acd4989a306711cf20007a7db714d94c">
+<index version="1" name="Daniel Lumertz Scripts" commit="7b3e6a406ffb3af7507d46ca235c85e388464081">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -3024,6 +3024,32 @@
         <source main="main" file="ReaShare Copy Project.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7fd36305acd4989a306711cf20007a7db714d94c/ReaShare/ReaShare%20Copy%20Project.lua</source>
         <source main="main" file="ReaShare Copy Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7fd36305acd4989a306711cf20007a7db714d94c/ReaShare/ReaShare%20Copy%20Tracks.lua</source>
         <source main="main" file="ReaShare Paste From Clipboard.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7fd36305acd4989a306711cf20007a7db714d94c/ReaShare/ReaShare%20Paste%20From%20Clipboard.lua</source>
+      </version>
+      <version name="0.1.4" author="Daniel Lumertz" time="2024-04-17T07:37:52Z">
+        <changelog><![CDATA[+ Check for valid path when setting a path
++ Change Reashere Functions to ReaShare (Case sensitive)]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare.lua</source>
+        <source file="Modules/Window - GetUserInputs.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Modules/Window%20-%20GetUserInputs.lua</source>
+        <source file="Classes/Class - Button.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Button.lua</source>
+        <source file="Classes/Class - Label.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Label.lua</source>
+        <source file="Classes/Class - Menubar.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Menubar.lua</source>
+        <source file="Classes/Class - Menubox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Menubox.lua</source>
+        <source file="Classes/Class - Options.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Options.lua</source>
+        <source file="Classes/Class - Tabs.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Tabs.lua</source>
+        <source file="Classes/Class - TextEditor.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20TextEditor.lua</source>
+        <source file="Classes/Class - Textbox.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Classes/Class%20-%20Textbox.lua</source>
+        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/utils/json.lua</source>
+        <source file="Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Arrange%20Functions.lua</source>
+        <source file="Chunk Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Chunk%20Functions.lua</source>
+        <source file="Core.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/Core.lua</source>
+        <source file="General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/General%20Lua%20Functions.lua</source>
+        <source file="JSON Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/JSON%20Functions.lua</source>
+        <source file="ReaShare Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Functions.lua</source>
+        <source main="main" file="ReaShare Change Temporary Path.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Change%20Temporary%20Path.lua</source>
+        <source main="main" file="ReaShare Copy Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Copy%20Items.lua</source>
+        <source main="main" file="ReaShare Copy Project.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Copy%20Project.lua</source>
+        <source main="main" file="ReaShare Copy Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Copy%20Tracks.lua</source>
+        <source main="main" file="ReaShare Paste From Clipboard.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/7b3e6a406ffb3af7507d46ca235c85e388464081/ReaShare/ReaShare%20Paste%20From%20Clipboard.lua</source>
       </version>
     </reapack>
   </category>
