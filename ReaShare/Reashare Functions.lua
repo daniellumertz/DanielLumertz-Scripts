@@ -3,7 +3,7 @@ function ReaShareErrorChunk()
     reaper.ShowMessageBox('This Is Not A Valid Chunk!', 'ReaShare', 0)    
 end
 
----Create a new file with the content written in it
+---Create a new file with the content written in it.
 ---@param path string complete file path should contain file name and extension 
 ---@param content string what is inside this file
 function CreateNewProjectFile(path,content)

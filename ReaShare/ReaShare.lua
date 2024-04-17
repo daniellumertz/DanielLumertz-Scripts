@@ -1,4 +1,4 @@
--- @version 0.1.2
+-- @version 0.1.3
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Modules/*.lua
@@ -17,6 +17,7 @@
 --    [main] ReaShare Paste From Clipboard.lua
 -- @changelog
 --    + Check for valid path when setting a path
+--    + Change Reashere Functions to ReaShare (Case sensitive)
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
@@ -43,7 +44,7 @@ GUI.req("Classes/Class - TextEditor.lua")()
 if missing_lib then return 0 end
 
 local script_name = 'ReaShare'
-local script_v = '0.1.2'
+local script_v = '0.1.3'
 --- GUI WINDOW BASIC
 GUI.name = script_name..' '..script_v
 GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 200, 400

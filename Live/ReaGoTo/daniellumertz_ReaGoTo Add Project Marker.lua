@@ -14,7 +14,7 @@ dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/GoTo Functions.lua') -- Functions for using the markov in reaper
 
 FocusedProj = reaper.EnumProjects( -1 )
 -- Project configs (Loaded in the main loop at CheckProjects()) Need to start with an blank table

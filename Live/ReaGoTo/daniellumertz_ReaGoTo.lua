@@ -1,12 +1,11 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @description ReaGoto
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_ReaGoTo Add Project Marker.lua
 --    [nomain] Functions/*.lua
 -- @changelog
---    + Fix atexit trying to reach project when reaper is closing
---    + Fix gathering region idxes for GUI 
+--    + Fix for OS with case-sensitivity dofile Goto -> GoTo
 -- @license MIT
 
 
@@ -30,7 +29,7 @@ dofile(ScriptPath .. 'Functions/Theme.lua') -- Functions for using the markov in
 dofile(ScriptPath .. 'Functions/Json Main.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Settings.lua') -- Functions for using the markov in reaper
 dofile(ScriptPath .. 'Functions/Serialize Functions.lua') -- Functions for using the markov in reaper
-dofile(ScriptPath .. 'Functions/Goto Functions.lua') -- Functions for using the markov in reaper
+dofile(ScriptPath .. 'Functions/GoTo Functions.lua') -- Functions for using the markov in reaper
 
 if not CheckReaImGUI('0.8') or not CheckJS() or not CheckSWS() or not CheckREAPERVersion('6.71') then return end -- Check Extensions
 dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.8') -- Made with Imgui 0.8 add schims for future versions.
@@ -38,7 +37,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 ----- Script Names
 ScriptName = 'ReaGoTo'
-Version = '1.0.1'
+Version = '1.0.2'
 
 -- Load Settings
 SettingsFileName = 'ReaGoTo Settings'
