@@ -9,7 +9,7 @@
 --    [nomain] Core.lua
 --    [nomain] General Lua Functions.lua
 --    [nomain] JSON Functions.lua
---    [nomain] Reashare Functions.lua
+--    [nomain] ReaShare Functions.lua
 --    [main] ReaShare Change Temporary Path.lua
 --    [main] ReaShare Copy Items.lua
 --    [main] ReaShare Copy Project.lua
