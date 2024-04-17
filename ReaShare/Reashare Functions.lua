@@ -9,6 +9,10 @@ end
 function CreateNewProjectFile(path,content)
 	content = content:gsub('\r\n','\n')
 	local f = io.open(path, "w")
+	if not f then
+		print('Invalid Temporary Path for Projects')
+		print('Set a new one with the following action: Script: ReaShare Change Temporary Path.lua')
+	end
 	f:write(content)
 	f:close()
 end 
@@ -106,9 +110,24 @@ function  CreateProject(pasted_chunk,script_path)
 	local save_path
 	if not file_exists(script_path.. "/" .. 'settings' .. ".json") then 
 		local retval
-		retval, save_path = reaper.GetUserInputs('ReaShare', 1, 'Path to save temp File', '')
-		if not retval then return end -- User pressed cancel.
-		save_path = save_path..'/' -- need to end with this
+		local try = true
+		while try do
+			retval, save_path = reaper.GetUserInputs('ReaShare', 1, 'Path to save temp File', '')
+			if not retval then return end -- User pressed cancel.
+			save_path = save_path..'/' -- need to end with this
+
+			-- check if valid path
+			local test_file = save_path..'ReaShare_TestPath.txt'
+			local f = io.open(test_file, "w")
+			if f then
+				try = false
+				f:close()
+				os.remove(test_file)
+			else 
+				print('Invalid Path!')
+				print('Try Again')
+			end
+		end
 		save_json(script_path,'settings',{save_path = save_path})
 	else
 		local settings_table = load_json(script_path, 'settings')

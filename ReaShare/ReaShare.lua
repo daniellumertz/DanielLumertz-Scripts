@@ -1,4 +1,4 @@
--- @version 0.1.1
+-- @version 0.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Modules/*.lua
@@ -16,7 +16,10 @@
 --    [main] ReaShare Copy Tracks.lua
 --    [main] ReaShare Paste From Clipboard.lua
 -- @changelog
---    + update file noindex error
+--    + Check for valid path when setting a path
+
+--dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
+
 
 local info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
@@ -40,7 +43,7 @@ GUI.req("Classes/Class - TextEditor.lua")()
 if missing_lib then return 0 end
 
 local script_name = 'ReaShare'
-local script_v = '0.1.1'
+local script_v = '0.1.2'
 --- GUI WINDOW BASIC
 GUI.name = script_name..' '..script_v
 GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 200, 400
