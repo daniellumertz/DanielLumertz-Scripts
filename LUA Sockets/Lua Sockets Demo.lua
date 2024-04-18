@@ -1,4 +1,4 @@
--- @version 3.0.1
+-- @version 3.0.2
 -- @author Daniel Lumertz, Mavriq
 -- @provides
 --    [main] Receive Sockets Demo.lua
@@ -9,8 +9,5 @@
 --    [nomain] socket module/socket/core.so.linux
 --    [nomain] socket module/*.lua
 -- @changelog
---    + Update the osc functions to a osc module
---    + Update the examples to use the modules
---    + New function to encode/decode osc
---    + New function to iterate osc/udp
+--    + mobdebug can write global and local values! :D 
 

@@ -1,4 +1,4 @@
--- @noindex
+--
 -- MobDebug -- Lua remote debugger
 -- Copyright 2011-20 Paul Kulchenko
 -- Based on RemDebug 1.0 Copyright Kepler Project 2005
@@ -1820,7 +1820,10 @@ function vscode_debugger.loop(sev, svars, sfile, sline)
       else
         Log.table('evaluate', req)
         local chunk = args.expression
-        local func, res = mobdebug.loadstring(string_format('return (%s)', chunk))
+        local func, res = mobdebug.loadstring(chunk)
+        if not func then 
+          func, res = mobdebug.loadstring('return '..chunk)
+        end 
         local status
         if func then
           local stack = args.frameId
