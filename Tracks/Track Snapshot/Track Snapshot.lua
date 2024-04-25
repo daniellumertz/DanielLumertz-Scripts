@@ -1,4 +1,4 @@
--- @version 1.4.10
+-- @version 1.4.11
 -- @author Daniel Lumertz
 -- @license MIT
 -- @provides
@@ -14,12 +14,12 @@
 --    [nomain] Style Editor.lua
 --    [nomain] REAPER Functions.lua
 -- @changelog
---    + Correct Checkers
+--    + Revert to 0.9 key management
 
 --dofile("C:/Users/DSL/AppData/Roaming/REAPER/Scripts/Meus/Debug VS/DL Debug.lua")
 
 ScriptName = 'Track Snapshot' -- Use to call Extstate dont change
-ScriptVersion = '1.4.10'
+ScriptVersion = '1.4.11'
 
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
@@ -38,7 +38,7 @@ dofile(script_path .. 'REAPER Functions.lua') -- preset to work with Tables
 
 if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
 -- Imgui shims to 0.7.2 (added after the news at 0.8)
-dofile(reaper.ImGui_GetBuiltinPath() .. '/imgui.lua') '0.7.2'
+dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 
 --dofile(script_path .. 'Style Editor.lua') -- Remember to remove
@@ -63,6 +63,10 @@ function Init()
 end
 
 function loop()
+    if not PreventPassKeys then -- Passthrough keys
+        PassThorugh()
+    end
+
     PushTheme() -- Theme
     --StyleLoop()
     --PushStyle()
@@ -81,44 +85,6 @@ function loop()
     end
 
     local visible, open  = reaper.ImGui_Begin(ctx, ScriptName..' '..ScriptVersion, true, window_flags)
-
-    --- Keys management
-    OldHeldKeys = HeldKeys
-    PressedKeys = reaper.JS_VKeys_GetState(0)
-    HeldKeys = {}
-    ReleasedKeys = {}
-    JustPressedKeys = {}
-
-    if OldHeldKeys then
-        for index, k in ipairs(OldHeldKeys) do
-            if PressedKeys:byte(k) == 0 then 
-                ReleasedKeys[#ReleasedKeys+1] = k
-                break
-            end
-        end        
-    end
-
-    for k = 1, #PressedKeys do
-        if PressedKeys:byte(k) ~= 0 then
-            HeldKeys[#HeldKeys+1] = k
-        end
-    end
-
-    if OldHeldKeys then
-        for _, k_held in ipairs(HeldKeys) do
-            for index, value in ipairs(OldHeldKeys) do
-                if value == k_held then -- Not pressed right now
-                    goto continue
-                end
-            end
-            JustPressedKeys[#JustPressedKeys+1] = k_held
-            ::continue::        
-        end
-    end
-
-    if not PreventPassKeys then -- Passthrough keys
-        PassThorugh()
-    end
 
     if visible then
         -------
@@ -173,11 +139,8 @@ function loop()
                     if Snapshot[i].Shortcut and not Configs.PreventShortcut then 
                         WriteShortkey(Snapshot[i].Shortcut,255,255,255,100)
                         local keycode = GetKeycode(Snapshot[i].Shortcut)
-                        
-                        for _, key in ipairs(JustPressedKeys) do
-                            if key == keycode then
-                                SetSnapshot(i)
-                            end
+                        if reaper.ImGui_IsKeyPressed(ctx, keycode, false) then 
+                            SetSnapshot(i)
                         end
                     end
 
@@ -203,14 +166,13 @@ function loop()
 
     reaper.ImGui_PopFont(ctx) -- Pop Font
 
-    if open and reaper.ImGui_IsKeyPressed(ctx, reaper.ImGui_Key_Escape()) == false then
+    if open and reaper.ImGui_IsKeyPressed(ctx, 27) == false then
         reaper.defer(loop)
     else
         reaper.ImGui_DestroyContext(ctx)
     end
 end
 
-KEYCODES = KeyCodeList()
 
 Init()
 loop()
