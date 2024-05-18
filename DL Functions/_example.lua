@@ -1,3 +1,4 @@
+--@noindex
 package.path = package.path..';'..debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .. "?.lua;" -- GET DIRECTORY FOR REQUIRE
 require('General Debug')
 require('General Number')
