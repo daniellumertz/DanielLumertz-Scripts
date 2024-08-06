@@ -1,5 +1,6 @@
 --@noindex
---version: 0.0
+--version: 0.1
+--Set Item Image
 
 DL = DL or {}
 DL.item = {}
@@ -266,3 +267,24 @@ function DL.item.Glue(proj, item, new_path, check_glue_type, build_peaks)
     end
     return item, bol, err, glue_path
 end
+
+---Set an Image to an Item
+---@param item MediaItem
+---@param image_path string
+---@param mode number
+---@return boolean 
+---@return string chunk
+function DL.item.SetImage(item, image_path, mode)
+    mode = mode or 3
+    local retval, chunk = reaper.GetItemStateChunk(item, '', false)
+    if not retval then return false end
+    local chunk_image = string.format("RESOURCEFN \"%s\"\nIMGRESOURCEFLAGS %s\n", image_path, mode)
+    if string.match(chunk, '\nRESOURCEFN') then
+        chunk = string.gsub(chunk, '\nRESOURCEFN.-\nIMGRESOURCEFLAGS.-\n', '\n'..chunk_image)
+    else -- does not have an image
+        chunk = string.gsub(chunk,'^<ITEM\n','<ITEM\n'..chunk_image)
+    end
+    local bool = reaper.SetItemStateChunk(item, chunk)
+    return bool, chunk
+end
+
