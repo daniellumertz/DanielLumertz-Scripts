@@ -1,5 +1,5 @@
 --@noindex
---version: 0.1
+--version: 0.1.1
 --Set Item Image
 
 DL = DL or {}
@@ -277,7 +277,7 @@ end
 function DL.item.SetImage(item, image_path, mode)
     mode = mode or 3
     local retval, chunk = reaper.GetItemStateChunk(item, '', false)
-    if not retval then return false end
+    if not retval then return false, chunk end
     local chunk_image = string.format("RESOURCEFN \"%s\"\nIMGRESOURCEFLAGS %s\n", image_path, mode)
     if string.match(chunk, '\nRESOURCEFN') then
         chunk = string.gsub(chunk, '\nRESOURCEFN.-\nIMGRESOURCEFLAGS.-\n', '\n'..chunk_image)
