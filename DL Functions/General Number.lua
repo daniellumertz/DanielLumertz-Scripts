@@ -1,5 +1,6 @@
 --@noindex
---version: 0.0
+--version: 0.1
+-- Random Exp
 
 DL = DL or {}
 DL.num = {}
@@ -10,8 +11,8 @@ DL.num = {}
 
 ---Limit a number between min and max
 ---@param number number number to be limited
----@param min number minimum number
----@param max number maximum number
+---@param min number? minimum number
+---@param max number? maximum number
 ---@return number
 function DL.num.Clamp(number,min,max)
     if min and number < min then return min end
@@ -102,6 +103,19 @@ end
 function DL.num.RandomFloat(min,max,is_include_max)
     local max = is_include_max and (max - 10^-8) or max    
     return DL.num.MapRange(math.random(), 0, 1, min, max)
+end
+
+---Returns a random float number with exponential distribution. Usefull for generating frequencies and each octave has the same distribution.
+---@param min number minimum number it can generate. Can't be <= 0.
+---@param max number maximum number it can generate. Can't be <= 0.
+---@param base number? base to use
+---@return number
+function DL.num.RandomFloatExp(min,max,base)
+    base = base or 2
+    local min_exp = math.log(min,base)
+    local max_exp = math.log(max,base)
+    local r = min_exp + (math.random() * (max_exp-min_exp)) -- uniform random
+    return base ^ r
 end
 
 ---Generate a random number between min and max, quantize it.
