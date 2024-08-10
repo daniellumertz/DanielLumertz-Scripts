@@ -1,7 +1,8 @@
 {
     "Lua.workspace.library": [
-        "c:\\Users\\DSL\\.vscode\\extensions\\antoinebalaine.reascript-docs-0.1.8/resources/Sexan_reaper_defs.lua",
-        "c:\\Users\\DSL\\.vscode\\extensions\\antoinebalaine.reascript-docs-0.1.8/resources/imgui_defs_0.9.lua"
+        "c:\\Users\\DSL\\.vscode\\extensions\\antoinebalaine.reascript-docs-0.1.12/resources/Sexan_reaper_defs.lua",
+        "c:\\Users\\DSL\\.vscode\\extensions\\antoinebalaine.reascript-docs-0.1.12/resources/imgui_defs_0.9.lua",
+        "c:\\Users\\DSL\\.vscode\\extensions\\antoinebalaine.reascript-docs-0.1.12/resources/reawwise_defs.lua"
     ],
     "Lua.workspace.preloadFileSize": 1024,
     "lua_analyzer.codeLinting.enable": false
