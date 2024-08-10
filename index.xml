@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="81a0e73fdf26c5263536867ce9236ddb96eff043">
+<index version="1" name="Daniel Lumertz Scripts" commit="a9ab4166a044dd3c21922baeac5afa40fedd0dec">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -31,6 +31,20 @@
         <changelog><![CDATA[+ update to imgui 0.8]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9458750004a075a0adb879162f719af70af117b/Embass%20Razor%20Edit%20Comp%20GUI/Comp%20Razor%20Edit%20Embass.lua</source>
         <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d9458750004a075a0adb879162f719af70af117b/Embass%20Razor%20Edit%20Comp%20GUI/General%20Functions.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="Envelopes/Envelope Palette">
+    <reapack name="daniellumertz_BirdBird_Envelope Palette.lua" type="script" desc="Envelope Palette">
+      <version name="0.9.0" author="BirdBird" time="2024-08-10T21:22:49Z">
+        <changelog><![CDATA[+ Add support for take envelopes.]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/daniellumertz_BirdBird_Envelope%20Palette.lua</source>
+        <source file="libraries/functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/functions.lua</source>
+        <source file="libraries/drawing.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/drawing.lua</source>
+        <source file="libraries/envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/envelopes.lua</source>
+        <source file="libraries/gui_main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/gui_main.lua</source>
+        <source file="libraries/gui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/gui.lua</source>
+        <source file="libraries/mouse.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9ab4166a044dd3c21922baeac5afa40fedd0dec/Envelopes/Envelope%20Palette/libraries/mouse.lua</source>
       </version>
     </reapack>
   </category>
