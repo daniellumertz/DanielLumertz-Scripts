@@ -1,4 +1,4 @@
--- @version 0.1.1b
+-- @version 0.1.2b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] DL Functions/*.lua
@@ -6,6 +6,7 @@
 --    [nomain] Image/Cloud.png
 --    [nomain] Info/*.txt
 --    [nomain] User Presets/*.json
+--    [nomain] User Settings/*.json
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
 --    + Initial tests
@@ -15,7 +16,7 @@
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.1.1'
+SCRIPT_V  = '0.1.2'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0

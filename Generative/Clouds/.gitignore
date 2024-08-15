@@ -5,7 +5,7 @@ TODO.txt
 .vscode/*
 tests
 # Settings
-User Settings/*
+#User Settings/*
 # Presets
 User Presets/*
 !User Presets/Default.json
