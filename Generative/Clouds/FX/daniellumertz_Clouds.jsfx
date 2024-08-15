@@ -1,3 +1,5 @@
+noindex: true
+author Daniel Lumertz
 desc:daniellumertz_Clouds
 
 slider1:s1=1<0,1,0.0001>Density
