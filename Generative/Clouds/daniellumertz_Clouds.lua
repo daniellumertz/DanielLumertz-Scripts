@@ -6,7 +6,7 @@
 --    [nomain] Image/Cloud.png
 --    [nomain] Info/*.txt
 --    [nomain] User Presets/*.json
---    [nomain] User Settings/*.json
+--    [nomain] User Settings/*
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
 --    + Initial tests
