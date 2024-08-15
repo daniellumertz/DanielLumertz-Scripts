@@ -6,7 +6,6 @@
 --    [nomain] Image/Cloud.png
 --    [nomain] Info/*.txt
 --    [nomain] User Presets/*.json
---    [nomain] User Settings
 --    [effect] FX/Layers Volume.jsfx
 -- @changelog
 --    + Initial tests
