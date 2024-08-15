@@ -1,0 +1,11 @@
+# Test stuff
+daniellumertz_Clouds Unvalidate.lua
+daniellumertz_Clouds Validate.lua
+TODO.txt
+.vscode/*
+tests
+# Settings
+User Settings/*
+# Presets
+User Presets/*
+!User Presets/Default.json

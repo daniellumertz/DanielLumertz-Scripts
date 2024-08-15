@@ -1,0 +1,83 @@
+Folder dedicated for remembering table structures
+
+Update Every selection change
+CloudTable:
+    cloud: item* 
+    items:
+        i: 
+            item: item
+            chance: chance
+    density:
+        random:
+            val:
+            envelope: boolean
+        density:
+            env_min:
+            val:
+            envelope: boolean
+        cap: 0
+    tracks:
+        self: 
+            chance:
+        i:
+            track:
+            chance:
+    randomization:
+        vol: // adds to original value
+            on: false
+            min:
+            max:
+            envelope: boolean
+        pan: // overwrite the original value
+            on: false
+            min:
+            max:
+            envelope: boolean?
+        pitch: // adds to the original value
+            on: false
+            min:
+            max:
+            envelope: boolean
+            quantize:
+        stretch: // multiplies to original value
+            on: false
+            min:
+            max:
+            envelope: boolean
+        reverse:
+            on:
+            val: // chance
+            envelope:
+    midi_notes:
+        EDO: 12
+        A4: 440
+        center: 60
+        solo_notes: false
+    grains:
+        on: boolean
+        size:
+            val:
+            envelope:
+            env_min:
+        randomize_size:
+            on:
+            min:
+            max:
+            envelope:
+        position:
+            on:
+            val:
+            envelope:
+        randomize_position;
+            on:
+            min:
+            max:
+            envelope:
+        fade:
+            on:
+            val:
+                      
+
+            
+
+        

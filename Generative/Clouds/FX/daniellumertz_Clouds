@@ -1,0 +1,13 @@
+desc:daniellumertz_Clouds
+
+slider1:s1=1<0,1,0.0001>Density
+slider2:s2=0<0,1,0.0001>Dust
+slider3:s3=0<0,1,0.0001>Randomize: Volume
+slider4:s4=0<0,1,0.0001>Randomize: Pan
+slider5:s5=0<0,1,0.0001>Randomize: Pitch
+slider6:s6=0<0,1,0.0001>Randomize: Stretch
+slider7:s7=0<0,1,0.0001>Randomize: Reverse
+slider8:s8=1<0,1,0.0001>Grains Size
+slider9:s9=1<0,1,0.0001>Randomize: Grains Size
+slider10:s10=0<0,1,0.0001>Grains Position
+slider11:s11=1<0,1,0.0001>Randomize: Grains Position
