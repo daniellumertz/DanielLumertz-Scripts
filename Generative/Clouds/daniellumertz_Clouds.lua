@@ -4,7 +4,7 @@
 --    [nomain] DL Functions/*.lua
 --    [nomain] Clouds Functions/*.lua
 --    [nomain] Image/Cloud.png
---    [nomain] Info/*.lua
+--    [nomain] Info/*.txt
 --    [nomain] User Presets/*.json
 --    [nomain] User Settings/*.json
 --    [effect] FX/Layers Volume.jsfx

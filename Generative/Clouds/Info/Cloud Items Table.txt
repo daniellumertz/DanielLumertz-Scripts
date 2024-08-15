@@ -1,3 +1,4 @@
+--@noindex
 Folder dedicated for remembering table structures
 
 Update Every selection change
