@@ -1,4 +1,4 @@
--- @version 0.1.3b
+-- @version 0.1.4b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] DL Functions/*.lua
@@ -16,7 +16,7 @@
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.1.3'
+SCRIPT_V  = '0.1.4b'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
@@ -97,6 +97,7 @@ require('Clouds Themes')
 require('Clouds Settings')
 require('Clouds Tracks')
 require('Clouds GUI')
+require('Clouds Tooltips')
 
 -- Check versions
 DL.check.ReaImGUI('0.9.2')

@@ -17,6 +17,7 @@ function Clouds.Item.Create(proj)
         return false
     end
     local item = reaper.CreateNewMIDIItemInProj(track, start, fim, false)
+    reaper.SetMediaItemSelected(item, true)
     local take = reaper.GetActiveTake(item)
     local def_t = Clouds.Item.DefaultTable()
     

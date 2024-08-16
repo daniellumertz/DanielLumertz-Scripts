@@ -30,6 +30,7 @@ local TABLE_FLAGS =     ImGui.TableFlags_ScrollY |
                         ImGui.TableFlags_NoSavedSettings |
                         ImGui.TableFlags_SizingStretchSame|
                         ImGui.TableFlags_ScrollX
+local TOOLTIP_W = 300
 local POPUPNAME = 'Buy Clouds'
 local TIMER = {
     val = 10,
@@ -38,7 +39,17 @@ local TIMER = {
 Clouds.Tracks.Get()
 local OPENBUYPOPUP = Clouds.Tracks.is_track == ''
 
-reaper.time_precise()
+-- Functions
+local function tooltip(ctx, bol, text)
+    if bol and ImGui.IsItemHovered(ctx, ImGui.HoveredFlags_DelayNormal) then
+        ImGui.SetNextWindowSize(ctx, ImGui.CalcTextSize(ctx, text), 0, ImGui.Cond_Appearing) 
+        if ImGui.BeginTooltip(ctx) then
+            ImGui.Text(ctx, text)
+            ImGui.EndTooltip(ctx)
+        end
+    end 
+end
+
 -- Main Function
 function Clouds.GUI.Main()
     --- Check selected Item for cloud items
@@ -153,19 +164,26 @@ function Clouds.GUI.Main()
             local something_changed, change = false, nil
             -- Items
             if ImGui.CollapsingHeader(ctx, "Items##header") then
+                tooltip(ctx, Settings.tooltip, ToolTips.items.head)
                 if ImGui.Button(ctx, 'Set Items') then
                     Clouds.Item.SetItems(Proj)
                     something_changed = true
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.items.set)
+
                 ImGui.SameLine(ctx)
                 if ImGui.Button(ctx, 'Add Items') then
                     Clouds.Item.AddItems(Proj)
                     something_changed = true                    
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.items.add)
+
                 ImGui.SameLine(ctx)
                 if ImGui.Button(ctx, 'Select Items') then
                     Clouds.Item.SelectItems(Proj)
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.items.select)
+                
                 if ImGui.BeginTable(ctx, 'item_table', 2, TABLE_FLAGS, -FLT_MIN, TAB_H) then
                     ImGui.TableSetupScrollFreeze(ctx, 0, 1); -- Make top row always visible
                     ImGui.TableSetupColumn(ctx, 'Name', ImGui.TableColumnFlags_None,5)
@@ -197,6 +215,7 @@ function Clouds.GUI.Main()
                                 ImGui.TableNextColumn(ctx)
                                 --Chance Input
                                 change, CloudTable.items[row].chance = ImGui.InputDouble(ctx, '##ItemChanceWeight'..row, CloudTable.items[row].chance, nil, nil, '%.1f')
+                                tooltip(ctx, Settings.tooltip, ToolTips.items.w)
                                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                                     CloudTable.items[row].chance = CloudTable.items[row].chance >= 0 and CloudTable.items[row].chance or 0
                                 end
@@ -207,17 +226,21 @@ function Clouds.GUI.Main()
                                     table.remove(CloudTable.items, row)
                                     something_changed = true
                                 end
+                                tooltip(ctx, Settings.tooltip, ToolTips.items.x)
                             end
                         end
                     end
                     ImGui.EndTable(ctx)
                 end
+            else
+                tooltip(ctx, Settings.tooltip, ToolTips.items.head)
             end
 
             -- Density
             if (not CloudTable.midi_notes.is_synth) and ImGui.CollapsingHeader(ctx, "Density##header") then
                 ----- Density
                 change, CloudTable.density.density.val = ImGui.InputDouble(ctx, "Items/Second##Double", CloudTable.density.density.val)
+                tooltip(ctx, Settings.tooltip, ToolTips.density.density.density)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then 
                     CloudTable.density.density.val = ((CloudTable.density.density.val > 0) and CloudTable.density.density.val) or 0 
                     CloudTable.density.density.env_min =  DL.num.Clamp(CloudTable.density.density.env_min, 0, CloudTable.density.density.val)
@@ -227,6 +250,7 @@ function Clouds.GUI.Main()
                 if ImGui.BeginPopupContextItem(ctx, 'RatioDensity') then
                     TempRatioDensity = TempRatioDensity or (CloudTable.grains.size.val * CloudTable.density.density.val / 1000)*100
                     change, TempRatioDensity = ImGui.SliderInt(ctx, 'Grain Size / Density Ratio', math.floor(TempRatioDensity), 25, 200, '%.i%%')
+                    tooltip(ctx, Settings.tooltip, ToolTips.density.density.density_ratio)
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                         CloudTable.density.density.val = (TempRatioDensity/100) * 1000 / CloudTable.grains.size.val 
                         something_changed = true
@@ -237,7 +261,7 @@ function Clouds.GUI.Main()
                 end
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.density.density.envelope = Clouds.GUI.EnvCheck(CloudTable.density.density.envelope, FXENVELOPES.density)
+                change, CloudTable.density.density.envelope = Clouds.GUI.EnvCheck(CloudTable.density.density.envelope, FXENVELOPES.density, ToolTips.density.density.env)
                 something_changed = something_changed or change
                 if ImGui.BeginPopupContextItem(ctx,'densitymin') then
                     change, CloudTable.density.density.env_min = ImGui.SliderDouble(ctx, 'Min##SliderDensity', CloudTable.density.density.env_min, 0, CloudTable.density.density.val, nil, ImGui.SliderFlags_AlwaysClamp)
@@ -247,15 +271,17 @@ function Clouds.GUI.Main()
                 
                 ----- Dust
                 change, CloudTable.density.random.val = ImGui.InputDouble(ctx, "Dust##Slider", CloudTable.density.random.val)
+                tooltip(ctx, Settings.tooltip, ToolTips.density.dust.dust)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.density.random.val = ((CloudTable.density.random.val > 0) and CloudTable.density.random.val) or 0 end
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.density.random.envelope = Clouds.GUI.EnvCheck(CloudTable.density.random.envelope, FXENVELOPES.dust)
+                change, CloudTable.density.random.envelope = Clouds.GUI.EnvCheck(CloudTable.density.random.envelope, FXENVELOPES.dust, ToolTips.density.dust.env)
                 something_changed = something_changed or change
 
                 ----- Cap
                 change, CloudTable.density.cap = ImGui.InputInt(ctx, 'Max N Items', CloudTable.density.cap)
+                tooltip(ctx, Settings.tooltip, ToolTips.density.max)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     CloudTable.density.cap = DL.num.Clamp(CloudTable.density.cap, 0)
                 end
@@ -264,8 +290,10 @@ function Clouds.GUI.Main()
 
             -- Grains
             if ImGui.CollapsingHeader(ctx, "Grain##header") then
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.on)
                 if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.grains.on = ImGui.Checkbox(ctx, 'Cloud Grains', CloudTable.grains.on)
+                    tooltip(ctx, Settings.tooltip, ToolTips.grains.on)
                     if change and not CloudTable.grains.on then
                         Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.size)
                         Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.randomize_size)
@@ -284,12 +312,14 @@ function Clouds.GUI.Main()
                 ----- Size
                 if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.grains.size.val = ImGui.InputDouble(ctx, "Size##Double", CloudTable.grains.size.val, nil, nil, '%.2f ms')
+                    tooltip(ctx, Settings.tooltip, ToolTips.grains.size.size)
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.grains.size.val = ((CloudTable.grains.size.val > CONSTRAINS.grain_low) and CloudTable.grains.size.val) or CONSTRAINS.grain_low end
                     something_changed = something_changed or change
                     -- Right click
                     if ImGui.BeginPopupContextItem(ctx, 'RatioDensityGrain') then
                         TempRatioTime = TempRatioTime or (CloudTable.grains.size.val * CloudTable.density.density.val / 1000)*100
                         change, TempRatioTime = ImGui.SliderInt(ctx, 'Grain Size / Density Ratio', math.floor(TempRatioTime), 25, 200, '%.i%%')
+                        tooltip(ctx, Settings.tooltip, ToolTips.grains.size.size_ratio)
                         if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                             CloudTable.grains.size.val = (TempRatioTime/100) * 1000 / CloudTable.density.density.val
                             something_changed = true
@@ -300,7 +330,7 @@ function Clouds.GUI.Main()
                     end
                     --Env
                     ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                    change, CloudTable.grains.size.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.size.envelope, FXENVELOPES.grains.size)
+                    change, CloudTable.grains.size.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.size.envelope, FXENVELOPES.grains.size, ToolTips.grains.size.size_env)
                     something_changed = something_changed or change
                     if ImGui.BeginPopupContextItem(ctx,'Grainsmin') then
                         change, CloudTable.grains.size.env_min = ImGui.SliderDouble(ctx, 'Min##SliderGrains', CloudTable.grains.size.env_min, 0, CloudTable.grains.size.val, nil, ImGui.SliderFlags_AlwaysClamp)
@@ -312,6 +342,7 @@ function Clouds.GUI.Main()
                 ----- Drift Size
                 --Checkbox
                 change, CloudTable.grains.randomize_size.on = ImGui.Checkbox(ctx, '##DriftCheckbox', CloudTable.grains.randomize_size.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.on)
                 if change and not CloudTable.grains.randomize_size.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.randomize_size)         
                 elseif change then
@@ -322,6 +353,7 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max = ImGui.InputDouble2(ctx, "Size Drift##randominput", CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max, '%.2f%%')
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.size_drift)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
                     CloudTable.grains.randomize_size.min = DL.num.Clamp(CloudTable.grains.randomize_size.min, CONSTRAINS.grain_rand_low)
                     CloudTable.grains.randomize_size.max = DL.num.Clamp(CloudTable.grains.randomize_size.max, CONSTRAINS.grain_rand_low)
@@ -332,13 +364,14 @@ function Clouds.GUI.Main()
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.grains.randomize_size.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_size.envelope, FXENVELOPES.grains.randomize_size)
+                change, CloudTable.grains.randomize_size.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_size.envelope, FXENVELOPES.grains.randomize_size, ToolTips.grains.size_drift.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
                 ----- Position
                 --Checkbox
                 change, CloudTable.grains.position.on = ImGui.Checkbox(ctx, '##PositionCheckbox', CloudTable.grains.position.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.position.on)
                 if change and not CloudTable.grains.position.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.position)       
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.randomize_position)       
@@ -351,10 +384,11 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.position.val = ImGui.SliderDouble(ctx, "Position##Double", CloudTable.grains.position.val, 0, 100, '%.2f%%', ImGui.SliderFlags_AlwaysClamp)
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.position.position)
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.grains.position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.position.envelope, FXENVELOPES.grains.position)
+                change, CloudTable.grains.position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.position.envelope, FXENVELOPES.grains.position, ToolTips.grains.position.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
@@ -362,6 +396,7 @@ function Clouds.GUI.Main()
                 --Checkbox
                 ImGui.BeginDisabled(ctx, not CloudTable.grains.position.on)
                 change, CloudTable.grains.randomize_position.on = ImGui.Checkbox(ctx, '##PositionDrift', CloudTable.grains.randomize_position.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.position_drifts.on)
                 if change and not CloudTable.grains.randomize_position.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.randomize_position)       
                 elseif change then
@@ -372,6 +407,7 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max = ImGui.InputDouble2(ctx, "Position Drift##randominput", CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max, '%.2f ms')
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.position_drifts.drifts)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
                     if CloudTable.grains.randomize_position.min > CloudTable.grains.randomize_position.max then 
                         CloudTable.grains.randomize_position.min = CloudTable.grains.randomize_position.max 
@@ -380,7 +416,7 @@ function Clouds.GUI.Main()
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.grains.randomize_position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_position.envelope, FXENVELOPES.grains.randomize_position)
+                change, CloudTable.grains.randomize_position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_position.envelope, FXENVELOPES.grains.randomize_position, ToolTips.grains.position_drifts.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx) -- Drift
                 ImGui.EndDisabled(ctx) -- Pos
@@ -391,23 +427,28 @@ function Clouds.GUI.Main()
                 change, CloudTable.grains.fade.on = ImGui.Checkbox(ctx, '##fadegrian', CloudTable.grains.fade.on); ImGui.SameLine(ctx)
                 something_changed = something_changed or change
                 ImGui.BeginDisabled(ctx, not CloudTable.grains.fade.on)
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.fade)
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.fade.val = ImGui.SliderDouble(ctx, "Fade##Double", CloudTable.grains.fade.val, 0, 100, '%.2f%%', ImGui.SliderFlags_AlwaysClamp) 
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.fade)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
-
                 ImGui.EndDisabled(ctx)
+            else
+                tooltip(ctx, Settings.tooltip, ToolTips.grains.on)
             end
 
             if ImGui.CollapsingHeader(ctx, 'MIDI Notes') then
                 if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.midi_notes.solo_notes = ImGui.Checkbox(ctx, 'Only Apply at Notes', CloudTable.midi_notes.solo_notes)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.solo_notes)
                     something_changed = something_changed or change
                 end
 
                 ------ EDO Tuning
                 change, CloudTable.midi_notes.EDO = ImGui.InputInt(ctx, 'Tuning EDO', CloudTable.midi_notes.EDO, 0, 0)
+                tooltip(ctx, Settings.tooltip, ToolTips.midi.edo)
                 something_changed = something_changed or change
                 -- Clamp
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.EDO = ((CloudTable.midi_notes.EDO > 0) and CloudTable.midi_notes.EDO) or 1 end
@@ -415,10 +456,12 @@ function Clouds.GUI.Main()
                 ----- Center or A4
                 if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.midi_notes.center = ImGui.InputInt(ctx, 'MIDI Center', CloudTable.midi_notes.center, 0, 0)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.center)
                     something_changed = something_changed or change
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.center = ((CloudTable.midi_notes.center >= 0) and CloudTable.midi_notes.center) or 0 end
                 else
                     change, CloudTable.midi_notes.A4 = ImGui.InputInt(ctx, 'A4', CloudTable.midi_notes.A4, 0, 0)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.a4)
                     something_changed = something_changed or change
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.A4 = ((CloudTable.midi_notes.A4 > 0) and CloudTable.midi_notes.A4) or 1 end
                 end
@@ -426,6 +469,7 @@ function Clouds.GUI.Main()
                 ImGui.Separator(ctx)
                 ----- Synth
                 change, CloudTable.midi_notes.is_synth = ImGui.Checkbox(ctx, 'Synth Mode', CloudTable.midi_notes.is_synth)
+                tooltip(ctx, Settings.tooltip, ToolTips.midi.synth)
                 if change and CloudTable.midi_notes.is_synth then
                     CloudTable.grains.on = true
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.size)
@@ -444,6 +488,7 @@ function Clouds.GUI.Main()
                 ----- Volume
                 --Checkbox
                 change, CloudTable.randomization.vol.on = ImGui.Checkbox(ctx, '##VolumeCheckbox', CloudTable.randomization.vol.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.randomization.volume.on)
                 if change and not CloudTable.randomization.vol.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.randomization.vol)       
                 elseif change then
@@ -458,13 +503,14 @@ function Clouds.GUI.Main()
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.randomization.vol.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.vol.envelope, FXENVELOPES.randomization.vol)
+                change, CloudTable.randomization.vol.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.vol.envelope, FXENVELOPES.randomization.vol, ToolTips.randomization.volume.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
                 ----- Pan
                 --Checkbox
                 change, CloudTable.randomization.pan.on = ImGui.Checkbox(ctx, '##PanCheckbox', CloudTable.randomization.pan.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.randomization.pan.on)
                 if change and not CloudTable.randomization.pan.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.randomization.pan)       
                 elseif change then
@@ -485,13 +531,14 @@ function Clouds.GUI.Main()
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.randomization.pan.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.pan.envelope, FXENVELOPES.randomization.pan)
+                change, CloudTable.randomization.pan.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.pan.envelope, FXENVELOPES.randomization.pan, ToolTips.randomization.pan.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
                 ----- Pitch
                 --Checkbox
                 change, CloudTable.randomization.pitch.on = ImGui.Checkbox(ctx, '##PitchCheckbox', CloudTable.randomization.pitch.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.randomization.pitch.on)
                 if change and not CloudTable.randomization.pitch.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.randomization.pitch)       
                 elseif change then
@@ -513,13 +560,14 @@ function Clouds.GUI.Main()
                 end
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.randomization.pitch.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.pitch.envelope, FXENVELOPES.randomization.pitch)
+                change, CloudTable.randomization.pitch.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.pitch.envelope, FXENVELOPES.randomization.pitch, ToolTips.randomization.pitch.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
                 ----- Stretch
                 --Checkbox
                 change, CloudTable.randomization.stretch.on = ImGui.Checkbox(ctx, '##StretchCheckbox', CloudTable.randomization.stretch.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.randomization.playrate.on)
                 if change and not CloudTable.randomization.stretch.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.randomization.stretch)       
                 elseif change then
@@ -540,13 +588,14 @@ function Clouds.GUI.Main()
                 end
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.randomization.stretch.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.stretch.envelope, FXENVELOPES.randomization.stretch)
+                change, CloudTable.randomization.stretch.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.stretch.envelope, FXENVELOPES.randomization.stretch, ToolTips.randomization.playrate.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
                 ----- Reverse
                 --Checkbox
                 change, CloudTable.randomization.reverse.on = ImGui.Checkbox(ctx, '##ReverserCheckbox', CloudTable.randomization.reverse.on); ImGui.SameLine(ctx)
+                tooltip(ctx, Settings.tooltip, ToolTips.randomization.reverse.on)
                 if change and not CloudTable.randomization.reverse.on then
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.randomization.reverse)       
                 elseif change then
@@ -564,26 +613,30 @@ function Clouds.GUI.Main()
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
-                change, CloudTable.randomization.reverse.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.reverse.envelope, FXENVELOPES.randomization.reverse)
+                change, CloudTable.randomization.reverse.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.reverse.envelope, FXENVELOPES.randomization.reverse, ToolTips.randomization.reverse.env)
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
             end
 
             -- Tracks
             if ImGui.CollapsingHeader(ctx, "Tracks##header") then
+                tooltip(ctx, Settings.tooltip, ToolTips.tracks.head) 
                 if ImGui.Button(ctx, 'Set Tracks') then
                     Clouds.Item.SetTracks(Proj)
                     something_changed = true
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.tracks.set)
                 ImGui.SameLine(ctx)
                 if ImGui.Button(ctx, 'Add Tracks') then
                     Clouds.Item.AddTracks(Proj)
                     something_changed = true                    
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.tracks.add) 
                 ImGui.SameLine(ctx)
                 if ImGui.Button(ctx, 'Select Tracks') then
                     Clouds.Item.SelectTracks(Proj)
                 end
+                tooltip(ctx, Settings.tooltip, ToolTips.tracks.select) 
                 if ImGui.BeginTable(ctx, 'track_table', 2, TABLE_FLAGS, -FLT_MIN, TAB_H) then
                     ImGui.TableSetupScrollFreeze(ctx, 0, 1); -- Make top row always visible
                     ImGui.TableSetupColumn(ctx, 'Name', ImGui.TableColumnFlags_None,5)
@@ -626,6 +679,7 @@ function Clouds.GUI.Main()
                                 ImGui.TableNextColumn(ctx)
                                 --Chance Input
                                 change, t.chance = ImGui.InputDouble(ctx, '##trackChanceWeight'..row, t.chance, nil, nil, '%.1f')
+                                tooltip(ctx, Settings.tooltip, ToolTips.tracks.w) 
                                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                                     t.chance = t.chance >= 0 and t.chance or 0
                                 end
@@ -637,12 +691,15 @@ function Clouds.GUI.Main()
                                         table.remove(CloudTable.tracks, row)
                                         something_changed = true
                                     end
+                                    tooltip(ctx, Settings.tooltip, ToolTips.tracks.x)
                                 end
                             end
                         end
                     end
                     ImGui.EndTable(ctx)
                 end
+            else
+                tooltip(ctx, Settings.tooltip, ToolTips.tracks.head) 
             end
             
             
@@ -653,6 +710,7 @@ function Clouds.GUI.Main()
 
             -- Fixcloud Checkbox
             local change, val = ImGui.Checkbox(ctx, 'Fix Cloud', (FixedCloud ~= nil))
+            tooltip(ctx, Settings.tooltip, ToolTips.buttons.fix)
             if change and val and CloudTable.cloud then
                 FixedCloud = CloudTable.cloud
             elseif change then
@@ -663,15 +721,18 @@ function Clouds.GUI.Main()
             if ImGui.Button(ctx, 'Copy Settings') then
                 CopySettings = DL.t.DeepCopy(CloudTable)
             end
+            tooltip(ctx, Settings.tooltip, ToolTips.buttons.copy)
 
             ImGui.SameLine(ctx)
-            if ImGui.Button(ctx, 'Paste Settings') then
+            if ImGui.Button(ctx, 'Paste Settings') and CopySettings then
                 local cloud = CloudTable.cloud
                 CloudTable = DL.t.DeepCopy(CopySettings)
                 CloudTable.cloud = cloud
                 Clouds.Item.ShowHideAllEnvelopes()
                 Clouds.Item.SaveSettings(Proj, CloudTable.cloud, CloudTable)
             end
+            tooltip(ctx, Settings.tooltip, ToolTips.buttons.paste)
+
 
             ImGui.SameLine(ctx)
             ImGui.SetNextItemWidth(ctx, -FLT_MIN)
@@ -725,9 +786,9 @@ function Clouds.GUI.Main()
             if not alt then
                 text_help = text_help..', deleting previous clouds'
             end
-            text_help = text_help .. '.'
+            text_help = text_help .. '.\nCtrl or/and Alt for more options!'
 
-            if ImGui.Button(ctx, 'Generate Selected Clouds!', -FLT_MIN) then
+            if ImGui.Button(ctx, 'Generate!', -FLT_MIN) then
                 CreatingClouds = coroutine.wrap(Clouds.apply.GenerateClouds)
                 --Clouds.apply.GenerateClouds(Proj, not ctrl, not alt)                    
             end
@@ -758,6 +819,7 @@ function Clouds.GUI.Main()
             if ImGui.Button(ctx, 'Create Cloud Item', -FLT_MIN) then
                 Clouds.Item.Create(Proj)
             end
+            tooltip(ctx, Settings.tooltip, ToolTips.create_item)
         end
         ImGui.End(ctx)
     end
@@ -772,13 +834,16 @@ function Clouds.GUI.Main()
     end
 end
 
-function Clouds.GUI.EnvCheck(val, env_n)
+function Clouds.GUI.EnvCheck(val, env_n, tip)
     local something_changed = false
     --Env
     if ImGui.Checkbox(ctx, "Env##"..env_n, val) then
         val = not val
         Clouds.Item.ShowHideEnvelope(val, env_n)
         something_changed = true
+    end
+    if tip then 
+        tooltip(ctx, Settings.tooltip, tip)
     end
     return something_changed, val
 end
@@ -815,7 +880,7 @@ function Clouds.GUI.BUY()
             DAYS_EVAL = math.floor(diff_in_seconds / (24 * 60 * 60))
         end 
         
-        ImGui.TextWrapped(ctx, string.format("Clouds is not free!\n\nIt is a paid script.\n\nIf you use it more than 7 days you are required to purchase a license.\n\nYou have been evaluating Clouds for approximately %d days",DAYS_EVAL))
+        ImGui.TextWrapped(ctx, string.format("Clouds is not free!\n\nIt is a paid script.\n\nIf you use it more than 7 days you are required to purchase a license.\n\nYou have been evaluating Clouds for approximately %d days\n\nWe offer discounts based on region and for personal/educational use!",DAYS_EVAL))
 
         ImGui.NewLine(ctx)
         ImGui.NewLine(ctx)
@@ -831,7 +896,7 @@ function Clouds.GUI.BUY()
             if bol then
                 ImGui.CloseCurrentPopup(ctx)
             else
-                reaper.ShowMessageBox("Hmmm. Serial key incorrect.\nTry again, check if everything is copied correctly, if problem persist contact me!", 'Clouds', 0)
+                reaper.ShowMessageBox("Hmmm. Serial key incorrect.\nTry again, check if everything is copied correctly, if problem persist contact me at the thread or via e-mail!", 'Clouds', 0)
             end
         end
 
@@ -858,3 +923,4 @@ function Clouds.GUI.BUY()
         ImGui.EndPopup(ctx)
     end     
 end
+
