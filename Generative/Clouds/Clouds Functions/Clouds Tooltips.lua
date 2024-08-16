@@ -16,8 +16,8 @@ ToolTips = {
             env = 'Enables a take envelope to control density over time.\nAt maximum position it will be the current density value.\nAt the lowest position it will be a minimum value, which can be set by right clicking this checkbox.'
         },
         dust = {
-            dust = 'Dust affects the metric of item placement density. A dust value of 0 results in a steady arrangement of items, while a dust value of 1 introduces randomization within a range of 1 divided by the frequency in seconds.',
-            env = 'Enables an take envelope to control dust over time.'
+            dust = 'Dust affects the metric of item placement density.\nA dust value of 0 results in a steady arrangement of items.\nDust value of 1 introduces randomization within a range of 1 divided by the frequency in seconds.',
+            env = 'Enables an take envelope to control dust over time.\nAt maximum position it will be the current dust value\nAt the lowest position it will be 0.'
         },
         max = 'Set the maximum number of simultaneous items.'
     },
@@ -26,7 +26,7 @@ ToolTips = {
         size = {
             size = 'Set the size of each grain. Right click to set it in proportion to the density frequency.',
             size_ratio = '100% = Size is equivalent to put grains juxtaposed.\n200% = Size is equivalent to have each grain make a complete crossfade between previous and next.\n50% Size is equal to have a grain size gap between each item.',
-            size_env = 'Enables an take envelope to control size over time. At maximum position it will be the current size value. At the lowest position it will be a minimum value, which can be set by right clicking this checkbox.'
+            size_env = 'Enables an take envelope to control size over time.\nAt maximum position it will be the current size value.\nAt the lowest position it will be a minimum value, which can be set by right clicking this checkbox.'
         },
         size_drift = {
             on = 'Randomize the size of each grain',
@@ -48,11 +48,11 @@ ToolTips = {
     },
     midi ={
         head = 'Randomize parameters of the pasted items',
-        solo_notes = 'If the cloud item has MIDI notes, the generations will pitch the items pasted inside these notes.\nIf this option is ON it will generate items only where there are MIDI notes.',
+        solo_notes = 'If this option is ON it will generate items only where there are MIDI notes at the Cloud Item.\nNotes at the cloud item will randomize the items pitch, considering "MIDI center" as 0 transposition.\nOverlapped notes will be randomly chosen per item, velocity controls the weight of each note.',
         edo = 'How many notes per octave',
-        center = 'Which MIDI note is the middle C, which will be used to play the audio with any transposition.',
+        center = 'Which MIDI note will be used to play the audio without any transposition.',
         a4 = 'Tuning of the A4 note',
-        synth = 'In synth mode you are obliged to use grains. The density is defined by the notes placed on the cloud item. Might be hard on resources, experimental feature.'
+        synth = 'The density is defined by the notes placed on the cloud item.\nEx: A4 will put 440 items/second\nIn synth mode you are obliged to use grains.\nMight be hard on resources, experimental feature.'
     },
     randomization = {
         volume  = {

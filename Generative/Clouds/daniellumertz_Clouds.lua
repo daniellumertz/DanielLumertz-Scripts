@@ -1,4 +1,4 @@
--- @version 0.1.4b
+-- @version 0.1.5b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] DL Functions/*.lua
@@ -16,7 +16,7 @@
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.1.4b'
+SCRIPT_V  = '0.1.5b'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
