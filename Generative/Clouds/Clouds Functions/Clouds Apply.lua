@@ -149,11 +149,11 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         end
                         --
                         if not ct.midi_notes.solo_notes then
-                            positions[#positions + 1] = pos
+                            positions[#positions + 1] = new_pos
                         else
                             for index, note in ipairs(notes) do
                                 if note.start <= pos and note.fim >= pos then
-                                    positions[#positions + 1] = pos
+                                    positions[#positions + 1] = new_pos
                                     break
                                 end 
                             end

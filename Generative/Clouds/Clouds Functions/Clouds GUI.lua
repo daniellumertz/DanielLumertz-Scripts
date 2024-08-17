@@ -76,7 +76,7 @@ function Clouds.GUI.Main()
         end
     end
     --- Keyboard shortcuts
-    --DL.imgui.SWSPassKeys(ctx, false)
+    DL.imgui.SWSPassKeys(ctx, false)
     --- UI
     local window_flags = ImGui.WindowFlags_AlwaysAutoResize | ImGui.WindowFlags_MenuBar
     if pin then 
