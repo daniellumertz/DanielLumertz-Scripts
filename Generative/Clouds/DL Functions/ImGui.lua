@@ -253,6 +253,7 @@ local held_keys = {}
 ---@param ctx any
 ---@param is_midieditor any
 function DL.imgui.SWSPassKeys(ctx, is_midieditor)
+    if not reaper.CF_SendActionShortcut then return end
     if (not ImGui.IsWindowFocused(ctx, ImGui.FocusedFlags_AnyWindow)) or ImGui.IsAnyItemActive(ctx) then return end -- Only when Script haves the focus
 
     local sel_window, section 
