@@ -1,14 +1,10 @@
 --@noindex
---version: 0.0
+--version: 0.1
 
 DL = DL or {}
 DL.url = {}
 
+-- A convinience for backward-compability
 function DL.url.OpenURL(url)
-    local OS = reaper.GetOS()
-    if OS == "OSX32" or OS == "OSX64" then
-        os.execute('open "" "' .. url .. '"')
-    else
-        os.execute('start "" "' .. url .. '"')
-    end
+    reaper.CF_ShellExecute(url)
 end
