@@ -291,3 +291,15 @@ function Clouds.Item.ShowHideAllEnvelopes()
     Clouds.Item.ShowHideEnvelope(CloudTable.grains.position.envelope,FXENVELOPES.grains.position)
     Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.envelope,FXENVELOPES.grains.randomize_position)
 end
+
+------ Generated Items:
+
+function Clouds.Item.UntagSelected(proj)
+    for item in DL.enum.SelectedMediaItem(proj) do
+        local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'is_item')
+        if extstate ~= '' then
+            DL.item.SetExtState(item, EXT_NAME, 'is_item', '')
+        end 
+        -- body
+    end
+end

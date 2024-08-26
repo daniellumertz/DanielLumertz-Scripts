@@ -127,6 +127,14 @@ function Clouds.GUI.Main()
                 ImGui.EndMenu(ctx)
             end
 
+            if ImGui.BeginMenu(ctx, "Actions") then
+                if ImGui.MenuItem(ctx, 'Untag Selected Items') then
+                    Clouds.Item.UntagSelected(proj)
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.settings.untag)
+                ImGui.EndMenu(ctx)
+            end
+
             if ImGui.BeginMenu(ctx, 'About') then
                 if ImGui.MenuItem(ctx, 'Manual') then
                     DL.url.OpenURL(URL.manual)
