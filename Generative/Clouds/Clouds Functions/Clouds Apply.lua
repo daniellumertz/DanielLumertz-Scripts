@@ -6,33 +6,36 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     --local debug_time = reaper.time_precise()
     -- Get the Clouds it will generate
     local clouds = {}
-    local f = is_selection and DL.enum.SelectedMediaItem or DL.enum.MediaItem
-    for item in f(proj) do
-        local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
-        if extstate ~= '' then
-            local ext_table = DL.serialize.stringToTable(extstate)
-            -- Guids to Items/Tracks
-            local t = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
-            -- Check if some item/track wasnt found (remove it from the table)
-            for k, v in DL.t.ipairs_reverse(t.items) do
-                if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
-                    table.remove(t.items,k)
-                end
-            end
-    
-            for k, v in DL.t.ipairs_reverse(t.tracks) do -- dont need to check self
-                if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
-                    table.remove(t.tracks,k)
-                end
-            end
 
-            t.cloud = item
-            clouds[#clouds+1] = t
+    if CloudTable and FixedCloud then
+        clouds[#clouds+1] = DL.t.DeepCopy(CloudTable)
+    else
+        local f = is_selection and DL.enum.SelectedMediaItem or DL.enum.MediaItem
+        for item in f(proj) do
+            local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
+            if extstate ~= '' then
+                local ext_table = DL.serialize.stringToTable(extstate)
+                -- Guids to Items/Tracks
+                local t = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
+                -- Check if some item/track wasnt found (remove it from the table)
+                for k, v in DL.t.ipairs_reverse(t.items) do
+                    if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
+                        table.remove(t.items,k)
+                    end
+                end
+        
+                for k, v in DL.t.ipairs_reverse(t.tracks) do -- dont need to check self
+                    if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
+                        table.remove(t.tracks,k)
+                    end
+                end
+    
+                t.cloud = item
+                clouds[#clouds+1] = t
+            end
         end
     end
-    if CloudTable and FixedCloud and not reaper.IsMediaItemSelected(CloudTable.cloud) then
-        clouds[#clouds+1] = DL.t.DeepCopy(CloudTable)
-    end
+
 
     if #clouds == 0 then return true end
     reaper.Undo_BeginBlock()

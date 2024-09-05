@@ -88,7 +88,7 @@ ToolTips = {
         x = 'Remove track from list.'
     },
     buttons = {
-        fix = 'Fixate selected cloud item at this interface. So you can unselect it.',
+        fix = "Pin selected cloud item, allows you to maintain the item's settings at the interface, even when deselected",
         copy = 'Copy settings of this cloud item.',
         paste = 'Paste settings to this cloud item.'
     }

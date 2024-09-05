@@ -717,7 +717,7 @@ function Clouds.GUI.Main()
             ImGui.Separator(ctx)
 
             -- Fixcloud Checkbox
-            local change, val = ImGui.Checkbox(ctx, 'Fix Cloud', (FixedCloud ~= nil))
+            local change, val = ImGui.Checkbox(ctx, 'Pin Cloud', (FixedCloud ~= nil))
             tooltip(ctx, Settings.tooltip, ToolTips.buttons.fix)
             if change and val and CloudTable.cloud then
                 FixedCloud = CloudTable.cloud
