@@ -1,7 +1,6 @@
 -- @version 0.3.0b
 -- @author Daniel Lumertz
 -- @provides
---    [main] daniellumertz_Clouds Generate for All Items.lua
 --    [main] daniellumertz_Clouds Generate for All Items Without Deleting.lua
 --    [main] daniellumertz_Clouds Generate for Selected Items Without Deleting.lua
 --    [main] daniellumertz_Clouds Generate for Selected Items.lua
