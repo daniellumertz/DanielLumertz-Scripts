@@ -199,19 +199,19 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             }
         }
 
-        local coroutine_check = 0
+        --local coroutine_check = 0
         local held_items = {}
         for k, pos in ipairs(positions) do
             -- coroutine
-            coroutine_check = coroutine_check + 1
-            if (coroutine_check >= UPDATE_FREQ.items) and((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then
+            --coroutine_check = coroutine_check + 1
+            if ((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then -- (coroutine_check >= UPDATE_FREQ.items) 
                 reaper.PreventUIRefresh(-1)
                 coroutine.yield(false, {done = c_idx-1, total = #clouds}, {done = k, total = #positions})
                 if CancelCreatingClouds then -- Cancel pasting
                     reaper.Undo_EndBlock2(proj, 'Generate Clouds', -1)
                     return true
                 end
-                coroutine_check = 0
+                --coroutine_check = 0
                 reaper.PreventUIRefresh(1)
                 coroutine_time = reaper.time_precise()
             end
@@ -451,5 +451,5 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     reaper.UpdateArrange()
     reaper.Undo_EndBlock2(proj, 'Generate Clouds', -1)
     --print('Time: ', reaper.time_precise() - debug_time)
-    return true
+    return true, {done = #clouds, total = #clouds}, {done = 1, total = 1}
 end

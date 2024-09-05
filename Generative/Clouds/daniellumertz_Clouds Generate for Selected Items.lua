@@ -1,31 +1,17 @@
--- @version 0.3.0b
--- @author Daniel Lumertz
--- @provides
---    [main] daniellumertz_Clouds Generate for All Items.lua
---    [main] daniellumertz_Clouds Generate for All Items Without Deleting.lua
---    [main] daniellumertz_Clouds Generate for Selected Items Without Deleting.lua
---    [main] daniellumertz_Clouds Generate for Selected Items.lua
---    [nomain] DL Functions/*.lua
---    [nomain] Clouds Functions/*.lua
---    [nomain] Image/Cloud.png
---    [nomain] Info/*.txt
---    [nomain] User Presets/*.json
---    [nomain] User Settings/.gitkeep
---    [effect] FX/daniellumertz_Clouds.jsfx
--- @changelog
---    + fix url 
+--@noindex
 
--- Debug
---local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
+------ USER CONFIGS:
+local proj = 0
+local is_selection = true
+local is_delete = true 
 
--- Constants:
-SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.3.0b'
+
+---------- Constants
+SCRIPT_NAME = 'Generating Clouds'
+SCRIPT_V  = ''
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
-Proj = 0
-CloudColor = 25987079
-CloudImage = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .. "Image/Cloud.png"
+
 FXENVELOPES = {
     density = 0,
     dust = 1,
@@ -70,6 +56,7 @@ URL = {
     video = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 }
 
+-------------------------
 -- Initialize ImGUI
 package.path = package.path..';'..reaper.ImGui_GetBuiltinPath() .. '/?.lua'
 ImGui = require 'imgui' '0.9.2' 
@@ -100,16 +87,17 @@ require('Clouds Presets')
 require('Clouds Themes')
 require('Clouds Settings')
 require('Clouds Tracks')
-require('Clouds GUI')
 require('Clouds Tooltips')
-
--- Check versions
-DL.check.ReaImGUI('0.9.2')
+require('Clouds GUI')
 
 -- Load User Settings
 Settings = Clouds.Settings.Load(SETTINGS.path)
 
--- Start Main
-reaper.defer(Clouds.GUI.Main)
 
+CreatingClouds = coroutine.wrap(Clouds.apply.GenerateClouds)
 
+local is_finished, clouds, items = CreatingClouds(proj, is_selection, is_delete)
+
+if not is_finished then
+    Clouds.GUI.Guiless(proj, is_selection, is_delete)
+end

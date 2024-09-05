@@ -449,7 +449,7 @@ function Clouds.GUI.Main()
 
             if ImGui.CollapsingHeader(ctx, 'MIDI Notes') then
                 if not CloudTable.midi_notes.is_synth then
-                    change, CloudTable.midi_notes.solo_notes = ImGui.Checkbox(ctx, 'Only Apply at Notes', CloudTable.midi_notes.solo_notes)
+                    change, CloudTable.midi_notes.solo_notes = ImGui.Checkbox(ctx, 'Only Generate Items at Notes', CloudTable.midi_notes.solo_notes)
                     tooltip(ctx, Settings.tooltip, ToolTips.midi.solo_notes)
                     something_changed = something_changed or change
                 end
@@ -932,3 +932,28 @@ function Clouds.GUI.BUY()
     end     
 end
 
+
+function Clouds.GUI.Guiless(proj, is_selection, is_delete)
+    local w, h = 300, 80
+    local gap = 15
+    ImGui.SetNextWindowSize(ctx, w, h, ImGui.Cond_Once)
+    ImGui.PushFont(ctx, font_text)
+    Clouds.Themes[Settings.theme].Push(ctx)
+    --local win_flags = ImGui.WindowFlags_AlwaysAutoResize
+    local visible, open = ImGui.Begin(ctx, SCRIPT_NAME, false, ImGui.WindowFlags_NoResize | ImGui.WindowFlags_NoCollapse)
+    if visible then
+        local is_finished, clouds, items = CreatingClouds(proj, is_selection, is_delete)
+        -- defer until ready
+        if not is_finished and open then
+            ImGui.ProgressBar(ctx,  items.done/items.total, w - gap)
+            if ImGui.Button(ctx, 'Cancel', w - gap) then
+                CancelCreatingClouds = true
+            end
+            reaper.defer(Clouds.GUI.Guiless)
+        end
+
+        ImGui.End(ctx)
+    end
+    Clouds.Themes[Settings.theme].Pop(ctx)
+    ImGui.PopFont(ctx)
+end
