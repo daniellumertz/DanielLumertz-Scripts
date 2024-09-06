@@ -11,7 +11,7 @@ function Clouds.Item.Create(proj)
         reaper.ShowMessageBox('Please, insert some track at the project!', 'Clouds', 0)
         return false 
     end
-    local start, fim = reaper.GetSet_LoopTimeRange2(proj, false, true, 0, 0, false)
+    local start, fim = reaper.GetSet_LoopTimeRange2(proj, false, false, 0, 0, false)
     if start == fim then
         reaper.ShowMessageBox('Please, make a time selection!', 'Clouds', 0)
         return false
