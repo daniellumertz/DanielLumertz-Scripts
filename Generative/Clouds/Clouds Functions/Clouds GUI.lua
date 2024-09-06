@@ -105,6 +105,8 @@ function Clouds.GUI.Main()
     Clouds.GUI.BUY()
     
     if visible then
+        local ctrl = ImGui.IsKeyDown(ctx, ImGui.Mod_Ctrl)
+        local alt = ImGui.IsKeyDown(ctx, ImGui.Mod_Alt)
         if ImGui.BeginMenuBar(ctx) then
             if ImGui.BeginMenu(ctx, "Settings") then
                 local setting_change, change = false, false
@@ -137,9 +139,24 @@ function Clouds.GUI.Main()
 
             if ImGui.BeginMenu(ctx, "Actions") then
                 if ImGui.MenuItem(ctx, 'Untag Selected Items') then
-                    Clouds.Item.UntagSelected(proj)
+                    Clouds.Item.UntagSelected(Proj)
                 end
-                tooltip(ctx, Settings.tooltip, ToolTips.settings.untag)
+                tooltip(ctx, Settings.tooltip, ToolTips.actions.untag)
+                -- Delete
+                ImGui.Separator(ctx)
+                local which = ctrl and 'All' or 'Selected'
+                if ImGui.MenuItem(ctx, string.format("Delete Generations at %s Clouds Position", which)) then
+                    Clouds.Item.DeleteGenerations(Proj, not ctrl, true)
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.actions.deletepos)
+                if ImGui.MenuItem(ctx, string.format('Delete All Generations from %s Clouds', which)) then
+                    Clouds.Item.DeleteGenerations(Proj, not ctrl, false)
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.actions.delete)
+                if ImGui.MenuItem(ctx, string.format('Delete All Generations', which)) then
+                    Clouds.Item.DeleteAnyGeneration(Proj)
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.actions.deleteall)
                 ImGui.EndMenu(ctx)
             end
 
@@ -790,8 +807,6 @@ function Clouds.GUI.Main()
             -- Standard = Generate Clouds for selected clouds. Erasing existing items
             -- with Alt = + Don't Erase Previous Items
             -- with Ctrl = + All Clouds at the project  
-            local ctrl = ImGui.IsKeyDown(ctx, ImGui.Mod_Ctrl)
-            local alt = ImGui.IsKeyDown(ctx, ImGui.Mod_Alt)
             local text_help = 'Generate Clouds for'
             if not ctrl then
                 text_help = text_help..' selected cloud items'

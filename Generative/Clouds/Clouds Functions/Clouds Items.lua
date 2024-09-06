@@ -331,3 +331,79 @@ function Clouds.Item.UntagSelected(proj)
         -- body
     end
 end
+
+-- Delete
+
+function Clouds.Item.DeleteGenerations(proj, is_selection, is_area)
+    reaper.PreventUIRefresh(1)
+    reaper.Undo_BeginBlock2(proj)
+    -- Which clouds apply
+    local clouds = {}
+    if CloudTable and FixedCloud then
+        clouds[#clouds+1] = {item = CloudTable.cloud, guid = reaper.BR_GetMediaItemGUID(CloudTable.cloud)}
+    else
+        local f = is_selection and DL.enum.SelectedMediaItem or DL.enum.MediaItem
+        for item in f(proj) do
+            local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
+            if extstate ~= '' then
+                clouds[#clouds+1] = {item = item, guid = reaper.BR_GetMediaItemGUID(item)}
+            end
+        end
+    end        
+
+    -- Which scope to delete
+    local del_items = {}
+    for k, v in ipairs(clouds) do
+        local cloud_item = v.item
+        local cloud_guid = v.guid
+        if is_area then
+            local start = reaper.GetMediaItemInfo_Value(cloud_item, 'D_POSITION')
+            local len = reaper.GetMediaItemInfo_Value(cloud_item, 'D_LENGTH')
+            local fim = start + len
+            local dt = DL.item.GetItemsInRange(proj, start, fim, false, false) 
+            for index, d_item in ipairs(dt) do
+                local retval, extstate = DL.item.GetExtState(d_item, EXT_NAME, 'is_item')
+                if extstate == cloud_guid then
+                    del_items[d_item] = true
+                end
+            end
+        else
+            for loop_item in DL.enum.MediaItem(proj) do
+                local retval, extstate = DL.item.GetExtState(loop_item, EXT_NAME, 'is_item')
+                if extstate == cloud_guid then
+                    del_items[loop_item] = true
+                end
+            end
+        end        
+    end
+    -- delete
+    for item, value in pairs(del_items) do        
+        reaper.DeleteTrackMediaItem(reaper.GetMediaItem_Track(item), item)
+    end
+
+
+    reaper.PreventUIRefresh(-1)
+    reaper.Undo_EndBlock2(proj, 'Clouds: Delete Generated Items', -1)
+    reaper.UpdateArrange()
+end
+
+function Clouds.Item.DeleteAnyGeneration(proj)
+    reaper.PreventUIRefresh(1)
+    reaper.Undo_BeginBlock2(proj)
+
+    local del_items = {}
+    for loop_item in DL.enum.MediaItem(proj) do
+        local retval, extstate = DL.item.GetExtState(loop_item, EXT_NAME, 'is_item')
+        if extstate ~= '' then
+            del_items[loop_item] = true
+        end
+    end
+
+    for item, value in pairs(del_items) do        
+        reaper.DeleteTrackMediaItem(reaper.GetMediaItem_Track(item), item)
+    end
+
+    reaper.PreventUIRefresh(-1)
+    reaper.Undo_EndBlock2(proj, 'Clouds: Delete Allb Generated Items', -1)
+    reaper.UpdateArrange()
+end
