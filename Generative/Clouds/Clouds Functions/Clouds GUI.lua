@@ -875,7 +875,8 @@ function Clouds.GUI.BUY()
     -- Always center this window when appearing
     ImGui.SetNextWindowSize(ctx, 350, 0, ImGui.Cond_Appearing)
     local center_x, center_y = ImGui.Viewport_GetCenter(ImGui.GetWindowViewport(ctx))
-    ImGui.SetNextWindowPos(ctx, center_x, center_y, nil, 0.5, 0.5)
+    local x, y = ImGui.Viewport_GetPos(ImGui.GetWindowViewport(ctx))
+    ImGui.SetNextWindowPos(ctx, center_x, y, nil, 0.5, 0)
     local popflags = ImGui.WindowFlags_NoResize
     if ImGui.BeginPopupModal(ctx, POPUPNAME, nil, popflags) then
         if TIMER.val > 0 then
