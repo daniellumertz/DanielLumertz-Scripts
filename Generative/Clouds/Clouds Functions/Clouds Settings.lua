@@ -5,7 +5,8 @@ Clouds.Settings = {}
 function Clouds.Settings.Default()
     return {
         tooltip = true,
-        theme = 'Dark'
+        theme = 'Dark',
+        stop_playback = true, -- as a security measure, stop playback when generating
     }
 end
 

@@ -41,7 +41,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     reaper.Undo_BeginBlock()
     reaper.PreventUIRefresh(1)
 
-    if reaper.GetPlayState() ~= 0 then
+    if Settings.stop_playback and reaper.GetPlayState() ~= 0 then
         reaper.Main_OnCommand(40044, 0) -- Transport: Play/stop
     end
     

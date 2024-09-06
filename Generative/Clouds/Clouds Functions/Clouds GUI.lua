@@ -108,8 +108,16 @@ function Clouds.GUI.Main()
         if ImGui.BeginMenuBar(ctx) then
             if ImGui.BeginMenu(ctx, "Settings") then
                 local setting_change, change = false, false
+                -- Tooltips
                 change, Settings.tooltip= ImGui.MenuItem(ctx, 'Tooltips', nil, Settings.tooltip)
                 setting_change = setting_change or change
+                -- Playback
+                if ImGui.MenuItem(ctx, 'Stop Playback On Generate', nil, Settings.stop_playback) then
+                    Settings.stop_playback = not Settings.stop_playback
+                    setting_change = true
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.settings.stopongenerate)
+                -- Themes
                 if ImGui.BeginMenu(ctx, 'Themes') then
                     for name, theme in pairs(Clouds.Themes) do
                         if ImGui.MenuItem(ctx, name..'##themeitem', nil, Settings.theme == name) and Settings.theme ~= name then
