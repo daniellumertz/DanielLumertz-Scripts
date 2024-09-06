@@ -47,6 +47,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     
     local coroutine_time = reaper.time_precise()
     local reverserd_items = {}
+    local is_proj_mix = reaper.SNM_GetIntConfigVar('itemmixflag',100) == 1 --mix behavior 
     for c_idx, ct in ipairs(clouds) do -- ct = cloud table
         -- Save information about items and check if they exist
         local chance_sum = 0
@@ -59,6 +60,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 v.offset = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_STARTOFFS')  -- Need for: grains
                 v.length = reaper.GetMediaItemInfo_Value(v.item, 'D_LENGTH')  -- Need for: grains
                 v.rate = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_PLAYRATE')  -- Need for: grains
+                v.mix = DL.item.GetMixBehavior(v.item) 
             else
                 table.remove(ct.items,k)
             end
@@ -408,6 +410,10 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     local len  = new_values.length * (ct.grains.fade.val/200)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEINLEN', len)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEOUTLEN', len)
+                end
+
+                if o_item_t.mix ~= 1 and not (is_proj_mix and o_item_t.mix == -1) then
+                    DL.item.SetMixBehavior(new_item.item, 1)
                 end
 
                 -- Ext State

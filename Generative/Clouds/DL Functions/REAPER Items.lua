@@ -1,6 +1,6 @@
 --@noindex
---version: 0.1
---Set Item Image
+--version: 0.2
+--add get/set mix behavior
 
 DL = DL or {}
 DL.item = {}
@@ -288,3 +288,38 @@ function DL.item.SetImage(item, image_path, mode)
     return bool, chunk
 end
 
+---Get item mix behavior
+---@param item MediaItem
+---@return boolean|number|number? -- false if couldn't find chunk. -1 = Project default item mix behavior, 0 = Enclosed items mix before enclosing items, 1 = Items always mix, 2 = Lower always replace earlier items
+function DL.item.GetMixBehavior(item)
+    local bol, chunk = reaper.GetItemStateChunk(item, '')
+    if not chunk then
+        return false
+    end
+    local mix = chunk:match('\nMIXFLAG (%d+)')
+    if not mix then 
+        return -1
+    end
+    return tonumber(mix)
+end
+
+---Set item mix behavior
+---@param item MediaItem
+---@param behavior number -1 = Project default item mix behavior, 0 = Enclosed items mix before enclosing items, 1 = Items always mix, 2 = Lower always replace earlier items
+---@return boolean 
+function DL.item.SetMixBehavior(item, behavior)
+    local bol, chunk = reaper.GetItemStateChunk(item, '')
+    if not chunk then
+        return false
+    end
+
+    local new_value = '\nMIXFLAG '..tostring(behavior)
+    local new_chunk
+    if chunk:match('\nMIXFLAG') then
+        new_chunk = chunk:gsub('\nMIXFLAG (%d+)', new_value)
+    else
+        new_chunk = string.gsub(chunk,'^<ITEM\n','<ITEM\n'..new_value)
+    end
+
+    return reaper.SetItemStateChunk(item, new_chunk)
+end
