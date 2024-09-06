@@ -53,8 +53,10 @@ function Clouds.Item.CheckSelection(proj)
                 local ext_table = DL.serialize.stringToTable(extstate)
                 -- Guids to Items/Tracks
                 CloudTable = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
-                CloudTable.cloud = item
-                break
+                if CloudTable then -- check if cloud table havent been corrupted at some script crash
+                    CloudTable.cloud = item
+                    break
+                end
             end
         end
         if not found then
