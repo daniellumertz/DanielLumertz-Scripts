@@ -72,28 +72,54 @@ function Clouds.Item.SaveSettings(proj, item, settings)
 end
 
 ---------- Items to be copied: 
-
+local msg_add_tags_items = 'Some of the items you are tring to add were generated using Clouds.\nTo add them back to Clouds you need to untag them.\nUntagging an item will make it a normal items, which wont be deleted by new generations.\nDo you want to untag these items?' 
 function Clouds.Item.SetItems(proj)
     local t = {}
+    local result
     for item in DL.enum.SelectedMediaItem(proj) do
+        local is_tag = DL.item.GetExtState(item, EXT_NAME, 'is_item')
+        if (not result) and is_tag then
+            result = reaper.ShowMessageBox( msg_add_tags_items, 'Clouds', 4 )
+        end
+
+        if is_tag and result == 7 then -- skip 
+            goto continue
+        elseif is_tag and result == 6 then -- untag
+            DL.item.SetExtState(item, EXT_NAME, 'is_item', '')
+        end
+
         if not DL.item.GetExtState(item, EXT_NAME, 'settings') then -- prevent adding cloud items to selections
             t[#t+1] = {
                 item = item,
                 chance = 1
             }
         end 
+        ::continue::
     end
     CloudTable.items = t
 end
 
 function Clouds.Item.AddItems(proj)
+    local result
     for item in DL.enum.SelectedMediaItem(proj) do
+        local is_tag = DL.item.GetExtState(item, EXT_NAME, 'is_item')
+        if (not result) and is_tag then
+            result = reaper.ShowMessageBox( msg_add_tags_items, 'Clouds', 4 )
+        end
+
+        if is_tag and result == 7 then -- skip 
+            goto continue
+        elseif is_tag and result == 6 then -- untag
+            DL.item.SetExtState(item, EXT_NAME, 'is_item', '')
+        end
+
         if not DL.item.GetExtState(item, EXT_NAME, 'settings') then -- prevent adding cloud items to selections
             CloudTable.items[#CloudTable.items+1] = {
                 item = item,
                 chance = 1
             }
         end
+        ::continue::
     end
 end
 
