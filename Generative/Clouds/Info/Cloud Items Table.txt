@@ -54,6 +54,10 @@ CloudTable:
         A4: 440
         center: 60
         solo_notes: false
+        is_synth: bool
+        synth:
+            min_vol: negative number in dB
+            fix_pos: boolean -- if true will use the position at the start of the midi note
     grains:
         on: boolean
         size:

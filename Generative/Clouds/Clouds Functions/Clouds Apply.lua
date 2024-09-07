@@ -172,10 +172,17 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
 
             elseif #notes > 0 then -- Synth
                 for index, note in ipairs(notes) do
+                    if cloud.start + note.start >= cloud.fim then
+                        break
+                    end
                     local freq = ct.midi_notes.A4 * (2 ^ ((note.pitch - 69)/ct.midi_notes.EDO))
                     for i = 1, freq * (note.fim - note.start) do
-                        positions[#positions+1] = note.start + (1/freq * i)
-                        synth_freqs[#synth_freqs+1] = freq                    
+                        local pos = note.start + (1/freq * i)
+                        if cloud.start + pos >= cloud.fim then
+                            break
+                        end
+                        positions[#positions+1] = pos
+                        synth_freqs[#synth_freqs+1] = {freq = freq, vel = note.vel}                    
                     end
                 end
                 -- DONT SORT (need to match synth_freq. I didnt want to put both at the same table because this way is faster in the generate loop)
@@ -248,9 +255,13 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
 
             -- if grains then get a length, offset and fade
             if ct.grains.on then
-                
+                -- Volume (synth)
+                if ct.midi_notes.is_synth then
+
+
+                end
                 -- Size/Length
-                local grain_size = ((not ct.midi_notes.is_synth) and ct.grains.size.val) or (2 * 1000/synth_freqs[k])
+                local grain_size = ((not ct.midi_notes.is_synth) and ct.grains.size.val) or (2 * 1000/synth_freqs[k].freq)
                 if ct.grains.size.envelope and envs.grains.size then
                     local retval, env_val = reaper.Envelope_Evaluate(envs.grains.size, pos * cloud.rate, 0, 0)
                     grain_size = DL.num.MapRange(grain_size * env_val, 0, grain_size, ct.grains.size.env_min, grain_size)  
