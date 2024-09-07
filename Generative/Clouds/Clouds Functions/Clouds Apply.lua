@@ -257,8 +257,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             if ct.grains.on then
                 -- Volume (synth)
                 if ct.midi_notes.is_synth then
-
-
+                    -- map midi to dB
+                    local db = DL.num.MapRange(synth_freqs[k].vel, 1, 127, ct.midi_notes.synth.min_vol, 0)
+                    new_values.vol = db
                 end
                 -- Size/Length
                 local grain_size = ((not ct.midi_notes.is_synth) and ct.grains.size.val) or (2 * 1000/synth_freqs[k].freq)
@@ -323,9 +324,10 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
                     local new_vol = DL.num.RandomFloatExp(min, max, 10)
                     new_vol = new_vol - CONSTRAINS.db_minmax
-                    local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
-                    local result_l = DL.num.dBToLinear(new_vol + cur)
-                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
+                    new_values.vol = (new_values.vol or 0) + new_vol
+                    --local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
+                    --local result_l = DL.num.dBToLinear(new_vol + cur)
+                    --reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                 end
 
                 -- Pan
@@ -402,6 +404,12 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             end
             -- apply the new_values
             do
+                -- Volume
+                if new_values.vol then
+                    local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
+                    local result_l = DL.num.dBToLinear(new_values.vol + cur)
+                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
+                end
                 -- Pitch
                 if new_values.pitch then
                     new_values.pitch = new_values.pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')

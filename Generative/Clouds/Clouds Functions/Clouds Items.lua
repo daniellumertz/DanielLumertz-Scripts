@@ -257,6 +257,10 @@ function Clouds.Item.DefaultTable()
             EDO = 12,
             center = 60,
             is_synth = false,
+            synth = {
+                min_vol = -36,
+                hold_pos = false
+            },
             A4 = 440,
             solo_notes = false
         },
