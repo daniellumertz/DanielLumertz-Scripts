@@ -63,7 +63,11 @@ ToolTips = {
         edo = 'How many notes per octave',
         center = 'Which MIDI note will be used to play the audio without any transposition.',
         a4 = 'Tuning of the A4 note',
-        synth = 'The density is defined by the notes placed on the cloud item.\nEx: A4 will put 440 items/second\nIn synth mode you are obliged to use grains.\nMight be hard on resources, experimental feature.'
+        synth = {
+            synth = 'The density is defined by the notes placed on the cloud item.\nEx: A4 will put 440 items/second\nIn synth mode you are obliged to use grains.\nMight be hard on resources, experimental feature.',
+            min_vol = 'Volume reduced from item when MIDI velocity is at minimum.',
+            hold_pos = 'Each note holds the same grain position for all their grains.\nThey hold the position at note start.',
+        }
     },
     randomization = {
         volume  = {

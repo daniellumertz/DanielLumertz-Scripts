@@ -157,7 +157,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             positions[#positions + 1] = new_pos
                         else
                             for index, note in ipairs(notes) do
-                                if note.start <= pos and note.fim >= pos then
+                                if note.start <= new_pos and note.fim >= new_pos then
                                     positions[#positions + 1] = new_pos
                                     break
                                 end 
@@ -178,11 +178,12 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     local freq = ct.midi_notes.A4 * (2 ^ ((note.pitch - 69)/ct.midi_notes.EDO))
                     for i = 1, freq * (note.fim - note.start) do
                         local pos = note.start + (1/freq * i)
-                        if cloud.start + pos >= cloud.fim then
+                        if cloud.start + pos >= cloud.fim then -- if pass the item
                             break
+                        elseif pos >= 0 then
+                            positions[#positions+1] = pos
+                            synth_freqs[#synth_freqs+1] = {freq = freq, vel = note.vel, note_id = index}   
                         end
-                        positions[#positions+1] = pos
-                        synth_freqs[#synth_freqs+1] = {freq = freq, vel = note.vel}                    
                     end
                 end
                 -- DONT SORT (need to match synth_freq. I didnt want to put both at the same table because this way is faster in the generate loop)
@@ -209,7 +210,8 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
         }
 
         --local coroutine_check = 0
-        local held_items = {}
+        local held_items = {} -- for limiting the max n of overlapped items
+        local notes_positions = {} -- for synth hold_position
         for k, pos in ipairs(positions) do
             -- coroutine
             --coroutine_check = coroutine_check + 1
@@ -286,28 +288,35 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 new_values.length = grain_size
 
                 -- Position/Offset (only inside the original are)
-                local grain_offset 
-                if not ct.grains.position.on then -- random using items area 
-                    local take_end = o_item_t.offset + (o_item_t.length * o_item_t.rate) -- need to consider the rate 
-                    grain_offset = DL.num.RandomFloat(o_item_t.offset, take_end, true)
-                else -- user determinated
-                    local percent = ct.grains.position.val/100
-                    if ct.grains.position.envelope and envs.grains.position then
-                        local _
-                        _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
-                    end
-                    grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
-                    -- Apply position drift
-                    if ct.grains.randomize_position.on then
-                        local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
-                        if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
-                            min, max = min * env_val, max * env_val   
+                local grain_offset
+                if (not ct.midi_notes.is_synth) or (not ct.midi_notes.synth.hold_pos) or (not notes_positions[synth_freqs[k].note_id]) then -- get a new position value
+                    if not ct.grains.position.on then -- random using items area 
+                        local take_end = o_item_t.offset + (o_item_t.length * o_item_t.rate) -- need to consider the rate 
+                        grain_offset = DL.num.RandomFloat(o_item_t.offset, take_end, true)
+                    else -- user determinated
+                        local percent = ct.grains.position.val/100
+                        if ct.grains.position.envelope and envs.grains.position then
+                            local _
+                            _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
                         end
-                        local drift =  DL.num.RandomFloat(min, max, true)
-                        drift = drift / 1000 -- ms to sec
-                        grain_offset = grain_offset + drift
+                        grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
+                        -- Apply position drift
+                        if ct.grains.randomize_position.on then
+                            local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
+                            if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val   
+                            end
+                            local drift =  DL.num.RandomFloat(min, max, true)
+                            drift = drift / 1000 -- ms to sec
+                            grain_offset = grain_offset + drift
+                        end
                     end
+                    if ct.midi_notes.synth.hold_pos then
+                        notes_positions[synth_freqs[k].note_id] = grain_offset
+                    end
+                else -- Get the held value
+                    grain_offset = notes_positions[synth_freqs[k].note_id]
                 end
                 new_values.offset = grain_offset
             end

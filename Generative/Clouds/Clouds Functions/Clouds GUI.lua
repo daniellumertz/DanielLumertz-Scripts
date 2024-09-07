@@ -474,35 +474,26 @@ function Clouds.GUI.Main()
 
             if ImGui.CollapsingHeader(ctx, 'MIDI Notes') then
                 if not CloudTable.midi_notes.is_synth then
+                    ImGui.SeparatorText(ctx, 'Transpose Mode')
                     change, CloudTable.midi_notes.solo_notes = ImGui.Checkbox(ctx, 'Only Generate Items at Notes', CloudTable.midi_notes.solo_notes)
                     tooltip(ctx, Settings.tooltip, ToolTips.midi.solo_notes)
                     something_changed = something_changed or change
-                end
+                    ------ EDO Tuning
+                    change, CloudTable.midi_notes.EDO = ImGui.InputInt(ctx, 'Tuning EDO', CloudTable.midi_notes.EDO, 0, 0)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.edo)
+                    something_changed = something_changed or change
+                    -- Clamp
+                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.EDO = ((CloudTable.midi_notes.EDO > 0) and CloudTable.midi_notes.EDO) or 1 end
 
-                ------ EDO Tuning
-                change, CloudTable.midi_notes.EDO = ImGui.InputInt(ctx, 'Tuning EDO', CloudTable.midi_notes.EDO, 0, 0)
-                tooltip(ctx, Settings.tooltip, ToolTips.midi.edo)
-                something_changed = something_changed or change
-                -- Clamp
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.EDO = ((CloudTable.midi_notes.EDO > 0) and CloudTable.midi_notes.EDO) or 1 end
-               
-                ----- Center or A4
-                if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.midi_notes.center = ImGui.InputInt(ctx, 'MIDI Center', CloudTable.midi_notes.center, 0, 0)
                     tooltip(ctx, Settings.tooltip, ToolTips.midi.center)
                     something_changed = something_changed or change
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.center = ((CloudTable.midi_notes.center >= 0) and CloudTable.midi_notes.center) or 0 end
-                else
-                    change, CloudTable.midi_notes.A4 = ImGui.InputInt(ctx, 'A4', CloudTable.midi_notes.A4, 0, 0)
-                    tooltip(ctx, Settings.tooltip, ToolTips.midi.a4)
-                    something_changed = something_changed or change
-                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.A4 = ((CloudTable.midi_notes.A4 > 0) and CloudTable.midi_notes.A4) or 1 end
                 end
-
-                ImGui.Separator(ctx)
+                ImGui.SeparatorText(ctx, 'Synth Mode')
                 ----- Synth
-                change, CloudTable.midi_notes.is_synth = ImGui.Checkbox(ctx, 'Synth Mode', CloudTable.midi_notes.is_synth)
-                tooltip(ctx, Settings.tooltip, ToolTips.midi.synth)
+                change, CloudTable.midi_notes.is_synth = ImGui.Checkbox(ctx, 'On', CloudTable.midi_notes.is_synth)
+                tooltip(ctx, Settings.tooltip, ToolTips.midi.synth.synth)
                 if change and CloudTable.midi_notes.is_synth then
                     CloudTable.grains.on = true
                     Clouds.Item.ShowHideEnvelope(false,FXENVELOPES.grains.size)
@@ -514,6 +505,29 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.density.random.envelope,FXENVELOPES.dust)
                 end
                 something_changed = something_changed or change
+
+                if CloudTable.midi_notes.is_synth then
+                    -- Tuning 
+                    change, CloudTable.midi_notes.EDO = ImGui.InputInt(ctx, 'Tuning EDO', CloudTable.midi_notes.EDO, 0, 0)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.edo)
+                    something_changed = something_changed or change
+                    -- Clamp
+                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.EDO = ((CloudTable.midi_notes.EDO > 0) and CloudTable.midi_notes.EDO) or 1 end
+                    -- A4
+                    change, CloudTable.midi_notes.A4 = ImGui.InputInt(ctx, 'A4', CloudTable.midi_notes.A4, 0, 0)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.a4)
+                    something_changed = something_changed or change
+                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.A4 = ((CloudTable.midi_notes.A4 > 0) and CloudTable.midi_notes.A4) or 1 end
+                    -- Min Vol
+                    change, CloudTable.midi_notes.synth.min_vol = ImGui.InputDouble(ctx, 'Min Volume', CloudTable.midi_notes.synth.min_vol, 0, 0, '%.2f dB')
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.synth.min_vol)
+                    something_changed = something_changed or change
+                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.synth.min_vol = ((CloudTable.midi_notes.synth.min_vol <= 0) and CloudTable.midi_notes.synth.min_vol) or 0 end
+                    -- Hold Position
+                    change, CloudTable.midi_notes.synth.hold_pos = ImGui.Checkbox(ctx, 'Hold Position', CloudTable.midi_notes.synth.hold_pos)
+                    tooltip(ctx, Settings.tooltip, ToolTips.midi.synth.hold_pos)
+                    something_changed = something_changed or change
+                end
             end
 
             -- Randomization
