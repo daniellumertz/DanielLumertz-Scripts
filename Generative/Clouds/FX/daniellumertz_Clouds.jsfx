@@ -13,3 +13,11 @@ slider8:s8=1<0,1,0.0001>Grains Size
 slider9:s9=1<0,1,0.0001>Randomize: Grains Size
 slider10:s10=0<0,1,0.0001>Grains Position
 slider11:s11=1<0,1,0.0001>Randomize: Grains Position
+//chances
+slider12:s12=1<0,1,0.0001>Chance Randomize: Volume
+slider13:s13=1<0,1,0.0001>Chance Randomize: Pan
+slider14:s14=1<0,1,0.0001>Chance Randomize: Pitch
+slider15:s15=1<0,1,0.0001>Chance Randomize: Stretch
+slider16:s16=1<0,1,0.0001>Chance Randomize: Reverse
+slider17:s17=1<0,1,0.0001>Chance Randomize: Grains Size
+slider18:s18=1<0,1,0.0001>Chance Randomize: Grains Position

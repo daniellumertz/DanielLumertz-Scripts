@@ -29,26 +29,41 @@ CloudTable:
             min:
             max:
             envelope: boolean
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         pan: // overwrite the original value
             on: false
             min:
             max:
             envelope: boolean?
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         pitch: // adds to the original value
             on: false
             min:
             max:
             envelope: boolean
             quantize:
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         stretch: // multiplies to original value
             on: false
             min:
             max:
             envelope: boolean
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         reverse:
             on:
             val: // chance
             envelope:
+            chance: not used
+                val: --between 0 and 100%. 100 is always apply
+                env:
     midi_notes:
         EDO: 12
         A4: 440
@@ -69,6 +84,9 @@ CloudTable:
             min:
             max:
             envelope:
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         position:
             on:
             val:
@@ -78,6 +96,9 @@ CloudTable:
             min:
             max:
             envelope:
+            chance:
+                val: --between 0 and 100%. 100 is always apply
+                env:
         fade:
             on:
             val:

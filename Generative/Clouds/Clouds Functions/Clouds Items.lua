@@ -221,14 +221,22 @@ function Clouds.Item.DefaultTable()
                 on = false,
                 min = 0,
                 max = 0,
-                envelope = false
+                envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
 
             pan = {
                 on = false,
                 min = 0,
                 max = 0,
-                envelope = false
+                envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
 
             pitch = {
@@ -237,19 +245,31 @@ function Clouds.Item.DefaultTable()
                 max = 0,
                 envelope = false,
                 quantize = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
 
             stretch = {
                 on = false,
                 min = 1, -- should never be 0
                 max = 1, -- should never be 0
-                envelope = false
+                envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
 
             reverse = {
                 on = false,
                 val = 0,
-                envelope = false
+                envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
         },
 
@@ -277,6 +297,10 @@ function Clouds.Item.DefaultTable()
                 min = -25, -- in %
                 max = 25,
                 envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
             position = {
                 on = false,
@@ -288,6 +312,10 @@ function Clouds.Item.DefaultTable()
                 min = -25,
                 max = 25,
                 envelope = false,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
             },
             fade = {
                 on = true,
@@ -322,6 +350,14 @@ function Clouds.Item.ShowHideAllEnvelopes()
     Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_size.envelope,FXENVELOPES.grains.randomize_size)
     Clouds.Item.ShowHideEnvelope(CloudTable.grains.position.envelope,FXENVELOPES.grains.position)
     Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.envelope,FXENVELOPES.grains.randomize_position)
+    -- chances
+    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.on and CloudTable.grains.randomize_position.chance.env,FXENVELOPES.grains.c_random_position)
+    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_size.on and CloudTable.grains.randomize_size.chance.env,FXENVELOPES.grains.c_random_size)
+    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.vol.on and CloudTable.randomization.vol.chance.env,FXENVELOPES.randomization.c_vol)
+    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pan.on and CloudTable.randomization.pan.chance.env,FXENVELOPES.randomization.c_pan)
+    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pitch.on and CloudTable.randomization.pitch.chance.env,FXENVELOPES.randomization.c_pitch)
+    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.stretch.on and CloudTable.randomization.stretch.chance.env,FXENVELOPES.randomization.c_stretch)
+    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.reverse.on and CloudTable.randomization.reverse.chance.env,FXENVELOPES.randomization.c_reverse)
 end
 
 ------ Generated Items:

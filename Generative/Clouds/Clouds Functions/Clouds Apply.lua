@@ -199,6 +199,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_size, false),
                 position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.position, false),
                 randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_position, false),
+
+                c_randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_size, false),
+                c_randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_position, false),
             },
             randomization = {
                 vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.vol, false),
@@ -206,6 +209,12 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.pitch, false),
                 stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.stretch, false),
                 reverse = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.reverse, false),
+
+            
+                c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_vol, false),
+                c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pan, false),
+                c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pitch, false),
+                c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_stretch, false),
             }
         }
 
@@ -272,16 +281,25 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 
                 -- Size Drift
                 if ct.grains.randomize_size.on then
-                    local min, max = ct.grains.randomize_size.min, ct.grains.randomize_size.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                    if ct.grains.randomize_size.envelope and envs.grains.randomize_size then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_size, pos * cloud.rate, 0, 0) 
-                        min, max = min * env_val, max * env_val 
-                    end    
-                    min, max = min + 100, max + 100
-                    local drift = DL.num.RandomFloatExp(min, max) -- between almost 0 and inf
-                    drift = drift - 100
-                    local drift_ms = grain_size * (drift/100)
-                    grain_size = grain_size + drift_ms
+                    -- chance
+                    local cur_chance = ct.grains.randomize_size.chance.val 
+                    if ct.grains.randomize_size.chance.env and envs.grains.c_randomize_size then
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.c_randomize_size, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.grains.randomize_size.min, ct.grains.randomize_size.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.grains.randomize_size.envelope and envs.grains.randomize_size then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_size, pos * cloud.rate, 0, 0) 
+                            min, max = min * env_val, max * env_val 
+                        end    
+                        min, max = min + 100, max + 100
+                        local drift = DL.num.RandomFloatExp(min, max) -- between almost 0 and inf
+                        drift = drift - 100
+                        local drift_ms = grain_size * (drift/100)
+                        grain_size = grain_size + drift_ms
+                    end
                 end
                 grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
                 grain_size = grain_size / 1000 -- ms to sec
@@ -302,14 +320,23 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
                         -- Apply position drift
                         if ct.grains.randomize_position.on then
-                            local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
-                            if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
-                                local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
-                                min, max = min * env_val, max * env_val   
+                            -- chance
+                            local cur_chance = ct.grains.randomize_position.chance.val 
+                            if ct.grains.randomize_position.chance.env and envs.grains.c_randomize_position then
+                                local retval, env_val =  reaper.Envelope_Evaluate(envs.grains.c_randomize_position, pos * cloud.rate, 0, 0)
+                                cur_chance = env_val * cur_chance                           
                             end
-                            local drift =  DL.num.RandomFloat(min, max, true)
-                            drift = drift / 1000 -- ms to sec
-                            grain_offset = grain_offset + drift
+                            local rnd = math.random(0,99)
+                            if rnd < cur_chance then
+                                local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
+                                if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
+                                    local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
+                                    min, max = min * env_val, max * env_val   
+                                end
+                                local drift =  DL.num.RandomFloat(min, max, true)
+                                drift = drift / 1000 -- ms to sec
+                                grain_offset = grain_offset + drift
+                            end
                         end
                     end
                     if ct.midi_notes.synth.hold_pos then
@@ -325,42 +352,69 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             do
                 -- Volume
                 if ct.randomization.vol.on then
-                    local min, max = ct.randomization.vol.min, ct.randomization.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                    if ct.randomization.vol.envelope and envs.randomization.vol then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.vol, pos * cloud.rate, 0, 0) 
-                        min, max = min * env_val, max * env_val 
-                    end    
-                    min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
-                    local new_vol = DL.num.RandomFloatExp(min, max, 10)
-                    new_vol = new_vol - CONSTRAINS.db_minmax
-                    new_values.vol = (new_values.vol or 0) + new_vol
-                    --local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
-                    --local result_l = DL.num.dBToLinear(new_vol + cur)
-                    --reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
+                    -- chance
+                    local cur_chance = ct.randomization.vol.chance.val 
+                    if ct.randomization.vol.chance.env and envs.randomization.c_vol then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_vol, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance                           
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then 
+                        local min, max = ct.randomization.vol.min, ct.randomization.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.randomization.vol.envelope and envs.randomization.vol then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.vol, pos * cloud.rate, 0, 0) 
+                            min, max = min * env_val, max * env_val 
+                        end    
+                        min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
+                        local new_vol = DL.num.RandomFloatExp(min, max, 10)
+                        new_vol = new_vol - CONSTRAINS.db_minmax
+                        new_values.vol = (new_values.vol or 0) + new_vol
+                        --local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
+                        --local result_l = DL.num.dBToLinear(new_vol + cur)
+                        --reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
+                    end
                 end
 
                 -- Pan
                 if ct.randomization.pan.on then
-                    local min, max = ct.randomization.pan.min, ct.randomization.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                    if ct.randomization.pan.envelope and envs.randomization.pan then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pan, pos * cloud.rate, 0, 0) 
-                        min, max = min * env_val, max * env_val 
-                    end    
-                    local new_pan = DL.num.RandomFloat(min, max, true)
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
+                    -- chance
+                    local cur_chance = ct.randomization.pan.chance.val 
+                    if ct.randomization.pan.chance.env and envs.randomization.c_pan then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pan, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance                           
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then 
+                        local min, max = ct.randomization.pan.min, ct.randomization.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.randomization.pan.envelope and envs.randomization.pan then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pan, pos * cloud.rate, 0, 0) 
+                            min, max = min * env_val, max * env_val 
+                        end    
+                        local new_pan = DL.num.RandomFloat(min, max, true)
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
+                    end
                 end
 
                 -- Pitch
                 if ct.randomization.pitch.on then
-                    local min, max = ct.randomization.pitch.min, ct.randomization.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                    if ct.randomization.pitch.envelope and envs.randomization.pitch then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pitch, pos * cloud.rate, 0, 0) 
-                        min, max = min * env_val, max * env_val 
-                    end    
-                    local new_pitch = ct.randomization.pitch.quantize == 0 and DL.num.RandomFloat(min, max, true) or DL.num.RandomFloatQuantized(min, max, true, ct.randomization.pitch.quantize/100)
-                   new_values.pitch = new_pitch
-                    --new_pitch = new_pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
-                    --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_pitch)
+                    -- chance
+                    local cur_chance = ct.randomization.pitch.chance.val 
+                    if ct.randomization.pitch.chance.env and envs.randomization.c_pitch then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pitch, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance                           
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then 
+                        local min, max = ct.randomization.pitch.min, ct.randomization.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.randomization.pitch.envelope and envs.randomization.pitch then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pitch, pos * cloud.rate, 0, 0) 
+                            min, max = min * env_val, max * env_val 
+                        end    
+                        local new_pitch = ct.randomization.pitch.quantize == 0 and DL.num.RandomFloat(min, max, true) or DL.num.RandomFloatQuantized(min, max, true, ct.randomization.pitch.quantize/100)
+                        new_values.pitch = new_pitch
+                        --new_pitch = new_pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
+                        --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_pitch)
+                    end
                 end
 
                 if (not ct.midi_notes.is_synth) and #notes > 0 then
@@ -387,15 +441,24 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
  
                 -- Stretch
                 if ct.randomization.stretch.on then
-                    local min, max = ct.randomization.stretch.min, ct.randomization.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                    if ct.randomization.stretch.envelope and envs.randomization.stretch then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.stretch, pos * cloud.rate, 0, 0) 
-                        min, max = min ^ env_val, max ^ env_val 
-                    end    
-                    local new_rate = DL.num.RandomFloatExp(min, max, 2)
-                    new_rate = new_rate * o_item_t.rate
-                    new_values.length = (new_values.length or o_item_t.length) * (o_item_t.rate/new_rate)
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_rate)
+                    -- chance
+                    local cur_chance = ct.randomization.stretch.chance.val 
+                    if ct.randomization.stretch.chance.env and envs.randomization.c_stretch then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_stretch, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance                           
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then 
+                        local min, max = ct.randomization.stretch.min, ct.randomization.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.randomization.stretch.envelope and envs.randomization.stretch then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.stretch, pos * cloud.rate, 0, 0) 
+                            min, max = min ^ env_val, max ^ env_val 
+                        end    
+                        local new_rate = DL.num.RandomFloatExp(min, max, 2)
+                        new_rate = new_rate * o_item_t.rate
+                        new_values.length = (new_values.length or o_item_t.length) * (o_item_t.rate/new_rate)
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_rate)
+                    end
                 end
 
                 -- Reverse

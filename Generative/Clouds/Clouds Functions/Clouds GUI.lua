@@ -50,6 +50,30 @@ local function tooltip(ctx, bol, text)
     end 
 end
 
+local function chancepopup(chance, fx_id, conditions)
+    local something_changed = false
+    if conditions and ImGui.BeginPopupContextItem(ctx) then
+        local change
+        ImGui.SetNextItemWidth(ctx, 100)
+        change, chance.val = ImGui.DragInt(ctx, 'Chance##'..fx_id, chance.val, nil, 0, 100, '%.i%%')
+
+        something_changed = something_changed or change 
+
+        ImGui.SameLine(ctx)
+
+        change, chance.env = Clouds.GUI.EnvCheck(conditions and chance.env, fx_id)
+        something_changed = something_changed or change 
+        ImGui.EndPopup(ctx)
+    end
+
+    if (not conditions) and chance.env then
+        Clouds.Item.ShowHideEnvelope(conditions, fx_id)
+        chance.env = false
+    end
+
+    return something_changed
+end
+
 -- Main Function
 function Clouds.GUI.Main()
     --- Check selected Item for cloud items
@@ -382,8 +406,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_size.envelope,FXENVELOPES.grains.randomize_size)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_size.on)
+
+                change = chancepopup(CloudTable.grains.randomize_size.chance, FXENVELOPES.grains.c_random_size, CloudTable.grains.randomize_size.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_size.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max = ImGui.InputDouble2(ctx, "Size Drift##randominput", CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max, '%.2f%%')
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.size_drift)
@@ -436,8 +464,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.envelope,FXENVELOPES.grains.randomize_position)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_position.on)
+
+                change = chancepopup(CloudTable.grains.randomize_position.chance, FXENVELOPES.grains.c_random_position, CloudTable.grains.position.on and CloudTable.grains.randomize_position.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_position.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max = ImGui.InputDouble2(ctx, "Position Drift##randominput", CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max, '%.2f ms')
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.position_drifts.drifts)
@@ -542,8 +574,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.vol.envelope,FXENVELOPES.randomization.vol)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.randomization.vol.on)
+
+                change = chancepopup(CloudTable.randomization.vol.chance, FXENVELOPES.randomization.c_vol, CloudTable.randomization.vol.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.randomization.vol.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.randomization.vol.min, CloudTable.randomization.vol.max = ImGui.InputDouble2(ctx, "Volume##randominput", CloudTable.randomization.vol.min, CloudTable.randomization.vol.max, '%.2f dB')
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) and CloudTable.randomization.vol.min > CloudTable.randomization.vol.max then CloudTable.randomization.vol.min = CloudTable.randomization.vol.max end
@@ -564,8 +600,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pan.envelope,FXENVELOPES.randomization.pan)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.randomization.pan.on)
+
+                change = chancepopup(CloudTable.randomization.pan.chance, FXENVELOPES.randomization.c_pan, CloudTable.randomization.pan.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.randomization.pan.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.randomization.pan.min, CloudTable.randomization.pan.max = ImGui.InputDouble2(ctx, "Pan##randominput", CloudTable.randomization.pan.min, CloudTable.randomization.pan.max, '%.2f')
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
@@ -592,8 +632,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pitch.envelope,FXENVELOPES.randomization.pitch)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.randomization.pitch.on)
+
+                change = chancepopup(CloudTable.randomization.pitch.chance, FXENVELOPES.randomization.c_pitch, CloudTable.randomization.pitch.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.randomization.pitch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.randomization.pitch.min, CloudTable.randomization.pitch.max = ImGui.InputDouble2(ctx, "Pitch##randominput", CloudTable.randomization.pitch.min, CloudTable.randomization.pitch.max, '%.2f')
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) and CloudTable.randomization.pitch.min > CloudTable.randomization.pitch.max then CloudTable.randomization.pitch.min = CloudTable.randomization.pitch.max end
@@ -621,8 +665,12 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.stretch.envelope,FXENVELOPES.randomization.stretch)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.randomization.stretch.on)
+
+                change = chancepopup(CloudTable.randomization.stretch.chance, FXENVELOPES.randomization.c_stretch, CloudTable.randomization.stretch.on)
+                something_changed = something_changed or change
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.randomization.stretch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max = ImGui.InputDouble2(ctx, "Playrate##randominput", CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max, '%.2f')
                 something_changed = something_changed or change
@@ -649,8 +697,9 @@ function Clouds.GUI.Main()
                     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.reverse.envelope,FXENVELOPES.randomization.reverse)
                 end
                 something_changed = something_changed or change
-                ImGui.BeginDisabled(ctx, not CloudTable.randomization.reverse.on)
+
                 --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.randomization.reverse.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.randomization.reverse.val = ImGui.SliderInt(ctx, "Reverse##randominput", CloudTable.randomization.reverse.val, 0, 100, '%i%%', ImGui.SliderFlags_AlwaysClamp)
                 --change, CloudTable.randomization.reverse.val = ImGui.InputDouble(ctx, "Reverse##randominput", CloudTable.randomization.reverse.val, nil, nil, '%.2f %')
@@ -995,3 +1044,4 @@ function Clouds.GUI.Guiless(proj, is_selection, is_delete)
     Clouds.Themes[Settings.theme].Pop(ctx)
     ImGui.PopFont(ctx)
 end
+

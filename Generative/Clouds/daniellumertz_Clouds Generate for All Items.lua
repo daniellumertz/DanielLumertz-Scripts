@@ -16,18 +16,26 @@ FXENVELOPES = {
     density = 0,
     dust = 1,
     randomization = {
+        c_vol = 11,
         vol = 2,
+        c_pan = 12,
         pan = 3,
+        c_pitch = 13,
         pitch = 4,
+        c_stretch = 14,
         stretch = 5,
+        c_reverse = 15,
         reverse = 6
     },
     grains = {
         size = 7,
+        c_random_size = 16,
         randomize_size = 8,
         position = 9,
+        c_random_position = 17,
         randomize_position = 10
-    }
+    },
+
 }
 CONSTRAINS = {
     exp = 0.01,

@@ -1,4 +1,4 @@
--- @version 0.5.0b
+-- @version 0.6.0b
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -20,7 +20,7 @@ local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.5.0b'
+SCRIPT_V  = '0.6.0b'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
@@ -30,18 +30,26 @@ FXENVELOPES = {
     density = 0,
     dust = 1,
     randomization = {
+        c_vol = 11,
         vol = 2,
+        c_pan = 12,
         pan = 3,
+        c_pitch = 13,
         pitch = 4,
+        c_stretch = 14,
         stretch = 5,
+        c_reverse = 15,
         reverse = 6
     },
     grains = {
         size = 7,
+        c_random_size = 16,
         randomize_size = 8,
         position = 9,
+        c_random_position = 17,
         randomize_position = 10
-    }
+    },
+
 }
 CONSTRAINS = {
     exp = 0.01,
