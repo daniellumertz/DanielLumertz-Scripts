@@ -199,7 +199,7 @@ function Clouds.Item.DefaultTable()
         items = {},
         density = {
             random = {
-                val = 1,
+                val = 5,
                 envelope = false
             },
 
