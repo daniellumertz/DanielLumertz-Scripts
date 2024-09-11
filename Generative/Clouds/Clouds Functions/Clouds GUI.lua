@@ -290,11 +290,8 @@ function Clouds.GUI.Main()
                                 end
                                 ImGui.TableNextColumn(ctx)
                                 --Chance Input
-                                change, CloudTable.items[row].chance = ImGui.InputDouble(ctx, '##ItemChanceWeight'..row, CloudTable.items[row].chance, nil, nil, '%.1f')
+                                change, CloudTable.items[row].chance = ImGui.DragDouble(ctx, '##ItemChanceWeight'..row, CloudTable.items[row].chance, 0.05, 0, FLT_MAX, '%.1f')
                                 tooltip(ctx, Settings.tooltip, ToolTips.items.w)
-                                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
-                                    CloudTable.items[row].chance = CloudTable.items[row].chance >= 0 and CloudTable.items[row].chance or 0
-                                end
                                 something_changed = something_changed or change
                                 --Remove Button
                                 ImGui.SameLine(ctx)
@@ -315,10 +312,9 @@ function Clouds.GUI.Main()
             -- Density
             if (not CloudTable.midi_notes.is_synth) and ImGui.CollapsingHeader(ctx, "Density##header") then
                 ----- Density
-                change, CloudTable.density.density.val = ImGui.InputDouble(ctx, "Items/Second##Double", CloudTable.density.density.val)
+                change, CloudTable.density.density.val = ImGui.DragDouble(ctx, "Items/Second##Double", CloudTable.density.density.val, 0.05, 0, FLT_MAX)
                 tooltip(ctx, Settings.tooltip, ToolTips.density.density.density)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then 
-                    CloudTable.density.density.val = ((CloudTable.density.density.val > 0) and CloudTable.density.density.val) or 0 
                     CloudTable.density.density.env_min =  DL.num.Clamp(CloudTable.density.density.env_min, 0, CloudTable.density.density.val)
                 end
                 something_changed = something_changed or change
@@ -346,9 +342,8 @@ function Clouds.GUI.Main()
                 end
                 
                 ----- Dust
-                change, CloudTable.density.random.val = ImGui.InputDouble(ctx, "Dust##Slider", CloudTable.density.random.val)
+                change, CloudTable.density.random.val = ImGui.DragDouble(ctx, "Dust##Slider", CloudTable.density.random.val, 0.01, 0, FLT_MAX)
                 tooltip(ctx, Settings.tooltip, ToolTips.density.dust.dust)
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.density.random.val = ((CloudTable.density.random.val > 0) and CloudTable.density.random.val) or 0 end
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
@@ -387,9 +382,8 @@ function Clouds.GUI.Main()
 
                 ----- Size
                 if not CloudTable.midi_notes.is_synth then
-                    change, CloudTable.grains.size.val = ImGui.InputDouble(ctx, "Size##Double", CloudTable.grains.size.val, nil, nil, '%.2f ms')
+                    change, CloudTable.grains.size.val = ImGui.DragDouble(ctx, "Size##Double", CloudTable.grains.size.val, 1, CONSTRAINS.grain_low, FLT_MAX,'%.2f ms')
                     tooltip(ctx, Settings.tooltip, ToolTips.grains.size.size)
-                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.grains.size.val = ((CloudTable.grains.size.val > CONSTRAINS.grain_low) and CloudTable.grains.size.val) or CONSTRAINS.grain_low end
                     something_changed = something_changed or change
                     -- Right click
                     if ImGui.BeginPopupContextItem(ctx, 'RatioDensityGrain') then
@@ -432,14 +426,18 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_size.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max = ImGui.InputDouble2(ctx, "Size Drift##randominput", CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max, '%.2f%%')
+                local change, min, max = ImGui.DragDouble2(ctx, "Size Drift##randominput", CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max, 0.07, CONSTRAINS.grain_rand_low, FLT_MAX,'%.2f%%')
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.size_drift)
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
-                    CloudTable.grains.randomize_size.min = DL.num.Clamp(CloudTable.grains.randomize_size.min, CONSTRAINS.grain_rand_low)
-                    CloudTable.grains.randomize_size.max = DL.num.Clamp(CloudTable.grains.randomize_size.max, CONSTRAINS.grain_rand_low)
-                    if CloudTable.grains.randomize_size.min > CloudTable.grains.randomize_size.max then 
-                        CloudTable.grains.randomize_size.min = CloudTable.grains.randomize_size.max 
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.grains.randomize_size.min then
+                            max = min
+                        else
+                            min = max
+                        end
                     end
+                    CloudTable.grains.randomize_size.min = min
+                    CloudTable.grains.randomize_size.max = max
                 end
                 something_changed = something_changed or change
                 --Env
@@ -490,12 +488,18 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.grains.randomize_position.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max = ImGui.InputDouble2(ctx, "Position Drift##randominput", CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max, '%.2f ms')
+                local change, min, max = ImGui.DragDouble2(ctx, "Position Drift##randominput", CloudTable.grains.randomize_position.min, CloudTable.grains.randomize_position.max, 1.4, -FLT_MAX, FLT_MAX, '%.2f ms')
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.position_drifts.drifts)
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
-                    if CloudTable.grains.randomize_position.min > CloudTable.grains.randomize_position.max then 
-                        CloudTable.grains.randomize_position.min = CloudTable.grains.randomize_position.max 
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.grains.randomize_position.min then
+                            max = min
+                        else
+                            min = max
+                        end
                     end
+                    CloudTable.grains.randomize_position.min = min
+                    CloudTable.grains.randomize_position.max = max
                 end
                 something_changed = something_changed or change
                 --Env
@@ -570,10 +574,9 @@ function Clouds.GUI.Main()
                     something_changed = something_changed or change
                     if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.A4 = ((CloudTable.midi_notes.A4 > 0) and CloudTable.midi_notes.A4) or 1 end
                     -- Min Vol
-                    change, CloudTable.midi_notes.synth.min_vol = ImGui.InputDouble(ctx, 'Min Volume', CloudTable.midi_notes.synth.min_vol, 0, 0, '%.2f dB')
+                    change, CloudTable.midi_notes.synth.min_vol = ImGui.DragDouble(ctx, 'Min Volume', CloudTable.midi_notes.synth.min_vol, 0.1, -FLT_MAX, 0,'%.2f dB')
                     tooltip(ctx, Settings.tooltip, ToolTips.midi.synth.min_vol)
                     something_changed = something_changed or change
-                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then CloudTable.midi_notes.synth.min_vol = ((CloudTable.midi_notes.synth.min_vol <= 0) and CloudTable.midi_notes.synth.min_vol) or 0 end
                     -- Hold Position
                     change, CloudTable.midi_notes.synth.hold_pos = ImGui.Checkbox(ctx, 'Hold Position', CloudTable.midi_notes.synth.hold_pos)
                     tooltip(ctx, Settings.tooltip, ToolTips.midi.synth.hold_pos)
@@ -600,8 +603,18 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.vol.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.randomization.vol.min, CloudTable.randomization.vol.max = ImGui.InputDouble2(ctx, "Volume##randominput", CloudTable.randomization.vol.min, CloudTable.randomization.vol.max, '%.2f dB')
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) and CloudTable.randomization.vol.min > CloudTable.randomization.vol.max then CloudTable.randomization.vol.min = CloudTable.randomization.vol.max end
+                local change, min, max = ImGui.DragDouble2(ctx, "Volume##randominput", CloudTable.randomization.vol.min, CloudTable.randomization.vol.max, 0.07, -FLT_MAX, FLT_MAX, '%.2f dB')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.randomization.vol.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.randomization.vol.min = min
+                    CloudTable.randomization.vol.max = max
+                end
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
@@ -626,13 +639,17 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.pan.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.randomization.pan.min, CloudTable.randomization.pan.max = ImGui.InputDouble2(ctx, "Pan##randominput", CloudTable.randomization.pan.min, CloudTable.randomization.pan.max, '%.2f')
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
-                    CloudTable.randomization.pan.min = (CloudTable.randomization.pan.min >= -1 and CloudTable.randomization.pan.min <= 1) and CloudTable.randomization.pan.min or -1
-                    CloudTable.randomization.pan.max = (CloudTable.randomization.pan.max >= -1 and CloudTable.randomization.pan.max <= 1) and CloudTable.randomization.pan.max or -1
-                    if CloudTable.randomization.pan.min > CloudTable.randomization.pan.max then 
-                        CloudTable.randomization.pan.min = CloudTable.randomization.pan.max 
+                local change, min, max = ImGui.DragDouble2(ctx, "Pan##randominput", CloudTable.randomization.pan.min, CloudTable.randomization.pan.max, 0.01, -1, 1, '%.2f')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.randomization.pan.min then
+                            max = min
+                        else
+                            min = max
+                        end
                     end
+                    CloudTable.randomization.pan.min = min
+                    CloudTable.randomization.pan.max = max
                 end
                 something_changed = something_changed or change
                 --Env
@@ -658,8 +675,18 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.pitch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.randomization.pitch.min, CloudTable.randomization.pitch.max = ImGui.InputDouble2(ctx, "Pitch##randominput", CloudTable.randomization.pitch.min, CloudTable.randomization.pitch.max, '%.2f')
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) and CloudTable.randomization.pitch.min > CloudTable.randomization.pitch.max then CloudTable.randomization.pitch.min = CloudTable.randomization.pitch.max end
+                change, min, max = ImGui.DragDouble2(ctx, "Pitch##randominput", CloudTable.randomization.pitch.min, CloudTable.randomization.pitch.max, 0.02, -FLT_MAX, FLT_MAX, '%.2f')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.randomization.pitch.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.randomization.pitch.min = min
+                    CloudTable.randomization.pitch.max = max
+                end
                 something_changed = something_changed or change
                 -- Quantize popup
                 if ImGui.BeginPopupContextItem(ctx, 'Quantize Pitch') then
@@ -691,14 +718,18 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.stretch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max = ImGui.InputDouble2(ctx, "Playrate##randominput", CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max, '%.2f')
+                local change, min, max = ImGui.DragDouble2(ctx, "Playrate##randominput", CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max, 0.03, CONSTRAINS.stretch_low, FLT_MAX, '%.2f x')
                 something_changed = something_changed or change
-                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
-                    CloudTable.randomization.stretch.min = (CloudTable.randomization.stretch.min > CONSTRAINS.stretch_low) and CloudTable.randomization.stretch.min or CONSTRAINS.stretch_low
-                    CloudTable.randomization.stretch.max = (CloudTable.randomization.stretch.max > CONSTRAINS.stretch_low) and CloudTable.randomization.stretch.max or CONSTRAINS.stretch_low
-                    if CloudTable.randomization.stretch.min > CloudTable.randomization.stretch.max then 
-                        CloudTable.randomization.stretch.min = CloudTable.randomization.stretch.max 
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.randomization.stretch.min then
+                            max = min
+                        else
+                            min = max
+                        end
                     end
+                    CloudTable.randomization.stretch.min = min
+                    CloudTable.randomization.stretch.max = max
                 end
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
@@ -793,11 +824,8 @@ function Clouds.GUI.Main()
 
                                 ImGui.TableNextColumn(ctx)
                                 --Chance Input
-                                change, t.chance = ImGui.InputDouble(ctx, '##trackChanceWeight'..row, t.chance, nil, nil, '%.1f')
+                                change, t.chance = ImGui.DragDouble(ctx, '##trackChanceWeight'..row, t.chance, 0.05, 0, FLT_MAX, '%.1f')
                                 tooltip(ctx, Settings.tooltip, ToolTips.tracks.w) 
-                                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
-                                    t.chance = t.chance >= 0 and t.chance or 0
-                                end
                                 something_changed = something_changed or change
                                 --Remove Button
                                 ImGui.SameLine(ctx)
