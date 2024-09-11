@@ -159,7 +159,12 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                                 new_pos = new_pos * -1 
                             end
                         end
-                        --
+                        -- Quantize
+                        if ct.density.quantize then
+                            local grid = reaper.BR_GetClosestGridDivision(new_pos + cloud.start)
+                            new_pos = grid - cloud.start
+                        end
+                        -- Add to table
                         if not ct.midi_notes.solo_notes then
                             positions[#positions + 1] = new_pos
                         else

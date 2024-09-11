@@ -357,6 +357,10 @@ function Clouds.GUI.Main()
                     CloudTable.density.cap = DL.num.Clamp(CloudTable.density.cap, 0)
                 end
                 something_changed = something_changed or change
+
+                ----- Quantize
+                change, CloudTable.density.quantize = ImGui.Checkbox(ctx, 'Quantize Items To Grid', CloudTable.density.quantize)
+                something_changed = something_changed or change
             end
 
             -- Grains

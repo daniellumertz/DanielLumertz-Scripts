@@ -209,7 +209,8 @@ function Clouds.Item.DefaultTable()
                 env_min = 0
             },
 
-            cap = 0
+            cap = 0,
+            quantize = false,
         },
         tracks = {
             self = {
@@ -444,6 +445,6 @@ function Clouds.Item.DeleteAnyGeneration(proj)
     end
 
     reaper.PreventUIRefresh(-1)
-    reaper.Undo_EndBlock2(proj, 'Clouds: Delete Allb Generated Items', -1)
+    reaper.Undo_EndBlock2(proj, 'Clouds: Delete All Generated Items', -1)
     reaper.UpdateArrange()
 end

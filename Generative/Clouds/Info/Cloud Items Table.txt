@@ -1,5 +1,5 @@
 --@noindex
-Folder dedicated for remembering table structures
+Folder dedicated for developer and modders. For organization purposes.
 
 Update Every selection change
 CloudTable:
@@ -9,6 +9,7 @@ CloudTable:
             item: item
             chance: chance
     density:
+        quantize: false
         random:
             val:
             envelope: boolean
