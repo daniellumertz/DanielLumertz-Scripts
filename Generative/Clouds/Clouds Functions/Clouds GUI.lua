@@ -134,15 +134,34 @@ function Clouds.GUI.Main()
         if ImGui.BeginMenuBar(ctx) then
             if ImGui.BeginMenu(ctx, "Settings") then
                 local setting_change, change = false, false
-                -- Tooltips
-                change, Settings.tooltip= ImGui.MenuItem(ctx, 'Tooltips', nil, Settings.tooltip)
-                setting_change = setting_change or change
                 -- Playback
                 if ImGui.MenuItem(ctx, 'Stop Playback On Generate', nil, Settings.stop_playback) then
                     Settings.stop_playback = not Settings.stop_playback
                     setting_change = true
                 end
                 tooltip(ctx, Settings.tooltip, ToolTips.settings.stopongenerate)
+
+                -- Erase
+                if ImGui.MenuItem(ctx, 'Delete Only Overlapped Generations', nil, Settings.is_del_area) then
+                    Settings.is_del_area = not Settings.is_del_area
+                    setting_change = true
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.settings.is_del_area)
+
+                -- Default Settings
+                if ImGui.MenuItem(ctx, 'Default Settings') then
+                    Settings = Clouds.Settings.Default()
+                    setting_change = true
+                end
+                tooltip(ctx, Settings.tooltip, ToolTips.settings.is_del_area)
+
+                ImGui.Separator(ctx)
+
+                -- Tooltips
+                change, Settings.tooltip= ImGui.MenuItem(ctx, 'Tooltips', nil, Settings.tooltip)
+                setting_change = setting_change or change
+
+                ImGui.Separator(ctx)
                 -- Themes
                 if ImGui.BeginMenu(ctx, 'Themes') then
                     for name, theme in pairs(Clouds.Themes) do

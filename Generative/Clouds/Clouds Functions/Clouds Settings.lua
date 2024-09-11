@@ -6,7 +6,8 @@ function Clouds.Settings.Default()
     return {
         tooltip = true,
         theme = 'Dark',
-        stop_playback = true, -- as a security measure, stop playback when generating
+        stop_playback = true, -- as a security measure, stop playback when generating,
+        is_del_area = false, -- delete items only in the area
     }
 end
 

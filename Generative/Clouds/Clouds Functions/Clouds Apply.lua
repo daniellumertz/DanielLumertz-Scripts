@@ -105,7 +105,14 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
 
         -- if delete then check items at cloud items positions and delete
         if is_delete then
-            local dt = DL.item.GetItemsInRange(proj, cloud.start, cloud.fim, false, false) 
+            local dt = {}
+            if Settings.is_del_area then
+                dt = DL.item.GetItemsInRange(proj, cloud.start, cloud.fim, false, false) 
+            else
+                for item in DL.enum.MediaItem(proj) do
+                    dt[#dt+1] = item
+                end
+            end
             for index, d_item in ipairs(dt) do
                 local retval, extstate = DL.item.GetExtState(d_item, EXT_NAME, 'is_item')
                 if extstate == cloud.guid then
