@@ -1,4 +1,4 @@
--- @version 0.7.1b
+-- @version 0.7.2b
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -23,7 +23,7 @@ local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.7.1b'
+SCRIPT_V  = '0.7.2b'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
