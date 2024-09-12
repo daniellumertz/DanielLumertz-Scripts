@@ -55,7 +55,7 @@ local function chancepopup(chance, fx_id, conditions)
     if conditions and ImGui.BeginPopupContextItem(ctx) then
         local change
         ImGui.SetNextItemWidth(ctx, 100)
-        change, chance.val = ImGui.DragInt(ctx, 'Chance##'..fx_id, chance.val, nil, 0, 100, '%.i%%')
+        change, chance.val = ImGui.DragInt(ctx, 'Chance##'..fx_id, chance.val, nil, 0, 100, '%d%%')
 
         something_changed = something_changed or change 
 

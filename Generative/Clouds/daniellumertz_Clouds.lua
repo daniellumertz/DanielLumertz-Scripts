@@ -1,4 +1,4 @@
--- @version 0.7.2b
+-- @version 0.7.3b
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,17 +13,14 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + add quantize option
---    + dragabble widgets
---    + UI organization
---    + setting for the delete mode
+--    + fix percentage box
 
 -- Debug
 local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '0.7.2b'
+SCRIPT_V  = '0.7.3b'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
