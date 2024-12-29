@@ -4331,6 +4331,20 @@
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
 \widowctrl\hyphauto
 
+{\pard \ql \f0 \sa180 \li0 \fi0 This repository contains a set of REAPER scripts dedicated to algorithm composition, adaptive music, and interfacing with external software. They must be installed via ReaPack, using my repository link:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \f1 https://raw.githubusercontent.com/daniellumertz/DanielLumertz-Scripts/master/index.xml\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Installation Steps:\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 0.\tx360\tab Install {\field{\*\fldinst{HYPERLINK "https://reapack.com"}}{\fldrslt{\ul
+ReaPack
+}}}
+ if you haven't already\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 1.\tx360\tab Open REAPER\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 2.\tx360\tab Go to Extensions \u8594 ? ReaPack \u8594 ? Import repositories...\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 3.\tx360\tab Paste the repository URL above\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 4.\tx360\tab Click OK and wait for the repository index to download\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 5.\tx360\tab Go to Extensions \u8594 ? ReaPack \u8594 ? Browse packages to find and install the scripts\sa180\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 If you prefer to watch a video tutorial: https://www.youtube.com/watch?v=hucbceV7clg\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel1 \b \fs32 REAPER Scripts Highlights:\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 It's Gonna Phase (2024)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 A script for experimenting with phasing, inspired by Steve Reich and Brian Eno methods. {\field{\*\fldinst{HYPERLINK "https://forums.cockos.com/showthread.php?t=289413"}}{\fldrslt{\ul
 More Info
@@ -4382,7 +4396,7 @@ More Info
 }}}
 \par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 MIDI Transfer (2021)\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 A script that assist to interface MIDI from external software to REAPER. Making external software act as an MIDI editor for REAPER. Useful for notation editors (MuseScore, Sibelius, Dorico) and algorithm composition frameworks. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=248475"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 A script that assists in interfacing MIDI from external software to REAPER. Making external software act as a MIDI editor for REAPER. Useful for notation editors (MuseScore, Sibelius, Dorico) and algorithm composition frameworks. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=248475"}}{\fldrslt{\ul
 More Info
 }}}
 \par}
@@ -4391,6 +4405,40 @@ More Info
 More Info
 }}}
 \par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 DL Functions (continuous work)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A set of functions I use for my scripts, feel free to use them\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel1 \b \fs32 Also on this repository:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Lua Sockets Demo\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Set of scripts to demonstrate the use of Lua Sockets in REAPER. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2551512"}}{\fldrslt{\ul
+Thread
+}}}
+ {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=tIdAylKsvCE"}}{\fldrslt{\ul
+Video
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Pitch Class Counter\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 UI counting the pitch class of selected MIDI Notes. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=255427&highlight=pitch+class"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Set Last Touched Parameter\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Set a MIDI CC as shortcut for this script, the MIDI CC will controll whichever FX parameter was last touched.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Item Clipboard History\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Simillar to Windows Clipboard History. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=263986&highlight=Clipboard"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 MOD of BirdBird Envelope Palette\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Mod of {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2643774"}}{\fldrslt{\ul
+BirdBird Envelope Palette
+}}}
+, this mod adds the feature for take envelopes.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Split Items in MIDI Notes\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 This script processes selected media items to split MIDI notes into individual items. It can optionally copy only note events, trim notes to item edges, and rename the resulting items based on their pitch. Each MIDI note is isolated into its own media item while maintaining timing and playback rate integrity.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Multikey\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Script to add multikey functionality, simillar to VIM. Edit multikey_bind.txt to add your commands and actions. Forked from Lermerchand Script.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Render Selected Items In New Tracks\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 For each selected item, render its track within the item's time range and place the resulting item on a new track.\par}
 }
 ]]></description>
   </metadata>
