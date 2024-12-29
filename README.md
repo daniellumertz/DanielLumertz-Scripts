@@ -1,3 +1,22 @@
+This repository contains a set of REAPER scripts dedicated to algorithm composition, adaptive music, and interfacing with external software. They must be installed via ReaPack, using my repository link: 
+
+```
+https://raw.githubusercontent.com/daniellumertz/DanielLumertz-Scripts/master/index.xml
+```
+
+### Installation Steps:
+0. Install [ReaPack](https://reapack.com) if you haven't already
+1. Open REAPER
+2. Go to Extensions → ReaPack → Import repositories...
+3. Paste the repository URL above
+4. Click OK and wait for the repository index to download
+5. Go to Extensions → ReaPack → Browse packages to find and install the scripts
+
+If you prefer to watch a video tutorial: https://www.youtube.com/watch?v=hucbceV7clg
+
+
+
+## REAPER Scripts Highlights:
 
 ### It's Gonna Phase (2024)
 A script for experimenting with phasing, inspired by Steve Reich and Brian Eno methods.
@@ -40,9 +59,45 @@ A script to share REAPER projects, tracks, and items by copying and pasting text
 [More Info](https://forum.cockos.com/showthread.php?p=2568492)
 
 ### MIDI Transfer (2021)
-A script that assist to interface MIDI from external software to REAPER. Making external software act as an MIDI editor for REAPER. Useful for notation editors (MuseScore, Sibelius, Dorico) and algorithm composition frameworks.
+A script that assists in interfacing MIDI from external software to REAPER. Making external software act as a MIDI editor for REAPER. Useful for notation editors (MuseScore, Sibelius, Dorico) and algorithm composition frameworks.
 [More Info](https://forum.cockos.com/showthread.php?t=248475)
 
 ### Sample Organizer (2021)
 A script for organizing and grouping samples by cutting and placing them into designated positions. It's useful for sample pack creation and improvisation sessions.
 [More Info](https://forum.cockos.com/showthread.php?t=255294)
+
+### DL Functions (continuous work)
+A set of functions I use for my scripts, feel free to use them
+
+
+
+## Also on this repository:
+
+### Lua Sockets Demo
+Set of scripts to demonstrate the use of Lua Sockets in REAPER. [Thread](https://forum.cockos.com/showthread.php?p=2551512) [Video](https://www.youtube.com/watch?v=tIdAylKsvCE)
+
+### Pitch Class Counter 
+UI counting the pitch class of selected MIDI Notes. [More Info](https://forum.cockos.com/showthread.php?t=255427&highlight=pitch+class)
+
+### Set Last Touched Parameter 
+Set a MIDI CC as shortcut for this script, the MIDI CC will controll whichever FX parameter was last touched.
+
+###  Item Clipboard History
+Simillar to Windows Clipboard History. [More Info](https://forum.cockos.com/showthread.php?t=263986&highlight=Clipboard)
+
+### MOD of BirdBird Envelope Palette
+Mod of [BirdBird Envelope Palette](https://forum.cockos.com/showthread.php?p=2643774), this mod adds the feature for take envelopes. 
+
+### Split Items in MIDI Notes
+This script processes selected media items to split MIDI notes into individual items. It can optionally copy only note events, trim notes to item edges, and rename the resulting items based on their pitch. Each MIDI note is isolated into its own media item while maintaining timing and playback rate integrity.
+
+### Multikey 
+Script to add multikey functionality, simillar to VIM. Edit multikey_bind.txt to add your commands and actions. Forked from Lermerchand Script.
+
+### Render Selected Items In New Tracks
+For each selected item, render its track within the item's time range and place the resulting item on a new track.
+
+
+
+
+
