@@ -33,7 +33,7 @@ local TABLE_FLAGS =     ImGui.TableFlags_ScrollY |
 local TOOLTIP_W = 300
 local POPUPNAME = 'Buy Clouds'
 local TIMER = {
-    val = 10,
+    val = 15,
     last = reaper.time_precise()
 }
 Clouds.Tracks.Get()
@@ -1026,10 +1026,7 @@ function Clouds.GUI.BUY()
             DAYS_EVAL = math.floor(diff_in_seconds / (24 * 60 * 60))
         end 
         
-        ImGui.TextWrapped(ctx, string.format("Clouds is not free!\n\nIt is a paid script.\n\nIf you use it more than 7 days you are required to purchase a license.\n\nYou have been evaluating Clouds for approximately %d days\n\nWe offer discounts based on region and for personal/educational use!",DAYS_EVAL))
-
-        ImGui.NewLine(ctx)
-        ImGui.NewLine(ctx)
+        ImGui.TextWrapped(ctx, string.format("Clouds is not free!\n\nIf you use it more than 7 days you are required to purchase a license.\n\nYou have been evaluating Clouds for approximately %d days.",DAYS_EVAL))
 
         ImGui.Separator(ctx)
         ImGui.TextWrapped(ctx, 'Insert Serial Key:')
