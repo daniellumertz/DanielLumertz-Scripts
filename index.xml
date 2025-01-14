@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="e22320d861677d4a239c0fefda34d0e92a28c9b9">
+<index version="1" name="Daniel Lumertz Scripts" commit="79d43ff8d99ee12cb73b75a977e7f4ea80763f0b">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -915,6 +915,54 @@
         <source file="User Presets/Default.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/e22320d861677d4a239c0fefda34d0e92a28c9b9/Generative/Clouds/User%20Presets/Default.json</source>
         <source file="User Settings/.gitkeep">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/e22320d861677d4a239c0fefda34d0e92a28c9b9/Generative/Clouds/User%20Settings/.gitkeep</source>
         <source type="effect" file="FX/daniellumertz_Clouds.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/e22320d861677d4a239c0fefda34d0e92a28c9b9/Generative/Clouds/FX/daniellumertz_Clouds.jsfx</source>
+      </version>
+      <version name="0.7.3b" author="Daniel Lumertz" time="2024-09-12T04:05:39Z">
+        <changelog><![CDATA[+ fix percentage box]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/daniellumertz_Clouds.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items.lua</source>
+        <source file="DL Functions/General Debug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/General%20Debug.lua</source>
+        <source file="DL Functions/General Files.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/General%20Files.lua</source>
+        <source file="DL Functions/General Number.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/General%20Number.lua</source>
+        <source file="DL Functions/General String.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/General%20String.lua</source>
+        <source file="DL Functions/General Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/General%20Table.lua</source>
+        <source file="DL Functions/ImGui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/ImGui.lua</source>
+        <source file="DL Functions/MIDI IO.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/MIDI%20IO.lua</source>
+        <source file="DL Functions/MIDI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/MIDI.lua</source>
+        <source file="DL Functions/Music.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/Music.lua</source>
+        <source file="DL Functions/REAPER Automation Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Automation%20Items.lua</source>
+        <source file="DL Functions/REAPER Checker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Checker.lua</source>
+        <source file="DL Functions/REAPER Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Chunks.lua</source>
+        <source file="DL Functions/REAPER Enumerate.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Enumerate.lua</source>
+        <source file="DL Functions/REAPER Envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Envelopes.lua</source>
+        <source file="DL Functions/REAPER FX.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20FX.lua</source>
+        <source file="DL Functions/REAPER Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Items.lua</source>
+        <source file="DL Functions/REAPER Markers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Markers.lua</source>
+        <source file="DL Functions/REAPER Play.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Play.lua</source>
+        <source file="DL Functions/REAPER Projects.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Projects.lua</source>
+        <source file="DL Functions/REAPER Take.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Take.lua</source>
+        <source file="DL Functions/REAPER Time.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Time.lua</source>
+        <source file="DL Functions/REAPER Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/REAPER%20Tracks.lua</source>
+        <source file="DL Functions/Serialize.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/Serialize.lua</source>
+        <source file="DL Functions/URL.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/URL.lua</source>
+        <source file="DL Functions/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/json.lua</source>
+        <source file="DL Functions/rxi_json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/DL%20Functions/rxi_json.lua</source>
+        <source file="Clouds Functions/Clouds Apply.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Apply.lua</source>
+        <source file="Clouds Functions/Clouds Convert GUIDS.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Convert%20GUIDS.lua</source>
+        <source file="Clouds Functions/Clouds GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20GUI.lua</source>
+        <source file="Clouds Functions/Clouds Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Items.lua</source>
+        <source file="Clouds Functions/Clouds Presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Presets.lua</source>
+        <source file="Clouds Functions/Clouds Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Settings.lua</source>
+        <source file="Clouds Functions/Clouds Themes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Themes.lua</source>
+        <source file="Clouds Functions/Clouds Tooltips.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Tooltips.lua</source>
+        <source file="Clouds Functions/Clouds Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Clouds%20Functions/Clouds%20Tracks.lua</source>
+        <source file="Image/Cloud.png">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Image/Cloud.png</source>
+        <source file="Info/Cloud Items Table.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/Info/Cloud%20Items%20Table.txt</source>
+        <source file="User Presets/Default.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/User%20Presets/Default.json</source>
+        <source file="User Settings/.gitkeep">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/User%20Settings/.gitkeep</source>
+        <source type="effect" file="FX/daniellumertz_Clouds.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/79d43ff8d99ee12cb73b75a977e7f4ea80763f0b/Generative/Clouds/FX/daniellumertz_Clouds.jsfx</source>
       </version>
     </reapack>
   </category>
@@ -4279,12 +4327,118 @@
     </reapack>
   </category>
   <metadata>
-    <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+    <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 \fmodern Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
 \widowctrl\hyphauto
 
-{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 ReaPack Repository Template\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 This is Reapack Repository from Daniel Lumertz !\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 This repository contains a set of REAPER scripts dedicated to algorithm composition, adaptive music, and interfacing with external software. They must be installed via ReaPack, using my repository link:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \f1 https://raw.githubusercontent.com/daniellumertz/DanielLumertz-Scripts/master/index.xml\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Installation Steps:\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 0.\tx360\tab Install {\field{\*\fldinst{HYPERLINK "https://reapack.com"}}{\fldrslt{\ul
+ReaPack
+}}}
+ if you haven't already\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 1.\tx360\tab Open REAPER\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 2.\tx360\tab Go to Extensions \u8594 ? ReaPack \u8594 ? Import repositories...\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 3.\tx360\tab Paste the repository URL above\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 4.\tx360\tab Click OK and wait for the repository index to download\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 5.\tx360\tab Go to Extensions \u8594 ? ReaPack \u8594 ? Browse packages to find and install the scripts\sa180\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 If you prefer to watch a video tutorial: https://www.youtube.com/watch?v=hucbceV7clg\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel1 \b \fs32 REAPER Scripts Highlights:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 It's Gonna Phase (2024)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script for experimenting with phasing, inspired by Steve Reich and Brian Eno methods. {\field{\*\fldinst{HYPERLINK "https://forums.cockos.com/showthread.php?t=289413"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Adaptive Music Trilogy: Layers, ReaGoTo, Alternator (2023)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A set of 3 scripts for adaptive music techniques in REAPER: Layers, Horizontal Sequences, and Alternations. Dedicated to game music techniques and live music. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=276313"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Bartoker (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Script dedicated to generate small compositions with a structure from Bartok's {\i Music for Children N\u186 ?3}. The user is encouraged to experiment with the parameters to diverge from the original composition. This approach for music generation reflects how I study my references: identifying and experimenting with structures, resources, and characteristics, rather than replicating a style. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2583193"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 MIDI Toolkit (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A collection of 4 modules for manipulating MIDI parameters: Copy Paste, Rotator, Mapper, and Serializer. Designed for experimenting with parametric composition and serialism techniques. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=272241"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Markov Chains (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script for symbolic music generation using Markov chains algorithm. Generates variations of MIDI items using transition probabilities, allowing manipulation of pitch, interval, rhythm, measure position, and velocity. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2606674"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Track Snapshot (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script to save and load track states in REAPER. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=264124"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Microrhythms (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Based on Malcolm Braff's work, this script allows users to experiment with rhythm interpolation between equal divisions and user-defined ratios. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2575284"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Fake Grids (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script to create a flexible grid by placing markers in REAPER, useful for complex time signatures or microrhythms. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=272321"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Item Sampler (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A sequencer that places audio or MIDI items at MIDI notes. It can serve as a random sequencer to generate musical ideas. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=262927"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 ReaShare (2022)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script to share REAPER projects, tracks, and items by copying and pasting text, simplifying file sharing for quick collaboration or bug reporting. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2568492"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 MIDI Transfer (2021)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script that assists in interfacing MIDI from external software to REAPER. Making external software act as a MIDI editor for REAPER. Useful for notation editors (MuseScore, Sibelius, Dorico) and algorithm composition frameworks. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=248475"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Sample Organizer (2021)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A script for organizing and grouping samples by cutting and placing them into designated positions. It's useful for sample pack creation and improvisation sessions. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=255294"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 DL Functions (continuous work)\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 A set of functions I use for my scripts, feel free to use them\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel1 \b \fs32 Also on this repository:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Lua Sockets Demo\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Set of scripts to demonstrate the use of Lua Sockets in REAPER. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2551512"}}{\fldrslt{\ul
+Thread
+}}}
+ {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=tIdAylKsvCE"}}{\fldrslt{\ul
+Video
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Pitch Class Counter\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 UI counting the pitch class of selected MIDI Notes. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=255427&highlight=pitch+class"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Set Last Touched Parameter\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Set a MIDI CC as shortcut for this script, the MIDI CC will controll whichever FX parameter was last touched.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Item Clipboard History\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Simillar to Windows Clipboard History. {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=263986&highlight=Clipboard"}}{\fldrslt{\ul
+More Info
+}}}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 MOD of BirdBird Envelope Palette\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Mod of {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2643774"}}{\fldrslt{\ul
+BirdBird Envelope Palette
+}}}
+, this mod adds the feature for take envelopes.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Split Items in MIDI Notes\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 This script processes selected media items to split MIDI notes into individual items. It can optionally copy only note events, trim notes to item edges, and rename the resulting items based on their pitch. Each MIDI note is isolated into its own media item while maintaining timing and playback rate integrity.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Multikey\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Script to add multikey functionality, simillar to VIM. Edit multikey_bind.txt to add your commands and actions. Forked from Lermerchand Script.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \outlinelevel2 \b \fs28 Render Selected Items In New Tracks\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 For each selected item, render its track within the item's time range and place the resulting item on a new track.\par}
 }
 ]]></description>
   </metadata>
