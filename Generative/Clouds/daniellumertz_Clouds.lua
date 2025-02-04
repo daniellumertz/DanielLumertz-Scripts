@@ -1,4 +1,4 @@
--- @version 1.0.3
+-- @version 1.0.4
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,13 +13,13 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Fixed activation for MacOs
+--    + Fixed activation for MacOs and Linux
 -- Debug
 --local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.0.3'
+SCRIPT_V  = '1.0.4'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0

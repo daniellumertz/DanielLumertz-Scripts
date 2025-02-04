@@ -18,6 +18,7 @@ end
 
 -- Check
 local id = '_DAbL0AG7SXZQiTeYbrixQ=='
+local os = reaper.GetOS()
 function Clouds.Tracks.Check(key_str)
     local valid = false 
     local msg
@@ -33,13 +34,19 @@ P.S. If you ever feel tempted to share this secret key, just remember: what goes
     else
         local exec = 'curl https://api.gumroad.com/v2/licenses/verify \\  -d "product_id=%s" \\  -d "license_key=%s" \\  -X POST'
         exec = string.format(exec, id, key_str)
-        --local result = reaper.ExecProcess(exec, 5000) for some reason not working on macos
-        local handle = io.popen(exec)
+        if os:match('^Win') then
+            exec = 'curl '..exec
+        else
+            exec = '/usr/bin/curl '..exec
+        end
+        local result = reaper.ExecProcess(exec, 5000) 
+
+        --[[ local handle = io.popen(exec) -- Different method using popen
         local result
         if handle then
             result = handle:read("*a")  -- Read the output
             handle:close()
-        end
+        end ]]
 
         if result and result ~= '' then
             result = result:match('{.+}')
