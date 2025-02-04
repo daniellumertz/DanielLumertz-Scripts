@@ -153,7 +153,7 @@ function Clouds.GUI.Main()
                     Settings = Clouds.Settings.Default()
                     setting_change = true
                 end
-                tooltip(ctx, Settings.tooltip, ToolTips.settings.is_del_area)
+                tooltip(ctx, Settings.tooltip, ToolTips.settings.default)
 
                 ImGui.Separator(ctx)
 
@@ -204,9 +204,9 @@ function Clouds.GUI.Main()
             end
 
             if ImGui.BeginMenu(ctx, 'About') then
-                if ImGui.MenuItem(ctx, 'Manual') then
+                --[[ if ImGui.MenuItem(ctx, 'Manual') then
                     DL.url.OpenURL(URL.manual)
-                end
+                end ]]
                 if ImGui.MenuItem(ctx, 'Forum') then
                     DL.url.OpenURL(URL.thread)
                 end
