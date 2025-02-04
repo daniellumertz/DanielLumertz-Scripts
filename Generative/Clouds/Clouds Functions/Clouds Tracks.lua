@@ -33,7 +33,14 @@ P.S. If you ever feel tempted to share this secret key, just remember: what goes
     else
         local exec = 'curl https://api.gumroad.com/v2/licenses/verify \\  -d "product_id=%s" \\  -d "license_key=%s" \\  -X POST'
         exec = string.format(exec, id, key_str)
-        local result = reaper.ExecProcess(exec, 5000)
+        --local result = reaper.ExecProcess(exec, 5000) for some reason not working on macos
+        local handle = io.popen(exec)
+        local result
+        if handle then
+            result = handle:read("*a")  -- Read the output
+            handle:close()
+        end
+
         if result and result ~= '' then
             result = result:match('{.+}')
             local r_json = DL.json.StringToJson(result)
