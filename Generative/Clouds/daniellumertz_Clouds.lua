@@ -1,4 +1,4 @@
--- @version 1.0.1
+-- @version 1.0.2
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,13 +13,13 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Update links for video
+--    + Update links for forum
 -- Debug
 --local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.0.1'
+SCRIPT_V  = '1.0.2'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
@@ -72,7 +72,7 @@ SETTINGS = {
 }
 URL = {
     buy = 'https://daniellumertz.gumroad.com/l/ReaperClouds',
-    thread = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    thread = 'https://forum.cockos.com/showthread.php?t=298170',
     manual = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     video = 'https://youtu.be/IWLGhHi0nnE?si=JSRBwFhlzvBVbVf-'
 }
