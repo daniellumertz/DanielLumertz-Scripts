@@ -18,6 +18,9 @@ If you prefer to watch a video tutorial: https://www.youtube.com/watch?v=hucbceV
 
 ## REAPER Scripts Highlights:
 
+### Clouds (2025)
+Clouds is a REAPER script designed for experimenting with texture generation. With it, you create a "Cloud Item" that stores settings and defines the texture's position. The texture is created by copying, granularizing, and randomizing a group of items (audio/MIDI/video). [More Info](https://forum.cockos.com/showthread.php?t=298170), [Video](https://www.youtube.com/watch?v=IWLGhHi0nnE)
+
 ### It's Gonna Phase (2024)
 A script for experimenting with phasing, inspired by Steve Reich and Brian Eno methods.
 [More Info](https://forums.cockos.com/showthread.php?t=289413)
