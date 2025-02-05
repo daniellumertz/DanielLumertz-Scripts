@@ -98,6 +98,9 @@ function Clouds.GUI.Main()
                 table.remove(CloudTable.tracks,k)
             end
         end
+
+        -- Check if cloud item has FX
+        Clouds.Item.EnsureFX(CloudTable.cloud)
     end
     --- Keyboard shortcuts
     DL.imgui.SWSPassKeys(ctx, false)
@@ -872,11 +875,7 @@ function Clouds.GUI.Main()
 
             ImGui.SameLine(ctx)
             if ImGui.Button(ctx, 'Paste Settings') and CopySettings then
-                local cloud = CloudTable.cloud
-                CloudTable = DL.t.DeepCopy(CopySettings)
-                CloudTable.cloud = cloud
-                Clouds.Item.ShowHideAllEnvelopes()
-                Clouds.Item.SaveSettings(Proj, CloudTable.cloud, CloudTable)
+                Clouds.Item.Paste(true)
             end
             tooltip(ctx, Settings.tooltip, ToolTips.buttons.paste)
 

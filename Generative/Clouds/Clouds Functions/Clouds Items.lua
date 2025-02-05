@@ -361,6 +361,47 @@ function Clouds.Item.ShowHideAllEnvelopes()
     Clouds.Item.ShowHideEnvelope(CloudTable.randomization.reverse.on and CloudTable.randomization.reverse.chance.env,FXENVELOPES.randomization.c_reverse)
 end
 
+function Clouds.Item.EnsureFX(cloud)
+    local retval, buf = reaper.TakeFX_GetFXName( reaper.GetActiveTake(cloud), 0 )
+    if not buf:match(FX_NAME) then
+        reaper.TakeFX_AddByName( reaper.GetActiveTake(cloud), FX_NAME, -1 )
+        Clouds.Item.ShowHideAllEnvelopes()
+    end
+end
+
+function Clouds.Item.Paste(is_selected)
+    local t = {CloudTable.cloud} -- already start with current Cloud Table, as it could be pinned and not selected
+
+    if is_selected then
+        for item in DL.enum.SelectedMediaItem(Proj) do
+            if item ~= CloudTable.cloud then
+                local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
+                if extstate ~= '' then
+                    t[#t+1] = item
+                end
+            end
+        end
+    end
+
+    if #t > 0 then
+        reaper.Undo_BeginBlock2(Proj)
+        reaper.PreventUIRefresh(1)
+        
+        local cloud = CloudTable.cloud
+        CloudTable = DL.t.DeepCopy(CopySettings)
+        for k, item in ipairs(t) do
+            CloudTable.cloud = item
+            Clouds.Item.ShowHideAllEnvelopes()
+            Clouds.Item.SaveSettings(Proj, CloudTable.cloud, CloudTable)
+        end
+        CloudTable.cloud = cloud
+
+        reaper.UpdateArrange()
+        reaper.PreventUIRefresh(-1)
+        reaper.Undo_EndBlock2(Proj, 'Paste Clouds', -1)
+    end
+end
+
 ------ Generated Items:
 
 function Clouds.Item.UntagSelected(proj)

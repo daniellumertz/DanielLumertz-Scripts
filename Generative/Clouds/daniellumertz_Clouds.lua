@@ -1,4 +1,4 @@
--- @version 1.0.5
+-- @version 1.0.6
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,20 +13,16 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Final touch to reach curl for Linux
---    + Fix Cloud Color for Macos and Linux
---    + Fix for presets without name
---    + Fix for canceling presets save
---    + Fix for Presets not showing up
---    + Fix for Presets with tracks
---    + Fix for duplicate preset extension
---    + Fix for showing other presets at folder
+--    + Ensure Clouds FX exist at cloud Item
+--    + Paste Applies to all selected cloud items
 -- Debug
---local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
+--[[ if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
+    local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
+end ]]
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.0.5'
+SCRIPT_V  = '1.0.6'
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0

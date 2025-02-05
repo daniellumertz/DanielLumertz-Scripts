@@ -29,6 +29,8 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         table.remove(t.tracks,k)
                     end
                 end
+                -- Check if it has Clouds FX
+                Clouds.Item.EnsureFX(item)
     
                 t.cloud = item
                 clouds[#clouds+1] = t
