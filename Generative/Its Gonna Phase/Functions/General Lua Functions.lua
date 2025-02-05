@@ -732,5 +732,5 @@ end
 ---@param file_path string
 ---@return string
 function GetFileExtension(file_path)
-    return file_path:match('%.(.+)$')
+    return file_path:match('%.([^%.]+)$')
 end

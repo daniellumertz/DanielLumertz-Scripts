@@ -37,7 +37,7 @@ P.S. If you ever feel tempted to share this secret key, just remember: what goes
         if os:match('^Win') then
             exec = 'curl '..exec
         else
-            exec = '/usr/bin/curl '..exec
+            exec = '/usr/bin/env curl '..exec
         end
         local result = reaper.ExecProcess(exec, 5000) 
 

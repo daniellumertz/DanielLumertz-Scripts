@@ -1,5 +1,7 @@
 --@noindex
---version: 0.0
+--version: 0.1
+-- 0.1
+-- Fix GetExtension
 
 DL = DL or {}
 DL.files = {}
@@ -45,7 +47,7 @@ end
 ---@param file_path string
 ---@return string
 function DL.files.GetExtension(file_path)
-    return file_path:match('%.(.+)$')
+    return file_path:match('%.([^%.]+)$')
 end
 
 ---Returns if the file name have a valid extension

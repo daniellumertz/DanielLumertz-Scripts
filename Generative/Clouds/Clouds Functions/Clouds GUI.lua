@@ -906,13 +906,15 @@ function Clouds.GUI.Main()
                 ImGui.Separator(ctx)
                 local _
                 --_, PresetName = ImGui.InputText(ctx, 'Preset Name', PresetName)
-                if ImGui.Button(ctx, 'Save', 150) then
-                    local retval, fileName = reaper.JS_Dialog_BrowseForSaveFile( 'Save Cloud Preset', PRESETS.path, PresetName..'.json', 'json' )
-                    Clouds.Presets.SavePreset(fileName, CloudTable)
+                if ImGui.Button(ctx, 'Save', -FLT_MIN) then
+                    local retval, fileName = reaper.JS_Dialog_BrowseForSaveFile( 'Save Cloud Preset', PRESETS.path, PresetName..'.json', '' )
+                    if retval ~= 0 then
+                        Clouds.Presets.SavePreset(fileName, CloudTable)
+                    end
                 end
                 
                 ImGui.EndCombo(ctx)
-            else 
+            elseif Presets then 
                 Presets = nil
             end
 
