@@ -1,4 +1,4 @@
--- @version 1.0.6
+-- @version 1.1.0b
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,16 +13,18 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Ensure Clouds FX exist at cloud Item
---    + Paste Applies to all selected cloud items
+--    + Better performance concerning clouds with lots of source items
+--    + Ensure clouds have backwards compability.  
+--    + Seed Feature 
+--    + New Presets
 -- Debug
 --[[ if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
-    local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
+    VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 end ]]
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.0.6'
+SCRIPT_V  = '1.1.0b' -- version should always be three digits! leters, for beta versions, are acceptable.
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0

@@ -82,26 +82,9 @@ function Clouds.GUI.Main()
             FixedCloud = nil
         end
     end
-    if (not CreatingClouds) and (not FixedCloud) then
-        Clouds.Item.CheckSelection(Proj)
-    end
-    --checks if items/tracks exists
-    if CloudTable then
-        for k, v in DL.t.ipairs_reverse(CloudTable.items) do
-            if not reaper.ValidatePtr2(Proj, v.item, 'MediaItem*') then
-                table.remove(CloudTable.items,k)
-            end
-        end
+    
+    Clouds.Item.CheckSelection(Proj)
 
-        for k, v in DL.t.ipairs_reverse(CloudTable.tracks) do -- dont need to check self
-            if not reaper.ValidatePtr2(Proj, v.track, 'MediaTrack*') then
-                table.remove(CloudTable.tracks,k)
-            end
-        end
-
-        -- Check if cloud item has FX
-        Clouds.Item.EnsureFX(CloudTable.cloud)
-    end
     --- Keyboard shortcuts
     DL.imgui.SWSPassKeys(ctx, false)
     --- UI
@@ -939,6 +922,16 @@ function Clouds.GUI.Main()
                 --Clouds.apply.GenerateClouds(Proj, not ctrl, not alt)                    
             end
             ImGui.SetItemTooltip(ctx, text_help)
+            if ImGui.BeginPopupContextItem(ctx, '') then
+                local w = 200
+                ImGui.Text(ctx, 'Fix Seed:')
+                ImGui.SetNextItemWidth(ctx, w)
+                something_changed, CloudTable.seed.seed = ImGui.InputInt(ctx, '##Fix Seed', CloudTable.seed.seed, 0, 0)
+                if ImGui.Button(ctx, 'Print Seed History', w) then
+                    Clouds.Item.PrintSeedHistory(CloudTable)
+                end
+                ImGui.EndPopup(ctx)
+            end    
 
             -- Progress Bar
             if CreatingClouds then

@@ -33,6 +33,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 Clouds.Item.EnsureFX(item)
     
                 t.cloud = item
+
+                Clouds.Item.UpdateVersion(t)
+
                 clouds[#clouds+1] = t
             end
         end
@@ -121,6 +124,17 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     reaper.DeleteTrackMediaItem(reaper.GetMediaItem_Track(d_item), d_item)
                 end
             end
+        end
+
+        -- Set general Random Seed 
+        local seed = ct.seed.seed ~= 0 and math.randomseed(ct.seed.seed) or math.randomseed()
+        table.insert(ct.seed.history, 1, seed)
+        if #ct.seed.history == 11 then  -- Cap at 10 history
+            table.remove(ct.seed.history,11)
+        end
+        Clouds.Item.SaveSettings(proj, ct.cloud, ct)
+        if ct.cloud == CloudTable.cloud then -- Update GUI Cloud Table
+            CloudTable.seed = ct.seed
         end
 
         -- calculate the position of each item using density values. output a table with the position for each new item t = {i = position}

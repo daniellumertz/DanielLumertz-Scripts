@@ -24,6 +24,7 @@ function Clouds.Presets.Load(path)
         t.cloud = CloudTable.cloud
         t.tracks = CloudTable.tracks
         CloudTable = t
+        Clouds.Item.UpdateVersion(CloudTable)
         return true
     else
         reaper.ShowMessageBox('Failed to Load Preset!\nPlease contact me at the REAPER thread if problem persists!', "Clouds", 0)
