@@ -548,7 +548,13 @@ end
 --- Misc Actions
 function Clouds.Item.PrintSeedHistory(cloud)
     reaper.ClearConsole()
-    for k, seed in ipairs(cloud.seed.history) do
-        print(seed)        
+    local len = #cloud.seed.history
+    local start = len - Settings.seed_print > 0 and len - Settings.seed_print or 1
+    for i = start, len do 
+        if cloud.seed.history[i] then
+            print('Seed ' .. tostring(len - i + 1).. ' : '..cloud.seed.history[i])
+        else 
+            break
+        end
     end
 end

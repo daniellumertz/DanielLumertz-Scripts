@@ -11,7 +11,8 @@ function Clouds.Settings.Default()
         reroll = { -- during generations, store the range of randomness for rerolling aftwards
             on = false,
         },
-        version = SCRIPT_V
+        version = SCRIPT_V,
+        seed_print = 10, -- number of seeds to print.
     }
 end
 

@@ -1,4 +1,4 @@
--- @version 1.1.0b
+-- @version 1.1.1b
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -21,10 +21,9 @@
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 end
-
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.1.0b' -- version should always be three digits! leters, for beta versions, are acceptable.
+SCRIPT_V  = '1.1.1b' -- version should always be three digits! leters, for beta versions, are acceptable.
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
@@ -81,6 +80,7 @@ URL = {
     manual = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     video = 'https://youtu.be/IWLGhHi0nnE?si=JSRBwFhlzvBVbVf-'
 }
+SEEDLIMIT = 1024 -- maximum number of seeds history saved in a item
 
 -- Initialize ImGUI
 package.path = package.path..';'..reaper.ImGui_GetBuiltinPath() .. '/?.lua'

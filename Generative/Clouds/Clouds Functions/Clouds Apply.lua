@@ -125,10 +125,10 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
         end
 
         -- Set general Random Seed 
-        local seed = ct.seed.seed ~= 0 and math.randomseed(ct.seed.seed) or math.randomseed()
-        table.insert(ct.seed.history, 1, seed)
-        if #ct.seed.history == 11 then  -- Cap at 10 history
-            table.remove(ct.seed.history,11)
+        local seed = ct.seed.seed ~= 0 and math.randomseed(ct.seed.seed,0) or math.randomseed(math.random(1,100000),0)
+        table.insert(ct.seed.history, seed)
+        if #ct.seed.history == SEEDLIMIT then
+            table.remove(ct.seed.history, 1)
         end
         Clouds.Item.SaveSettings(proj, ct.cloud, ct)
         if ct.cloud == CloudTable.cloud then -- Update GUI Cloud Table

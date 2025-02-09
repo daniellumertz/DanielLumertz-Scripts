@@ -113,13 +113,13 @@ function Clouds.GUI.Main()
     end
 
     Clouds.GUI.BUY()
-    
+    local setting_change
     if visible then
         local ctrl = ImGui.IsKeyDown(ctx, ImGui.Mod_Ctrl)
         local alt = ImGui.IsKeyDown(ctx, ImGui.Mod_Alt)
         if ImGui.BeginMenuBar(ctx) then
             if ImGui.BeginMenu(ctx, "Settings") then
-                local setting_change, change = false, false
+                local change = false
                 -- Playback
                 if ImGui.MenuItem(ctx, 'Stop Playback On Generate', nil, Settings.stop_playback) then
                     Settings.stop_playback = not Settings.stop_playback
@@ -159,10 +159,7 @@ function Clouds.GUI.Main()
 
                     ImGui.EndMenu(ctx)
                 end
-    
-                if setting_change then
-                    Clouds.Settings.Save(SETTINGS.path, Settings)
-                end
+
                 ImGui.EndMenu(ctx)
             end
 
@@ -927,6 +924,11 @@ function Clouds.GUI.Main()
                 ImGui.Text(ctx, 'Fix Seed:')
                 ImGui.SetNextItemWidth(ctx, w)
                 something_changed, CloudTable.seed.seed = ImGui.InputInt(ctx, '##Fix Seed', CloudTable.seed.seed, 0, 0)
+
+                ImGui.Text(ctx, 'Print N Seeds:')
+                ImGui.SetNextItemWidth(ctx, w)
+                setting_change, Settings.seed_print = ImGui.InputInt(ctx, '##Print Number', Settings.seed_print, 0, 0)
+
                 if ImGui.Button(ctx, 'Print Seed History', w) then
                     Clouds.Item.PrintSeedHistory(CloudTable)
                 end
@@ -961,6 +963,11 @@ function Clouds.GUI.Main()
             tooltip(ctx, Settings.tooltip, ToolTips.create_item)
         end
         ImGui.End(ctx)
+    end
+
+    
+    if setting_change then
+        Clouds.Settings.Save(SETTINGS.path, Settings)
     end
 
     ImGui.PopFont(ctx)
