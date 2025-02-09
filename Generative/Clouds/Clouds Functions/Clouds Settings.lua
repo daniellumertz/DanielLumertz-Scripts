@@ -8,6 +8,10 @@ function Clouds.Settings.Default()
         theme = 'Dark',
         stop_playback = true, -- as a security measure, stop playback when generating,
         is_del_area = false, -- delete items only in the area
+        reroll = { -- during generations, store the range of randomness for rerolling aftwards
+            on = false,
+        },
+        version = SCRIPT_V
     }
 end
 
@@ -21,6 +25,27 @@ function Clouds.Settings.Load(path)
         Clouds.Settings.Save(path, default)
         return default
     else
-        return DL.json.load(path)
+        local t = DL.json.load(path)
+
+        -- Update older versions.
+        if Clouds.Settings.UpdateCheck(t) then
+            Clouds.Settings.Save(path, t)
+        end
+
+        return t
     end
+end
+
+function Clouds.Settings.UpdateCheck(settings)
+    local was_updated
+    if not settings.version or not DL.num.CompareVersion(settings.version, '1.1.0') then
+        settings.reroll = { -- during generations, store the range of randomness for rerolling aftwards
+            on = false,
+        }
+        settings.version = '1.1.0'
+
+        was_updated = true
+    end
+
+    return was_updated
 end

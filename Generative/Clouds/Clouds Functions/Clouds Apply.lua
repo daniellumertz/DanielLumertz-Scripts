@@ -105,8 +105,6 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 -- body
             end
         end
-        
-
 
         -- if delete then check items at cloud items positions and delete
         if is_delete then
@@ -136,6 +134,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
         if ct.cloud == CloudTable.cloud then -- Update GUI Cloud Table
             CloudTable.seed = ct.seed
         end
+
+        -- Creates the reroll table to store information about the randomness.
+        local reroll = {}
 
         -- calculate the position of each item using density values. output a table with the position for each new item t = {i = position}
         local positions = {} -- [1] = 0

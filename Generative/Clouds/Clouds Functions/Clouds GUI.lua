@@ -102,7 +102,7 @@ function Clouds.GUI.Main()
 
     --- Window
     ImGui.SetNextWindowSize(ctx, guiW, guiH, ImGui.Cond_Once)
-    ImGui.SetNextWindowSizeConstraints(ctx, 375, 50, guiW, FLT_MAX)
+    ImGui.SetNextWindowSizeConstraints(ctx, guiW, 50, guiW, FLT_MAX)
     ImGui.PushFont(ctx, font_text)
     local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' '..SCRIPT_V, true, window_flags) 
     

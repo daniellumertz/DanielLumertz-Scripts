@@ -1,0 +1,20 @@
+--noindex
+reroll:
+    items:
+        item: weight
+    tracks: 
+        track: weight
+    i: -- Item index table
+        pos: f
+            central: f 
+            range: f --random position range
+            is_quantize
+        grains:
+            size_drift:
+                chance:
+                original_size:
+                range:
+            position_drift:
+                
+
+    
