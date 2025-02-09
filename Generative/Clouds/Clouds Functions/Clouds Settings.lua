@@ -8,6 +8,7 @@ function Clouds.Settings.Default()
         theme = 'Dark',
         stop_playback = true, -- as a security measure, stop playback when generating,
         is_del_area = false, -- delete items only in the area
+        seed_print = 10, -- number of seeds to print.
     }
 end
 
