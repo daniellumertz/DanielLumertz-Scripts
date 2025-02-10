@@ -1,4 +1,6 @@
 --@noindex
+--version 0.3
+--added an optional argument for GetItemsInRange to include items that ends at start_range and starts at fim_range
 --version: 0.2
 --add get/set mix behavior
 
@@ -169,21 +171,34 @@ end
 ---@param fim_range number end of the range (end points are not includded in the range)
 ---@param only_start_in_range boolean only get items that start inside the range (if start at start_range it is includded)
 ---@param only_end_in_range boolean only get items that end inside the range (if end at the fim_range it is includded)
+---@param inclusive boolean? optional, if true, include items that ends at start_range and starts at fim_range
 ---@return MediaItem[]
-function DL.item.GetItemsInRange(proj,start_range,fim_range,only_start_in_range,only_end_in_range)
+function DL.item.GetItemsInRange(proj,start_range,fim_range,only_start_in_range,only_end_in_range, inclusive)
+    inclusive = inclusive or false
     local item_list = {}
     for track in DL.enum.Tracks(proj) do
         for item in DL.enum.TrackMediaItem(track) do 
             local pos = reaper.GetMediaItemInfo_Value( item, 'D_POSITION')
 
             if only_start_in_range and pos < start_range then goto continue end -- filter if only_start_in_range 
-            if pos >= fim_range then break end -- start after range. break
+            if inclusive then -- start after range. break
+                if pos > fim_range then break end 
+            else
+                if pos >= fim_range then break end 
+            end
 
             local len = reaper.GetMediaItemInfo_Value( item, 'D_LENGTH')
             local final_pos = len + pos
             if only_end_in_range and final_pos > fim_range then goto continue end -- filter if only_end_in_range
 
-            if final_pos > start_range then
+            local end_check
+            if inclusive then
+                end_check = final_pos >= start_range
+            else
+                end_check = final_pos > start_range
+            end
+
+            if end_check then
                 item_list[#item_list+1] = item
             end
 

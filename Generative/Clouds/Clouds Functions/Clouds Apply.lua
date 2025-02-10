@@ -110,7 +110,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
         if is_delete then
             local dt = {}
             if Settings.is_del_area then
-                dt = DL.item.GetItemsInRange(proj, cloud.start, cloud.fim, false, false) 
+                dt = DL.item.GetItemsInRange(proj, cloud.start, cloud.fim, false, false, true) 
             else
                 for item in DL.enum.MediaItem(proj) do
                     dt[#dt+1] = item

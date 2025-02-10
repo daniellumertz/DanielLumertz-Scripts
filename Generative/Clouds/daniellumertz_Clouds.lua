@@ -13,10 +13,10 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Better performance concerning clouds with lots of source items
---    + Ensure clouds have backwards compability.  
---    + Seed Feature 
---    + New Presets
+--    + Start of the reroll system
+--    + Ensure Settings have backwards compability.  
+--    + Number of seed print setting.  
+--    + Delete generated items set at the exact start or end of a cloud item.  
 -- Debug
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
