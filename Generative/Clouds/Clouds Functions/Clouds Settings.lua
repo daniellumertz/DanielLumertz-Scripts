@@ -48,5 +48,12 @@ function Clouds.Settings.UpdateCheck(settings)
         was_updated = true
     end
 
+    if not DL.num.CompareVersion(settings.version, '1.1.1') then
+        settings.seed_print = 10
+        settings.version = '1.1.1'
+
+        was_updated = true
+    end
+
     return was_updated
 end
