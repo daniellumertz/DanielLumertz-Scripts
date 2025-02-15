@@ -1,5 +1,6 @@
 --@noindex
---version: 0.0
+--version: 0.1
+--Update PassKeys to prevent passing held keys at startup.
 
 DL = DL or {}
 DL.imgui = {}
@@ -247,13 +248,21 @@ end
 ---- Keys
 ----------------
 
-local held_keys = {}
 
+local held_keys = {}
+if reaper.JS_VKeys_GetState then -- add held notes at script start to the table
+    local keys = reaper.JS_VKeys_GetState(0)
+    for k = 1, #keys do
+        if  keys:byte(k) ~= 0 then
+            held_keys[k] = true
+        end
+    end
+end
 ---Pass some key  to reaper
 ---@param ctx any
 ---@param is_midieditor any
 function DL.imgui.SWSPassKeys(ctx, is_midieditor)
-    if not reaper.CF_SendActionShortcut then return end
+    if not reaper.CF_SendActionShortcut or not reaper.JS_VKeys_GetState then return end
     if (not ImGui.IsWindowFocused(ctx, ImGui.FocusedFlags_AnyWindow)) or ImGui.IsAnyItemActive(ctx) then return end -- Only when Script haves the focus
 
     local sel_window, section 
