@@ -1,4 +1,4 @@
--- @version 1.1.1b
+-- @version 1.1.2
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,17 +13,18 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Start of the reroll system
---    + Ensure Settings have backwards compability.  
+--    + Ensure Settings and Cloud Items are backwards compatible.  
+--    + Fix bug with lauching script via shortcut.
 --    + Number of seed print setting.  
---    + Delete generated items set at the exact start or end of a cloud item.  
+--    + Seed select feature
+--    + Fix option, delete only overlapped generations: Delete generated items set at the exact start or end of a cloud item.  
 -- Debug
-if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
+--[[ if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
-end
+end ]]
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.1.1b' -- version should always be three digits! leters, for beta versions, are acceptable.
+SCRIPT_V  = '1.1.2' -- version should always be three digits! leters, for beta versions, are acceptable.
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
