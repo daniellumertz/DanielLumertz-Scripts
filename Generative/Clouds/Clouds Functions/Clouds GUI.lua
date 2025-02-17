@@ -15,6 +15,18 @@ ImGui.Attach(ctx, font_title)
 --- Clipper
 local clipper = ImGui.CreateListClipper(ctx)
 ImGui.Attach(ctx, clipper)
+--- ReRoll
+local reroll_gui = {
+    on = false,
+    w = 250,
+    creating = {
+        on = false, -- change to the reroll type like 'position', 'size', 'random_pitch' 
+    },
+    seed = {
+        seed = 0,
+        history = {}
+    },
+}
 --- Constants for GUI
 local INT_MIN, INT_MAX = ImGui.NumericLimits_Int()
 local FLT_MIN, FLT_MAX = ImGui.NumericLimits_Float()
@@ -186,6 +198,10 @@ function Clouds.GUI.Main()
                 ImGui.EndMenu(ctx)
             end
 
+            if ImGui.MenuItem(ctx, "ReRoll!") then
+                reroll_gui.on = true
+            end
+            
             if ImGui.BeginMenu(ctx, 'About') then
                 --[[ if ImGui.MenuItem(ctx, 'Manual') then
                     DL.url.OpenURL(URL.manual)
@@ -964,10 +980,13 @@ function Clouds.GUI.Main()
         end
         ImGui.End(ctx)
     end
-
     
     if setting_change then
         Clouds.Settings.Save(SETTINGS.path, Settings)
+    end
+
+    if reroll_gui.on then
+        Clouds.GUI.ReRoll()
     end
 
     ImGui.PopFont(ctx)
@@ -1094,3 +1113,53 @@ function Clouds.GUI.Guiless(proj, is_selection, is_delete)
     ImGui.PopFont(ctx)
 end
 
+--- ReRoll GUI
+
+function Clouds.GUI.ReRoll()
+    local _
+    --- Window
+    --ImGui.SetNextWindowSize(ctx, guiW, guiH, ImGui.Cond_Once)
+    --ImGui.SetNextWindowSizeConstraints(ctx, guiW, 50, guiW, FLT_MAX)
+    local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' ReRoll', true, ImGui.WindowFlags_AlwaysAutoResize) 
+    if visible then
+        
+        if ImGui.Button(ctx, 'Position', reroll_gui.w) and not reroll_gui.creating.on then
+            reroll_gui.creating.on = coroutine.wrap(Clouds.ReRoll.Position)
+        end
+
+        ImGui.SeparatorText(ctx, 'Seed:')
+        ImGui.SetNextItemWidth(ctx, reroll_gui.w)
+        _, reroll_gui.seed.seed = ImGui.DragInt(ctx, '##SeedReRoll', reroll_gui.seed.seed, 0.04, 0, 999999)
+        if ImGui.Button(ctx, 'Print Seeds##Reroll', reroll_gui.w) then
+            reaper.ClearConsole()
+            local n = #reroll_gui.seed.history
+            for index, seed in ipairs(reroll_gui.seed.history) do
+                local idx = n - index + 1
+                print('Seed '..idx..' : '..seed)
+            end
+        end
+
+        if reroll_gui.creating.on then
+            local is_finished, items = reroll_gui.creating.on(Proj, reroll_gui.seed.seed)
+            if is_finished then
+                table.insert(reroll_gui.seed.history, items.seed)
+                reroll_gui.creating.on = false
+            else
+                ImGui.ProgressBar(ctx,  items.done/items.total, -FLT_MIN)
+                if ImGui.Button(ctx, 'Cancel', -FLT_MIN) then
+                    reroll_gui.creating.on = false
+                    reaper.UpdateArrange()
+                    reaper.PreventUIRefresh(-1)
+                    reaper.Undo_EndBlock2(Proj, 'ReRoll Clouds', -1)
+
+                end
+            end
+        end
+
+        ImGui.End(ctx)
+    end
+
+    if not open then
+        reroll_gui.on = false
+    end
+end

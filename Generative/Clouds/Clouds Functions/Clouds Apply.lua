@@ -2,6 +2,7 @@
 Clouds = Clouds or {}
 Clouds.apply = {}
 
+local ext_reroll = 'reroll'
 function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     --local debug_time = reaper.time_precise()
     -- Get the Clouds it will generate
@@ -159,6 +160,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     
                     if desire >= period then
                         local new_pos = pos
+                        reroll[#reroll+1] = {pos = pos}
                         --Randomize (dust)
                         if dust > 0 then
                             local new_dust = dust 
@@ -170,10 +172,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             local random = (math.random() * range) - (range/2)
                             new_pos = new_pos + random
                             -- reflect item at borders
+                            new_pos = new_pos % (2 * cloud.len)
                             if new_pos > cloud.len then
-                                new_pos = new_pos - (2 * (new_pos - cloud.len))
-                            elseif new_pos < 0 then
-                                new_pos = new_pos * -1 
+                                new_pos = cloud.len - (new_pos - cloud.len)
                             end
                         end
                         -- Quantize
@@ -537,6 +538,16 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 end
 
                 -- Ext State
+                if reroll then -- Actually the ext state is required to have the guid to indentify on the delete function 
+                    local ext_state 
+                    ext_state = {
+                        pos = reroll[k].pos,
+                        cloud = cloud.guid,
+                        idx = k
+                    }
+                    ext_state = DL.serialize.tableToString(ext_state)
+                    DL.item.SetExtState(new_item.item, EXT_NAME, ext_reroll, ext_state)
+                end
                 DL.item.SetExtState(new_item.item, EXT_NAME, 'is_item', cloud.guid)
             end
 

@@ -114,6 +114,7 @@ require('Clouds Settings')
 require('Clouds Tracks')
 require('Clouds GUI')
 require('Clouds Tooltips')
+require('Clouds ReRoll')
 
 -- Check versions
 DL.check.ReaImGUI('0.9.2')
