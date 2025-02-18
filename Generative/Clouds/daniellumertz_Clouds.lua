@@ -19,9 +19,9 @@
 --    + Seed select feature
 --    + Fix option, delete only overlapped generations: Delete generated items set at the exact start or end of a cloud item.  
 -- Debug
---[[ if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
+if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
-end ]]
+end
 -- Constants:
 SCRIPT_NAME = 'Clouds'
 SCRIPT_V  = '1.1.2' -- version should always be three digits! leters, for beta versions, are acceptable.
@@ -53,7 +53,16 @@ FXENVELOPES = {
         c_random_position = 17,
         randomize_position = 10
     },
-
+    envelopes = {
+        vol = 18,
+        c_vol = 22,
+        pan = 19,
+        c_pan = 23,
+        pitch = 20,
+        c_pitch = 24,
+        stretch = 21,
+        c_stretch = 25
+    },
 }
 CONSTRAINS = {
     exp = 0.01,

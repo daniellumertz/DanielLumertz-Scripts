@@ -3,6 +3,24 @@ Clouds = Clouds or {}
 Clouds.apply = {}
 
 local ext_reroll = 'reroll'
+
+local function interpolateDB(min_db, max_db, env_val)
+    -- Ensure env_val is between 0 and 1
+    env_val = math.max(0, math.min(1, env_val))
+    
+    -- Convert dB values to linear amplitude
+    local min_amp = 10 ^ (min_db / 20)
+    local max_amp = 10 ^ (max_db / 20)
+    
+    -- Interpolate in linear amplitude domain
+    local interpolated_amp = min_amp * ((max_amp / min_amp) ^ env_val)
+    
+    -- Convert back to dB
+    local interpolated_db = 20 * math.log(interpolated_amp,10)
+    
+    return interpolated_db
+end
+
 function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     --local debug_time = reaper.time_precise()
     -- Get the Clouds it will generate
@@ -245,7 +263,19 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pan, false),
                 c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pitch, false),
                 c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_stretch, false),
-            }
+            },
+
+            envelopes ={
+                vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.vol, false),
+                pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pan, false),
+                pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pitch, false),
+                stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.stretch, false),
+            
+                c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_vol, false),
+                c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pan, false),
+                c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pitch, false),
+                c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_stretch, false),
+            },
         }
 
         --local coroutine_check = 0
@@ -377,7 +407,74 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 end
                 new_values.offset = grain_offset
             end
-            
+            -- if envelopes 
+            do
+                if ct.envelopes.vol.on and envs.envelopes.vol then
+                    local cur_chance = ct.envelopes.vol.chance.val 
+                    if ct.envelopes.vol.chance.env and envs.envelopes.c_vol then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_vol, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance 
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.envelopes.vol.min, ct.envelopes.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.vol, pos * cloud.rate, 0, 0) 
+
+                        min, max = DL.num.dBToLinear(min), DL.num.dBToLinear(max)
+                        local new_vol = ((max - min) * env_val) + min 
+                        new_vol = DL.num.LinearTodB(new_vol)
+                        new_values.vol = (new_values.vol or 0) + new_vol
+                    end
+                end
+
+                if ct.envelopes.pan.on and envs.envelopes.pan then
+                    local cur_chance = ct.envelopes.pan.chance.val 
+                    if ct.envelopes.pan.chance.env and envs.envelopes.c_pan then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pan, pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance 
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.envelopes.pan.min, ct.envelopes.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pan, pos * cloud.rate, 0, 0) 
+
+                        local new_pan = ((max - min) * env_val) + min 
+                        new_values.pan = (new_values.pan or 0) + new_pan
+                    end
+                end
+
+                if ct.envelopes.pitch.on and envs.envelopes.pitch then
+                    local cur_chance = ct.envelopes.pitch.chance.val 
+                    if ct.envelopes.pitch.chance.env and envs.envelopes.c_pitch then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pitch , pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance 
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.envelopes.pitch.min, ct.envelopes.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pitch, pos * cloud.rate, 0, 0) 
+                        local new_pitch = ((max - min) * env_val) + min 
+                        new_pitch = ct.envelopes.pitch.quantize and DL.num.Quantize(new_pitch, ct.envelopes.pitch.quantize/100) or new_pitch
+                        new_values.pitch = (new_values.pitch or 0) + new_pitch
+                    end
+                end
+
+                if ct.envelopes.stretch.on and envs.envelopes.stretch then
+                    local cur_chance = ct.envelopes.stretch.chance.val 
+                    if ct.envelopes.stretch.chance.env and envs.envelopes.c_stretch then
+                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_stretch , pos * cloud.rate, 0, 0)
+                        cur_chance = env_val * cur_chance 
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.envelopes.stretch.min, ct.envelopes.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.stretch, pos * cloud.rate, 0, 0) 
+                        local new_val = min * ((max / min) ^ env_val) 
+                        new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                        new_values.length = (new_values.length or o_item_t.length) / new_val
+                    end
+                end
+            end
             -- if randomization get volume, pan, pitch, playrate, length, is_reverse
             do
                 -- Volume
@@ -421,7 +518,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             min, max = min * env_val, max * env_val 
                         end    
                         local new_pan = DL.num.RandomFloat(min, max, true)
-                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
+                        new_values.pan = (new_values.pan or 0) + new_pan
+                        new_values.pan = DL.num.Clamp(new_values.pan, -1, 1)
+                        --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
                     end
                 end
 
@@ -441,7 +540,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             min, max = min * env_val, max * env_val 
                         end    
                         local new_pitch = ct.randomization.pitch.quantize == 0 and DL.num.RandomFloat(min, max, true) or DL.num.RandomFloatQuantized(min, max, true, ct.randomization.pitch.quantize/100)
-                        new_values.pitch = new_pitch
+                        new_values.pitch = (new_values.pitch or 0) + new_pitch
                         --new_pitch = new_pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
                         --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_pitch)
                     end
@@ -484,10 +583,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.stretch, pos * cloud.rate, 0, 0) 
                             min, max = min ^ env_val, max ^ env_val 
                         end    
-                        local new_rate = DL.num.RandomFloatExp(min, max, 2)
-                        new_rate = new_rate * o_item_t.rate
-                        new_values.length = (new_values.length or o_item_t.length) * (o_item_t.rate/new_rate)
-                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_rate)
+                        local new_val = DL.num.RandomFloatExp(min, max, 2)
+                        new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                        new_values.length = (new_values.length or o_item_t.length) / new_val
                     end
                 end
 
@@ -512,6 +610,10 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     local result_l = DL.num.dBToLinear(new_values.vol + cur)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                 end
+                -- Pan
+                if new_values.pan then
+                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_values.pan)
+                end
                 -- Pitch
                 if new_values.pitch then
                     new_values.pitch = new_values.pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
@@ -521,7 +623,10 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 if new_values.length then -- Set by : Grains, Playrate
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_LENGTH', new_values.length)
                 end
-
+                -- Rate
+                if new_values.rate then
+                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
+                end
                 -- Offset
                 if new_values.offset then -- Set by : Grains,
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_STARTOFFS', new_values.offset)
@@ -590,3 +695,4 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     --print('Time: ', reaper.time_precise() - debug_time)
     return true, {done = #clouds, total = #clouds}, {done = 1, total = 1}
 end
+

@@ -587,6 +587,132 @@ function Clouds.GUI.Main()
                 end
             end
 
+            if ImGui.CollapsingHeader(ctx, "Envelope##header") then
+                ----- Volume
+                --Checkbox
+                change, CloudTable.envelopes.vol.on = ImGui.Checkbox(ctx, '##VolumeCheckboxenv', CloudTable.envelopes.vol.on); ImGui.SameLine(ctx)
+                if change then
+                    Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.vol.on, FXENVELOPES.envelopes.vol)
+                end
+                something_changed = something_changed or change
+
+                change = chancepopup(CloudTable.envelopes.vol.chance, FXENVELOPES.envelopes.c_vol, CloudTable.envelopes.vol.on)
+                something_changed = something_changed or change
+
+                --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.envelopes.vol.on)
+                ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
+                local change, min, max = ImGui.DragDouble2(ctx, "Volume##envelopeinput", CloudTable.envelopes.vol.min, CloudTable.envelopes.vol.max, 0.07, -FLT_MAX, FLT_MAX, '%.2f dB')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.envelopes.vol.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.envelopes.vol.min = min
+                    CloudTable.envelopes.vol.max = max
+                end
+                something_changed = something_changed or change
+                ImGui.EndDisabled(ctx)
+
+                ----- Pan
+                --Checkbox
+                change, CloudTable.envelopes.pan.on = ImGui.Checkbox(ctx, '##PanCheckboxenv', CloudTable.envelopes.pan.on); ImGui.SameLine(ctx)
+                if change then
+                    Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.pan.on, FXENVELOPES.envelopes.pan)
+                end
+                something_changed = something_changed or change
+
+                change = chancepopup(CloudTable.envelopes.pan.chance, FXENVELOPES.envelopes.c_pan, CloudTable.envelopes.pan.on)
+                something_changed = something_changed or change
+
+                --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.envelopes.pan.on)
+                ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
+                local change, min, max = ImGui.DragDouble2(ctx, "Pan##envelopeinput", CloudTable.envelopes.pan.min, CloudTable.envelopes.pan.max, 0.01, -1, 1, '%.2f')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.envelopes.pan.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.envelopes.pan.min = min
+                    CloudTable.envelopes.pan.max = max
+                end
+                something_changed = something_changed or change
+                ImGui.EndDisabled(ctx)
+
+                ----- Pitch
+                --Checkbox
+                change, CloudTable.envelopes.pitch.on = ImGui.Checkbox(ctx, '##pitchCheckboxenv', CloudTable.envelopes.pitch.on); ImGui.SameLine(ctx)
+                if change then
+                    Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.pitch.on, FXENVELOPES.envelopes.pitch)
+                end
+                something_changed = something_changed or change
+
+                change = chancepopup(CloudTable.envelopes.pitch.chance, FXENVELOPES.envelopes.c_pitch, CloudTable.envelopes.pitch.on)
+                something_changed = something_changed or change
+
+                --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.envelopes.pitch.on)
+                ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
+                local change, min, max = ImGui.DragDouble2(ctx, "Pitch##envelopeinput", CloudTable.envelopes.pitch.min, CloudTable.envelopes.pitch.max, 0.02, -FLT_MAX, FLT_MAX, '%.2f')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.envelopes.pitch.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.envelopes.pitch.min = min
+                    CloudTable.envelopes.pitch.max = max
+                end
+                something_changed = something_changed or change
+
+                -- Quantize popup
+                if ImGui.BeginPopupContextItem(ctx, 'Quantize Pitch##env') then
+                    ImGui.SetNextItemWidth(ctx, SLIDERS_W/2)
+                    change, CloudTable.envelopes.pitch.quantize = ImGui.InputInt(ctx, 'Quantize Pitch (cents)##env', CloudTable.envelopes.pitch.quantize,0,0)
+                    something_changed = something_changed or change
+                    ImGui.EndPopup(ctx)
+                end
+                ImGui.EndDisabled(ctx)
+
+                ----- stretch
+                --Checkbox
+                change, CloudTable.envelopes.stretch.on = ImGui.Checkbox(ctx, '##stretchCheckboxenv', CloudTable.envelopes.stretch.on); ImGui.SameLine(ctx)
+                if change then
+                    Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.stretch.on, FXENVELOPES.envelopes.stretch)
+                end
+                something_changed = something_changed or change
+
+                change = chancepopup(CloudTable.envelopes.stretch.chance, FXENVELOPES.envelopes.c_stretch, CloudTable.envelopes.stretch.on)
+                something_changed = something_changed or change
+
+                --Input
+                ImGui.BeginDisabled(ctx, not CloudTable.envelopes.stretch.on)
+                ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
+                local change, min, max = ImGui.DragDouble2(ctx, "Stretch##envelopeinput", CloudTable.envelopes.stretch.min, CloudTable.envelopes.stretch.max, 0.03, CONSTRAINS.stretch_low, FLT_MAX, '%.2f x')
+                if change then -- clamp
+                    if min > max then 
+                        if min ~= CloudTable.envelopes.stretch.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    CloudTable.envelopes.stretch.min = min
+                    CloudTable.envelopes.stretch.max = max
+                end
+                something_changed = something_changed or change
+                ImGui.EndDisabled(ctx)
+            end
+                
             -- Randomization
             if ImGui.CollapsingHeader(ctx, "Randomization##header") then
                 ----- Volume

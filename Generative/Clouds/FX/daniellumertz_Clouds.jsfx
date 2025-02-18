@@ -21,3 +21,13 @@ slider15:s15=1<0,1,0.0001>Chance Randomize: Stretch
 slider16:s16=1<0,1,0.0001>Chance Randomize: Reverse
 slider17:s17=1<0,1,0.0001>Chance Randomize: Grains Size
 slider18:s18=1<0,1,0.0001>Chance Randomize: Grains Position
+//envelopes
+slider19:s19=0<0,1,0.0001>Envelope: Volume
+slider20:s20=0<0,1,0.0001>Envelope: Pan
+slider21:s21=0<0,1,0.0001>Envelope: Pitch
+slider22:s22=0<0,1,0.0001>Envelope: Stretch
+//envelope Chance
+slider23:s23=0<0,1,0.0001>Chance Envelope: Volume
+slider24:s24=0<0,1,0.0001>Chance Envelope: Pan
+slider25:s25=0<0,1,0.0001>Chance Envelope: Pitch
+slider26:s26=0<0,1,0.0001>Chance Envelope: Stretch

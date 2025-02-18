@@ -309,6 +309,49 @@ function Clouds.Item.DefaultTable()
             },
         },
 
+        envelopes = {
+            vol = {
+                on = false,
+                min = 0,
+                max = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            pan = {
+                on = false,
+                min = 0,
+                max = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            pitch = {
+                on = false,
+                min = 0,
+                max = 0,
+                quantize = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            stretch = {
+                on = false,
+                min = 1, -- should never be 0
+                max = 1, -- should never be 0
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+        },
+
         midi_notes = {
             EDO = 12,
             center = 60,
@@ -375,6 +418,54 @@ function Clouds.Item.UpdateVersion(cloud)
             history = {}
         }
 
+        was_updated = true
+    end
+
+    if not DL.num.CompareVersion(cloud.version, '1.2.0') then
+        cloud.envelopes = {
+            vol = {
+                on = false,
+                min = 0,
+                max = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            pan = {
+                on = false,
+                min = 0,
+                max = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            pitch = {
+                on = false,
+                min = 0,
+                max = 0,
+                quantize = 0,
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+
+            stretch = {
+                on = false,
+                min = 1, -- should never be 0
+                max = 1, -- should never be 0
+                chance = {
+                    val = 100,
+                    env = false,
+                },
+            },
+        }
+
+        cloud.version = '1.2.0'
         was_updated = true
     end
     
