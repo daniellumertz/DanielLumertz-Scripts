@@ -602,8 +602,10 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.envelopes.vol.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                local change, min, max = ImGui.DragDouble2(ctx, "Volume##envelopeinput", CloudTable.envelopes.vol.min, CloudTable.envelopes.vol.max, 0.07, -FLT_MAX, FLT_MAX, '%.2f dB')
+                local change, min, max = ImGui.DragDouble2(ctx, "Volume##envelopeinput", CloudTable.envelopes.vol.min, CloudTable.envelopes.vol.max, 0.07, -CONSTRAINS.db_minmax+1, FLT_MAX, '%.2f dB')
                 if change then -- clamp
+                    min = min < -CONSTRAINS.db_minmax+1 and -CONSTRAINS.db_minmax+1 or min
+                    max = max < -CONSTRAINS.db_minmax+1 and -CONSTRAINS.db_minmax+1 or max
                     if min > max then 
                         if min ~= CloudTable.envelopes.vol.min then
                             max = min
@@ -633,6 +635,8 @@ function Clouds.GUI.Main()
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 local change, min, max = ImGui.DragDouble2(ctx, "Pan##envelopeinput", CloudTable.envelopes.pan.min, CloudTable.envelopes.pan.max, 0.01, -1, 1, '%.2f')
                 if change then -- clamp
+                    min = DL.num.Clamp(min, -1, 1)
+                    max = DL.num.Clamp(max, -1, 1)
                     if min > max then 
                         if min ~= CloudTable.envelopes.pan.min then
                             max = min
@@ -697,8 +701,11 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.envelopes.stretch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                local change, min, max = ImGui.DragDouble2(ctx, "Stretch##envelopeinput", CloudTable.envelopes.stretch.min, CloudTable.envelopes.stretch.max, 0.03, CONSTRAINS.stretch_low, FLT_MAX, '%.2f x')
+                local format_str =  CloudTable.envelopes.stretch.min < 0.01 and '%.3f x' or '%.2f x'
+                local change, min, max = ImGui.DragDouble2(ctx, "Stretch##envelopeinput", CloudTable.envelopes.stretch.min, CloudTable.envelopes.stretch.max, 0.0009, CONSTRAINS.stretch_low, FLT_MAX, format_str)
                 if change then -- clamp
+                    min = min < CONSTRAINS.stretch_low and CONSTRAINS.stretch_low or min
+                    max = max < CONSTRAINS.stretch_low and CONSTRAINS.stretch_low or max
                     if min > max then 
                         if min ~= CloudTable.envelopes.stretch.min then
                             max = min
@@ -732,8 +739,10 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.vol.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                local change, min, max = ImGui.DragDouble2(ctx, "Volume##randominput", CloudTable.randomization.vol.min, CloudTable.randomization.vol.max, 0.07, -FLT_MAX, FLT_MAX, '%.2f dB')
+                local change, min, max = ImGui.DragDouble2(ctx, "Volume##randominput", CloudTable.randomization.vol.min, CloudTable.randomization.vol.max, 0.07, -CONSTRAINS.db_minmax+1, FLT_MAX, '%.2f dB')
                 if change then -- clamp
+                    min = min < -CONSTRAINS.db_minmax+1 and -CONSTRAINS.db_minmax+1 or min
+                    max = max < -CONSTRAINS.db_minmax+1 and -CONSTRAINS.db_minmax+1 or max
                     if min > max then 
                         if min ~= CloudTable.randomization.vol.min then
                             max = min
@@ -770,6 +779,8 @@ function Clouds.GUI.Main()
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 local change, min, max = ImGui.DragDouble2(ctx, "Pan##randominput", CloudTable.randomization.pan.min, CloudTable.randomization.pan.max, 0.01, -1, 1, '%.2f')
                 if change then -- clamp
+                    min = DL.num.Clamp(min, -1, 1)
+                    max = DL.num.Clamp(max, -1, 1)
                     if min > max then 
                         if min ~= CloudTable.randomization.pan.min then
                             max = min
@@ -847,9 +858,12 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.stretch.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                local change, min, max = ImGui.DragDouble2(ctx, "Playrate##randominput", CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max, 0.03, CONSTRAINS.stretch_low, FLT_MAX, '%.2f x')
+                local format_str =  CloudTable.randomization.stretch.min < 0.01 and '%.3f x' or '%.2f x'
+                local change, min, max = ImGui.DragDouble2(ctx, "Playrate##randominput", CloudTable.randomization.stretch.min, CloudTable.randomization.stretch.max, 0.0009, CONSTRAINS.stretch_low, FLT_MAX, format_str)
                 something_changed = something_changed or change
                 if change then -- clamp
+                    min = min < CONSTRAINS.stretch_low and CONSTRAINS.stretch_low or min
+                    max = max < CONSTRAINS.stretch_low and CONSTRAINS.stretch_low or max
                     if min > max then 
                         if min ~= CloudTable.randomization.stretch.min then
                             max = min

@@ -1,4 +1,4 @@
--- @version 1.1.2
+-- @version 1.1.3
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,18 +13,14 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Ensure Settings and Cloud Items are backwards compatible.  
---    + Fix bug with lauching script via shortcut.
---    + Number of seed print setting.  
---    + Seed select feature
---    + Fix option, delete only overlapped generations: Delete generated items set at the exact start or end of a cloud item.  
+--    + Fixed Randomization UI issue with out-of-bounds values for pan, volume, and stretch when the user manually inputs a value.
 -- Debug
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 end
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.1.2' -- version should always be three digits! leters, for beta versions, are acceptable.
+SCRIPT_V  = '1.1.3' -- version should always be three digits! leters, for beta versions, are acceptable.
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
@@ -68,8 +64,8 @@ CONSTRAINS = {
     exp = 0.01,
     grain_low = 1/10, --in ms
     grain_rand_low = -99.99, -- in %
-    stretch_low = 0.01,
-    db_minmax = 150,
+    stretch_low = 0.005,
+    db_minmax = 151,
     grain_density_ratio = {
         min = 25,
         max = 200

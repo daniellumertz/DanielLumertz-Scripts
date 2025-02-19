@@ -491,14 +491,11 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         if ct.randomization.vol.envelope and envs.randomization.vol then
                             local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.vol, pos * cloud.rate, 0, 0) 
                             min, max = min * env_val, max * env_val 
-                        end    
+                        end  
                         min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
                         local new_vol = DL.num.RandomFloatExp(min, max, 10)
                         new_vol = new_vol - CONSTRAINS.db_minmax
                         new_values.vol = (new_values.vol or 0) + new_vol
-                        --local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
-                        --local result_l = DL.num.dBToLinear(new_vol + cur)
-                        --reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                     end
                 end
 
