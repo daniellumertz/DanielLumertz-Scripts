@@ -25,21 +25,57 @@ function Clouds.ReRoll.Position(proj, seed)
 
     local total = 0
     for cloud, t_items in pairs(items) do
+        -- Sort Items
         total = total + #t_items
         table.sort(t_items, function (a,b)
             return a.info.idx < b.info.idx
         end)
+
+        -- Get cloud necessary info
+        --- If needed, get cloud information
+        local ct
+        if not clouds[cloud] then
+            local _
+            ---@type boolean, string|table|nil
+            _, ct = DL.item.GetExtState(cloud, EXT_NAME, 'settings')
+            ct = DL.serialize.stringToTable(ct)
+            -- Guids to Items/Tracks
+            ct = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ct)
+            -- Check if some item/track wasnt found (remove it from the table)
+            for k, v in DL.t.ipairs_reverse(ct.items) do
+                if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
+                    table.remove(ct.items,k)
+                end
+            end
+    
+            for k, v in DL.t.ipairs_reverse(ct.tracks) do -- dont need to check self
+                if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
+                    table.remove(ct.tracks,k)
+                end
+            end
+            -- Check if it has Clouds FX
+            Clouds.Item.EnsureFX(cloud)
+            -- Info to be used in the ReRoll: 
+            ct.cloud = cloud
+            ct.take = reaper.GetActiveTake(cloud)
+            ct.rate = reaper.GetMediaItemTakeInfo_Value(ct.take, 'D_PLAYRATE')
+            ct.len = reaper.GetMediaItemInfo_Value(cloud, 'D_LENGTH')
+            ct.start = reaper.GetMediaItemInfo_Value(cloud, 'D_POSITION')
+            clouds[cloud] = ct
+        else
+            ct = clouds[cloud]
+        end
     end
 
     if items.total == 0 then return end
     
+    ------- Apply the reroll! 
     reaper.Undo_BeginBlock2(proj)
     reaper.PreventUIRefresh(1)
     local coroutine_time = reaper.time_precise()
-
     -- Set general Random Seed 
     local seed = seed ~= 0 and math.randomseed(seed,0) or math.randomseed(math.random(1,100000),0)
-    for k, t_items in pairs(items) do
+    for cloud, t_items in pairs(items) do
         for k, t in ipairs(t_items) do
             -- coroutine
             --coroutine_check = coroutine_check + 1
@@ -54,43 +90,8 @@ function Clouds.ReRoll.Position(proj, seed)
             local item = t.item
             local reroll = t.info
             local o_pos = reroll.pos
-            local cloud = reroll.cloud
+            local ct = clouds[cloud]
     
-            --- If needed, get cloud information
-            local ct
-            if not clouds[cloud] then
-                local _
-                ---@type boolean, string|table|nil
-                _, ct = DL.item.GetExtState(cloud, EXT_NAME, 'settings')
-                ct = DL.serialize.stringToTable(ct)
-                -- Guids to Items/Tracks
-                ct = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ct)
-                -- Check if some item/track wasnt found (remove it from the table)
-                for k, v in DL.t.ipairs_reverse(ct.items) do
-                    if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
-                        table.remove(ct.items,k)
-                    end
-                end
-        
-                for k, v in DL.t.ipairs_reverse(ct.tracks) do -- dont need to check self
-                    if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
-                        table.remove(ct.tracks,k)
-                    end
-                end
-                -- Check if it has Clouds FX
-                Clouds.Item.EnsureFX(cloud)
-                
-                ct.cloud = cloud
-                ct.take = reaper.GetActiveTake(cloud)
-                ct.rate = reaper.GetMediaItemTakeInfo_Value(ct.take, 'D_PLAYRATE')
-                ct.len = reaper.GetMediaItemInfo_Value(cloud, 'D_LENGTH')
-                ct.start = reaper.GetMediaItemInfo_Value(cloud, 'D_POSITION')
-                clouds[cloud] = ct
-            else
-                ct = clouds[cloud]
-            end
-    
-            --- Apply the reroll! 
             --Randomize (dust)
             -- Get fixed values of freq and dust
             local freq = ct.density.density.val
@@ -143,4 +144,5 @@ function Clouds.ReRoll.Position(proj, seed)
 
     return true, {done = #items, total = #items, seed = seed}
 end
+
 
