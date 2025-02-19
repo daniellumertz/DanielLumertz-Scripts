@@ -1264,7 +1264,8 @@ function Clouds.GUI.ReRoll()
     if visible then
         
         if ImGui.Button(ctx, 'Position', reroll_gui.w) and not reroll_gui.creating.on then
-            reroll_gui.creating.on = coroutine.wrap(Clouds.ReRoll.Position)
+            reroll_gui.creating.on = coroutine.wrap(Clouds.ReRoll.ReRoll)
+            reroll_gui.creating.table = {type = "Position", name = "Position"}
         end
 
         ImGui.SeparatorText(ctx, 'Seed:')
@@ -1280,14 +1281,16 @@ function Clouds.GUI.ReRoll()
         end
 
         if reroll_gui.creating.on then
-            local is_finished, items = reroll_gui.creating.on(Proj, reroll_gui.seed.seed)
+            local is_finished, items = reroll_gui.creating.on(Proj, reroll_gui.seed.seed, reroll_gui.creating.table)
             if is_finished then
                 table.insert(reroll_gui.seed.history, items.seed)
                 reroll_gui.creating.on = false
+                reroll_gui.creating.table = nil
             else
                 ImGui.ProgressBar(ctx,  items.done/items.total, -FLT_MIN)
                 if ImGui.Button(ctx, 'Cancel', -FLT_MIN) then
                     reroll_gui.creating.on = false
+                    reroll_gui.creating.table = nil
                     reaper.UpdateArrange()
                     reaper.PreventUIRefresh(-1)
                     reaper.Undo_EndBlock2(Proj, 'ReRoll Clouds', -1)

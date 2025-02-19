@@ -57,10 +57,8 @@ local function check_cloud(proj, cloud)
     return ct
 end
 
-function Clouds.ReRoll.Position(proj, seed)
+local function get_clouds(proj, items)
     local clouds = {}
-    local items, no_cloud, total = get_items_table(proj)
-    
     for cloud, t_items in pairs(items) do
         -- Get cloud necessary info
         --- If needed, get cloud information
@@ -77,7 +75,13 @@ function Clouds.ReRoll.Position(proj, seed)
             ct = clouds[cloud]
         end
     end
+    return clouds
+end
 
+function Clouds.ReRoll.ReRoll(proj, seed, reroll_type)
+    local items, no_cloud, total = get_items_table(proj)
+    local clouds = get_clouds(proj, items)
+    
     if items.total == 0 then return end
     
     ------- Apply the reroll! 
@@ -86,6 +90,23 @@ function Clouds.ReRoll.Position(proj, seed)
     local coroutine_time = reaper.time_precise()
     -- Set general Random Seed 
     local seed = seed ~= 0 and math.randomseed(seed,0) or math.randomseed(math.random(1,100000),0)
+    -- Redirect to the right Reroll
+    if reroll_type.type == 'Position' then
+        Clouds.ReRoll.Position(items, clouds, total, coroutine_time)
+    end
+    -- End it
+    reaper.PreventUIRefresh(-1)
+    reaper.UpdateArrange()
+    reaper.Undo_EndBlock2(proj, 'Clouds: ReRoll '..reroll_type.name, -1)
+
+    if no_cloud then
+        reaper.ShowMessageBox('Some items are missing their cloud parent. ', 'Clouds - Error', 0)
+    end
+
+    return true, {done = #items, total = #items, seed = seed}
+end
+
+function Clouds.ReRoll.Position(items, clouds, total, coroutine_time)
     for cloud, t_items in pairs(items) do
         for k, t in ipairs(t_items) do
             -- coroutine
@@ -145,15 +166,7 @@ function Clouds.ReRoll.Position(proj, seed)
             reaper.SetMediaItemInfo_Value(item, 'D_POSITION', new_pos)
         end 
     end
-    reaper.PreventUIRefresh(-1)
-    reaper.UpdateArrange()
-    reaper.Undo_EndBlock2(proj, 'Clouds: ReRoll Position', -1)
-
-    if no_cloud then
-        reaper.ShowMessageBox('Some items are missing their cloud parent. ', 'Clouds - Error', 0)
-    end
-
-    return true, {done = #items, total = #items, seed = seed}
 end
+
 
 
