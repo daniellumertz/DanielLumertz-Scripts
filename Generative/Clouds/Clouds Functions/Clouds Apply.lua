@@ -84,7 +84,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 v.offset = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_STARTOFFS')  -- Need for: grains
                 v.length = reaper.GetMediaItemInfo_Value(v.item, 'D_LENGTH')  -- Need for: grains
                 v.rate = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_PLAYRATE')  -- Need for: grains
-                v.mix = DL.item.GetMixBehavior(v.item) 
+                v.mix = DL.item.GetMixBehavior(v.item)
+                v.pitch = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_PITCH')
+                v.vol = reaper.GetMediaItemInfo_Value(v.item, 'D_VOL')
             else
                 table.remove(ct.items,k)
             end
@@ -603,7 +605,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             do
                 -- Volume
                 if new_values.vol then
-                    local cur = DL.num.LinearTodB(reaper.GetMediaItemInfo_Value(new_item.item, 'D_VOL')) --TODO CHANGE TO GET ONLY ONCE
+                    local cur = DL.num.LinearTodB(o_item_t.vol) --TODO CHANGE TO GET ONLY ONCE
                     local result_l = DL.num.dBToLinear(new_values.vol + cur)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                 end
@@ -613,7 +615,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 end
                 -- Pitch
                 if new_values.pitch then
-                    new_values.pitch = new_values.pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
+                    new_values.pitch = new_values.pitch + o_item_t.pitch
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_values.pitch)
                 end
                 -- Length
