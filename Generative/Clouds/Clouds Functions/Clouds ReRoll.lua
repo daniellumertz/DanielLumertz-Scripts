@@ -2,10 +2,9 @@ Clouds = Clouds or {}
 Clouds.ReRoll ={}
 
 local ext_reroll = 'reroll'
-function Clouds.ReRoll.Position(proj, seed)
-    local no_cloud -- variable for errors
-    local clouds = {}
+local function get_items_table(proj)
     local items = {}
+    local no_cloud = false
     for item in DL.enum.SelectedMediaItem(proj) do
         local bol, ext = DL.item.GetExtState(item, EXT_NAME, ext_reroll)
         if ext ~= '' then
@@ -30,31 +29,43 @@ function Clouds.ReRoll.Position(proj, seed)
         table.sort(t_items, function (a,b)
             return a.info.idx < b.info.idx
         end)
+    end
+    return items, no_cloud, total
+end
 
+local function check_cloud(proj, cloud)
+    ---@type boolean, string|table|nil
+    local _, ct = DL.item.GetExtState(cloud, EXT_NAME, 'settings')
+    ct = DL.serialize.stringToTable(ct)
+    -- Guids to Items/Tracks
+    ct = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ct)
+    -- Check if some item/track wasnt found (remove it from the table)
+    for k, v in DL.t.ipairs_reverse(ct.items) do
+        if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
+            table.remove(ct.items,k)
+        end
+    end
+
+    for k, v in DL.t.ipairs_reverse(ct.tracks) do -- dont need to check self
+        if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
+            table.remove(ct.tracks,k)
+        end
+    end
+    -- Check if it has Clouds FX
+    Clouds.Item.EnsureFX(cloud)
+
+    return ct
+end
+
+function Clouds.ReRoll.Position(proj, seed)
+    local clouds = {}
+    local items, no_cloud, total = get_items_table(proj)
+    
+    for cloud, t_items in pairs(items) do
         -- Get cloud necessary info
         --- If needed, get cloud information
-        local ct
+        local ct = check_cloud(proj, cloud)
         if not clouds[cloud] then
-            local _
-            ---@type boolean, string|table|nil
-            _, ct = DL.item.GetExtState(cloud, EXT_NAME, 'settings')
-            ct = DL.serialize.stringToTable(ct)
-            -- Guids to Items/Tracks
-            ct = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ct)
-            -- Check if some item/track wasnt found (remove it from the table)
-            for k, v in DL.t.ipairs_reverse(ct.items) do
-                if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
-                    table.remove(ct.items,k)
-                end
-            end
-    
-            for k, v in DL.t.ipairs_reverse(ct.tracks) do -- dont need to check self
-                if not reaper.ValidatePtr2(proj, v.track, 'MediaTrack*') then
-                    table.remove(ct.tracks,k)
-                end
-            end
-            -- Check if it has Clouds FX
-            Clouds.Item.EnsureFX(cloud)
             -- Info to be used in the ReRoll: 
             ct.cloud = cloud
             ct.take = reaper.GetActiveTake(cloud)
