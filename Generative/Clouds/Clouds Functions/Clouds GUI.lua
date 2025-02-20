@@ -1262,11 +1262,20 @@ function Clouds.GUI.ReRoll()
     --ImGui.SetNextWindowSizeConstraints(ctx, guiW, 50, guiW, FLT_MAX)
     local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' ReRoll', true, ImGui.WindowFlags_AlwaysAutoResize) 
     if visible then
+
+        local buttons = {'Position', 'Items'}
+
+        for k, name in ipairs(buttons) do
+            if ImGui.Button(ctx, name.."##ReRoll", reroll_gui.w) and not reroll_gui.creating.on then
+                reroll_gui.creating.on = coroutine.wrap(Clouds.ReRoll.ReRoll)
+                reroll_gui.creating.table = {type = name, name = name}
+            end
+        end
         
-        if ImGui.Button(ctx, 'Position', reroll_gui.w) and not reroll_gui.creating.on then
+        --[[ if ImGui.Button(ctx, 'Position', reroll_gui.w) and not reroll_gui.creating.on then
             reroll_gui.creating.on = coroutine.wrap(Clouds.ReRoll.ReRoll)
             reroll_gui.creating.table = {type = "Position", name = "Position"}
-        end
+        end ]]
 
         ImGui.SeparatorText(ctx, 'Seed:')
         ImGui.SetNextItemWidth(ctx, reroll_gui.w)

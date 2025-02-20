@@ -78,6 +78,19 @@ local function get_clouds(proj, items)
     return clouds
 end
 
+local function corotine_check(coroutine_time, k, total)
+        -- coroutine
+    --coroutine_check = coroutine_check + 1
+    if ((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then -- (coroutine_check >= UPDATE_FREQ.items) 
+        reaper.PreventUIRefresh(-1)
+        coroutine.yield(false, {done = k-1, total = total})
+
+        reaper.PreventUIRefresh(1)
+        coroutine_time = reaper.time_precise()
+    end
+    return coroutine_time
+end
+
 function Clouds.ReRoll.ReRoll(proj, seed, reroll_type)
     local items, no_cloud, total = get_items_table(proj)
     local clouds = get_clouds(proj, items)
@@ -93,6 +106,8 @@ function Clouds.ReRoll.ReRoll(proj, seed, reroll_type)
     -- Redirect to the right Reroll
     if reroll_type.type == 'Position' then
         Clouds.ReRoll.Position(items, clouds, total, coroutine_time)
+    elseif reroll_type.type == 'Items' then
+        Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
     end
     -- End it
     reaper.PreventUIRefresh(-1)
@@ -108,21 +123,13 @@ end
 
 function Clouds.ReRoll.Position(items, clouds, total, coroutine_time)
     for cloud, t_items in pairs(items) do
+        local ct = clouds[cloud]
         for k, t in ipairs(t_items) do
-            -- coroutine
-            --coroutine_check = coroutine_check + 1
-            if ((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then -- (coroutine_check >= UPDATE_FREQ.items) 
-                reaper.PreventUIRefresh(-1)
-                coroutine.yield(false, {done = k-1, total = total})
-    
-                reaper.PreventUIRefresh(1)
-                coroutine_time = reaper.time_precise()
-            end
+            coroutine_time = corotine_check(coroutine_time, k, total)
     
             local item = t.item
             local reroll = t.info
             local o_pos = reroll.pos
-            local ct = clouds[cloud]
     
             --Randomize (dust)
             -- Get fixed values of freq and dust
@@ -168,5 +175,29 @@ function Clouds.ReRoll.Position(items, clouds, total, coroutine_time)
     end
 end
 
+function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
+    for cloud, t_items in pairs(items) do
+        local ct = clouds[cloud]
+        for k, t in ipairs(t_items) do
+            coroutine_time = corotine_check(coroutine_time, k, total)
+    
+            local item = t.item
+            local reroll = t.info
+            local o_pos = reroll.pos
+
+            local item_k, new_item_t = DL.t.RandomValueWithWeight(ct.items, 'chance') -- test if this work if I delete all items before rerolling
+
+            if new_item_t then
+                local new_item = new_item_t.item
+                
+            end
+
+
+    
+    
+            --reaper.SetMediaItemInfo_Value(item, 'D_POSITION', new_pos)
+        end 
+    end
+end
 
 
