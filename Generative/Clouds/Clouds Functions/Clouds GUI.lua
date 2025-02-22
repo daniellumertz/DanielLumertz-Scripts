@@ -1263,7 +1263,7 @@ function Clouds.GUI.ReRoll()
     local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' ReRoll', true, ImGui.WindowFlags_AlwaysAutoResize) 
     if visible then
 
-        local buttons = {'Position', 'Items'}
+        local buttons = {'Position', 'Items', 'Volume', 'Pan', 'Pitch', 'Playrate', 'Track'}
 
         for k, name in ipairs(buttons) do
             if ImGui.Button(ctx, name.."##ReRoll", reroll_gui.w) and not reroll_gui.creating.on then

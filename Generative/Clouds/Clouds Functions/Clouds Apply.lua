@@ -180,7 +180,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     
                     if desire >= period then
                         local new_pos = pos
-                        reroll[#reroll+1] = {pos = pos}
+                        reroll[#reroll+1] = {pos = pos, grains = {}, parameters = {}}
                         --Randomize (dust)
                         if dust > 0 then
                             local new_dust = dust 
@@ -366,6 +366,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
                 grain_size = grain_size / 1000 -- ms to sec
                 new_values.length = grain_size
+                reroll[k].grains.size = grain_size
 
                 -- Position/Offset (only inside the original are)
                 local grain_offset
@@ -380,6 +381,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
                         end
                         grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
+                        reroll[k].grains.offset = percent
                         -- Apply position drift
                         if ct.grains.randomize_position.on then
                             -- chance
@@ -398,6 +400,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                                 local drift =  DL.num.RandomFloat(min, max, true)
                                 drift = drift / 1000 -- ms to sec
                                 grain_offset = grain_offset + drift
+                                reroll[k].grains.offset_drift = drift
                             end
                         end
                     end
@@ -472,8 +475,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         local min, max = ct.envelopes.stretch.min, ct.envelopes.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
                         local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.stretch, pos * cloud.rate, 0, 0) 
                         local new_val = min * ((max / min) ^ env_val) 
-                        new_values.rate = (new_values.rate or o_item_t.rate) * new_val
-                        new_values.length = (new_values.length or o_item_t.length) / new_val
+                        new_values.rate = (new_values.rate or 1) * new_val
+                        --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                        --new_values.length = (new_values.length or o_item_t.length) / new_val
                     end
                 end
             end
@@ -583,8 +587,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             min, max = min ^ env_val, max ^ env_val 
                         end    
                         local new_val = DL.num.RandomFloatExp(min, max, 2)
-                        new_values.rate = (new_values.rate or o_item_t.rate) * new_val
-                        new_values.length = (new_values.length or o_item_t.length) / new_val
+                        new_values.rate = (new_values.rate or 1) * new_val
+                        --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                        --new_values.length = (new_values.length or o_item_t.length) / new_val
                     end
                 end
 
@@ -598,6 +603,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     end
                     if random < chance then
                         reverserd_items[#reverserd_items+1] = new_item.item
+                        reroll[k].parameters.reverse = true
                     end
                 end
             end
@@ -605,26 +611,32 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             do
                 -- Volume
                 if new_values.vol then
+                    reroll[k].parameters.vol = new_values.vol
                     local cur = DL.num.LinearTodB(o_item_t.vol) --TODO CHANGE TO GET ONLY ONCE
                     local result_l = DL.num.dBToLinear(new_values.vol + cur)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                 end
                 -- Pan
                 if new_values.pan then
+                    reroll[k].parameters.pan = new_values.pan
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_values.pan)
                 end
                 -- Pitch
                 if new_values.pitch then
+                    reroll[k].parameters.pitch = new_values.pitch
                     new_values.pitch = new_values.pitch + o_item_t.pitch
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_values.pitch)
+                end
+                -- Rate
+                if new_values.rate then
+                    reroll[k].parameters.rate = new_values.rate
+                    new_values.length = (new_values.length or o_item_t.length) / new_values.rate
+                    new_values.rate = o_item_t.rate * new_values.rate
+                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
                 end
                 -- Length
                 if new_values.length then -- Set by : Grains, Playrate
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_LENGTH', new_values.length)
-                end
-                -- Rate
-                if new_values.rate then
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
                 end
                 -- Offset
                 if new_values.offset then -- Set by : Grains,
@@ -633,6 +645,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 -- Grain Fade
                 if ct.grains.on and ct.grains.fade.on then
                     local len  = new_values.length * (ct.grains.fade.val/200)
+                    reroll[k].grains.fade = len
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEINLEN', len)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEOUTLEN', len)
                 end
@@ -647,7 +660,15 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     ext_state = {
                         pos = reroll[k].pos,
                         cloud = cloud.guid,
-                        idx = k
+                        idx = k,
+                        grains = reroll[k].grains,
+                        parameters = reroll[k].parameters,
+                        original_values = {
+                            vol = o_item_t.vol,
+                            pan = o_item_t.pan,
+                            rate = o_item_t.rate,
+                            pitch = o_item_t.pitch,
+                        }
                     }
                     ext_state = DL.serialize.tableToString(ext_state)
                     DL.item.SetExtState(new_item.item, EXT_NAME, ext_reroll, ext_state)
