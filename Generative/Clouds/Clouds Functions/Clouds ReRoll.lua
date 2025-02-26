@@ -118,8 +118,14 @@ function Clouds.ReRoll.ReRoll(proj, seed, reroll_type)
         Clouds.ReRoll.Rate(items, clouds, total, coroutine_time)
     elseif reroll_type.type == 'Playrate' then
         Clouds.ReRoll.Playrate(items, clouds, total, coroutine_time)
+    elseif reroll_type.type == 'Reverse' then
+        Clouds.ReRoll.Reverse(items, clouds, total, coroutine_time)
     elseif reroll_type.type == 'Track' then
         Clouds.ReRoll.Track(items, clouds, total, coroutine_time)
+    elseif reroll_type.type == 'Grains: Position' then
+        Clouds.ReRoll.Grains_Pos(items, clouds, total, coroutine_time)
+    elseif reroll_type.type == 'Grains: Size' then
+        Clouds.ReRoll.Grains_Size(items, clouds, total, coroutine_time)
     end
     -- End it
     reaper.PreventUIRefresh(-1)
@@ -203,8 +209,9 @@ function Clouds.ReRoll.Volume(items, clouds, total, coroutine_time)
     
             local item = t.item
             local o_item_t = {vol = t.info.original_values.vol}
-            local new_values = {vol  = DL.num.LinearTodB(o_item_t.vol)}
-            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+            local original_vol = DL.num.LinearTodB(o_item_t.vol)
+            local new_values = {vol  = original_vol}
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
 
             --- Envelopes
             if ct.envelopes.vol.on and envs.envelopes.vol then
@@ -250,6 +257,14 @@ function Clouds.ReRoll.Volume(items, clouds, total, coroutine_time)
             if new_values.vol then
                 local result_l = DL.num.dBToLinear(new_values.vol)
                 reaper.SetMediaItemInfo_Value(item, 'D_VOL', result_l)
+                local ext = t.ext
+                local new_ext = DL.serialize.stringToTable(ext)
+                -- Set original_value related to the orignal source item
+                if new_ext then
+                    new_ext.parameters.vol = new_values.vol - original_vol
+                    new_ext = DL.serialize.tableToString(new_ext)
+                    DL.item.SetExtState(item, EXT_NAME, ext_reroll, new_ext)
+                end
             end
         end 
     end
@@ -270,7 +285,7 @@ function Clouds.ReRoll.Pan(items, clouds, total, coroutine_time)
     
             local item = t.item
             local take = t.take
-            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
             local o_item_t = {vol = t.info.original_values.pan}
             local new_values = {pan = o_item_t.pan}
 
@@ -313,8 +328,82 @@ function Clouds.ReRoll.Pan(items, clouds, total, coroutine_time)
             -- Apply
             if new_values.pan then
                 reaper.SetMediaItemTakeInfo_Value(take, 'D_PAN', new_values.pan)
+                local ext = t.ext
+                local new_ext = DL.serialize.stringToTable(ext)
+                -- Set original_value related to the orignal source item
+                if new_ext then
+                    new_ext.parameters.pan = new_values.pan 
+                    new_ext = DL.serialize.tableToString(new_ext)
+                    DL.item.SetExtState(item, EXT_NAME, ext_reroll, new_ext)
+                end
             end
         end 
+    end
+end
+
+function Clouds.ReRoll.Reverse(items, clouds, total, coroutine_time)
+    local reverserd_items = {}
+    for cloud, t_items in pairs(items) do
+        local ct = clouds[cloud]
+        -- Get envelopes
+        local envs = {envelopes = {}, randomization = {}}
+        envs.randomization.reverse = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.randomization.reverse, false)
+
+        for k, t in ipairs(t_items) do
+            coroutine_time = corotine_check(coroutine_time, k, total)
+    
+            local item = t.item
+            local take = t.take
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
+            local o_item_t = {vol = t.info.original_values.pan}
+            local new_values = {pan = o_item_t.pan}
+
+            --- Randomization
+            if ct.randomization.reverse.on then
+                local pcm = reaper.GetMediaItemTake_Source(take )
+                local retval, offs, len, is_rev = reaper.PCM_Source_GetSectionInfo( pcm ) -- current item source is reversed?
+                local is_src_rev = t.info.original_values.reverse
+                
+                local random = DL.num.RandomFloat(0, 100, true)
+                local chance = ct.randomization.reverse.val
+                if ct.randomization.reverse.envelope and envs.randomization.reverse then
+                    local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.reverse, pos * cloud.rate, 0, 0)
+                    chance = chance * env_val
+                end
+                if (random < chance and is_rev == is_src_rev) or (random >= chance and is_rev ~= is_src_rev) then -- oposite than source
+                    reverserd_items[#reverserd_items+1] = item
+
+                    local ext = t.ext
+                    local new_ext = DL.serialize.stringToTable(ext)
+                    -- Set original_value related to the orignal source item
+                    if new_ext then
+                        new_ext.parameters.reverse = not new_ext.parameters.reverse 
+                        new_ext = DL.serialize.tableToString(new_ext)
+                        DL.item.SetExtState(item, EXT_NAME, ext_reroll, new_ext)
+                    end
+                end
+            end
+        end 
+    end
+    -- Reverse Items: 
+    if #reverserd_items > 0 then
+        -- Save selection
+        local sel_items = DL.item.CreateSelectedItemsTable(Proj)
+
+        -- Reverse
+        reaper.SelectAllMediaItems(Proj, false)
+        for index, item in ipairs(reverserd_items) do
+            reaper.SetMediaItemSelected(item, true)
+        end
+        reaper.Main_OnCommand(41051, 0) -- Item properties: Toggle take reverse
+
+        -- Selects back
+        reaper.SelectAllMediaItems(Proj, false)
+        for i, item in ipairs(sel_items) do
+            if reaper.ValidatePtr2(Proj, item, 'MediaItem*') then
+                reaper.SetMediaItemSelected(item, true)
+            end
+        end
     end
 end
 
@@ -333,7 +422,7 @@ function Clouds.ReRoll.Playrate(items, clouds, total, coroutine_time)
     
             local item = t.item
             local take = t.take
-            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
             local o_item_t = {rate = t.info.original_values.rate}
             local new_values = {rate  = o_item_t.rate}
             
@@ -386,6 +475,15 @@ function Clouds.ReRoll.Playrate(items, clouds, total, coroutine_time)
                 reaper.SetMediaItemInfo_Value(item, 'D_FADEINLEN', fade_in / ratio )
                 local fade_out = reaper.GetMediaItemInfo_Value(item, 'D_FADEOUTLEN')
                 reaper.SetMediaItemInfo_Value(item, 'D_FADEOUTLEN', fade_out / ratio )
+
+                local ext = t.ext
+                local new_ext = DL.serialize.stringToTable(ext)
+                -- Set original_value related to the orignal source item
+                if new_ext then
+                    new_ext.parameters.rate = new_values.rate / o_item_t.rate
+                    new_ext = DL.serialize.tableToString(new_ext)
+                    DL.item.SetExtState(item, EXT_NAME, ext_reroll, new_ext)
+                end
             end
         end 
     end
@@ -424,7 +522,7 @@ function Clouds.ReRoll.Pitch(items, clouds, total, coroutine_time)
             local take = t.take
             local o_item_t = {pitch = t.info.original_values.pitch}
             local new_values = {pitch = o_item_t.pitch}
-            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
 
             --- Envelopes
             if ct.envelopes.pitch.on and envs.envelopes.pitch then
@@ -488,6 +586,14 @@ function Clouds.ReRoll.Pitch(items, clouds, total, coroutine_time)
             -- Apply
             if new_values.pitch then
                 reaper.SetMediaItemTakeInfo_Value(take, 'D_PITCH', new_values.pitch)
+                local ext = t.ext
+                local new_ext = DL.serialize.stringToTable(ext)
+                -- Set original_value related to the orignal source item
+                if new_ext then
+                    new_ext.parameters.pitch = new_values.pitch - o_item_t.pitch
+                    new_ext = DL.serialize.tableToString(new_ext)
+                    DL.item.SetExtState(item, EXT_NAME, ext_reroll, new_ext)
+                end
             end
         end 
     end
@@ -497,6 +603,7 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
     local reverse_items = {}
     local source_items_info = {}
     local no_items = false
+    local is_proj_mix = reaper.SNM_GetIntConfigVar('itemmixflag',100) == 1 --mix behavior 
     for cloud, t_items in pairs(items) do
         local ct = clouds[cloud]
         clouds[cloud].guid = reaper.BR_GetMediaItemGUID(cloud)
@@ -516,14 +623,21 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
                 if not source_items_info[source] then
                     source_items_info[source] = {}
                     source_items_info[source].take = reaper.GetActiveTake(source)
+                    source_items_info[source].vol = reaper.GetMediaItemInfo_Value(source, 'D_VOL')
+                    source_items_info[source].length = reaper.GetMediaItemInfo_Value(source, 'D_LENGTH')
+                    source_items_info[source].pitch = reaper.GetMediaItemTakeInfo_Value(source_items_info[source].take, 'D_PITCH')
+                    source_items_info[source].offset = reaper.GetMediaItemTakeInfo_Value(source_items_info[source].take, 'D_STARTOFFS')
+                    source_items_info[source].rate = reaper.GetMediaItemTakeInfo_Value(source_items_info[source].take, 'D_PLAYRATE')  -- Need for: grains
+                    local pcm = reaper.GetMediaItemTake_Source( source_items_info[source].take)
+                    local retval, offs, len, rev = reaper.PCM_Source_GetSectionInfo( pcm )
+                    source_items_info[source].reverse = rev  -- Need for: grains
+                    source_items_info[source].mix = DL.item.GetMixBehavior(source)
                 end
                 local new_item, new_take
                 new_item = new_item_t.item
                 new_item = DL.item.CopyToTrack(new_item, track, pos, true, false)
                 new_take = reaper.GetActiveTake(new_item)
                 
-                -- Apply grains
-                -- Apply Parameters
                 -- Volume
                 if reroll.parameters.vol then
                     source_items_info[source].vol = source_items_info[source].vol or reaper.GetMediaItemInfo_Value(source, 'D_VOL')
@@ -533,7 +647,7 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
                 end
                 -- Pan
                 if reroll.parameters.pan then
-                    reaper.SetMediaItemInfo_Value(new_item, 'D_VOL', reroll.parameters.pan)
+                    reaper.SetMediaItemTakeInfo_Value(new_take, 'D_PAN', reroll.parameters.pan)
                 end
                 -- Pitch
                 if reroll.parameters.pitch then
@@ -559,7 +673,7 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
                     -- reroll.grains.offset is in %
                     source_items_info[source].rate = source_items_info[source].rate or reaper.GetMediaItemTakeInfo_Value(source_items_info[source].take, 'D_PLAYRATE')
                     source_items_info[source].length = source_items_info[source].length or reaper.GetMediaItemInfo_Value(source, 'D_LENGTH')
-                    source_items_info[source].offset = source_items_info[source].offset or reaper.GetMediaItemTakeInfo_Value( source_items_info[source].take, 'D_STARTOFFS' )
+                    source_items_info[source].offset = source_items_info[source].offset or reaper.GetMediaItemTakeInfo_Value( source_items_info[source].take, 'D_STARTOFFS')
                     local new_offset = source_items_info[source].offset + ((source_items_info[source].length * source_items_info[source].rate ) * reroll.grains.offset)
                     reaper.SetMediaItemTakeInfo_Value(new_take, 'D_STARTOFFS', new_offset)
                 end
@@ -575,8 +689,18 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
                 if reroll.parameters.reverse then
                     reverse_items[#reverse_items+1] = new_item
                 end
+                -- Mix
+                if source_items_info[source].mix ~= 1 and not (is_proj_mix and source_items_info[source].mix == -1) then
+                    DL.item.SetMixBehavior(new_item, 1)
+                end
                 -- Copy Paste Ext State
-                DL.item.SetExtState(new_item, EXT_NAME, ext_reroll, ext)
+                local new_ext = DL.serialize.stringToTable(ext)
+                -- Set original_value related to the orignal source item
+                if new_ext then
+                    new_ext.original_values = source_items_info[source]
+                    new_ext = DL.serialize.tableToString(new_ext)
+                    DL.item.SetExtState(new_item, EXT_NAME, ext_reroll, new_ext)
+                end
                 DL.item.SetExtState(new_item, EXT_NAME, 'is_item', clouds[cloud].guid)
                 -- Delete the older item
                 reaper.DeleteTrackMediaItem(track, item)
@@ -612,6 +736,7 @@ function Clouds.ReRoll.Items(items, clouds, total, coroutine_time)
     end
 end
 
+
 function Clouds.ReRoll.Track(items, clouds, total, coroutine_time)
     for cloud, t_items in pairs(items) do
         local ct = clouds[cloud]
@@ -632,4 +757,130 @@ function Clouds.ReRoll.Track(items, clouds, total, coroutine_time)
     end
 end
 
+function Clouds.ReRoll.Grains_Pos(items, clouds, total, coroutine_time)
+    for cloud, t_items in pairs(items) do
+        local ct = clouds[cloud]
+        -- Get envelopes
+        local envs = {envelopes = {}, randomization = {}, grains = {}}
+        envs.grains.position = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.position, false)
+
+        envs.grains.randomize_position = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.randomize_position, false)
+        envs.grains.c_randomize_position = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.c_random_position, false)
+
+        for k, t in ipairs(t_items) do
+            coroutine_time = corotine_check(coroutine_time, k, total)
+    
+            local item = t.item
+            local take = t.take
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
+            local o_item_t = {rate = t.info.original_values.rate, length = t.info.original_values.length, offset = t.info.original_values.offset}
+            local new_values = {}
+
+            if ct.grains.on then
+                -- Position/Offset (only inside the original are)
+                local grain_offset
+                if not ct.grains.position.on then -- random using items area 
+                    local take_end = o_item_t.offset + (o_item_t.length * o_item_t.rate) -- need to consider the rate 
+                    grain_offset = DL.num.RandomFloat(o_item_t.offset, take_end, true)
+                else -- user determinated
+                    local percent = ct.grains.position.val/100
+                    if ct.grains.position.envelope and envs.grains.position then
+                        local _
+                        _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * ct.rate, 0, 0) 
+                    end
+                    grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
+                    -- Apply position drift
+                    if ct.grains.randomize_position.on then
+                        -- chance
+                        local cur_chance = ct.grains.randomize_position.chance.val 
+                        if ct.grains.randomize_position.chance.env and envs.grains.c_randomize_position then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.grains.c_randomize_position, pos * ct.rate, 0, 0)
+                            cur_chance = env_val * cur_chance                           
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
+                            if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * ct.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val   
+                            end
+                            local drift =  DL.num.RandomFloat(min, max, true)
+                            drift = drift / 1000 -- ms to sec
+                            grain_offset = grain_offset + drift
+                        end
+                    end
+                end
+                new_values.offset = grain_offset 
+
+                -- Offset
+                if new_values.offset then -- Set by : Grains,
+                    reaper.SetMediaItemTakeInfo_Value(take, 'D_STARTOFFS', new_values.offset)
+                end
+            end
+
+        end 
+    end
+end
+
+function Clouds.ReRoll.Grains_Size(items, clouds, total, coroutine_time)
+    for cloud, t_items in pairs(items) do
+        local ct = clouds[cloud]
+        -- Get envelopes
+        local envs = {envelopes = {}, randomization = {}, grains = {}}
+        envs.grains.size = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.size, false)
+
+        envs.grains.randomize_size = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.randomize_size, false)
+        envs.grains.c_randomize_size = reaper.TakeFX_GetEnvelope(ct.take, 0, FXENVELOPES.grains.c_random_size, false)
+
+        for k, t in ipairs(t_items) do
+            coroutine_time = corotine_check(coroutine_time, k, total)
+    
+            local item = t.item
+            local take = t.take
+            local pos = reaper.GetMediaItemInfo_Value(item, 'D_POSITION') - ct.start
+            local new_values = {}
+
+            if ct.grains.on then
+                -- Size/Length
+                local grain_size = ct.grains.size.val
+                if ct.grains.size.envelope and envs.grains.size then
+                    local retval, env_val = reaper.Envelope_Evaluate(envs.grains.size, pos * ct.rate, 0, 0)
+                    grain_size = DL.num.MapRange(grain_size * env_val, 0, grain_size, ct.grains.size.env_min, grain_size)  
+                end    
+                
+                -- Size Drift
+                if ct.grains.randomize_size.on then
+                    -- chance
+                    local cur_chance = ct.grains.randomize_size.chance.val 
+                    if ct.grains.randomize_size.chance.env and envs.grains.c_randomize_size then
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.c_randomize_size, pos * ct.rate, 0, 0)
+                        cur_chance = env_val * cur_chance
+                    end
+                    local rnd = math.random(0,99)
+                    if rnd < cur_chance then
+                        local min, max = ct.grains.randomize_size.min, ct.grains.randomize_size.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                        if ct.grains.randomize_size.envelope and envs.grains.randomize_size then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_size, pos * ct.rate, 0, 0) 
+                            min, max = min * env_val, max * env_val 
+                        end    
+                        min, max = min + 100, max + 100
+                        local drift = DL.num.RandomFloatExp(min, max) -- between almost 0 and inf
+                        drift = drift - 100
+                        local drift_ms = grain_size * (drift/100)
+                        grain_size = grain_size + drift_ms
+                    end
+                end
+                grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
+                grain_size = grain_size / 1000 -- ms to sec
+                new_values.length = grain_size
+
+                -- Size
+                if new_values.length then -- Set by : Grains, Playrate
+                    reaper.SetMediaItemInfo_Value(item, 'D_LENGTH', new_values.length /( t.info.parameters.rate or 1) )
+                end
+            end
+
+        end 
+    end
+end
 

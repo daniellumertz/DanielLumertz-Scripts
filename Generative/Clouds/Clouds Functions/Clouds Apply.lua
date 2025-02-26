@@ -87,6 +87,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 v.mix = DL.item.GetMixBehavior(v.item)
                 v.pitch = reaper.GetMediaItemTakeInfo_Value(v.take, 'D_PITCH')
                 v.vol = reaper.GetMediaItemInfo_Value(v.item, 'D_VOL')
+                local pcm = reaper.GetMediaItemTake_Source( v.take )
+                local retval, offs, len, rev = reaper.PCM_Source_GetSectionInfo( pcm )
+                v.reverse = rev
             else
                 table.remove(ct.items,k)
             end
@@ -123,7 +126,6 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                         vel = vel
                     }
                 end
-                -- body
             end
         end
 
@@ -180,7 +182,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     
                     if desire >= period then
                         local new_pos = pos
-                        reroll[#reroll+1] = {pos = pos, grains = {}, parameters = {}}
+                        if reroll then reroll[#reroll+1] = {pos = pos, grains = {}, parameters = {}} end
                         --Randomize (dust)
                         if dust > 0 then
                             local new_dust = dust 
@@ -366,7 +368,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
                 grain_size = grain_size / 1000 -- ms to sec
                 new_values.length = grain_size
-                reroll[k].grains.size = grain_size
+                if reroll[k] then reroll[k].grains.size = grain_size end
 
                 -- Position/Offset (only inside the original are)
                 local grain_offset
@@ -381,7 +383,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
                         end
                         grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
-                        reroll[k].grains.offset = percent
+                        if reroll[k] then reroll[k].grains.offset = percent end
                         -- Apply position drift
                         if ct.grains.randomize_position.on then
                             -- chance
@@ -400,7 +402,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                                 local drift =  DL.num.RandomFloat(min, max, true)
                                 drift = drift / 1000 -- ms to sec
                                 grain_offset = grain_offset + drift
-                                reroll[k].grains.offset_drift = drift
+                                if reroll[k] then reroll[k].grains.offset_drift = drift end
                             end
                         end
                     end
@@ -603,7 +605,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                     end
                     if random < chance then
                         reverserd_items[#reverserd_items+1] = new_item.item
-                        reroll[k].parameters.reverse = true
+                        if reroll[k] then reroll[k].parameters.reverse = true end
                     end
                 end
             end
@@ -611,25 +613,25 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             do
                 -- Volume
                 if new_values.vol then
-                    reroll[k].parameters.vol = new_values.vol
+                    if reroll[k] then reroll[k].parameters.vol = new_values.vol end
                     local cur = DL.num.LinearTodB(o_item_t.vol) --TODO CHANGE TO GET ONLY ONCE
                     local result_l = DL.num.dBToLinear(new_values.vol + cur)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
                 end
                 -- Pan
                 if new_values.pan then
-                    reroll[k].parameters.pan = new_values.pan
+                    if reroll[k] then reroll[k].parameters.pan = new_values.pan end
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_values.pan)
                 end
                 -- Pitch
                 if new_values.pitch then
-                    reroll[k].parameters.pitch = new_values.pitch
+                    if reroll[k] then reroll[k].parameters.pitch = new_values.pitch end
                     new_values.pitch = new_values.pitch + o_item_t.pitch
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_values.pitch)
                 end
                 -- Rate
                 if new_values.rate then
-                    reroll[k].parameters.rate = new_values.rate
+                    if reroll[k] then reroll[k].parameters.rate = new_values.rate end
                     new_values.length = (new_values.length or o_item_t.length) / new_values.rate
                     new_values.rate = o_item_t.rate * new_values.rate
                     reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
@@ -645,7 +647,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 -- Grain Fade
                 if ct.grains.on and ct.grains.fade.on then
                     local len  = new_values.length * (ct.grains.fade.val/200)
-                    reroll[k].grains.fade = len
+                    if reroll[k] then reroll[k].grains.fade = len end
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEINLEN', len)
                     reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEOUTLEN', len)
                 end
@@ -655,7 +657,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                 end
 
                 -- Ext State
-                if reroll then -- Actually the ext state is required to have the guid to indentify on the delete function 
+                if reroll[k] then -- Actually the ext state is required to have the guid to indentify on the delete function 
                     local ext_state 
                     ext_state = {
                         pos = reroll[k].pos,
@@ -668,6 +670,9 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                             pan = o_item_t.pan,
                             rate = o_item_t.rate,
                             pitch = o_item_t.pitch,
+                            length = o_item_t.length,
+                            offset = o_item_t.offset,
+                            reverse = o_item_t.reverse
                         }
                     }
                     ext_state = DL.serialize.tableToString(ext_state)
