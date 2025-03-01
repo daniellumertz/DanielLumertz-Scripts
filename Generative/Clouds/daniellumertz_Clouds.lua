@@ -133,3 +133,4 @@ Settings = Clouds.Settings.Load(SETTINGS.path)
 
 -- Start Main
 reaper.defer(Clouds.GUI.Main)
+reaper.atexit(Clouds.Item.atexit)

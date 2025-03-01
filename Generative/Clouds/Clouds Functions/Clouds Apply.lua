@@ -4,30 +4,15 @@ Clouds.apply = {}
 
 local ext_reroll = 'reroll'
 
-local function interpolateDB(min_db, max_db, env_val)
-    -- Ensure env_val is between 0 and 1
-    env_val = math.max(0, math.min(1, env_val))
-    
-    -- Convert dB values to linear amplitude
-    local min_amp = 10 ^ (min_db / 20)
-    local max_amp = 10 ^ (max_db / 20)
-    
-    -- Interpolate in linear amplitude domain
-    local interpolated_amp = min_amp * ((max_amp / min_amp) ^ env_val)
-    
-    -- Convert back to dB
-    local interpolated_db = 20 * math.log(interpolated_amp,10)
-    
-    return interpolated_db
-end
-
 function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
     --local debug_time = reaper.time_precise()
     -- Get the Clouds it will generate
     local clouds = {}
 
-    if CloudTable and FixedCloud then
-        clouds[#clouds+1] = DL.t.DeepCopy(CloudTable)
+    if CloudsTables then
+        for index, ct in ipairs(CloudsTables) do
+            clouds[#clouds+1] = DL.t.DeepCopy(ct)
+        end
     else
         local f = is_selection and DL.enum.SelectedMediaItem or DL.enum.MediaItem
         for item in f(proj) do

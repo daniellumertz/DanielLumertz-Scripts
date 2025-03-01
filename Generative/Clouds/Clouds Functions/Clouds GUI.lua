@@ -88,14 +88,9 @@ end
 
 -- Main Function
 function Clouds.GUI.Main()
-    --- Check selected Item for cloud items
-    if FixedCloud then
-        if not reaper.ValidatePtr2(Proj, FixedCloud, 'MediaItem*') then
-            FixedCloud = nil
-        end
-    end
-    
+
     Clouds.Item.CheckSelection(Proj)
+    Clouds.Item.DrawSelected(Proj)
 
     --- Keyboard shortcuts
     DL.imgui.SWSPassKeys(ctx, false)
@@ -993,17 +988,7 @@ function Clouds.GUI.Main()
             ImGui.PopItemWidth(ctx)
 
             ImGui.Separator(ctx)
-
-            -- Fixcloud Checkbox
-            local change, val = ImGui.Checkbox(ctx, 'Pin Cloud', (FixedCloud ~= nil))
-            tooltip(ctx, Settings.tooltip, ToolTips.buttons.fix)
-            if change and val and CloudTable.cloud then
-                FixedCloud = CloudTable.cloud
-            elseif change then
-                FixedCloud = nil
-            end
-            
-            ImGui.SameLine(ctx)
+       
             if ImGui.Button(ctx, 'Copy Settings') then
                 CopySettings = DL.t.DeepCopy(CloudTable)
             end
@@ -1070,7 +1055,7 @@ function Clouds.GUI.Main()
             end
             text_help = text_help .. '.\nCtrl or/and Alt for more options!'
 
-            if ImGui.Button(ctx, 'Generate!', -FLT_MIN) then
+            if not CreatingClouds and ImGui.Button(ctx, 'Generate!', -FLT_MIN) then
                 CreatingClouds = coroutine.wrap(Clouds.apply.GenerateClouds)
                 --Clouds.apply.GenerateClouds(Proj, not ctrl, not alt)                    
             end
@@ -1112,12 +1097,13 @@ function Clouds.GUI.Main()
                 reaper.UpdateArrange()
                 reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
             end
-        else
-            if ImGui.Button(ctx, 'Create Cloud Item', -FLT_MIN) then
-                Clouds.Item.Create(Proj)
-            end
-            tooltip(ctx, Settings.tooltip, ToolTips.create_item)
         end
+
+        if not CreatingClouds and ImGui.Button(ctx, 'Create Cloud Item', -FLT_MIN) then
+            Clouds.Item.Create(Proj)
+        end
+        tooltip(ctx, Settings.tooltip, ToolTips.create_item)
+
         ImGui.End(ctx)
     end
     

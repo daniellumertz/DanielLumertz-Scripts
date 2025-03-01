@@ -43,56 +43,70 @@ function Clouds.Item.CheckSelection(proj)
     local cnt = reaper.GetProjectStateChangeCount(proj)
     if cnt ~= CurrentProjCount then
         local something_changed = false
-        if (not FixedCloud) and (not CreatingClouds) then -- Update selected cloud to GUI. If fixed cloud or it is generating, prevent it.
+        if not CreatingClouds then -- Update selected cloud to GUI. If fixed cloud or it is generating, prevent it.
             local found = false
             for item in DL.enum.SelectedMediaItem(proj) do
                 local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
                 if extstate ~= '' then
-                    found = true
-                    if CloudTable and CloudTable.cloud == item then
+                    --[[ if CloudTable and CloudTable.cloud == item then
                         break
-                    end
+                    end ]]
                     local ext_table = DL.serialize.stringToTable(extstate)
                     -- Guids to Items/Tracks
-                    CloudTable = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
-                    if CloudTable then -- check if cloud table havent been corrupted at some script crash
-                        something_changed = Clouds.Item.UpdateVersion(CloudTable)
-                        CloudTable.cloud = item
-                        break
+                    local t = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
+                    -- Set Primary CloudTable
+                    if t then -- check if cloud table havent been corrupted at some script crash
+                        t.cloud = item
+                        if not found then
+                            found = true
+                            -- reset previous CloudsTables
+                            Clouds.Item.ResetColors()
+                            CloudsTables = {}
+                            -- Set GUI Cloud Table
+                            CloudTable = t
+                        end
+
+                        something_changed = Clouds.Item.UpdateVersion(t)
+                        CloudsTables[#CloudsTables+1] = t
                     end
                 end
-            end
-            if not found then
-                CloudTable = nil
             end
         end
 
         --Checks
-        if CloudTable then
-            for k, v in DL.t.ipairs_reverse(CloudTable.items) do
-                if not reaper.ValidatePtr2(Proj, v.item, 'MediaItem*') then
-                    table.remove(CloudTable.items,k)
-                    something_changed = true
-                end
-            end
+        if CloudsTables then
+            for ctidx, ct in DL.t.ipairs_reverse(CloudsTables) do
+                if not reaper.ValidatePtr2(Proj, ct.cloud, 'MediaItem*') then
+                    table.remove(CloudsTables, ctidx)
+                    goto continue
+                end 
 
-            for k, v in DL.t.ipairs_reverse(CloudTable.tracks) do -- dont need to check self
-                if not reaper.ValidatePtr2(Proj, v.track, 'MediaTrack*') then
-                    table.remove(CloudTable.tracks,k)
-                    something_changed = true
+                for k, v in DL.t.ipairs_reverse(CloudTable.items) do
+                    if not reaper.ValidatePtr2(Proj, v.item, 'MediaItem*') then
+                        table.remove(CloudTable.items,k)
+                        something_changed = true
+                    end
                 end
-            end
-
-            -- Check if cloud item has FX
-            Clouds.Item.EnsureFX(CloudTable.cloud)   
-            
-            if something_changed then
-                Clouds.Item.SaveSettings(proj, CloudTable.cloud, CloudTable)
-
-                if CreatingClouds then -- Something got deleted while it was generating
-                    CreatingClouds = nil
-                    -- TODO give a warning message. 
+    
+                for k, v in DL.t.ipairs_reverse(CloudTable.tracks) do -- dont need to check self
+                    if not reaper.ValidatePtr2(Proj, v.track, 'MediaTrack*') then
+                        table.remove(CloudTable.tracks,k)
+                        something_changed = true
+                    end
                 end
+
+                -- Check if cloud item has FX
+                Clouds.Item.EnsureFX(CloudTable.cloud)   
+                
+                if something_changed then
+                    Clouds.Item.SaveSettings(proj, CloudTable.cloud, CloudTable)
+    
+                    if CreatingClouds then -- Something got deleted while it was generating
+                        CreatingClouds = nil
+                        -- TODO give a warning message. 
+                    end
+                end
+                ::continue::
             end
         end
 
@@ -100,11 +114,95 @@ function Clouds.Item.CheckSelection(proj)
     end
 end
 
+local time = 0
+function Clouds.Item.DrawSelected(proj)
+    if CloudsTables then
+        time = time + 0.045
+        local wave = (math.sin(time)) / 8 
+        for index, ct in ipairs(CloudsTables) do
+
+            
+            local r = math.max(0, math.min(255, 7 + (wave * 255)))//1
+            local g = math.max(0, math.min(255, 136 + (wave * 255)))//1
+            local b = math.max(0, math.min(255, 140 + (wave * 255)))//1
+            local native = reaper.ColorToNative(r,g,b) | 0x1000000
+            reaper.SetMediaItemInfo_Value(ct.cloud, 'I_CUSTOMCOLOR', native)
+        end 
+        reaper.UpdateArrange()
+    end
+end
+
+function Clouds.Item.ResetColor(cloud_item)
+    if  reaper.ValidatePtr2(Proj, cloud_item, 'MediaItem*') then
+        reaper.SetMediaItemInfo_Value(cloud_item, 'I_CUSTOMCOLOR', CloudColor)
+    end 
+end
+
+function Clouds.Item.ResetColors()
+    if CloudsTables then
+        for index, ct in ipairs(CloudsTables) do
+            Clouds.Item.ResetColor(ct.cloud)
+        end
+    end
+end
+
+function Clouds.Item.atexit()
+    Clouds.Item.ResetColors()    
+end
+
+---Applies a parameter value to the corresponding property in each cloud item in the CloudsTables table.
+---@param address table An array of keys that represent the path to the property to be updated.
+---@param value any The new value to be set for the property.
+function Clouds.Item.ApplyParameter(address, value)
+    for index, ct in ipairs(CloudsTables) do
+        local current = ct
+        -- Navigate through the address path
+        for i = 1, #address-1 do
+            current = current[address[i]]
+        end
+        -- Set the final value
+        current[address[#address]] = value
+        -- Save the updated settings
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+end
+
+
+
+
+
+--[[ function Clouds.Items.ApplyParameter(address, value)
+    DL.t.Insert(t, ...)
+    --DL.t.Check(t, ...)
+end
+
+---Insert a value in a table, can contain a inner table that didnt exist previouslly. like TableInsert(t, 1, 2, 3)
+---@param t any
+---@param ... any 
+function DL.Items.ApplyParameter(t, ...)
+    local n = select('#', ...)
+    for cidx, ct in ipairs(CloudsTables) do
+        for i = 1, n - 2 do
+            local k = select(i, ...)
+            local v = ct[k]
+            if type(v) ~= 'table' then
+                assert(not v)
+                v = {}
+                t[k] = v
+            end
+            t = v
+        end
+        t[select(n - 1, ...)] = select(n, ...)
+    end 
+end ]]
+
+
 function Clouds.Item.SaveSettings(proj, item, settings)
     --- Items/Tracks to guids
     local guided = Clouds.convert.CovertUserDataToGUIDRecursive(proj, settings)
     local serialized_t = DL.serialize.tableToString(guided)
     DL.item.SetExtState(item, EXT_NAME, 'settings', serialized_t)
+    print()
 end
 
 ---------- Items to be copied: 
@@ -567,17 +665,9 @@ function Clouds.Item.DeleteGenerations(proj, is_selection, is_area)
     reaper.Undo_BeginBlock2(proj)
     -- Which clouds apply
     local clouds = {}
-    if CloudTable and FixedCloud then
-        clouds[#clouds+1] = {item = CloudTable.cloud, guid = reaper.BR_GetMediaItemGUID(CloudTable.cloud)}
-    else
-        local f = is_selection and DL.enum.SelectedMediaItem or DL.enum.MediaItem
-        for item in f(proj) do
-            local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
-            if extstate ~= '' then
-                clouds[#clouds+1] = {item = item, guid = reaper.BR_GetMediaItemGUID(item)}
-            end
-        end
-    end        
+    for k, ct in ipairs(CloudsTables) do
+        clouds[#clouds+1] = {item = ct.cloud, guid = reaper.BR_GetMediaItemGUID(ct.cloud)}
+    end      
 
     -- Which scope to delete
     local del_items = {}
