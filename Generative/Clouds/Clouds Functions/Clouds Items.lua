@@ -78,6 +78,10 @@ function Clouds.Item.CheckSelection(proj)
             for ctidx, ct in DL.t.ipairs_reverse(CloudsTables) do
                 if not reaper.ValidatePtr2(Proj, ct.cloud, 'MediaItem*') then
                     table.remove(CloudsTables, ctidx)
+                    if #CloudsTables == 0 then
+                        CloudsTables = nil
+                        CloudTable = nil
+                    end
                     goto continue
                 end 
 
