@@ -1,3 +1,4 @@
+--@noindex
 Clouds = Clouds or {}
 Clouds.ReRoll ={}
 
