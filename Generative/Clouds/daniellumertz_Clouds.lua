@@ -14,6 +14,10 @@
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
 --    + Fixed Randomization UI issue with out-of-bounds values for pan, volume, and stretch when the user manually inputs a value.
+-- @license 
+--[[
+    I am not sure which license to use. This code is open-source. You may not bypass the pay window, besides that you are free to modify this code, or use my functions in your project. If you make something cool share with me! 
+]]
 -- Debug
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
@@ -84,11 +88,13 @@ URL = {
     buy = 'https://daniellumertz.gumroad.com/l/ReaperClouds',
     thread = 'https://forum.cockos.com/showthread.php?t=298170',
     manual = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    video = 'https://youtu.be/IWLGhHi0nnE?si=JSRBwFhlzvBVbVf-'
+    video = 'https://youtu.be/IWLGhHi0nnE?si=JSRBwFhlzvBVbVf-',
+    download_counter = 'https://script.google.com/macros/s/AKfycbx9cZIU94m6bAQA0Npo4TbYPT6i3DcYGkDXBUYaZODr1R7O3o0bLth82yPqgDAumKAAWw/exec',
+    over_counter = 'https://script.google.com/macros/s/AKfycbz_ddl3D-fry577nLS_E9cYcMpWK8tPxVqnd_3Kv8cQzMXUpulEnpuc_aHHIlAmk0bc/exec'
 }
 SEEDLIMIT = 1024 -- maximum number of seeds history saved in a item
 
--- Initialize ImGUI
+-- Initialize ImGUI?
 package.path = package.path..';'..reaper.ImGui_GetBuiltinPath() .. '/?.lua'
 ImGui = require 'imgui' '0.9.2' 
 --demo = require 'ReaImGui_Demo' --DEBUG
@@ -134,3 +140,4 @@ Settings = Clouds.Settings.Load(SETTINGS.path)
 -- Start Main
 reaper.defer(Clouds.GUI.Main)
 reaper.atexit(Clouds.Item.atexit)
+

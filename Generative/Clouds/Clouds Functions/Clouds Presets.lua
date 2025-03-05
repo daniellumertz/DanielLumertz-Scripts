@@ -20,11 +20,27 @@ end
 function Clouds.Presets.Load(path)
     local t = DL.json.load(path)
     if type(t) == 'table' then
-        t.items = CloudTable.items
-        t.cloud = CloudTable.cloud
-        t.tracks = CloudTable.tracks
-        CloudTable = t
-        Clouds.Item.UpdateVersion(CloudTable)
+        if #CloudsTables > 0 then
+            reaper.Undo_BeginBlock2(Proj)
+            reaper.PreventUIRefresh(1)
+    
+            for ct_idx, ct in ipairs(CloudsTables) do
+                local new_ct = DL.t.DeepCopy(t)
+                new_ct.items = ct.items
+                new_ct.cloud = ct.cloud
+                new_ct.tracks = ct.tracks
+                Clouds.Item.UpdateVersion(new_ct)
+                CloudsTables[ct_idx] = new_ct
+                Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+            end
+            CloudTable = CloudsTables[1]
+            Clouds.Item.ShowHideAllEnvelopes()
+    
+            reaper.UpdateArrange()
+            reaper.PreventUIRefresh(-1)
+            reaper.Undo_EndBlock2(Proj, 'Paste Clouds', -1) 
+        end
+
         return true
     else
         reaper.ShowMessageBox('Failed to Load Preset!\nPlease contact me at the REAPER thread if problem persists!', "Clouds", 0)

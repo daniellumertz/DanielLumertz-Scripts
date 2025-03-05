@@ -150,59 +150,31 @@ function Clouds.Item.atexit()
     Clouds.Item.ResetColors()    
 end
 
----Applies a parameter value to the corresponding property in each cloud item in the CloudsTables table.
----@param address table An array of keys that represent the path to the property to be updated.
+---Applies a parameter to all other clouds
 ---@param value any The new value to be set for the property.
-function Clouds.Item.ApplyParameter(address, value)
+---@param ... any An array of keys that represent the path to the property to be updated.
+function Clouds.Item.ApplyParameter(value, ...)
+    local address = {...}
     for index, ct in ipairs(CloudsTables) do
-        local current = ct
-        -- Navigate through the address path
-        for i = 1, #address-1 do
-            current = current[address[i]]
+        if ct ~= CloudTable.cloud then
+            local current = ct
+            -- Navigate through the address path
+            for i = 1, #address-1 do
+                current = current[address[i]]
+            end
+            -- Set the final value
+            current[address[#address]] = value
+            -- Save the updated settings
+            Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
         end
-        -- Set the final value
-        current[address[#address]] = value
-        -- Save the updated settings
-        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
 end
-
-
-
-
-
---[[ function Clouds.Items.ApplyParameter(address, value)
-    DL.t.Insert(t, ...)
-    --DL.t.Check(t, ...)
-end
-
----Insert a value in a table, can contain a inner table that didnt exist previouslly. like TableInsert(t, 1, 2, 3)
----@param t any
----@param ... any 
-function DL.Items.ApplyParameter(t, ...)
-    local n = select('#', ...)
-    for cidx, ct in ipairs(CloudsTables) do
-        for i = 1, n - 2 do
-            local k = select(i, ...)
-            local v = ct[k]
-            if type(v) ~= 'table' then
-                assert(not v)
-                v = {}
-                t[k] = v
-            end
-            t = v
-        end
-        t[select(n - 1, ...)] = select(n, ...)
-    end 
-end ]]
-
 
 function Clouds.Item.SaveSettings(proj, item, settings)
     --- Items/Tracks to guids
     local guided = Clouds.convert.CovertUserDataToGUIDRecursive(proj, settings)
     local serialized_t = DL.serialize.tableToString(guided)
     DL.item.SetExtState(item, EXT_NAME, 'settings', serialized_t)
-    print()
 end
 
 ---------- Items to be copied: 
@@ -230,11 +202,16 @@ function Clouds.Item.SetItems(proj)
         end 
         ::continue::
     end
-    CloudTable.items = t
+
+    for ct_idx, ct in ipairs(CloudsTables) do
+        ct.items = t
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
 end
 
 function Clouds.Item.AddItems(proj)
     local result
+    local items = {}
     for item in DL.enum.SelectedMediaItem(proj) do
         local is_tag = DL.item.GetExtState(item, EXT_NAME, 'is_item')
         if (not result) and is_tag then
@@ -248,12 +225,19 @@ function Clouds.Item.AddItems(proj)
         end
 
         if not DL.item.GetExtState(item, EXT_NAME, 'settings') then -- prevent adding cloud items to selections
-            CloudTable.items[#CloudTable.items+1] = {
+            items[#items+1] = {
                 item = item,
                 chance = 1
             }
         end
         ::continue::
+    end
+
+    for ct_idx, ct in ipairs(CloudsTables) do
+        for k, item in ipairs(items) do
+            ct.items[#ct.items+1] = item
+        end
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
 end
 
@@ -282,24 +266,42 @@ function Clouds.Item.SetTracks(proj) --Set
         }
     end
 
-    -- Remove Current tracks
-    for k, v in ipairs(CloudTable.tracks) do 
-        CloudTable.tracks[k] = nil
-    end
-
-    -- Add Selected Tracks
-    for k, v in ipairs(t) do 
-        CloudTable.tracks[k] = v
+    -- Remove Current tracks (I am removing all tracks but the self track)
+    for ct_idx, ct in ipairs(CloudsTables) do
+        for k, v in DL.t.ipairs_reverse(ct.tracks) do 
+            ct.tracks[k] = nil
+        end
+        
+        -- Add Selected Tracks
+        for k, v in ipairs(t) do 
+            ct.tracks[k] = v
+        end
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
 end
 
 function Clouds.Item.AddTracks(proj)
+    local tracks = {}
     for track in DL.enum.SelectedTracks2(proj, false) do
-        local t = {
+        tracks[#tracks+1] = {
             track = track,
             chance = 1
         }
-        CloudTable.tracks[#CloudTable.tracks+1] = t 
+    end
+
+    for ct_idx, ct in ipairs(CloudsTables) do
+        -- Create a table with all tracks already added for this ct
+        local already = {}
+        for k2, trackT in ipairs(ct.tracks) do
+            already[trackT.track] = true             
+        end
+        -- Add non duplicated tracks
+        for k, v in ipairs(tracks) do
+            if not already[v.track] then
+                ct.tracks[#ct.tracks+1] = v
+            end
+        end
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
 end
 
@@ -570,38 +572,53 @@ function Clouds.Item.UpdateVersion(cloud)
     return was_updated
 end
 
-function Clouds.Item.ShowHideEnvelope(bool,envelope_n)
-    if bool then
-        reaper.TakeFX_GetEnvelope(reaper.GetActiveTake(CloudTable.cloud), 0, envelope_n, true)
-    else
-        local env = reaper.TakeFX_GetEnvelope(reaper.GetActiveTake(CloudTable.cloud), 0, envelope_n, true)
-        local retval, chunk = reaper.GetEnvelopeStateChunk( env, '', false )
-        chunk = chunk:gsub('\nVIS 1', '\nVIS 0')
-        reaper.SetEnvelopeStateChunk( env, chunk, false )
+function Clouds.Item.ShowHideEnvelope(bool,envelope_n,t)
+    t = t or CloudsTables
+    for k, ct in ipairs(t) do
+        if bool then
+            reaper.TakeFX_GetEnvelope(reaper.GetActiveTake(ct.cloud), 0, envelope_n, true)
+        else
+            local env = reaper.TakeFX_GetEnvelope(reaper.GetActiveTake(ct.cloud), 0, envelope_n, true)
+            local retval, chunk = reaper.GetEnvelopeStateChunk( env, '', false )
+            chunk = chunk:gsub('\nVIS 1', '\nVIS 0')
+            reaper.SetEnvelopeStateChunk( env, chunk, false )
+        end
     end
 end
 
 ---Used when pasting a setting, updating all envelopes from CloudTale.cloud
-function Clouds.Item.ShowHideAllEnvelopes()
-    Clouds.Item.ShowHideEnvelope(CloudTable.density.density.envelope,FXENVELOPES.density)
-    Clouds.Item.ShowHideEnvelope(CloudTable.density.random.envelope,FXENVELOPES.dust)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.vol.envelope,FXENVELOPES.randomization.vol)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pan.envelope,FXENVELOPES.randomization.pan)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pitch.envelope,FXENVELOPES.randomization.pitch)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.stretch.envelope,FXENVELOPES.randomization.stretch)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.reverse.envelope,FXENVELOPES.randomization.reverse)
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.size.envelope,FXENVELOPES.grains.size)
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_size.envelope,FXENVELOPES.grains.randomize_size)
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.position.envelope,FXENVELOPES.grains.position)
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.envelope,FXENVELOPES.grains.randomize_position)
-    -- chances
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_position.on and CloudTable.grains.randomize_position.chance.env,FXENVELOPES.grains.c_random_position)
-    Clouds.Item.ShowHideEnvelope(CloudTable.grains.randomize_size.on and CloudTable.grains.randomize_size.chance.env,FXENVELOPES.grains.c_random_size)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.vol.on and CloudTable.randomization.vol.chance.env,FXENVELOPES.randomization.c_vol)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pan.on and CloudTable.randomization.pan.chance.env,FXENVELOPES.randomization.c_pan)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.pitch.on and CloudTable.randomization.pitch.chance.env,FXENVELOPES.randomization.c_pitch)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.stretch.on and CloudTable.randomization.stretch.chance.env,FXENVELOPES.randomization.c_stretch)
-    Clouds.Item.ShowHideEnvelope(CloudTable.randomization.reverse.on and CloudTable.randomization.reverse.chance.env,FXENVELOPES.randomization.c_reverse)
+function Clouds.Item.ShowHideAllEnvelopes(t)
+    t = t or CloudsTables
+    for k, ct in ipairs(t) do
+        Clouds.Item.ShowHideEnvelope(ct.density.density.envelope,FXENVELOPES.density)
+        Clouds.Item.ShowHideEnvelope(ct.density.random.envelope,FXENVELOPES.dust)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.vol.envelope,FXENVELOPES.randomization.vol)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.pan.envelope,FXENVELOPES.randomization.pan)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.pitch.envelope,FXENVELOPES.randomization.pitch)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.stretch.envelope,FXENVELOPES.randomization.stretch)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.reverse.envelope,FXENVELOPES.randomization.reverse)
+        Clouds.Item.ShowHideEnvelope(ct.grains.size.envelope,FXENVELOPES.grains.size)
+        Clouds.Item.ShowHideEnvelope(ct.grains.randomize_size.envelope,FXENVELOPES.grains.randomize_size)
+        Clouds.Item.ShowHideEnvelope(ct.grains.position.envelope,FXENVELOPES.grains.position)
+        Clouds.Item.ShowHideEnvelope(ct.grains.randomize_position.envelope,FXENVELOPES.grains.randomize_position)
+        -- chances
+        Clouds.Item.ShowHideEnvelope(ct.grains.randomize_position.on and ct.grains.randomize_position.chance.env,FXENVELOPES.grains.c_random_position)
+        Clouds.Item.ShowHideEnvelope(ct.grains.randomize_size.on and ct.grains.randomize_size.chance.env,FXENVELOPES.grains.c_random_size)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.vol.on and ct.randomization.vol.chance.env,FXENVELOPES.randomization.c_vol)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.pan.on and ct.randomization.pan.chance.env,FXENVELOPES.randomization.c_pan)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.pitch.on and ct.randomization.pitch.chance.env,FXENVELOPES.randomization.c_pitch)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.stretch.on and ct.randomization.stretch.chance.env,FXENVELOPES.randomization.c_stretch)
+        Clouds.Item.ShowHideEnvelope(ct.randomization.reverse.on and ct.randomization.reverse.chance.env,FXENVELOPES.randomization.c_reverse)
+        -- envelopes
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.vol.on,FXENVELOPES.envelopes.vol)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.vol.on and ct.envelopes.vol.chance.env, FXENVELOPES.envelopes.c_vol)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.pan.on,FXENVELOPES.envelopes.pan)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.pan.on and ct.envelopes.pan.chance.env, FXENVELOPES.envelopes.c_pan)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.pitch.on,FXENVELOPES.envelopes.pitch)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.pitch.on and ct.envelopes.pitch.chance.env, FXENVELOPES.envelopes.c_pitch)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.stretch.on,FXENVELOPES.envelopes.stretch)
+        Clouds.Item.ShowHideEnvelope(ct.envelopes.stretch.on and ct.envelopes.stretch.chance.env, FXENVELOPES.envelopes.c_stretch)
+    end
 end
 
 function Clouds.Item.EnsureFX(cloud)
@@ -613,36 +630,24 @@ function Clouds.Item.EnsureFX(cloud)
 end
 
 function Clouds.Item.Paste(is_selected)
-    local t = {CloudTable.cloud} -- already start with current Cloud Table, as it could be pinned and not selected
-
-    if is_selected then
-        for item in DL.enum.SelectedMediaItem(Proj) do
-            if item ~= CloudTable.cloud then
-                local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'settings')
-                if extstate ~= '' then
-                    t[#t+1] = item
-                end
-            end
-        end
-    end
-
-    if #t > 0 then
+    if #CloudsTables > 0 then
         reaper.Undo_BeginBlock2(Proj)
         reaper.PreventUIRefresh(1)
-        
-        local cloud = CloudTable.cloud
-        CloudTable = DL.t.DeepCopy(CopySettings)
-        for k, item in ipairs(t) do
-            CloudTable.cloud = item
-            Clouds.Item.UpdateVersion(CloudTable)
-            Clouds.Item.ShowHideAllEnvelopes()
-            Clouds.Item.SaveSettings(Proj, CloudTable.cloud, CloudTable)
+
+        for ct_idx, ct in ipairs(CloudsTables) do
+            local cloud = ct.cloud
+            ct = DL.t.DeepCopy(CopySettings)
+            CloudsTables[ct_idx] = ct
+            ct.cloud = cloud
+            Clouds.Item.UpdateVersion(ct)
+            Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
         end
-        CloudTable.cloud = cloud
+        CloudTable = CloudsTables[1]
+        Clouds.Item.ShowHideAllEnvelopes()
 
         reaper.UpdateArrange()
         reaper.PreventUIRefresh(-1)
-        reaper.Undo_EndBlock2(Proj, 'Paste Clouds', -1)
+        reaper.Undo_EndBlock2(Proj, 'Paste Clouds', -1) 
     end
 end
 
