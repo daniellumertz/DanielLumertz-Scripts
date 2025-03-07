@@ -95,7 +95,7 @@ function Clouds.GUI.Main()
     --- Keyboard shortcuts
     DL.imgui.SWSPassKeys(ctx, false)
     --- UI
-    local window_flags = ImGui.WindowFlags_AlwaysAutoResize | ImGui.WindowFlags_MenuBar
+    local window_flags = ImGui.WindowFlags_AlwaysAutoResize | ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoDocking
     if pin then 
         window_flags = window_flags | ImGui.WindowFlags_TopMost
     end 

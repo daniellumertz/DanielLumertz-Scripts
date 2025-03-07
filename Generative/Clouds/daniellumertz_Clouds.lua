@@ -19,9 +19,9 @@
     I am not sure which license to use. This code is open-source. You may not bypass the pay window, besides that you are free to modify this code, or use my functions in your project. If you make something cool share with me! 
 ]]
 -- Debug
---[[ if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
+if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
-end ]]
+end
 -- Constants:
 SCRIPT_NAME = 'Clouds'
 SCRIPT_V  = '1.1.3b' -- version should always be three digits! leters, for beta versions, are acceptable.

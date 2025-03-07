@@ -1,0 +1,33 @@
+--@noindex
+If you are curious about the Google scripts executed in this code, this file is an explanation and documentation of the code. 
+
+The URL executes a Google Script that increases the number stored at a cell at Google Sheets, and saves the time it was last pinged. 
+If you want to see the results, this is the sheet for the download count: https://docs.google.com/spreadsheets/d/1SB-3ScwMKfRNlmmDOcSZIy988hFVyd_8g59com1O618/edit?gid=0#gid=0
+and this is the sheet for uses above the trial period: https://docs.google.com/spreadsheets/d/1BnI1FsLa_dqCMjvQJ4UMSbLrRgx-Oprb9TE0gc289kI/edit?usp=sharing
+
+As Reapack can't hold the download count, and I don't have a personal website to make a proper count (yet!), I use Google Scripts because they are a free solution. This will give me better insight into how many people use my scripts. 
+If you think using Google Scripts can be a problem, please get in touch with me. I think it is not the best solution, and I am looking for a better one, still, no personal information will be saved, it is just a ping.
+
+This is the Google Script : 
+
+function doGet() {
+  // Get the active spreadsheet and the first sheet
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheets()[0];
+  
+  // Get the current count from the static position
+  var currentCount = sheet.getRange('B1').getValue();
+  
+  // Increment the counter
+  currentCount += 1;
+  
+  // Update the static counter at the top
+  sheet.getRange('B1').setValue(currentCount);
+  
+  // Add a new row to the history
+  var historyStartRow = 4; // Row where history begins
+  var nextRow = sheet.getLastRow() + 1;
+  sheet.getRange(nextRow, 1).setValue(new Date());
+  sheet.getRange(nextRow, 2).setValue(currentCount);
+}
+
