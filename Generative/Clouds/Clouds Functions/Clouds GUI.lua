@@ -371,6 +371,14 @@ function Clouds.GUI.Main()
                 end
                 something_changed = something_changed or change
 
+                ----- N GEN
+                change, CloudTable.density.n_gen = ImGui.InputInt(ctx, 'Generate N Times', CloudTable.density.n_gen)
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
+                    CloudTable.density.n_gen = DL.num.Clamp(CloudTable.density.n_gen, 1)
+                    Clouds.Item.ApplyParameter(CloudTable.density.n_gen, 'density', 'n_gen')
+                end
+                something_changed = something_changed or change
+
                 ----- Quantize
                 change, CloudTable.density.quantize = ImGui.Checkbox(ctx, 'Quantize Items To Grid', CloudTable.density.quantize)
                 if change then

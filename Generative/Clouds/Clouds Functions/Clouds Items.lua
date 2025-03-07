@@ -350,6 +350,7 @@ function Clouds.Item.DefaultTable()
 
             cap = 0,
             quantize = false,
+            n_gen = 1 -- 1.2.0
         },
         tracks = {
             self = {
@@ -569,6 +570,8 @@ function Clouds.Item.UpdateVersion(cloud)
             },
         }
 
+        cloud.density.n_gen = 1
+
         cloud.version = '1.2.0'
         was_updated = true
     end
@@ -656,7 +659,6 @@ function Clouds.Item.Paste(is_selected)
 end
 
 ------ Generated Items:
-
 function Clouds.Item.UntagSelected(proj)
     for item in DL.enum.SelectedMediaItem(proj) do
         local retval, extstate = DL.item.GetExtState(item, EXT_NAME, 'is_item')

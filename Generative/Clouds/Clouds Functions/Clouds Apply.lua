@@ -132,548 +132,551 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             end
         end
 
-        -- Set general Random Seed 
-        local seed = ct.seed.seed ~= 0 and math.randomseed(ct.seed.seed,0) or math.randomseed(math.random(1,100000),0)
-        table.insert(ct.seed.history, seed)
-        if #ct.seed.history == SEEDLIMIT then
-            table.remove(ct.seed.history, 1)
-        end
-        Clouds.Item.SaveSettings(proj, ct.cloud, ct)
-        if ct.cloud == CloudTable.cloud then -- Update GUI Cloud Table
-            CloudTable.seed = ct.seed
-        end
-
-        -- Creates the reroll table to store information about the randomness.
-        local reroll = {}
-
-        -- calculate the position of each item using density values. output a table with the position for each new item t = {i = position}
-        local positions = {} -- [1] = 0
-        local synth_freqs = {}
-        do
-            local freq = ct.density.density.val
-            local dust = ct.density.random.val -- dust = 1 means that a position will be randomize in the range of one period. half earlier half later.
-            local density_env = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.density, false)
-            local dust_env = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.dust, false)
-            local chunk_size, desire = 1/(2*freq), 0
-            if not ct.midi_notes.is_synth then -- Not Synth
-                for pos = 0, cloud.len, chunk_size do
-                    local new_freq = freq
-                    if ct.density.density.envelope and density_env then
-                        -- Get env value
-                        local retval, env_val = reaper.Envelope_Evaluate(density_env, pos * cloud.rate, 0, 0)
-                        new_freq = DL.num.MapRange(env_val * freq, 0, freq, ct.density.density.env_min, freq) 
-                    end
-                    local period = 1 / new_freq
-    
-                    if desire >= period then
-                        local new_pos = pos
-                        if reroll then reroll[#reroll+1] = {pos = pos, grains = {}, parameters = {}} end
-                        --Randomize (dust)
-                        if dust > 0 then
-                            local new_dust = dust 
-                            if ct.density.random.envelope and dust_env then
-                                local retval, env_val = reaper.Envelope_Evaluate(dust_env, pos * cloud.rate, 0, 0)
-                                new_dust = env_val * dust
-                            end
-                            local range = period * new_dust
-                            local random = (math.random() * range) - (range/2)
-                            new_pos = new_pos + random
-                            -- reflect item at borders
-                            new_pos = new_pos % (2 * cloud.len)
-                            if new_pos > cloud.len then
-                                new_pos = cloud.len - (new_pos - cloud.len)
-                            end
-                        end
-                        -- Quantize
-                        if ct.density.quantize then
-                            local grid = reaper.BR_GetClosestGridDivision(new_pos + cloud.start)
-                            new_pos = grid - cloud.start
-                        end
-                        -- Add to table
-                        if not ct.midi_notes.solo_notes then
-                            positions[#positions + 1] = new_pos
-                        else
-                            for index, note in ipairs(notes) do
-                                if note.start <= new_pos and note.fim >= new_pos then
-                                    positions[#positions + 1] = new_pos
-                                    break
-                                end 
-                            end
-                        end
-                        desire = desire % period
-                    end
-                    -- add for next loop 
-                    desire = desire + chunk_size
-                end
-                table.sort(positions)
-
-            elseif #notes > 0 then -- Synth
-                for index, note in ipairs(notes) do
-                    if cloud.start + note.start >= cloud.fim then
-                        break
-                    end
-                    local freq = ct.midi_notes.A4 * (2 ^ ((note.pitch - 69)/ct.midi_notes.EDO))
-                    for i = 1, freq * (note.fim - note.start) do
-                        local pos = note.start + (1/freq * i)
-                        if cloud.start + pos >= cloud.fim then -- if pass the item
-                            break
-                        elseif pos >= 0 then
-                            positions[#positions+1] = pos
-                            synth_freqs[#synth_freqs+1] = {freq = freq, vel = note.vel, note_id = index}   
-                        end
-                    end
-                end
-                -- DONT SORT (need to match synth_freq. I didnt want to put both at the same table because this way is faster in the generate loop)
+        -- Applies n times
+        for g_idx = 1, (ct.density.n_gen or 1) do
+            -- Set general Random Seed 
+            local seed = ct.seed.seed ~= 0 and math.randomseed(ct.seed.seed,0) or math.randomseed(math.random(1,100000),0)
+            table.insert(ct.seed.history, seed)
+            if #ct.seed.history == SEEDLIMIT then
+                table.remove(ct.seed.history, 1)
             end
-        end
-
-        -- Need to pass .self to .1 for using Random with Weight
-        table.insert(ct.tracks,1,ct.tracks.self) 
-        -- Check envelopes
-        local envs = {
-            grains = {
-                size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.size, false),
-                randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_size, false),
-                position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.position, false),
-                randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_position, false),
-
-                c_randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_size, false),
-                c_randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_position, false),
-            },
-            randomization = {
-                vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.vol, false),
-                pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.pan, false),
-                pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.pitch, false),
-                stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.stretch, false),
-                reverse = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.reverse, false),
-
-            
-                c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_vol, false),
-                c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pan, false),
-                c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pitch, false),
-                c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_stretch, false),
-            },
-
-            envelopes ={
-                vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.vol, false),
-                pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pan, false),
-                pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pitch, false),
-                stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.stretch, false),
-            
-                c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_vol, false),
-                c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pan, false),
-                c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pitch, false),
-                c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_stretch, false),
-            },
-        }
-
-        --local coroutine_check = 0
-        local held_items = {} -- for limiting the max n of overlapped items
-        local notes_positions = {} -- for synth hold_position
-        for k, pos in ipairs(positions) do
-            -- coroutine
-            --coroutine_check = coroutine_check + 1
-            if ((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then -- (coroutine_check >= UPDATE_FREQ.items) 
-                reaper.PreventUIRefresh(-1)
-                coroutine.yield(false, {done = c_idx-1, total = #clouds}, {done = k, total = #positions})
-                if CancelCreatingClouds then -- Cancel pasting
-                    reaper.Undo_EndBlock2(proj, 'Generate Clouds', -1)
-                    return true
-                end
-                --coroutine_check = 0
-                reaper.PreventUIRefresh(1)
-                coroutine_time = reaper.time_precise()
+            Clouds.Item.SaveSettings(proj, ct.cloud, ct)
+            if ct.cloud == CloudTable.cloud then -- Update GUI Cloud Table
+                CloudTable.seed = ct.seed
             end
-            -- Check if it is caping
-            if ct.density.cap > 0 then
-                local idx = 1
-                for i = 1, #held_items do
-                    local held = held_items[idx]
-                    if held.fim < pos then
-                        table.remove(held_items, idx)
-                    else
-                        idx = idx + 1
-                    end
-                end
 
-                -- randomize which item will be pasted
-                if #held_items >= ct.density.cap then
-                    goto continue_item 
-                end
-            end
-            local item_k, o_item_t = DL.t.RandomValueWithWeight(ct.items, 'chance')
-            -- decide which track to apply
-            local track_k, track_t = DL.t.RandomValueWithWeight(ct.tracks, 'chance')
-            local track = DL.t.Check(track_t,'track') or o_item_t.track -- specific track or self. 
-            -- copy the item 
-            local new_item = {}
-            new_item.item = DL.item.CopyToTrack(o_item_t.item, track, pos + cloud.start, false, false)
-            new_item.take = reaper.GetActiveTake(new_item.item)
-            -- make a table of randomizations
-            local new_values = {}
+            -- Creates the reroll table to store information about the randomness.
+            local reroll = {}
 
-
-            -- if grains then get a length, offset and fade
-            if ct.grains.on then
-                -- Volume (synth)
-                if ct.midi_notes.is_synth then
-                    -- map midi to dB
-                    local db = DL.num.MapRange(synth_freqs[k].vel, 1, 127, ct.midi_notes.synth.min_vol, 0)
-                    new_values.vol = db
-                end
-                -- Size/Length
-                local grain_size = ((not ct.midi_notes.is_synth) and ct.grains.size.val) or (2 * 1000/synth_freqs[k].freq)
-                if ct.grains.size.envelope and envs.grains.size then
-                    local retval, env_val = reaper.Envelope_Evaluate(envs.grains.size, pos * cloud.rate, 0, 0)
-                    grain_size = DL.num.MapRange(grain_size * env_val, 0, grain_size, ct.grains.size.env_min, grain_size)  
-                end    
-                
-                -- Size Drift
-                if ct.grains.randomize_size.on then
-                    -- chance
-                    local cur_chance = ct.grains.randomize_size.chance.val 
-                    if ct.grains.randomize_size.chance.env and envs.grains.c_randomize_size then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.c_randomize_size, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then
-                        local min, max = ct.grains.randomize_size.min, ct.grains.randomize_size.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        if ct.grains.randomize_size.envelope and envs.grains.randomize_size then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_size, pos * cloud.rate, 0, 0) 
-                            min, max = min * env_val, max * env_val 
-                        end    
-                        min, max = min + 100, max + 100
-                        local drift = DL.num.RandomFloatExp(min, max) -- between almost 0 and inf
-                        drift = drift - 100
-                        local drift_ms = grain_size * (drift/100)
-                        grain_size = grain_size + drift_ms
-                    end
-                end
-                grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
-                grain_size = grain_size / 1000 -- ms to sec
-                new_values.length = grain_size
-                if reroll[k] then reroll[k].grains.size = grain_size end
-
-                -- Position/Offset (only inside the original are)
-                local grain_offset
-                if (not ct.midi_notes.is_synth) or (not ct.midi_notes.synth.hold_pos) or (not notes_positions[synth_freqs[k].note_id]) then -- get a new position value
-                    if not ct.grains.position.on then -- random using items area 
-                        local take_end = o_item_t.offset + (o_item_t.length * o_item_t.rate) -- need to consider the rate 
-                        grain_offset = DL.num.RandomFloat(o_item_t.offset, take_end, true)
-                    else -- user determinated
-                        local percent = ct.grains.position.val/100
-                        if ct.grains.position.envelope and envs.grains.position then
-                            local _
-                            _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
+            -- calculate the position of each item using density values. output a table with the position for each new item t = {i = position}
+            local positions = {} -- [1] = 0
+            local synth_freqs = {}
+            do
+                local freq = ct.density.density.val
+                local dust = ct.density.random.val -- dust = 1 means that a position will be randomize in the range of one period. half earlier half later.
+                local density_env = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.density, false)
+                local dust_env = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.dust, false)
+                local chunk_size, desire = 1/(2*freq), 0
+                if not ct.midi_notes.is_synth then -- Not Synth
+                    for pos = 0, cloud.len, chunk_size do
+                        local new_freq = freq
+                        if ct.density.density.envelope and density_env then
+                            -- Get env value
+                            local retval, env_val = reaper.Envelope_Evaluate(density_env, pos * cloud.rate, 0, 0)
+                            new_freq = DL.num.MapRange(env_val * freq, 0, freq, ct.density.density.env_min, freq) 
                         end
-                        grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
-                        if reroll[k] then reroll[k].grains.offset = percent end
-                        -- Apply position drift
-                        if ct.grains.randomize_position.on then
-                            -- chance
-                            local cur_chance = ct.grains.randomize_position.chance.val 
-                            if ct.grains.randomize_position.chance.env and envs.grains.c_randomize_position then
-                                local retval, env_val =  reaper.Envelope_Evaluate(envs.grains.c_randomize_position, pos * cloud.rate, 0, 0)
-                                cur_chance = env_val * cur_chance                           
-                            end
-                            local rnd = math.random(0,99)
-                            if rnd < cur_chance then
-                                local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
-                                if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
-                                    local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
-                                    min, max = min * env_val, max * env_val   
+                        local period = 1 / new_freq
+        
+                        if desire >= period then
+                            local new_pos = pos
+                            if reroll then reroll[#reroll+1] = {pos = pos, grains = {}, parameters = {}} end
+                            --Randomize (dust)
+                            if dust > 0 then
+                                local new_dust = dust 
+                                if ct.density.random.envelope and dust_env then
+                                    local retval, env_val = reaper.Envelope_Evaluate(dust_env, pos * cloud.rate, 0, 0)
+                                    new_dust = env_val * dust
                                 end
-                                local drift =  DL.num.RandomFloat(min, max, true)
-                                drift = drift / 1000 -- ms to sec
-                                grain_offset = grain_offset + drift
-                                if reroll[k] then reroll[k].grains.offset_drift = drift end
+                                local range = period * new_dust
+                                local random = (math.random() * range) - (range/2)
+                                new_pos = new_pos + random
+                                -- reflect item at borders
+                                new_pos = new_pos % (2 * cloud.len)
+                                if new_pos > cloud.len then
+                                    new_pos = cloud.len - (new_pos - cloud.len)
+                                end
+                            end
+                            -- Quantize
+                            if ct.density.quantize then
+                                local grid = reaper.BR_GetClosestGridDivision(new_pos + cloud.start)
+                                new_pos = grid - cloud.start
+                            end
+                            -- Add to table
+                            if not ct.midi_notes.solo_notes then
+                                positions[#positions + 1] = new_pos
+                            else
+                                for index, note in ipairs(notes) do
+                                    if note.start <= new_pos and note.fim >= new_pos then
+                                        positions[#positions + 1] = new_pos
+                                        break
+                                    end 
+                                end
+                            end
+                            desire = desire % period
+                        end
+                        -- add for next loop 
+                        desire = desire + chunk_size
+                    end
+                    table.sort(positions)
+
+                elseif #notes > 0 then -- Synth
+                    for index, note in ipairs(notes) do
+                        if cloud.start + note.start >= cloud.fim then
+                            break
+                        end
+                        local freq = ct.midi_notes.A4 * (2 ^ ((note.pitch - 69)/ct.midi_notes.EDO))
+                        for i = 1, freq * (note.fim - note.start) do
+                            local pos = note.start + (1/freq * i)
+                            if cloud.start + pos >= cloud.fim then -- if pass the item
+                                break
+                            elseif pos >= 0 then
+                                positions[#positions+1] = pos
+                                synth_freqs[#synth_freqs+1] = {freq = freq, vel = note.vel, note_id = index}   
                             end
                         end
                     end
-                    if ct.midi_notes.synth.hold_pos then
-                        notes_positions[synth_freqs[k].note_id] = grain_offset
-                    end
-                else -- Get the held value
-                    grain_offset = notes_positions[synth_freqs[k].note_id]
-                end
-                new_values.offset = grain_offset
-            end
-            -- if envelopes 
-            do
-                if ct.envelopes.vol.on and envs.envelopes.vol then
-                    local cur_chance = ct.envelopes.vol.chance.val 
-                    if ct.envelopes.vol.chance.env and envs.envelopes.c_vol then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_vol, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance 
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then
-                        local min, max = ct.envelopes.vol.min, ct.envelopes.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.vol, pos * cloud.rate, 0, 0) 
-
-                        min, max = DL.num.dBToLinear(min), DL.num.dBToLinear(max)
-                        local new_vol = ((max - min) * env_val) + min 
-                        new_vol = DL.num.LinearTodB(new_vol)
-                        new_values.vol = (new_values.vol or 0) + new_vol
-                    end
-                end
-
-                if ct.envelopes.pan.on and envs.envelopes.pan then
-                    local cur_chance = ct.envelopes.pan.chance.val 
-                    if ct.envelopes.pan.chance.env and envs.envelopes.c_pan then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pan, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance 
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then
-                        local min, max = ct.envelopes.pan.min, ct.envelopes.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pan, pos * cloud.rate, 0, 0) 
-
-                        local new_pan = ((max - min) * env_val) + min 
-                        new_values.pan = (new_values.pan or 0) + new_pan
-                    end
-                end
-
-                if ct.envelopes.pitch.on and envs.envelopes.pitch then
-                    local cur_chance = ct.envelopes.pitch.chance.val 
-                    if ct.envelopes.pitch.chance.env and envs.envelopes.c_pitch then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pitch , pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance 
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then
-                        local min, max = ct.envelopes.pitch.min, ct.envelopes.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pitch, pos * cloud.rate, 0, 0) 
-                        local new_pitch = ((max - min) * env_val) + min 
-                        new_pitch = ct.envelopes.pitch.quantize and DL.num.Quantize(new_pitch, ct.envelopes.pitch.quantize/100) or new_pitch
-                        new_values.pitch = (new_values.pitch or 0) + new_pitch
-                    end
-                end
-
-                if ct.envelopes.stretch.on and envs.envelopes.stretch then
-                    local cur_chance = ct.envelopes.stretch.chance.val 
-                    if ct.envelopes.stretch.chance.env and envs.envelopes.c_stretch then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_stretch , pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance 
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then
-                        local min, max = ct.envelopes.stretch.min, ct.envelopes.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.stretch, pos * cloud.rate, 0, 0) 
-                        local new_val = min * ((max / min) ^ env_val) 
-                        new_values.rate = (new_values.rate or 1) * new_val
-                        --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
-                        --new_values.length = (new_values.length or o_item_t.length) / new_val
-                    end
+                    -- DONT SORT (need to match synth_freq. I didnt want to put both at the same table because this way is faster in the generate loop)
                 end
             end
-            -- if randomization get volume, pan, pitch, playrate, length, is_reverse
-            do
-                -- Volume
-                if ct.randomization.vol.on then
-                    -- chance
-                    local cur_chance = ct.randomization.vol.chance.val 
-                    if ct.randomization.vol.chance.env and envs.randomization.c_vol then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_vol, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance                           
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then 
-                        local min, max = ct.randomization.vol.min, ct.randomization.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        if ct.randomization.vol.envelope and envs.randomization.vol then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.vol, pos * cloud.rate, 0, 0) 
-                            min, max = min * env_val, max * env_val 
-                        end  
-                        min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
-                        local new_vol = DL.num.RandomFloatExp(min, max, 10)
-                        new_vol = new_vol - CONSTRAINS.db_minmax
-                        new_values.vol = (new_values.vol or 0) + new_vol
-                    end
-                end
 
-                -- Pan
-                if ct.randomization.pan.on then
-                    -- chance
-                    local cur_chance = ct.randomization.pan.chance.val 
-                    if ct.randomization.pan.chance.env and envs.randomization.c_pan then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pan, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance                           
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then 
-                        local min, max = ct.randomization.pan.min, ct.randomization.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        if ct.randomization.pan.envelope and envs.randomization.pan then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pan, pos * cloud.rate, 0, 0) 
-                            min, max = min * env_val, max * env_val 
-                        end    
-                        local new_pan = DL.num.RandomFloat(min, max, true)
-                        new_values.pan = (new_values.pan or 0) + new_pan
-                        new_values.pan = DL.num.Clamp(new_values.pan, -1, 1)
-                        --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
-                    end
-                end
+            -- Need to pass .self to .1 for using Random with Weight
+            table.insert(ct.tracks,1,ct.tracks.self) 
+            -- Check envelopes
+            local envs = {
+                grains = {
+                    size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.size, false),
+                    randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_size, false),
+                    position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.position, false),
+                    randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.randomize_position, false),
 
-                -- Pitch
-                if ct.randomization.pitch.on then
-                    -- chance
-                    local cur_chance = ct.randomization.pitch.chance.val 
-                    if ct.randomization.pitch.chance.env and envs.randomization.c_pitch then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pitch, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance                           
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then 
-                        local min, max = ct.randomization.pitch.min, ct.randomization.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        if ct.randomization.pitch.envelope and envs.randomization.pitch then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pitch, pos * cloud.rate, 0, 0) 
-                            min, max = min * env_val, max * env_val 
-                        end    
-                        local new_pitch = ct.randomization.pitch.quantize == 0 and DL.num.RandomFloat(min, max, true) or DL.num.RandomFloatQuantized(min, max, true, ct.randomization.pitch.quantize/100)
-                        new_values.pitch = (new_values.pitch or 0) + new_pitch
-                        --new_pitch = new_pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
-                        --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_pitch)
-                    end
-                end
+                    c_randomize_size = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_size, false),
+                    c_randomize_position = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.grains.c_random_position, false),
+                },
+                randomization = {
+                    vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.vol, false),
+                    pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.pan, false),
+                    pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.pitch, false),
+                    stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.stretch, false),
+                    reverse = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.reverse, false),
 
-                if (not ct.midi_notes.is_synth) and #notes > 0 then
-                    local held = {}
+                
+                    c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_vol, false),
+                    c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pan, false),
+                    c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_pitch, false),
+                    c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.randomization.c_stretch, false),
+                },
+
+                envelopes ={
+                    vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.vol, false),
+                    pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pan, false),
+                    pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.pitch, false),
+                    stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.stretch, false),
+                
+                    c_vol = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_vol, false),
+                    c_pan = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pan, false),
+                    c_pitch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_pitch, false),
+                    c_stretch = reaper.TakeFX_GetEnvelope(cloud.take, 0, FXENVELOPES.envelopes.c_stretch, false),
+                },
+            }
+
+            --local coroutine_check = 0
+            local held_items = {} -- for limiting the max n of overlapped items
+            local notes_positions = {} -- for synth hold_position
+            for k, pos in ipairs(positions) do
+                -- coroutine
+                --coroutine_check = coroutine_check + 1
+                if ((reaper.time_precise() - coroutine_time) > UPDATE_FREQ.time) then -- (coroutine_check >= UPDATE_FREQ.items) 
+                    reaper.PreventUIRefresh(-1)
+                    coroutine.yield(false, {done = c_idx-1, total = #clouds}, {done = k, total = #positions})
+                    if CancelCreatingClouds then -- Cancel pasting
+                        reaper.Undo_EndBlock2(proj, 'Generate Clouds', -1)
+                        return true
+                    end
+                    --coroutine_check = 0
+                    reaper.PreventUIRefresh(1)
+                    coroutine_time = reaper.time_precise()
+                end
+                -- Check if it is caping
+                if ct.density.cap > 0 then
                     local idx = 1
-                    for i = 1, #notes do
-                        local note = notes[idx]
-                        if note.start > pos then --no more notes in this position
-                            break
-                        elseif note.fim < pos then -- this note will never be reached again, delete it
-                            table.remove(notes, idx)
-                        else 
-                            held[#held+1] = note
+                    for i = 1, #held_items do
+                        local held = held_items[idx]
+                        if held.fim < pos then
+                            table.remove(held_items, idx)
+                        else
                             idx = idx + 1
-                        end                        
+                        end
                     end
+
+                    -- randomize which item will be pasted
+                    if #held_items >= ct.density.cap then
+                        goto continue_item 
+                    end
+                end
+                local item_k, o_item_t = DL.t.RandomValueWithWeight(ct.items, 'chance')
+                -- decide which track to apply
+                local track_k, track_t = DL.t.RandomValueWithWeight(ct.tracks, 'chance')
+                local track = DL.t.Check(track_t,'track') or o_item_t.track -- specific track or self. 
+                -- copy the item 
+                local new_item = {}
+                new_item.item = DL.item.CopyToTrack(o_item_t.item, track, pos + cloud.start, false, false)
+                new_item.take = reaper.GetActiveTake(new_item.item)
+                -- make a table of randomizations
+                local new_values = {}
+
+
+                -- if grains then get a length, offset and fade
+                if ct.grains.on then
+                    -- Volume (synth)
+                    if ct.midi_notes.is_synth then
+                        -- map midi to dB
+                        local db = DL.num.MapRange(synth_freqs[k].vel, 1, 127, ct.midi_notes.synth.min_vol, 0)
+                        new_values.vol = db
+                    end
+                    -- Size/Length
+                    local grain_size = ((not ct.midi_notes.is_synth) and ct.grains.size.val) or (2 * 1000/synth_freqs[k].freq)
+                    if ct.grains.size.envelope and envs.grains.size then
+                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.size, pos * cloud.rate, 0, 0)
+                        grain_size = DL.num.MapRange(grain_size * env_val, 0, grain_size, ct.grains.size.env_min, grain_size)  
+                    end    
                     
-                    if #held > 0 then
-                        local idx, sel_note = DL.t.RandomValueWithWeight(held, 'vel')
-                        local new_pitch = (sel_note.pitch - ct.midi_notes.center) * (12/ct.midi_notes.EDO)  -- Alterar aqui para ter edo
-                        new_values.pitch = (new_values.pitch or 0) + new_pitch
+                    -- Size Drift
+                    if ct.grains.randomize_size.on then
+                        -- chance
+                        local cur_chance = ct.grains.randomize_size.chance.val 
+                        if ct.grains.randomize_size.chance.env and envs.grains.c_randomize_size then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.grains.c_randomize_size, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.grains.randomize_size.min, ct.grains.randomize_size.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            if ct.grains.randomize_size.envelope and envs.grains.randomize_size then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_size, pos * cloud.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val 
+                            end    
+                            min, max = min + 100, max + 100
+                            local drift = DL.num.RandomFloatExp(min, max) -- between almost 0 and inf
+                            drift = drift - 100
+                            local drift_ms = grain_size * (drift/100)
+                            grain_size = grain_size + drift_ms
+                        end
                     end
-                end
- 
-                -- Stretch
-                if ct.randomization.stretch.on then
-                    -- chance
-                    local cur_chance = ct.randomization.stretch.chance.val 
-                    if ct.randomization.stretch.chance.env and envs.randomization.c_stretch then
-                        local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_stretch, pos * cloud.rate, 0, 0)
-                        cur_chance = env_val * cur_chance                           
-                    end
-                    local rnd = math.random(0,99)
-                    if rnd < cur_chance then 
-                        local min, max = ct.randomization.stretch.min, ct.randomization.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
-                        if ct.randomization.stretch.envelope and envs.randomization.stretch then
-                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.stretch, pos * cloud.rate, 0, 0) 
-                            min, max = min ^ env_val, max ^ env_val 
-                        end    
-                        local new_val = DL.num.RandomFloatExp(min, max, 2)
-                        new_values.rate = (new_values.rate or 1) * new_val
-                        --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
-                        --new_values.length = (new_values.length or o_item_t.length) / new_val
-                    end
-                end
+                    grain_size = DL.num.Clamp(grain_size, CONSTRAINS.grain_low)                
+                    grain_size = grain_size / 1000 -- ms to sec
+                    new_values.length = grain_size
+                    if reroll[k] then reroll[k].grains.size = grain_size end
 
-                -- Reverse
-                if ct.randomization.reverse.on then
-                    local random = DL.num.RandomFloat(0, 100, true)
-                    local chance = ct.randomization.reverse.val
-                    if ct.randomization.reverse.envelope and envs.randomization.reverse then
-                        local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.reverse, pos * cloud.rate, 0, 0)
-                        chance = chance * env_val
+                    -- Position/Offset (only inside the original are)
+                    local grain_offset
+                    if (not ct.midi_notes.is_synth) or (not ct.midi_notes.synth.hold_pos) or (not notes_positions[synth_freqs[k].note_id]) then -- get a new position value
+                        if not ct.grains.position.on then -- random using items area 
+                            local take_end = o_item_t.offset + (o_item_t.length * o_item_t.rate) -- need to consider the rate 
+                            grain_offset = DL.num.RandomFloat(o_item_t.offset, take_end, true)
+                        else -- user determinated
+                            local percent = ct.grains.position.val/100
+                            if ct.grains.position.envelope and envs.grains.position then
+                                local _
+                                _, percent = reaper.Envelope_Evaluate(envs.grains.position, pos * cloud.rate, 0, 0) 
+                            end
+                            grain_offset = o_item_t.offset + ((o_item_t.length * o_item_t.rate) * percent)
+                            if reroll[k] then reroll[k].grains.offset = percent end
+                            -- Apply position drift
+                            if ct.grains.randomize_position.on then
+                                -- chance
+                                local cur_chance = ct.grains.randomize_position.chance.val 
+                                if ct.grains.randomize_position.chance.env and envs.grains.c_randomize_position then
+                                    local retval, env_val =  reaper.Envelope_Evaluate(envs.grains.c_randomize_position, pos * cloud.rate, 0, 0)
+                                    cur_chance = env_val * cur_chance                           
+                                end
+                                local rnd = math.random(0,99)
+                                if rnd < cur_chance then
+                                    local min, max = ct.grains.randomize_position.min, ct.grains.randomize_position.max
+                                    if ct.grains.randomize_position.envelope and envs.grains.randomize_position then
+                                        local retval, env_val = reaper.Envelope_Evaluate(envs.grains.randomize_position, pos * cloud.rate, 0, 0) 
+                                        min, max = min * env_val, max * env_val   
+                                    end
+                                    local drift =  DL.num.RandomFloat(min, max, true)
+                                    drift = drift / 1000 -- ms to sec
+                                    grain_offset = grain_offset + drift
+                                    if reroll[k] then reroll[k].grains.offset_drift = drift end
+                                end
+                            end
+                        end
+                        if ct.midi_notes.synth.hold_pos then
+                            notes_positions[synth_freqs[k].note_id] = grain_offset
+                        end
+                    else -- Get the held value
+                        grain_offset = notes_positions[synth_freqs[k].note_id]
                     end
-                    if random < chance then
-                        reverserd_items[#reverserd_items+1] = new_item.item
-                        if reroll[k] then reroll[k].parameters.reverse = true end
+                    new_values.offset = grain_offset
+                end
+                -- if envelopes 
+                do
+                    if ct.envelopes.vol.on and envs.envelopes.vol then
+                        local cur_chance = ct.envelopes.vol.chance.val 
+                        if ct.envelopes.vol.chance.env and envs.envelopes.c_vol then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_vol, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance 
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.envelopes.vol.min, ct.envelopes.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.vol, pos * cloud.rate, 0, 0) 
+
+                            min, max = DL.num.dBToLinear(min), DL.num.dBToLinear(max)
+                            local new_vol = ((max - min) * env_val) + min 
+                            new_vol = DL.num.LinearTodB(new_vol)
+                            new_values.vol = (new_values.vol or 0) + new_vol
+                        end
+                    end
+
+                    if ct.envelopes.pan.on and envs.envelopes.pan then
+                        local cur_chance = ct.envelopes.pan.chance.val 
+                        if ct.envelopes.pan.chance.env and envs.envelopes.c_pan then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pan, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance 
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.envelopes.pan.min, ct.envelopes.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pan, pos * cloud.rate, 0, 0) 
+
+                            local new_pan = ((max - min) * env_val) + min 
+                            new_values.pan = (new_values.pan or 0) + new_pan
+                        end
+                    end
+
+                    if ct.envelopes.pitch.on and envs.envelopes.pitch then
+                        local cur_chance = ct.envelopes.pitch.chance.val 
+                        if ct.envelopes.pitch.chance.env and envs.envelopes.c_pitch then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_pitch , pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance 
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.envelopes.pitch.min, ct.envelopes.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.pitch, pos * cloud.rate, 0, 0) 
+                            local new_pitch = ((max - min) * env_val) + min 
+                            new_pitch = ct.envelopes.pitch.quantize and DL.num.Quantize(new_pitch, ct.envelopes.pitch.quantize/100) or new_pitch
+                            new_values.pitch = (new_values.pitch or 0) + new_pitch
+                        end
+                    end
+
+                    if ct.envelopes.stretch.on and envs.envelopes.stretch then
+                        local cur_chance = ct.envelopes.stretch.chance.val 
+                        if ct.envelopes.stretch.chance.env and envs.envelopes.c_stretch then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.envelopes.c_stretch , pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance 
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then
+                            local min, max = ct.envelopes.stretch.min, ct.envelopes.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.envelopes.stretch, pos * cloud.rate, 0, 0) 
+                            local new_val = min * ((max / min) ^ env_val) 
+                            new_values.rate = (new_values.rate or 1) * new_val
+                            --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                            --new_values.length = (new_values.length or o_item_t.length) / new_val
+                        end
                     end
                 end
-            end
-            -- apply the new_values
-            do
-                -- Volume
-                if new_values.vol then
-                    if reroll[k] then reroll[k].parameters.vol = new_values.vol end
-                    local cur = DL.num.LinearTodB(o_item_t.vol) --TODO CHANGE TO GET ONLY ONCE
-                    local result_l = DL.num.dBToLinear(new_values.vol + cur)
-                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
-                end
-                -- Pan
-                if new_values.pan then
-                    if reroll[k] then reroll[k].parameters.pan = new_values.pan end
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_values.pan)
-                end
-                -- Pitch
-                if new_values.pitch then
-                    if reroll[k] then reroll[k].parameters.pitch = new_values.pitch end
-                    new_values.pitch = new_values.pitch + o_item_t.pitch
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_values.pitch)
-                end
-                -- Rate
-                if new_values.rate then
-                    if reroll[k] then reroll[k].parameters.rate = new_values.rate end
-                    new_values.length = (new_values.length or o_item_t.length) / new_values.rate
-                    new_values.rate = o_item_t.rate * new_values.rate
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
-                end
-                -- Length
-                if new_values.length then -- Set by : Grains, Playrate
-                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_LENGTH', new_values.length)
-                end
-                -- Offset
-                if new_values.offset then -- Set by : Grains,
-                    reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_STARTOFFS', new_values.offset)
-                end
-                -- Grain Fade
-                if ct.grains.on and ct.grains.fade.on then
-                    local len  = new_values.length * (ct.grains.fade.val/200)
-                    if reroll[k] then reroll[k].grains.fade = len end
-                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEINLEN', len)
-                    reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEOUTLEN', len)
-                end
+                -- if randomization get volume, pan, pitch, playrate, length, is_reverse
+                do
+                    -- Volume
+                    if ct.randomization.vol.on then
+                        -- chance
+                        local cur_chance = ct.randomization.vol.chance.val 
+                        if ct.randomization.vol.chance.env and envs.randomization.c_vol then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_vol, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance                           
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then 
+                            local min, max = ct.randomization.vol.min, ct.randomization.vol.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            if ct.randomization.vol.envelope and envs.randomization.vol then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.vol, pos * cloud.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val 
+                            end  
+                            min, max = min + CONSTRAINS.db_minmax, max + CONSTRAINS.db_minmax
+                            local new_vol = DL.num.RandomFloatExp(min, max, 10)
+                            new_vol = new_vol - CONSTRAINS.db_minmax
+                            new_values.vol = (new_values.vol or 0) + new_vol
+                        end
+                    end
 
-                if o_item_t.mix ~= 1 and not (is_proj_mix and o_item_t.mix == -1) then
-                    DL.item.SetMixBehavior(new_item.item, 1)
-                end
+                    -- Pan
+                    if ct.randomization.pan.on then
+                        -- chance
+                        local cur_chance = ct.randomization.pan.chance.val 
+                        if ct.randomization.pan.chance.env and envs.randomization.c_pan then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pan, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance                           
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then 
+                            local min, max = ct.randomization.pan.min, ct.randomization.pan.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            if ct.randomization.pan.envelope and envs.randomization.pan then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pan, pos * cloud.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val 
+                            end    
+                            local new_pan = DL.num.RandomFloat(min, max, true)
+                            new_values.pan = (new_values.pan or 0) + new_pan
+                            new_values.pan = DL.num.Clamp(new_values.pan, -1, 1)
+                            --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_pan)
+                        end
+                    end
 
-                -- Ext State
-                if reroll[k] then -- Actually the ext state is required to have the guid to indentify on the delete function 
-                    local ext_state 
-                    ext_state = {
-                        pos = reroll[k].pos,
-                        cloud = cloud.guid,
-                        idx = k,
-                        grains = reroll[k].grains,
-                        parameters = reroll[k].parameters,
-                        original_values = {
-                            vol = o_item_t.vol,
-                            pan = o_item_t.pan,
-                            rate = o_item_t.rate,
-                            pitch = o_item_t.pitch,
-                            length = o_item_t.length,
-                            offset = o_item_t.offset,
-                            reverse = o_item_t.reverse
+                    -- Pitch
+                    if ct.randomization.pitch.on then
+                        -- chance
+                        local cur_chance = ct.randomization.pitch.chance.val 
+                        if ct.randomization.pitch.chance.env and envs.randomization.c_pitch then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_pitch, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance                           
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then 
+                            local min, max = ct.randomization.pitch.min, ct.randomization.pitch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            if ct.randomization.pitch.envelope and envs.randomization.pitch then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.pitch, pos * cloud.rate, 0, 0) 
+                                min, max = min * env_val, max * env_val 
+                            end    
+                            local new_pitch = ct.randomization.pitch.quantize == 0 and DL.num.RandomFloat(min, max, true) or DL.num.RandomFloatQuantized(min, max, true, ct.randomization.pitch.quantize/100)
+                            new_values.pitch = (new_values.pitch or 0) + new_pitch
+                            --new_pitch = new_pitch + reaper.GetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH')
+                            --reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_pitch)
+                        end
+                    end
+
+                    if (not ct.midi_notes.is_synth) and #notes > 0 then
+                        local held = {}
+                        local idx = 1
+                        for i = 1, #notes do
+                            local note = notes[idx]
+                            if note.start > pos then --no more notes in this position
+                                break
+                            elseif note.fim < pos then -- this note will never be reached again, delete it
+                                table.remove(notes, idx)
+                            else 
+                                held[#held+1] = note
+                                idx = idx + 1
+                            end                        
+                        end
+                        
+                        if #held > 0 then
+                            local idx, sel_note = DL.t.RandomValueWithWeight(held, 'vel')
+                            local new_pitch = (sel_note.pitch - ct.midi_notes.center) * (12/ct.midi_notes.EDO)  -- Alterar aqui para ter edo
+                            new_values.pitch = (new_values.pitch or 0) + new_pitch
+                        end
+                    end
+    
+                    -- Stretch
+                    if ct.randomization.stretch.on then
+                        -- chance
+                        local cur_chance = ct.randomization.stretch.chance.val 
+                        if ct.randomization.stretch.chance.env and envs.randomization.c_stretch then
+                            local retval, env_val =  reaper.Envelope_Evaluate(envs.randomization.c_stretch, pos * cloud.rate, 0, 0)
+                            cur_chance = env_val * cur_chance                           
+                        end
+                        local rnd = math.random(0,99)
+                        if rnd < cur_chance then 
+                            local min, max = ct.randomization.stretch.min, ct.randomization.stretch.max -- makes it always above 0, numbers between 0 and 1 are reducing the size
+                            if ct.randomization.stretch.envelope and envs.randomization.stretch then
+                                local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.stretch, pos * cloud.rate, 0, 0) 
+                                min, max = min ^ env_val, max ^ env_val 
+                            end    
+                            local new_val = DL.num.RandomFloatExp(min, max, 2)
+                            new_values.rate = (new_values.rate or 1) * new_val
+                            --new_values.rate = (new_values.rate or o_item_t.rate) * new_val
+                            --new_values.length = (new_values.length or o_item_t.length) / new_val
+                        end
+                    end
+
+                    -- Reverse
+                    if ct.randomization.reverse.on then
+                        local random = DL.num.RandomFloat(0, 100, true)
+                        local chance = ct.randomization.reverse.val
+                        if ct.randomization.reverse.envelope and envs.randomization.reverse then
+                            local retval, env_val = reaper.Envelope_Evaluate(envs.randomization.reverse, pos * cloud.rate, 0, 0)
+                            chance = chance * env_val
+                        end
+                        if random < chance then
+                            reverserd_items[#reverserd_items+1] = new_item.item
+                            if reroll[k] then reroll[k].parameters.reverse = true end
+                        end
+                    end
+                end
+                -- apply the new_values
+                do
+                    -- Volume
+                    if new_values.vol then
+                        if reroll[k] then reroll[k].parameters.vol = new_values.vol end
+                        local cur = DL.num.LinearTodB(o_item_t.vol) --TODO CHANGE TO GET ONLY ONCE
+                        local result_l = DL.num.dBToLinear(new_values.vol + cur)
+                        reaper.SetMediaItemInfo_Value(new_item.item, 'D_VOL', result_l)
+                    end
+                    -- Pan
+                    if new_values.pan then
+                        if reroll[k] then reroll[k].parameters.pan = new_values.pan end
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PAN', new_values.pan)
+                    end
+                    -- Pitch
+                    if new_values.pitch then
+                        if reroll[k] then reroll[k].parameters.pitch = new_values.pitch end
+                        new_values.pitch = new_values.pitch + o_item_t.pitch
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PITCH', new_values.pitch)
+                    end
+                    -- Rate
+                    if new_values.rate then
+                        if reroll[k] then reroll[k].parameters.rate = new_values.rate end
+                        new_values.length = (new_values.length or o_item_t.length) / new_values.rate
+                        new_values.rate = o_item_t.rate * new_values.rate
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_PLAYRATE', new_values.rate)
+                    end
+                    -- Length
+                    if new_values.length then -- Set by : Grains, Playrate
+                        reaper.SetMediaItemInfo_Value(new_item.item, 'D_LENGTH', new_values.length)
+                    end
+                    -- Offset
+                    if new_values.offset then -- Set by : Grains,
+                        reaper.SetMediaItemTakeInfo_Value(new_item.take, 'D_STARTOFFS', new_values.offset)
+                    end
+                    -- Grain Fade
+                    if ct.grains.on and ct.grains.fade.on then
+                        local len  = new_values.length * (ct.grains.fade.val/200)
+                        if reroll[k] then reroll[k].grains.fade = len end
+                        reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEINLEN', len)
+                        reaper.SetMediaItemInfo_Value(new_item.item, 'D_FADEOUTLEN', len)
+                    end
+
+                    if o_item_t.mix ~= 1 and not (is_proj_mix and o_item_t.mix == -1) then
+                        DL.item.SetMixBehavior(new_item.item, 1)
+                    end
+
+                    -- Ext State
+                    if reroll[k] then -- Actually the ext state is required to have the guid to indentify on the delete function 
+                        local ext_state 
+                        ext_state = {
+                            pos = reroll[k].pos,
+                            cloud = cloud.guid,
+                            idx = k,
+                            grains = reroll[k].grains,
+                            parameters = reroll[k].parameters,
+                            original_values = {
+                                vol = o_item_t.vol,
+                                pan = o_item_t.pan,
+                                rate = o_item_t.rate,
+                                pitch = o_item_t.pitch,
+                                length = o_item_t.length,
+                                offset = o_item_t.offset,
+                                reverse = o_item_t.reverse
+                            }
                         }
-                    }
-                    ext_state = DL.serialize.tableToString(ext_state)
-                    DL.item.SetExtState(new_item.item, EXT_NAME, ext_reroll, ext_state)
+                        ext_state = DL.serialize.tableToString(ext_state)
+                        DL.item.SetExtState(new_item.item, EXT_NAME, ext_reroll, ext_state)
+                    end
+                    DL.item.SetExtState(new_item.item, EXT_NAME, 'is_item', cloud.guid)
                 end
-                DL.item.SetExtState(new_item.item, EXT_NAME, 'is_item', cloud.guid)
-            end
 
-            if ct.density.cap > 0 then
-                held_items[#held_items+1] = {
-                    start = pos,
-                    fim = pos + (new_values.length or o_item_t.length)
-                }
-            end
+                if ct.density.cap > 0 then
+                    held_items[#held_items+1] = {
+                        start = pos,
+                        fim = pos + (new_values.length or o_item_t.length)
+                    }
+                end
 
-            ::continue_item::
+                ::continue_item::
+            end
         end
         ::continue::
     end

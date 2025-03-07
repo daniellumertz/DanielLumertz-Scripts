@@ -18,6 +18,7 @@ CloudTable:
             val:
             envelope: boolean
         cap: 0
+        ngen: 1 -- number of generators per Cloud
     tracks:
         self: 
             chance:
