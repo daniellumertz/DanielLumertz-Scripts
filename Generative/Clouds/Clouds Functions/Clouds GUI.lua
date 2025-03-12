@@ -201,6 +201,10 @@ function Clouds.GUI.Main()
             if ImGui.MenuItem(ctx, "ReRoll!") then
                 reroll_gui.on = true
             end
+
+            if ImGui.MenuItem(ctx, "Variator") then
+                Clouds.Variator.t.GUI.on = true
+            end
             
             if ImGui.BeginMenu(ctx, 'About') then
                 --[[ if ImGui.MenuItem(ctx, 'Manual') then
@@ -319,6 +323,8 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.density.env_min, 'density', 'density', 'env_min')
                 end
                 something_changed = something_changed or change
+                --Variator
+                Clouds.Variator.Density(ctx, SLIDERS_W)
                 -- Right click
                 if ImGui.BeginPopupContextItem(ctx, 'RatioDensity') then
                     TempRatioDensity = TempRatioDensity or (CloudTable.grains.size.val * CloudTable.density.density.val / 1000)*100
@@ -1302,6 +1308,10 @@ function Clouds.GUI.Main()
         Clouds.GUI.ReRoll()
     end
 
+    if Clouds.Variator.t.GUI.on then
+        Clouds.GUI.Variator()
+    end
+
     ImGui.PopFont(ctx)
     --demo.PopStyle(ctx)
     pop_theme(ctx)
@@ -1431,6 +1441,28 @@ function Clouds.GUI.Guiless(proj, is_selection, is_delete)
     end
     Clouds.Themes[Settings.theme].Pop(ctx)
     ImGui.PopFont(ctx)
+end
+
+function Clouds.GUI.Variator()
+    local var_gui = Clouds.Variator.t.GUI
+    local _
+    local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' Variator', true, ImGui.WindowFlags_AlwaysAutoResize) 
+    if visible then
+        local change = false
+        ImGui.SeparatorText(ctx, "Variate Clouds Parameters")
+        ImGui.SetNextItemWidth(ctx, var_gui.btn_w)
+        change, Clouds.Variator.t.parameters.chance = ImGui.SliderDouble(ctx, 'Chance to Variate', Clouds.Variator.t.parameters.chance, 0, 100)
+        ImGui.SetNextItemWidth(ctx, var_gui.btn_w)
+        change, Clouds.Variator.t.parameters.percent = ImGui.DragDouble(ctx, "Variate Amount", Clouds.Variator.t.parameters.percent, 0.03, 0, 10000, '%.1f%%')
+        if ImGui.Button(ctx, 'hi', var_gui.btn_w) then
+        end
+        ImGui.End(ctx)
+    end
+
+    if not open then
+        Clouds.Variator.t.GUI.on = false
+    end
+    
 end
 
 --- ReRoll GUI

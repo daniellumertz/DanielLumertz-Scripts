@@ -244,6 +244,25 @@ function DL.imgui.Knob(ctx, label, p_value, v_min, v_max, size)
     return value_changed, p_value
 end
 
+---Draws a rectangle with multi-color fill.
+---@param draw_list ImGui_DrawList ImGui draw list to use for rendering.
+---@param p_min_x number minimum X coordinate of the rectangle.
+---@param p_min_y number minimum Y coordinate of the rectangle.
+---@param p_max_x number maximum X coordinate of the rectangle.
+---@param p_max_y number maximum Y coordinate of the rectangle.
+---@param stroke number? stroke width of the rectangle.
+---@param col_upr_left number color of the upper-left corner of the rectangle.
+---@param col_upr_right number color of the upper-right corner of the rectangle.
+---@param col_bot_right number color of the bottom-right corner of the rectangle.
+---@param col_bot_left number color of the bottom-left corner of the rectangle.
+function DL.imgui.DrawList_AddRectMultiColor(draw_list, p_min_x, p_min_y, p_max_x, p_max_y, stroke, col_upr_left, col_upr_right, col_bot_right, col_bot_left)
+    stroke = stroke or 1
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_min_y, p_max_x, p_min_y+stroke, col_upr_left, col_upr_right, col_upr_right, col_upr_left) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_max_x-stroke, p_min_y, p_max_x, p_max_y, col_upr_right, col_upr_right, col_bot_right, col_bot_right) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_max_y-stroke, p_max_x, p_max_y, col_bot_left, col_bot_right, col_bot_right, col_bot_left) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_min_y, p_min_x+stroke, p_max_y, col_upr_left, col_upr_left, col_bot_left, col_bot_left) 
+end
+
 ----------------
 ---- Keys
 ----------------
