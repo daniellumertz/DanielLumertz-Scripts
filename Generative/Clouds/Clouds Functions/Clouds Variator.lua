@@ -116,32 +116,61 @@ function Clouds.Variator.Hub(ctx, w, vtype)
     if Clouds.Variator.t.GUI.on then 
         Clouds.Variator.Draw(ctx, w)
         -- Check if key is pressed
-        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V) then
+        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V, false) then
             for kct, ct in ipairs(CloudsTables) do
-                if vtype == 'density' then
-                    Clouds.Variator.Density(ct)
-                elseif vtype == 'dust' then
-                    Clouds.Variator.Dust(ct)
-                end
+                Clouds.Variator[vtype](ct)
             end
+            reaper.UpdateArrange()
+            reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Variate '..vtype, CloudTable.cloud)
         end
     end
 end
 
-function Clouds.Variator.Density(ct)
+function Clouds.Variator.density(ct)
     local change = false
     change, ct.density.density.val = Clouds.Variator.VariateValueInRange(ct.density.density.val, ct.density.density.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
     if change then
         ct.density.density.env_min =  DL.num.Clamp(ct.density.density.env_min, 0, ct.density.density.val)
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    return change
 end
 
-function Clouds.Variator.Dust(ct)
+function Clouds.Variator.dust(ct)
     local change = false
-    change, ct.density.dust.val = Clouds.Variator.VariateValueInRange(ct.density.dust.val, ct.density.dust.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    change, ct.density.random.val = Clouds.Variator.VariateValueInRange(ct.density.random.val, ct.density.random.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
     if change then
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    return change
 end
 
+function Clouds.Variator.cap(ct)
+    local change = false
+    change, ct.density.cap = Clouds.Variator.VariateValueInRange(ct.density.cap, ct.density.cap, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    if change then
+        ct.density.cap = DL.num.Clamp(ct.density.cap, 0) // 1
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end
+
+function Clouds.Variator.n_gen(ct)
+    local change = false
+    change, ct.density.n_gen = Clouds.Variator.VariateValueInRange(ct.density.n_gen, ct.density.n_gen, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    if change then
+        ct.density.n_gen = DL.num.Clamp(ct.density.n_gen, 1) // 1
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end
+
+function Clouds.Variator.grain_size(ct)
+    local change = false
+    change, ct.grains.size.val = Clouds.Variator.VariateValueInRange(ct.grains.size.val, ct.grains.size.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    if change then
+        ct.grains.size.val = DL.num.Clamp(ct.grains.size.val, CONSTRAINS.grain_low) // 1
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end

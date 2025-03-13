@@ -1,6 +1,7 @@
 --@noindex
---version: 0.1
---Update PassKeys to prevent passing held keys at startup.
+--version: 0.2
+--Add a bypass keys
+--Add a multicolor widget
 
 DL = DL or {}
 DL.imgui = {}
@@ -266,7 +267,13 @@ end
 ----------------
 ---- Keys
 ----------------
+---Stores key-related configuration for ImGui interactions, including keys to bypass from standard processing.
+DL.imgui.keys = {
+    --table with all keys to bypass from SWSPassKeys. Store the key code as indexes at this table, like this: DL.imgui.keys.bypass[	0x56] = true. https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    bypass = {
 
+    }
+} 
 
 local held_keys = {}
 if reaper.JS_VKeys_GetState then -- add held notes at script start to the table
@@ -302,7 +309,9 @@ function DL.imgui.SWSPassKeys(ctx, is_midieditor)
     for k = 1, #keys do
         local is_key = keys:byte(k) ~= 0
         if k ~= 0xD and is_key and not held_keys[k] then
-            reaper.CF_SendActionShortcut(sel_window, section, k)
+            if not DL.imgui.keys.bypass[k] then
+                reaper.CF_SendActionShortcut(sel_window, section, k)
+            end
             held_keys[k] = true
         elseif not is_key and held_keys[k] then
             held_keys[k] = nil

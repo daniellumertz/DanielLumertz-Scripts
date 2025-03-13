@@ -1,5 +1,7 @@
 --@noindex
---version: 0.0
+--version: 0.2
+--Add a bypass keys
+--Add a multicolor widget
 
 DL = DL or {}
 DL.imgui = {}
@@ -243,16 +245,50 @@ function DL.imgui.Knob(ctx, label, p_value, v_min, v_max, size)
     return value_changed, p_value
 end
 
+---Draws a rectangle with multi-color fill.
+---@param draw_list ImGui_DrawList ImGui draw list to use for rendering.
+---@param p_min_x number minimum X coordinate of the rectangle.
+---@param p_min_y number minimum Y coordinate of the rectangle.
+---@param p_max_x number maximum X coordinate of the rectangle.
+---@param p_max_y number maximum Y coordinate of the rectangle.
+---@param stroke number? stroke width of the rectangle.
+---@param col_upr_left number color of the upper-left corner of the rectangle.
+---@param col_upr_right number color of the upper-right corner of the rectangle.
+---@param col_bot_right number color of the bottom-right corner of the rectangle.
+---@param col_bot_left number color of the bottom-left corner of the rectangle.
+function DL.imgui.DrawList_AddRectMultiColor(draw_list, p_min_x, p_min_y, p_max_x, p_max_y, stroke, col_upr_left, col_upr_right, col_bot_right, col_bot_left)
+    stroke = stroke or 1
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_min_y, p_max_x, p_min_y+stroke, col_upr_left, col_upr_right, col_upr_right, col_upr_left) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_max_x-stroke, p_min_y, p_max_x, p_max_y, col_upr_right, col_upr_right, col_bot_right, col_bot_right) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_max_y-stroke, p_max_x, p_max_y, col_bot_left, col_bot_right, col_bot_right, col_bot_left) 
+    ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_min_y, p_min_x+stroke, p_max_y, col_upr_left, col_upr_left, col_bot_left, col_bot_left) 
+end
+
 ----------------
 ---- Keys
 ----------------
+---Stores key-related configuration for ImGui interactions, including keys to bypass from standard processing.
+DL.imgui.keys = {
+    --table with all keys to bypass from SWSPassKeys. Store the key code as indexes at this table, like this: DL.imgui.keys.bypass[	0x56] = true. https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    bypass = {
+
+    }
+} 
 
 local held_keys = {}
-
+if reaper.JS_VKeys_GetState then -- add held notes at script start to the table
+    local keys = reaper.JS_VKeys_GetState(0)
+    for k = 1, #keys do
+        if  keys:byte(k) ~= 0 then
+            held_keys[k] = true
+        end
+    end
+end
 ---Pass some key  to reaper
 ---@param ctx any
 ---@param is_midieditor any
 function DL.imgui.SWSPassKeys(ctx, is_midieditor)
+    if not reaper.CF_SendActionShortcut or not reaper.JS_VKeys_GetState then return end
     if (not ImGui.IsWindowFocused(ctx, ImGui.FocusedFlags_AnyWindow)) or ImGui.IsAnyItemActive(ctx) then return end -- Only when Script haves the focus
 
     local sel_window, section 
@@ -273,7 +309,9 @@ function DL.imgui.SWSPassKeys(ctx, is_midieditor)
     for k = 1, #keys do
         local is_key = keys:byte(k) ~= 0
         if k ~= 0xD and is_key and not held_keys[k] then
-            reaper.CF_SendActionShortcut(sel_window, section, k)
+            if not DL.imgui.keys.bypass[k] then
+                reaper.CF_SendActionShortcut(sel_window, section, k)
+            end
             held_keys[k] = true
         elseif not is_key and held_keys[k] then
             held_keys[k] = nil

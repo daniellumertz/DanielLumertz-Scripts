@@ -35,11 +35,11 @@ local SLIDERS_W2 = SLIDERS_W - (ImGui.GetFrameHeight(ctx) + 9)
 local ENV_X = -60
 local TAB_H = 150
 local TABLE_W_COL = 75
-local TABLE_FLAGS =     ImGui.TableFlags_ScrollY |
-                        ImGui.TableFlags_RowBg           |
-                        ImGui.TableFlags_BordersOuter    |
-                        ImGui.TableFlags_BordersV        |
-                        ImGui.TableFlags_NoSavedSettings |
+local TABLE_FLAGS =     ImGui.TableFlags_ScrollY          |
+                        ImGui.TableFlags_RowBg            |
+                        ImGui.TableFlags_BordersOuter     |
+                        ImGui.TableFlags_BordersV         |
+                        ImGui.TableFlags_NoSavedSettings  |
                         ImGui.TableFlags_SizingStretchSame|
                         ImGui.TableFlags_ScrollX
 local TOOLTIP_W = 300
@@ -88,7 +88,6 @@ end
 
 -- Main Function
 function Clouds.GUI.Main()
-
     Clouds.Item.CheckSelection(Proj)
     Clouds.Item.DrawSelected(Proj)
 
@@ -203,7 +202,7 @@ function Clouds.GUI.Main()
             end
 
             if ImGui.MenuItem(ctx, "Variator") then
-                Clouds.Variator.t.GUI.on = true
+                Clouds.GUI.InitVariator(true)
             end
             
             if ImGui.BeginMenu(ctx, 'About') then
@@ -316,15 +315,15 @@ function Clouds.GUI.Main()
             if (not CloudTable.midi_notes.is_synth) and ImGui.CollapsingHeader(ctx, "Density##header") then
                 ----- Density
                 change, CloudTable.density.density.val = ImGui.DragDouble(ctx, "Items/Second##Double", CloudTable.density.density.val, 0.05, 0, FLT_MAX)
-                tooltip(ctx, Settings.tooltip, ToolTips.density.density.density)
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then 
                     CloudTable.density.density.env_min =  DL.num.Clamp(CloudTable.density.density.env_min, 0, CloudTable.density.density.val)
                     Clouds.Item.ApplyParameter(CloudTable.density.density.val, 'density', 'density', 'val')
                     Clouds.Item.ApplyParameter(CloudTable.density.density.env_min, 'density', 'density', 'env_min')
+                    something_changed = true
                 end
-                something_changed = something_changed or change
+                tooltip(ctx, Settings.tooltip, ToolTips.density.density.density)
                 --Variator
-                Clouds.Variator.Density(ctx, SLIDERS_W)
+                Clouds.Variator.Hub(ctx, SLIDERS_W, 'density')
                 -- Right click
                 if ImGui.BeginPopupContextItem(ctx, 'RatioDensity') then
                     TempRatioDensity = TempRatioDensity or (CloudTable.grains.size.val * CloudTable.density.density.val / 1000)*100
@@ -342,7 +341,7 @@ function Clouds.GUI.Main()
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.density.density.envelope = Clouds.GUI.EnvCheck(CloudTable.density.density.envelope, FXENVELOPES.density, ToolTips.density.density.env)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.density.density.envelope, 'density', 'density', 'envelope')
                 end
                 something_changed = something_changed or change
@@ -356,14 +355,15 @@ function Clouds.GUI.Main()
                 ----- Dust
                 change, CloudTable.density.random.val = ImGui.DragDouble(ctx, "Dust##Slider", CloudTable.density.random.val, 0.01, 0, FLT_MAX)
                 tooltip(ctx, Settings.tooltip, ToolTips.density.dust.dust)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.density.random.val, 'density', 'random', 'val')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, SLIDERS_W, 'dust')
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.density.random.envelope = Clouds.GUI.EnvCheck(CloudTable.density.random.envelope, FXENVELOPES.dust, ToolTips.density.dust.env)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.density.random.envelope, 'density', 'random', 'envelope')
                 end
                 something_changed = something_changed or change
@@ -376,6 +376,7 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.cap, 'density', 'cap')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 152, 'cap')
 
                 ----- N GEN
                 change, CloudTable.density.n_gen = ImGui.InputInt(ctx, 'Generate N Times', CloudTable.density.n_gen)
@@ -384,6 +385,7 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.n_gen, 'density', 'n_gen')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 152, 'n_gen')
 
                 ----- Quantize
                 change, CloudTable.density.quantize = ImGui.Checkbox(ctx, 'Quantize Items To Grid', CloudTable.density.quantize)
@@ -420,11 +422,14 @@ function Clouds.GUI.Main()
                 ----- Size
                 if not CloudTable.midi_notes.is_synth then
                     change, CloudTable.grains.size.val = ImGui.DragDouble(ctx, "Size##Double", CloudTable.grains.size.val, 1, CONSTRAINS.grain_low, FLT_MAX,'%.2f ms')
-                    if change then
+                    if ImGui.IsItemDeactivatedAfterEdit(ctx) then
+                        CloudTable.grains.size.val = DL.num.Clamp(CloudTable.grains.size.val, CONSTRAINS.grain_low) // 1
                         Clouds.Item.ApplyParameter(CloudTable.grains.size.val, 'grains', 'size', 'val')
                     end
                     tooltip(ctx, Settings.tooltip, ToolTips.grains.size.size)
                     something_changed = something_changed or change
+                    Clouds.Variator.Hub(ctx, SLIDERS_W, 'grain_size')
+
                     -- Right click
                     if ImGui.BeginPopupContextItem(ctx, 'RatioDensityGrain') then
                         TempRatioTime = TempRatioTime or (CloudTable.grains.size.val * CloudTable.density.density.val / 1000)*100
@@ -1284,12 +1289,11 @@ function Clouds.GUI.Main()
             end
 
             -- Save
-            if something_changed then
-                --Clouds.Item.CheckEnvelopes(Proj)
-                Clouds.Item.SaveSettings(Proj, CloudTable.cloud, CloudTable)
+            --[[ if something_changed then
+                --Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
                 reaper.UpdateArrange()
                 reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
-            end
+            end ]]
         else
             if ImGui.Button(ctx, 'Create Cloud Item', -FLT_MIN) then
                 Clouds.Item.Create(Proj)
@@ -1460,9 +1464,8 @@ function Clouds.GUI.Variator()
     end
 
     if not open then
-        Clouds.Variator.t.GUI.on = false
+        Clouds.GUI.InitVariator(false)
     end
-    
 end
 
 --- ReRoll GUI
@@ -1526,4 +1529,9 @@ function Clouds.GUI.ReRoll()
     if not open then
         reroll_gui.on = false
     end
+end
+
+function Clouds.GUI.InitVariator(is_start)
+    Clouds.Variator.t.GUI.on = is_start
+    DL.imgui.keys.bypass[0x56] = is_start -- V key to bypass from SWSPassKeys
 end
