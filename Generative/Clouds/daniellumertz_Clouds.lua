@@ -22,6 +22,11 @@
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
     VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
 end
+
+--[[ local profiler = dofile(reaper.GetResourcePath() ..
+  '/Scripts/ReaTeam Scripts/Development/cfillion_Lua profiler.lua')
+reaper.defer = profiler.defer ]]
+
 -- Constants:
 SCRIPT_NAME = 'Clouds'
 SCRIPT_V  = '1.1.3b' -- version should always be three digits! leters, for beta versions, are acceptable.
@@ -138,6 +143,14 @@ DL.check.SWS()
 -- Load User Settings
 Settings = Clouds.Settings.Load(SETTINGS.path)
 
+--- Debug
+
+--[[ profiler.attachToWorld()
+profiler.detachFrom('math')
+profiler.detachFrom('type')
+profiler.detachFrom('string')
+profiler.detachFrom('tostring')
+profiler.run() ]]
 -- Start Main
 reaper.defer(Clouds.GUI.Main)
 reaper.atexit(Clouds.Item.atexit)

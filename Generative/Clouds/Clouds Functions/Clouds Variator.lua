@@ -112,51 +112,36 @@ function Clouds.Variator.Draw(ctx, w)
 end
 
 --- Each Variator
-function Clouds.Variator.Density(ctx, w)
-    if Clouds.Variator.t.GUI.on then 
-        Clouds.Variator.Draw(ctx, w)
-        -- Check if key is pressed
-        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V) then
-            for kct, ct in ipairs(CloudsTables) do
-                local change = false
-                change, ct.density.density.val = Clouds.Variator.VariateValueInRange(ct.density.density.val, ct.density.density.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
-                if change then
-                    ct.density.density.env_min =  DL.num.Clamp(ct.density.density.env_min, 0, ct.density.density.val)
-                    Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
-                end
-            end
-        end
-    end
-end
-
-function Clouds.Variator.Dust(ctx, w)
-    if Clouds.Variator.t.GUI.on then 
-        Clouds.Variator.Draw(ctx, w)
-        -- Check if key is pressed
-        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V) then
-            for kct, ct in ipairs(CloudsTables) do
-                local change = false
-                change, ct.density.density.val = Clouds.Variator.VariateValueInRange(ct.density.density.val, ct.density.density.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
-                if change then
-                    ct.density.density.env_min =  DL.num.Clamp(ct.density.density.env_min, 0, ct.density.density.val)
-                    Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
-                end
-            end
-        end
-    end
-end
-
 function Clouds.Variator.Hub(ctx, w, vtype)
     if Clouds.Variator.t.GUI.on then 
         Clouds.Variator.Draw(ctx, w)
         -- Check if key is pressed
         if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V) then
-            if vtype == 'density' then
-                Clouds.Variator.Density(ctx, w)
-            elseif vtype == 'dust' then
-                Clouds.Variator.Dust(ctx, w)
+            for kct, ct in ipairs(CloudsTables) do
+                if vtype == 'density' then
+                    Clouds.Variator.Density(ct)
+                elseif vtype == 'dust' then
+                    Clouds.Variator.Dust(ct)
+                end
             end
         end
     end
-    
 end
+
+function Clouds.Variator.Density(ct)
+    local change = false
+    change, ct.density.density.val = Clouds.Variator.VariateValueInRange(ct.density.density.val, ct.density.density.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    if change then
+        ct.density.density.env_min =  DL.num.Clamp(ct.density.density.env_min, 0, ct.density.density.val)
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+end
+
+function Clouds.Variator.Dust(ct)
+    local change = false
+    change, ct.density.dust.val = Clouds.Variator.VariateValueInRange(ct.density.dust.val, ct.density.dust.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
+    if change then
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+end
+

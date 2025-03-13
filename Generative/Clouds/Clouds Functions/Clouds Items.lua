@@ -53,7 +53,7 @@ function Clouds.Item.CheckSelection(proj)
                     end ]]
                     local ext_table = DL.serialize.stringToTable(extstate)
                     -- Guids to Items/Tracks
-                    local t = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
+                    local t = Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ext_table)
                     -- Set Primary CloudTable
                     if t then -- check if cloud table havent been corrupted at some script crash
                         t.cloud = item
@@ -172,11 +172,14 @@ function Clouds.Item.ApplyParameter(value, ...)
             Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
         end
     end
+    reaper.UpdateArrange()
+    reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
 end
 
 function Clouds.Item.SaveSettings(proj, item, settings)
     --- Items/Tracks to guids
-    local guided = Clouds.convert.CovertUserDataToGUIDRecursive(proj, settings)
+    settings.cloud = item -- Covers the case of the cloud item being copied
+    local guided = Clouds.convert.ConvertUserDataToGUID_Manually(proj, settings)
     local serialized_t = DL.serialize.tableToString(guided)
     DL.item.SetExtState(item, EXT_NAME, 'settings', serialized_t)
 end
@@ -211,6 +214,7 @@ function Clouds.Item.SetItems(proj)
         ct.items = t
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
 end
 
 function Clouds.Item.AddItems(proj)
@@ -243,6 +247,7 @@ function Clouds.Item.AddItems(proj)
         end
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
 end
 
 function Clouds.Item.SelectItems(proj)
@@ -282,6 +287,7 @@ function Clouds.Item.SetTracks(proj) --Set
         end
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
 end
 
 function Clouds.Item.AddTracks(proj)
@@ -307,6 +313,7 @@ function Clouds.Item.AddTracks(proj)
         end
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
+    reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Change Setting', CloudTable.cloud)
 end
 
 function Clouds.Item.SelectTracks(proj)

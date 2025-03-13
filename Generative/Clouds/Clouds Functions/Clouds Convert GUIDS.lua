@@ -2,6 +2,83 @@
 Clouds = Clouds or {}
 Clouds.convert = {}
 
+---------------------------------- Tied to Clouds
+function Clouds.convert.ConvertUserDataToGUID_Manually(proj, ct)
+    local n_ct = DL.t.DeepCopy(ct)
+    -- cloud, technically dont need, as it will subscribed when loading
+    if n_ct.cloud then
+        if reaper.ValidatePtr2(proj, n_ct.cloud, 'MediaItem*' )  then
+            local retval, guid = reaper.GetSetMediaItemInfo_String( n_ct.cloud, 'GUID', '', false )
+            n_ct.cloud = guid
+        end
+    end
+
+    -- items
+    local new_items_t = {} 
+    for k, v in ipairs(n_ct.items) do
+        if reaper.ValidatePtr2(proj, n_ct.items[k].item, 'MediaItem*' )  then
+            local retval, guid = reaper.GetSetMediaItemInfo_String( n_ct.items[k].item, 'GUID', '', false )
+            if guid then
+                new_items_t[#new_items_t+1] = n_ct.items[k] 
+                new_items_t[#new_items_t].item = guid
+            end
+        end
+    end
+    n_ct.items = new_items_t
+
+    -- Tracks
+    local new_tracks_t = {}
+    new_tracks_t.self = n_ct.tracks.self
+    for k, v in ipairs(n_ct.tracks) do
+        local track = n_ct.tracks[k].track
+        if reaper.ValidatePtr2(proj, track, 'MediaTrack*') then
+            local retval, guid = reaper.GetSetMediaTrackInfo_String(track, 'GUID', '', false )
+            if guid then
+                new_tracks_t[#new_tracks_t+1] = n_ct.tracks[k]
+                new_tracks_t[#new_tracks_t].track = guid
+            end
+        end
+    end
+    n_ct.tracks = new_tracks_t
+
+    return n_ct
+end
+
+function Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
+    -- cloud
+    if ct.cloud then
+        local item = reaper.BR_GetMediaItemByGUID(proj, ct.cloud)
+        if reaper.ValidatePtr2(proj, item, 'MediaItem*') then
+            ct.cloud = item
+        end
+    end
+
+    --items
+    local new_items_t = {}
+    for k, v in ipairs(ct.items) do
+        local item = reaper.BR_GetMediaItemByGUID(proj, v.item)
+        if reaper.ValidatePtr2(proj, item, 'MediaItem*') then
+            new_items_t[#new_items_t+1] = v
+            new_items_t[#new_items_t].item = item
+        end
+    end
+    ct.items = new_items_t
+
+    --tracks
+    local new_tracks_t = {}
+    new_tracks_t.self = ct.tracks.self
+    for k, v in ipairs(ct.tracks) do
+        local track = reaper.BR_GetMediaTrackByGUID(proj, v.track)
+        if reaper.ValidatePtr2(proj, track, 'MediaTrack*') then
+            new_tracks_t[#new_tracks_t+1] = v
+            new_tracks_t[#new_tracks_t].track = track
+        end
+    end
+    ct.tracks = new_tracks_t
+
+    return ct
+end
+--------------------------------- Recursive (slow)
 --- Recursive COnvert functions
 function Clouds.convert.ConvertUserDataToGUID(proj, thing) -- Only Tracks, Items, Takes, Envelopes and LUA types.
     -- Userdata types = ReaProject*, MediaTrack*, MediaItem*, MediaItem_Take*, TrackEnvelope* and PCM_source*

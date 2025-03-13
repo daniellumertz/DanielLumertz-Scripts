@@ -39,7 +39,7 @@ local function check_cloud(proj, cloud)
     local _, ct = DL.item.GetExtState(cloud, EXT_NAME, 'settings')
     ct = DL.serialize.stringToTable(ct)
     -- Guids to Items/Tracks
-    ct = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ct)
+    ct = Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
     -- Check if some item/track wasnt found (remove it from the table)
     for k, v in DL.t.ipairs_reverse(ct.items) do
         if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then

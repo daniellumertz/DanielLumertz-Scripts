@@ -20,7 +20,7 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
             if extstate ~= '' then
                 local ext_table = DL.serialize.stringToTable(extstate)
                 -- Guids to Items/Tracks
-                local t = Clouds.convert.ConvertGUIDToUserDataRecursive(proj, ext_table)
+                local t = Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ext_table)
                 -- Check if some item/track wasnt found (remove it from the table)
                 for k, v in DL.t.ipairs_reverse(t.items) do
                     if not reaper.ValidatePtr2(proj, v.item, 'MediaItem*') then
