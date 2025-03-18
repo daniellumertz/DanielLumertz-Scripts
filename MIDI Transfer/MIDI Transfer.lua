@@ -1,4 +1,4 @@
--- @version 1.38
+-- @version 1.39
 -- @author Daniel Lumertz
 -- @provides
 --    [main] Clear MIDI Transfer Settings at Current Project.lua
@@ -13,10 +13,11 @@
 --    [nomain] Modules/*.lua
 --    [nomain] Classes/*.lua
 -- @changelog
---    + bug fix require of midi_lua for unix OS
-
-
-script_version = "1.38"
+--    + fix a bug in MIDI Track mode
+--    + manage to check if user cancelled the importing
+--    + add some check in case item is deleted
+--local VSDEBUG = dofile("c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua")
+script_version = "1.39"
 ------------------------------
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
