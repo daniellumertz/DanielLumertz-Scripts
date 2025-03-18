@@ -54,7 +54,7 @@ function Clouds.Variator.VariateValueInRange(value, range, percent, chance, min,
     return false, value
 end
 
---- Draw functions
+--- Draw functionsvv
 function Clouds.Variator.DrawRGBBlack(ctx, x, y, w, h, stroke, velocity)
     local stroke = stroke or 1
     local velocity = velocity or 1
@@ -170,6 +170,204 @@ function Clouds.Variator.grain_size(ct)
     change, ct.grains.size.val = Clouds.Variator.VariateValueInRange(ct.grains.size.val, ct.grains.size.val, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0)
     if change then
         ct.grains.size.val = DL.num.Clamp(ct.grains.size.val, CONSTRAINS.grain_low) // 1
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end
+
+function Clouds.Variator.grain_drift_size(ct)
+    local low = ct.grains.randomize_size.min
+    local high = ct.grains.randomize_size.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, CONSTRAINS.grain_rand_low)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.grains.randomize_size.min = min
+        ct.grains.randomize_size.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.grain_position(ct)
+    local change = false
+    change, ct.grains.position.val = Clouds.Variator.VariateValueInRange(ct.grains.position.val, 100, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0, 100)
+    if change then
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end
+
+function Clouds.Variator.grain_position_drift(ct)
+    local low = ct.grains.randomize_position.min
+    local high = ct.grains.randomize_position.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.grains.randomize_position.min = min
+        ct.grains.randomize_position.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.grain_fade(ct)
+    local change = false
+    change, ct.grains.fade.val = Clouds.Variator.VariateValueInRange(ct.grains.fade.val, 100, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0, 100)
+    if change then
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change
+end
+
+function Clouds.Variator.envelope_volume(ct)
+    local low = ct.envelopes.vol.min
+    local high = ct.envelopes.vol.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.envelopes.vol.min = min
+        ct.envelopes.vol.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.envelope_pan(ct)
+    local low = ct.envelopes.pan.min
+    local high = ct.envelopes.pan.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, -1, 1)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min, 1)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.envelopes.pan.min = min
+        ct.envelopes.pan.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.envelope_pitch(ct)
+    local low = ct.envelopes.pitch.min
+    local high = ct.envelopes.pitch.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.envelopes.pitch.min = min
+        ct.envelopes.pitch.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.envelope_stretch(ct)
+    local low = ct.envelopes.stretch.min
+    local high = ct.envelopes.stretch.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, CONSTRAINS.stretch_low)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.envelopes.stretch.min = min
+        ct.envelopes.stretch.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.random_volume(ct)
+    local low = ct.randomization.vol.min
+    local high = ct.randomization.vol.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.randomization.vol.min = min
+        ct.randomization.vol.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.random_pan(ct)
+    local low = ct.randomization.pan.min
+    local high = ct.randomization.pan.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, -1, 1)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min, 1)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.randomization.pan.min = min
+        ct.randomization.pan.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.random_pitch(ct)
+    local low = ct.randomization.pitch.min
+    local high = ct.randomization.pitch.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.randomization.pitch.min = min
+        ct.randomization.pitch.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.random_stretch(ct)
+    local low = ct.randomization.stretch.min
+    local high = ct.randomization.stretch.max
+    local range = math.abs((high - low)) / 2
+    local change1, min = Clouds.Variator.VariateValueInRange(low, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, CONSTRAINS.stretch_low)
+    local change2, max = Clouds.Variator.VariateValueInRange(high, range, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, min)
+    if change1 or change2 then
+        if min > max then 
+            min = max
+        end
+        ct.randomization.stretch.min = min
+        ct.randomization.stretch.max = max
+        Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+    end
+    return change1, change2 
+end
+
+function Clouds.Variator.random_reverse(ct)
+    local change = false
+    change, ct.randomization.reverse.val = Clouds.Variator.VariateValueInRange(ct.randomization.reverse.val, 100, Clouds.Variator.t.parameters.percent, Clouds.Variator.t.parameters.chance, 0, 100)
+    if change then
+        ct.randomization.reverse.val  = ct.randomization.reverse.val  // 1 
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
     return change

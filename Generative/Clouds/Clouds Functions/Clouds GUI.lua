@@ -464,7 +464,7 @@ function Clouds.GUI.Main()
                 ----- Drift Size
                 --Checkbox
                 change, CloudTable.grains.randomize_size.on = ImGui.Checkbox(ctx, '##DriftCheckbox', CloudTable.grains.randomize_size.on); ImGui.SameLine(ctx)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.grains.randomize_size.on, 'grains', 'randomize_size', 'on')
                 end
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.on)
@@ -486,7 +486,7 @@ function Clouds.GUI.Main()
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 local change, min, max = ImGui.DragDouble2(ctx, "Size Drift##randominput", CloudTable.grains.randomize_size.min, CloudTable.grains.randomize_size.max, 0.07, CONSTRAINS.grain_rand_low, FLT_MAX,'%.2f%%')
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.size_drift.size_drift)
-                if change then -- clamp
+                if change then
                     if min > max then 
                         if min ~= CloudTable.grains.randomize_size.min then
                             max = min
@@ -496,10 +496,15 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.grains.randomize_size.min = min
                     CloudTable.grains.randomize_size.max = max
+                end
+
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
                     Clouds.Item.ApplyParameter(CloudTable.grains.randomize_size.min, 'grains', 'randomize_size', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.grains.randomize_size.max, 'grains', 'randomize_size', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'grain_drift_size')
+
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.grains.randomize_size.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_size.envelope, FXENVELOPES.grains.randomize_size, ToolTips.grains.size_drift.env)
@@ -512,7 +517,7 @@ function Clouds.GUI.Main()
                 ----- Position
                 --Checkbox
                 change, CloudTable.grains.position.on = ImGui.Checkbox(ctx, '##PositionCheckbox', CloudTable.grains.position.on); ImGui.SameLine(ctx)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.grains.position.on, 'grains', 'position', 'on')
                 end
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.position.on)
@@ -528,11 +533,13 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.position.val = ImGui.SliderDouble(ctx, "Position##Double", CloudTable.grains.position.val, 0, 100, '%.2f%%', ImGui.SliderFlags_AlwaysClamp)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.grains.position.val, 'grains', 'position', 'val')
                 end
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.position.position)
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'grain_position')
+
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.grains.position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.position.envelope, FXENVELOPES.grains.position, ToolTips.grains.position.env)
@@ -578,10 +585,14 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.grains.randomize_position.min = min
                     CloudTable.grains.randomize_position.max = max
+                end
+
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
                     Clouds.Item.ApplyParameter(CloudTable.grains.randomize_position.min, 'grains', 'randomize_position', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.grains.randomize_position.max, 'grains', 'randomize_position', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'grain_position_drift')
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.grains.randomize_position.envelope = Clouds.GUI.EnvCheck(CloudTable.grains.randomize_position.envelope, FXENVELOPES.grains.randomize_position, ToolTips.grains.position_drifts.env)
@@ -596,20 +607,22 @@ function Clouds.GUI.Main()
                 ----- Fade
                 --Checkbox
                 change, CloudTable.grains.fade.on = ImGui.Checkbox(ctx, '##fadegrian', CloudTable.grains.fade.on); ImGui.SameLine(ctx)
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.grains.fade.on, 'grains', 'fade', 'on')
                 end	
                 something_changed = something_changed or change
+
                 ImGui.BeginDisabled(ctx, not CloudTable.grains.fade.on)
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.fade)
                 --Input
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
                 change, CloudTable.grains.fade.val = ImGui.SliderDouble(ctx, "Fade##Double", CloudTable.grains.fade.val, 0, 100, '%.2f%%', ImGui.SliderFlags_AlwaysClamp) 
-                if change then
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.grains.fade.val, 'grains', 'fade', 'val')
                 end
                 tooltip(ctx, Settings.tooltip, ToolTips.grains.fade)
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'grain_fade')
                 ImGui.EndDisabled(ctx)
                 ImGui.EndDisabled(ctx)
             else
@@ -729,9 +742,14 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.envelopes.vol.min = min
                     CloudTable.envelopes.vol.max = max
+                end
+                
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.vol.min, 'envelopes', 'vol', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.vol.max, 'envelopes', 'vol', 'max')
                 end
+
+                Clouds.Variator.Hub(ctx, 172, 'envelope_volume')
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
@@ -766,9 +784,12 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.envelopes.pan.min = min
                     CloudTable.envelopes.pan.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pan.min, 'envelopes', 'pan', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pan.max, 'envelopes', 'pan', 'max')
                 end
+                Clouds.Variator.Hub(ctx, 172, 'envelope_pan')
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
 
@@ -801,10 +822,13 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.envelopes.pitch.min = min
                     CloudTable.envelopes.pitch.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pitch.min, 'envelopes', 'pitch', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pitch.max, 'envelopes', 'pitch', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'envelope_pitch')
 
                 -- Quantize popup
                 if ImGui.BeginPopupContextItem(ctx, 'Quantize Pitch##env') then
@@ -850,9 +874,12 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.envelopes.stretch.min = min
                     CloudTable.envelopes.stretch.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.stretch.min, 'envelopes', 'stretch', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.stretch.max, 'envelopes', 'stretch', 'max')
                 end
+                Clouds.Variator.Hub(ctx, 172, 'envelope_stretch')
                 something_changed = something_changed or change
                 ImGui.EndDisabled(ctx)
             end
@@ -895,10 +922,14 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.randomization.vol.min = min
                     CloudTable.randomization.vol.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.randomization.vol.min, 'randomization', 'vol', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.randomization.vol.max, 'randomization', 'vol', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'random_volume')
+
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.randomization.vol.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.vol.envelope, FXENVELOPES.randomization.vol, ToolTips.randomization.volume.env)
@@ -944,10 +975,14 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.randomization.pan.min = min
                     CloudTable.randomization.pan.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.randomization.pan.min, 'randomization', 'pan', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.randomization.pan.max, 'randomization', 'pan', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'random_pan')
+
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.randomization.pan.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.pan.envelope, FXENVELOPES.randomization.pan, ToolTips.randomization.pan.env)
@@ -991,10 +1026,14 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.randomization.pitch.min = min
                     CloudTable.randomization.pitch.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.randomization.pitch.min, 'randomization', 'pitch', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.randomization.pitch.max, 'randomization', 'pitch', 'max')
                 end
                 something_changed = something_changed or change
+                Clouds.Variator.Hub(ctx, 172, 'random_pitch')
+
                 -- Quantize popup
                 if ImGui.BeginPopupContextItem(ctx, 'Quantize Pitch') then
                     ImGui.SetNextItemWidth(ctx, SLIDERS_W/2)
@@ -1052,9 +1091,13 @@ function Clouds.GUI.Main()
                     end
                     CloudTable.randomization.stretch.min = min
                     CloudTable.randomization.stretch.max = max
+                end
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
                     Clouds.Item.ApplyParameter(CloudTable.randomization.stretch.min, 'randomization', 'stretch', 'min')
                     Clouds.Item.ApplyParameter(CloudTable.randomization.stretch.max, 'randomization', 'stretch', 'max')
                 end
+                Clouds.Variator.Hub(ctx, 172, 'random_stretch')
+
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
                 change, CloudTable.randomization.stretch.envelope = Clouds.GUI.EnvCheck(CloudTable.randomization.stretch.envelope, FXENVELOPES.randomization.stretch, ToolTips.randomization.playrate.env)
@@ -1081,12 +1124,14 @@ function Clouds.GUI.Main()
                 --Input
                 ImGui.BeginDisabled(ctx, not CloudTable.randomization.reverse.on)
                 ImGui.SetNextItemWidth(ctx, SLIDERS_W2)
-                change, CloudTable.randomization.reverse.val = ImGui.SliderInt(ctx, "Reverse##randominput", CloudTable.randomization.reverse.val, 0, 100, '%i%%', ImGui.SliderFlags_AlwaysClamp)
+                change, CloudTable.randomization.reverse.val = ImGui.SliderInt(ctx, "Reverse##randominput", CloudTable.randomization.reverse.val // 1, 0, 100, '%i%%', ImGui.SliderFlags_AlwaysClamp)
                 --change, CloudTable.randomization.reverse.val = ImGui.InputDouble(ctx, "Reverse##randominput", CloudTable.randomization.reverse.val, nil, nil, '%.2f %')
                 if ImGui.IsItemDeactivatedAfterEdit(ctx) then -- clamp
                     CloudTable.randomization.reverse.val = DL.num.Clamp(CloudTable.randomization.reverse.val, 0, 100)
                     Clouds.Item.ApplyParameter(CloudTable.randomization.reverse.val, 'randomization', 'reverse', 'val')
                 end
+                Clouds.Variator.Hub(ctx, 172, 'random_reverse')
+
                 something_changed = something_changed or change
                 --Env
                 ImGui.SameLine(ctx); ImGui.SetCursorPosX(ctx, ww + ENV_X)
