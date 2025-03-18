@@ -163,7 +163,10 @@ function ValidadeOnline(i) -- Check if Item is online
     if not map[i].font_PCM and reaper.ValidatePtr2(0, map[i].font_take, 'MediaItem_Take*') then --tries to recover the PCM if needed
         map[i].font_PCM = reaper.GetMediaItemTake_Source(map[i].font_take )
     end
-    local bol = reaper.CF_GetMediaSourceOnline( map[i].font_PCM )
+    local bol
+    if  map[i].font_PCM and reaper.ValidatePtr2(0,  map[i].font_PCM, 'PCM_source*') then
+        bol = reaper.CF_GetMediaSourceOnline( map[i].font_PCM )
+    end
     return bol
 end
 

@@ -245,27 +245,31 @@ function ImportMIDI(path, start)
     --------------Get Info That Will be changed
     local items_fold = SaveSelectedItems()
     local tracks_fold = SaveSelectedTracks()
+    local original_track_count = reaper.CountTracks(0)
     local last_cursor =  reaper.GetCursorPosition()
     local last = reaper.GetLastTouchedTrack() 
+    local last_num 
     if not last then 
-        last_num = reaper.CountTracks(0)
+        last_num = original_track_count
     else 
         last_num = reaper.GetMediaTrackInfo_Value(last, 'IP_TRACKNUMBER') 
         if last_num == -1 then last_num = reaper.CountTracks(0) end
     end
     --------------Get MIDI info
     local file = assert(io.open(path, "rb"))
-    local midi_tracks_count = midi.processHeader(file) - 1
+    local midi_tracks_count = midi.processHeader(file) 
 
     file:close()
     --------------Import and Get Info
     reaper.SetEditCurPos( start, false, false )
 
-    reaper.InsertMedia(path, 1) -- Insert Item to copy
-    
-    local new_last = reaper.GetLastTouchedTrack() 
+    reaper.InsertMedia(path, 1) -- Insert Item to copy (3 outcome: cancelled, ok without expand checked, ok with expand (everything allright))
+
+    local new_count = reaper.CountTracks(0)
+    if midi_tracks_count == 0 or original_track_count == new_count then return false end -- user clicked cancel. or invalid midi
+    local n_tracks_imported = new_count - original_track_count
+    local new_last = reaper.GetTrack(0, last_num+n_tracks_imported-1)
     local new_last_num = reaper.GetMediaTrackInfo_Value(new_last, 'IP_TRACKNUMBER') 
-    local n_tracks_imported = new_last_num - last_num 
     
     --------------Reset Info
     -----Set Last touched
@@ -275,7 +279,7 @@ function ImportMIDI(path, start)
     reaper.SetEditCurPos( last_cursor, false, false )
     LoadSelectedItems(items_fold)
     LoadSelectedTracks(tracks_fold)
-    return last_num+1, new_last_num, midi_tracks_count == n_tracks_imported -- First Track with the new Midi Items, Last Track with the new MIDI Items, if the n_tracks created matches the MIDI file (if not break this)
+    return true, last_num+1, new_last_num, midi_tracks_count == n_tracks_imported -- First Track with the new Midi Items, Last Track with the new MIDI Items, if the n_tracks created matches the MIDI file (if not break this)
 end
 
 function main_tr()
@@ -285,20 +289,25 @@ function main_tr()
             if lastmod ~= map[i].old or manual_up == true then -- just execute if the file was mod
                 if map[i].update_on_start == 1 or map[i].old  then  -- If update on start is on It doesn't matter if there is old or not If it is off It just matter if map[i].old is not nil
                     if Validate(i) == true then  -- Validates if it is ok to run (Must still have fonts, and tracks set)
+                        local cancel = false
                         reaper.Undo_BeginBlock2(0)
                         reaper.PreventUIRefresh(1)
                         GetMapTime(i)
                         local first_new, last_new, is_expand_checked
                         if map[i].track_order == 1 then -- Set to MIDI Tracks
                             while true do
-                                first_new, last_new, is_expand_checked = ImportMIDI(map[i].source, map[i].start)
-                                if not is_expand_checked then
+                                local bol
+                                bol, first_new, last_new, is_expand_checked = ImportMIDI(map[i].source, map[i].start)
+                                if not bol then -- user click cancel.
+                                    goto continue
+                                end
+                                if not is_expand_checked then -- user didn't check the checkbox
                                     reaper.ShowMessageBox('When using "MIDI Track" option you NEED to check "Expand X MIDI Tracks to new REAPER tracks" checkbox at the MIDI File Import Window!', 'MIDI Transfer', 0)
                                     for track_i = last_new-1, first_new-1, -1 do -- delete tracks created
                                         local tr = reaper.GetTrack(0, track_i)
                                         reaper.DeleteTrack(tr)
                                     end
-                                else
+                                else -- everything all right
                                     break
                                 end
                             end
@@ -321,6 +330,7 @@ function main_tr()
                         else
                             -- Do nothing This Item Is From the same Font, but auto delete odds is off
                         end
+                        ::continue::
                         reaper.PreventUIRefresh(-1)
                         reaper.Undo_EndBlock2(0, "MIDI Transfer: Update", -1)
                         reaper.UpdateArrange()
