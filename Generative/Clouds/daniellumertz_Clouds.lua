@@ -102,7 +102,6 @@ SEEDLIMIT = 1024 -- maximum number of seeds history saved in a item
 -- Initialize ImGUI?
 package.path = package.path..';'..reaper.ImGui_GetBuiltinPath() .. '/?.lua'
 ImGui = require 'imgui' '0.9.2' 
---demo = require 'ReaImGui_Demo' --DEBUG
 
 -- Initialize Functions
 --package.path = package.path..';'..debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .. "/DL Functions/?.lua;" -- GET DIRECTORY FOR REQUIRE

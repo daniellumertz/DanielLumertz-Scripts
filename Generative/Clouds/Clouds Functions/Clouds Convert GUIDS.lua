@@ -47,6 +47,7 @@ end
 function Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
     -- cloud
     if ct.cloud then
+        ct.cloud = Clouds.convert.UpdateFormat(ct.cloud)
         local item = reaper.BR_GetMediaItemByGUID(proj, ct.cloud)
         if reaper.ValidatePtr2(proj, item, 'MediaItem*') then
             ct.cloud = item
@@ -56,6 +57,7 @@ function Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
     --items
     local new_items_t = {}
     for k, v in ipairs(ct.items) do
+        v.item = Clouds.convert.UpdateFormat(v.item)
         local item = reaper.BR_GetMediaItemByGUID(proj, v.item)
         if reaper.ValidatePtr2(proj, item, 'MediaItem*') then
             new_items_t[#new_items_t+1] = v
@@ -68,6 +70,7 @@ function Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
     local new_tracks_t = {}
     new_tracks_t.self = ct.tracks.self
     for k, v in ipairs(ct.tracks) do
+        v.track = Clouds.convert.UpdateFormat(v.track)
         local track = reaper.BR_GetMediaTrackByGUID(proj, v.track)
         if reaper.ValidatePtr2(proj, track, 'MediaTrack*') then
             new_tracks_t[#new_tracks_t+1] = v
@@ -77,6 +80,16 @@ function Clouds.convert.ConvertGUIDtoUserData_Manually(proj, ct)
     ct.tracks = new_tracks_t
 
     return ct
+end
+
+-- Before 1.2.0 I was using the recursive convertion, which adds $##$ to the start of each item/track guid. After v 1.2.0 I am manually changing each of the guids to userdata. Without adding #$$#.
+-- This function serves the purpose to handle older cloud tables 
+function Clouds.convert.UpdateFormat(string)
+    if string:match('^#%$%$#') then 
+        return string:match('({.+})') 
+    else
+        return string
+    end
 end
 --------------------------------- Recursive (slow)
 --- Recursive COnvert functions

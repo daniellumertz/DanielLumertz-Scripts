@@ -1,7 +1,6 @@
 --@noindex
---version: 0.2
---Add a bypass keys
---Add a multicolor widget
+--version: 0.2.1
+--correct optional arguments for slider
 
 DL = DL or {}
 DL.imgui = {}
@@ -59,8 +58,8 @@ end
 ---@return table values table of grabble values
 function DL.imgui.MultiSlider(ctx,label,values,min,max,is_int,can_create,can_remove,w,h,formatting)
     ----- Get current position/style/color setting 
-    can_create = can_create or true
-    can_remove = can_remove or true
+    can_create = can_create == nil and true or can_create
+    can_remove = can_remove == nil and true or can_remove
     --- w h
     w = w or ImGui.CalcItemWidth(ctx)
     h = h or ImGui.GetFrameHeight(ctx)

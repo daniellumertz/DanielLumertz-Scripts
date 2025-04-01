@@ -10,20 +10,24 @@ Clouds.Variator.t = {
         percent = 10
     },
     envelopes = {
-        keep_shape = false, -- keep envelope shape
-        is_all = false,  -- apply to all active cloud
-        range = {
-            vertical = 10,
-            horizontal = 10
+
+        is_edit = true,
+
+        edit = {
+            position = 10,
+            value = 10,
+            keep_shape = false -- keep envelope shape
         },
 
         gen = {
-            n_points = 10,
-            randomize = {
-                range = {
-                    vertical = 10,
-                    horizontal = 10
-                },
+            n_points = {
+                min = 10,
+                max = 10
+            },
+            dust = 5,
+            v_range = {
+                min = 0,
+                max = 1
             }
         }
     },
@@ -33,6 +37,150 @@ Clouds.Variator.t = {
     },
 }
 
+------ Each Variator
+function Clouds.Variator.Hub(ctx, w, vtype, env_idx)
+    if Clouds.Variator.t.GUI.on then 
+        Clouds.Variator.Draw(ctx, w)
+        -- Check if key is pressed
+        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V, false) then
+            for kct, ct in ipairs(CloudsTables) do
+                if not env_idx then
+                    Clouds.Variator[vtype](ct)
+                else
+                    Clouds.Variator.Envelope(ct, env_idx)
+                end
+            end
+            reaper.UpdateArrange()
+            reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Variate '..(vtype or 'Envelopes'), CloudTable.cloud)
+        end
+    end
+end
+
+------- Envelopes
+local function centered_range(min, max, center, percentage)
+    local range = (max - min) * percentage
+    -- Centralize range
+    local range_start = math.max(min, center - (range/2)) 
+    range_start = math.min(max - range, range_start)
+    -- body
+    return range_start, range_start + range
+end
+
+--- Get a target number and a series of numbers. Return a table with the closest values. close_values.closest, close_values.above, close_values.below
+local function closest_number(target,...)
+    local close_values = {}
+    local dif_t = {}
+    local numbers = {...}
+    for k, v in pairs(numbers) do
+        if type(v) ~= 'number' then goto continue end
+        local dif = math.abs(v - target)
+
+        if (dif < (dif_t.closest or math.huge)) then
+            dif_t.closest = dif
+            close_values.closest = v
+        end
+
+        local direction = v > target and 'above' or 'below'
+
+        if dif < (dif_t[direction] or math.huge) then
+            dif_t[direction] = dif
+            close_values[direction] = v
+        end
+        ::continue::
+    end
+    return close_values
+end
+
+function Clouds.Variator.Envelope(ct, env_idx)
+    local item = ct.cloud
+    local take = reaper.GetActiveTake(item)
+    Clouds.Item.EnsureFX(item)
+    local env = reaper.TakeFX_GetEnvelope(take, 0, env_idx, false)
+    if not env then return false end
+
+    local ct_info = {
+        length = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH'), 
+        rate = reaper.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE'), 
+        offset = reaper.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS') 
+    }
+    ct_info.content_length  = (ct_info.length * ct_info.rate)
+    ct_info.content_end = ct_info.content_length + ct_info.offset
+    if Clouds.Variator.t.envelopes.is_edit then -- Edit Points
+        -- Make a table with all points values and position
+        local points = {}
+        for retval, time, value, shape, tension, selected, i in DL.enum.EnvelopePointEx(env, -1) do
+            points[#points+1] = {pos = time, value = value} --  retval = retval, shape = shape, tension = tension, selected = selected
+        end
+
+        for k, point in ipairs(points) do
+            -- Randomize Value (if keep shape, look the adjacent points)
+            do
+                local min, max = 0, 1
+                if Clouds.Variator.t.envelopes.edit.keep_shape then
+                    local prev = k > 1 and points[k-1].value
+                    local next = k < #points and points[k+1].value
+
+                    local values = closest_number(point.value, prev, next, min, max)
+                    min = values.below or min
+                    max = values.above or max
+                end
+                --randomize a new value
+                local r_min, r_max = centered_range(min, max, point.value, Clouds.Variator.t.envelopes.edit.value/100) -- r = random
+                local new_val = DL.num.RandomFloat(r_min, r_max, true)
+                point.value = new_val
+            end
+
+            -- Randomize position
+            do
+                -- if the last point is after the end of the cloud item, skip it
+                if  k == #points and ct_info.content_end < point.pos then
+                    goto continue
+                end
+
+                local min, max
+                min = k > 1 and points[k-1].pos or 0
+                max = k < #points and points[k+1].pos or ct_info.content_end 
+
+                local r_min, r_max = centered_range(min, max, point.pos, Clouds.Variator.t.envelopes.edit.position/100) -- r = random
+                local new_pos = DL.num.RandomFloat(r_min, r_max, true)
+                point.pos = new_pos
+                ::continue::
+            end
+            -- Set point
+            reaper.SetEnvelopePointEx(env, -1, k-1, point.pos, point.value, nil, nil, nil, true)
+        end
+    else -- Delete and Create new Points
+        -- Delete
+        local cnt = reaper.CountEnvelopePoints(env)
+        for i = cnt -1, 0, -1 do
+            reaper.DeleteEnvelopePointEx(env, -1, i)
+        end 
+        -- Create
+        local dust = Clouds.Variator.t.envelopes.gen.dust
+        local n_points = math.random(Clouds.Variator.t.envelopes.gen.n_points.min, Clouds.Variator.t.envelopes.gen.n_points.max) 
+        local period = ct_info.content_length / n_points
+        for i = 0, n_points-1 do
+            -- Positionvv
+            local pos = period * i
+            if dust > 0 then
+                local min, max = pos - (period*dust), pos + (period*dust)
+                min, max = DL.num.Clamp(min, 0, ct_info.content_end), DL.num.Clamp(max, 0, ct_info.content_end)
+                pos = DL.num.RandomFloat(min, max, true)
+            end
+            -- Value
+            local val = DL.num.RandomFloat(Clouds.Variator.t.envelopes.gen.v_range.min, Clouds.Variator.t.envelopes.gen.v_range.max, true)
+            reaper.InsertEnvelopePointEx(env, -1, pos, val, 0, 0, false, true) -- 0, 0 are shape and tension
+        end
+    end
+    reaper.Envelope_SortPointsEx(env, -1)
+
+    ::continue::
+end
+
+
+
+
+------- Parameters
 ---Variate a value between (value - (range * percent / 2), value + (range * percent / 2))
 ---@param value number value to change
 ---@param range number range it can change. It will be divided by 2. Half for going down, half for going up.
@@ -52,78 +200,6 @@ function Clouds.Variator.VariateValueInRange(value, range, percent, chance, min,
         return true, DL.num.RandomFloat(min_rnd, max_rnd, true)
     end
     return false, value
-end
-
---- Draw functionsvv
-function Clouds.Variator.DrawRGBBlack(ctx, x, y, w, h, stroke, velocity)
-    local stroke = stroke or 1
-    local velocity = velocity or 1
-    if Clouds.Variator.t.GUI.on then
-        local dl = ImGui.GetWindowDrawList(ctx)                
-        -- Create animated colors using HSV
-        local time = (reaper.time_precise() % velocity) / velocity
-        local hue = {0,.1}
-        local col = {}
-        for k, h in ipairs(hue) do
-            h = (time + h) % 1.0
-            local r,g,b = ImGui.ColorConvertHSVtoRGB(h, 0.75, 1.0)
-            col[#col+1] = ImGui.ColorConvertDouble4ToU32(r, g, b, 1)
-        end
-        
-        -- Draw the rectangle with animated colors
-        DL.imgui.DrawList_AddRectMultiColor(dl, x, y, x+w, y+h, stroke, col[1], col[2], col[2], col[1])
-    end    
-end
-
-local wt_hues = {0.7,0.88} -- white theme hues
-function Clouds.Variator.DrawWhiteRGB(ctx, x, y, w, h, stroke, velocity)
-    local stroke = stroke or 1
-    local velocity = velocity or 1
-    if Clouds.Variator.t.GUI.on then
-        local dl = ImGui.GetWindowDrawList(ctx)                
-        -- Create animated colors using HSV
-
-        local col = {}
-        for k, h in ipairs(wt_hues) do
-            local raw_time = (reaper.time_precise() % velocity) / velocity
-            if k == 2 then raw_time = (raw_time + 0.5) % 1 end
-            local time = 1 - math.abs(2 * raw_time - 1)  -- Triangle wave function
-            local c1 = DL.num.MapRange(time, 0, 1, wt_hues[1], wt_hues[2])
-            local r, g, b = ImGui.ColorConvertHSVtoRGB(c1, 0.4, 1.0)
-            col[#col+1] = ImGui.ColorConvertDouble4ToU32(r, g, b, 1)
-        end
-        
-        -- Draw the rectangle with animated colors
-        DL.imgui.DrawList_AddRectMultiColor(dl, x, y, x+w, y+h, stroke, col[1], col[2], col[2], col[1])
-    end    
-end
-
-local gui = {}
-function Clouds.Variator.Draw(ctx, w)
-    -- Initialize
-    if not gui.h then gui.h = ImGui.GetFrameHeight(ctx) end
-    -- Draw stroke
-    local x, y = ImGui.GetItemRectMin(ctx)
-    if Settings.theme == 'Dark' then
-        Clouds.Variator.DrawRGBBlack(ctx, x, y, w, gui.h, 1, 3.5)
-    else
-        Clouds.Variator.DrawWhiteRGB(ctx, x, y, w, gui.h, 2, 3.5)
-    end 
-end
-
---- Each Variator
-function Clouds.Variator.Hub(ctx, w, vtype)
-    if Clouds.Variator.t.GUI.on then 
-        Clouds.Variator.Draw(ctx, w)
-        -- Check if key is pressed
-        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V, false) then
-            for kct, ct in ipairs(CloudsTables) do
-                Clouds.Variator[vtype](ct)
-            end
-            reaper.UpdateArrange()
-            reaper.Undo_OnStateChange_Item(Proj, 'Cloud: Variate '..vtype, CloudTable.cloud)
-        end
-    end
 end
 
 function Clouds.Variator.density(ct)
@@ -371,4 +447,62 @@ function Clouds.Variator.random_reverse(ct)
         Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
     end
     return change
+end
+
+------- GUI
+--- Draw functions
+function Clouds.Variator.DrawRGBBlack(ctx, x, y, w, h, stroke, velocity)
+    local stroke = stroke or 1
+    local velocity = velocity or 1
+    if Clouds.Variator.t.GUI.on then
+        local dl = ImGui.GetWindowDrawList(ctx)                
+        -- Create animated colors using HSV
+        local time = (reaper.time_precise() % velocity) / velocity
+        local hue = {0,.1}
+        local col = {}
+        for k, h in ipairs(hue) do
+            h = (time + h) % 1.0
+            local r,g,b = ImGui.ColorConvertHSVtoRGB(h, 0.75, 1.0)
+            col[#col+1] = ImGui.ColorConvertDouble4ToU32(r, g, b, 1)
+        end
+        
+        -- Draw the rectangle with animated colors
+        DL.imgui.DrawList_AddRectMultiColor(dl, x, y, x+w, y+h, stroke, col[1], col[2], col[2], col[1])
+    end    
+end
+
+local wt_hues = {0.7,0.88} -- white theme hues
+function Clouds.Variator.DrawWhiteRGB(ctx, x, y, w, h, stroke, velocity)
+    local stroke = stroke or 1
+    local velocity = velocity or 1
+    if Clouds.Variator.t.GUI.on then
+        local dl = ImGui.GetWindowDrawList(ctx)                
+        -- Create animated colors using HSV
+
+        local col = {}
+        for k, h in ipairs(wt_hues) do
+            local raw_time = (reaper.time_precise() % velocity) / velocity
+            if k == 2 then raw_time = (raw_time + 0.5) % 1 end
+            local time = 1 - math.abs(2 * raw_time - 1)  -- Triangle wave function
+            local c1 = DL.num.MapRange(time, 0, 1, wt_hues[1], wt_hues[2])
+            local r, g, b = ImGui.ColorConvertHSVtoRGB(c1, 0.4, 1.0)
+            col[#col+1] = ImGui.ColorConvertDouble4ToU32(r, g, b, 1)
+        end
+        
+        -- Draw the rectangle with animated colors
+        DL.imgui.DrawList_AddRectMultiColor(dl, x, y, x+w, y+h, stroke, col[1], col[2], col[2], col[1])
+    end    
+end
+
+local gui = {}
+function Clouds.Variator.Draw(ctx, w)
+    -- Initialize
+    if not gui.h then gui.h = ImGui.GetFrameHeight(ctx) end
+    -- Draw stroke
+    local x, y = ImGui.GetItemRectMin(ctx)
+    if Settings.theme == 'Dark' then
+        Clouds.Variator.DrawRGBBlack(ctx, x, y, w, gui.h, 1, 3.5)
+    else
+        Clouds.Variator.DrawWhiteRGB(ctx, x, y, w, gui.h, 2, 3.5)
+    end 
 end

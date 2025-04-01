@@ -2,6 +2,7 @@
 Clouds = Clouds or {}
 Clouds.GUI = {}
 
+--local demo = require 'ReaImGui_Demo' --DEBUG
 -- Define GUI start variables
 local ctx = ImGui.CreateContext(SCRIPT_NAME..SCRIPT_V)
 local guiW, guiH = 375,600
@@ -345,6 +346,7 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.density.envelope, 'density', 'density', 'envelope')
                 end
                 something_changed = something_changed or change
+                --Clouds.Variator.Hub(ctx, ImGui.GetFrameHeight(ctx), nil, FXENVELOPES.density)
                 if ImGui.BeginPopupContextItem(ctx,'densitymin') then
                     change, CloudTable.density.density.env_min = ImGui.SliderDouble(ctx, 'Min##SliderDensity', CloudTable.density.density.env_min, 0, CloudTable.density.density.val, nil, ImGui.SliderFlags_AlwaysClamp)
                     Clouds.Item.ApplyParameter(CloudTable.density.density.env_min, 'density', 'density', 'env_min')
@@ -713,11 +715,14 @@ function Clouds.GUI.Main()
             if ImGui.CollapsingHeader(ctx, "Envelope##header") then
                 ----- Volume
                 --Checkbox
-                change, CloudTable.envelopes.vol.on = ImGui.Checkbox(ctx, '##VolumeCheckboxenv', CloudTable.envelopes.vol.on); ImGui.SameLine(ctx)
+                --change, CloudTable.envelopes.vol.on = ImGui.Checkbox(ctx, '##VolumeCheckboxenv', CloudTable.envelopes.vol.on); ImGui.SameLine(ctx)
+                --Clouds.Variator.Hub(ctx, ImGui.GetFrameHeight(ctx), nil, CloudTable.envelopes.vol.on)
+                change, CloudTable.envelopes.vol.on  = Clouds.GUI.EnvelopesCheckBox(ctx, '##VolumeCheckboxenv', FXENVELOPES.envelopes.vol, CloudTable.envelopes.vol.on)
                 if change then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.vol.on, 'envelopes', 'vol', 'on')
                     Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.vol.on, FXENVELOPES.envelopes.vol)
                 end
+
                 something_changed = something_changed or change
 
                 change = chancepopup(CloudTable.envelopes.vol.chance, FXENVELOPES.envelopes.c_vol, CloudTable.envelopes.vol.on)
@@ -755,7 +760,8 @@ function Clouds.GUI.Main()
 
                 ----- Pan
                 --Checkbox
-                change, CloudTable.envelopes.pan.on = ImGui.Checkbox(ctx, '##PanCheckboxenv', CloudTable.envelopes.pan.on); ImGui.SameLine(ctx)
+                change, CloudTable.envelopes.pan.on  = Clouds.GUI.EnvelopesCheckBox(ctx, '##PanCheckboxenv', FXENVELOPES.envelopes.pan, CloudTable.envelopes.pan.on)
+
                 if change then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pan.on, 'envelopes', 'pan', 'on')
                     Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.pan.on, FXENVELOPES.envelopes.pan)
@@ -795,7 +801,7 @@ function Clouds.GUI.Main()
 
                 ----- Pitch
                 --Checkbox
-                change, CloudTable.envelopes.pitch.on = ImGui.Checkbox(ctx, '##pitchCheckboxenv', CloudTable.envelopes.pitch.on); ImGui.SameLine(ctx)
+                change, CloudTable.envelopes.pitch.on  = Clouds.GUI.EnvelopesCheckBox(ctx, '##pitchCheckboxenv', FXENVELOPES.envelopes.pitch, CloudTable.envelopes.pitch.on)
                 if change then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.pitch.on, 'envelopes', 'pitch', 'on')
                     Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.pitch.on, FXENVELOPES.envelopes.pitch)
@@ -844,7 +850,9 @@ function Clouds.GUI.Main()
 
                 ----- stretch
                 --Checkbox
-                change, CloudTable.envelopes.stretch.on = ImGui.Checkbox(ctx, '##stretchCheckboxenv', CloudTable.envelopes.stretch.on); ImGui.SameLine(ctx)
+                --change, CloudTable.envelopes.stretch.on = ImGui.Checkbox(ctx, '##stretchCheckboxenv', CloudTable.envelopes.stretch.on); ImGui.SameLine(ctx)
+                change, CloudTable.envelopes.stretch.on  = Clouds.GUI.EnvelopesCheckBox(ctx, '##stretchCheckboxenv', FXENVELOPES.envelopes.stretch, CloudTable.envelopes.stretch.on)
+
                 if change then
                     Clouds.Item.ApplyParameter(CloudTable.envelopes.stretch.on, 'envelopes', 'stretch', 'on')
                     Clouds.Item.ShowHideEnvelope(CloudTable.envelopes.stretch.on, FXENVELOPES.envelopes.stretch)
@@ -1382,7 +1390,15 @@ function Clouds.GUI.EnvCheck(val, env_n, tip)
     if tip then 
         tooltip(ctx, Settings.tooltip, tip)
     end
+    Clouds.Variator.Hub(ctx, ImGui.GetFrameHeight(ctx), nil, env_n)
+
     return something_changed, val
+end
+
+function Clouds.GUI.EnvelopesCheckBox(ctx, id, env_idx, value)
+    local change, value = ImGui.Checkbox(ctx, id, value); ImGui.SameLine(ctx)
+    Clouds.Variator.Hub(ctx, ImGui.GetFrameHeight(ctx), nil, env_idx)
+    return change, value
 end
 
 function Clouds.GUI.BuyPopUp(ctx, time)
@@ -1498,13 +1514,62 @@ function Clouds.GUI.Variator()
     local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' Variator', true, ImGui.WindowFlags_AlwaysAutoResize) 
     if visible then
         local change = false
+        ImGui.PushItemWidth(ctx, var_gui.btn_w)
         ImGui.SeparatorText(ctx, "Variate Clouds Parameters")
-        ImGui.SetNextItemWidth(ctx, var_gui.btn_w)
         change, Clouds.Variator.t.parameters.chance = ImGui.SliderDouble(ctx, 'Chance to Variate', Clouds.Variator.t.parameters.chance, 0, 100)
-        ImGui.SetNextItemWidth(ctx, var_gui.btn_w)
         change, Clouds.Variator.t.parameters.percent = ImGui.DragDouble(ctx, "Variate Amount", Clouds.Variator.t.parameters.percent, 0.03, 0, 10000, '%.1f%%')
-        if ImGui.Button(ctx, 'hi', var_gui.btn_w) then
+
+        -- envelopes
+        ImGui.SeparatorText(ctx, "Variate Clouds Envelopes")
+        if ImGui.BeginTabBar(ctx, '##Variate Envelopes') then
+            if ImGui.BeginTabItem(ctx, 'Edit Points') then
+                Clouds.Variator.t.envelopes.is_edit = true
+                -- Value
+                change, Clouds.Variator.t.envelopes.edit.value = ImGui.SliderInt(ctx, 'Value##EnvEdit', Clouds.Variator.t.envelopes.edit.value, 0, 100, '%i%%')
+                -- Position
+                change, Clouds.Variator.t.envelopes.edit.position = ImGui.SliderInt(ctx, 'Position##EnvEdit', Clouds.Variator.t.envelopes.edit.position, 0, 100, '%i%%')
+                change, Clouds.Variator.t.envelopes.edit.keep_shape = ImGui.Checkbox(ctx, 'Keep Shape##EnvEdit', Clouds.Variator.t.envelopes.edit.keep_shape)
+                ImGui.EndTabItem(ctx)
+            end
+
+            if ImGui.BeginTabItem(ctx, 'New Points') then
+                Clouds.Variator.t.envelopes.is_edit = false
+                local min, max
+                change, min, max = ImGui.DragInt2(ctx, 'Nº of Points##EnvEdit', Clouds.Variator.t.envelopes.gen.n_points.min, Clouds.Variator.t.envelopes.gen.n_points.max, 0.02, 1, INT_MAX)
+                --change, Clouds.Variator.t.envelopes.gen.n_points = ImGui.DragInt(ctx, 'Nº of Points##EnvEdit', Clouds.Variator.t.envelopes.gen.n_points, 0.02, 0, INT_MAX)
+                if change then
+                    if min > max then 
+                        if min ~= Clouds.Variator.t.envelopes.gen.n_points.min then
+                            max = min
+                        else
+                            min = max
+                        end
+                    end
+                    Clouds.Variator.t.envelopes.gen.n_points.min = DL.num.Clamp(min, 1)
+                    Clouds.Variator.t.envelopes.gen.n_points.max = DL.num.Clamp(max, 1)
+                end
+
+                change, Clouds.Variator.t.envelopes.gen.dust = ImGui.DragDouble(ctx, 'Dust##EnvEdit', Clouds.Variator.t.envelopes.gen.dust, 0.01, 0, FLT_MAX)
+                if ImGui.IsItemDeactivatedAfterEdit(ctx) then
+                    Clouds.Variator.t.envelopes.gen.dust = DL.num.Clamp(Clouds.Variator.t.envelopes.gen.dust, 0)
+                end
+                --change, Clouds.Variator.t.envelopes.gen.v_range.min, Clouds.Variator.t.envelopes.gen.v_range.max = ImGui.SliderDouble2(ctx, 'Value Range##EnvEdit', Clouds.Variator.t.envelopes.gen.v_range.min, Clouds.Variator.t.envelopes.gen.v_range.max, 0, 1)
+                local vals = {Clouds.Variator.t.envelopes.gen.v_range.min, Clouds.Variator.t.envelopes.gen.v_range.max}
+                change, vals = DL.imgui.MultiSlider(ctx, 'Value Range##EnvEdit', vals, 0, 1, false, false, false)
+                if change then
+                    Clouds.Variator.t.envelopes.gen.v_range.min = math.min(vals[1], vals[2])
+                    Clouds.Variator.t.envelopes.gen.v_range.max = math.max(vals[1], vals[2])
+                end
+                ImGui.EndTabItem(ctx)
+            end
+
+            ImGui.EndTabBar(ctx)
         end
+
+        -- Create N copies
+
+
+        ImGui.PopItemWidth(ctx)
         ImGui.End(ctx)
     end
 

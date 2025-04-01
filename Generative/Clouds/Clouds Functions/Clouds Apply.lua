@@ -392,8 +392,8 @@ function Clouds.apply.GenerateClouds(proj, is_selection, is_delete)
                                     if reroll[k] then reroll[k].grains.offset_drift = drift end
                                 end
                             end
-                        end
-                        if ct.midi_notes.synth.hold_pos then
+                          end
+                        if ct.midi_notes.is_synth and ct.midi_notes.synth.hold_pos then
                             notes_positions[synth_freqs[k].note_id] = grain_offset
                         end
                     else -- Get the held value
