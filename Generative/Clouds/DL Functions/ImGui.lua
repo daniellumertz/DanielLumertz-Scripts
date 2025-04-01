@@ -270,7 +270,7 @@ end
 DL.imgui.keys = {
     --table with all keys to bypass from SWSPassKeys. Store the key code as indexes at this table, like this: DL.imgui.keys.bypass[	0x56] = true. https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
     bypass = {
-
+        
     }
 } 
 

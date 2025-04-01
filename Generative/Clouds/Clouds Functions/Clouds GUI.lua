@@ -1519,6 +1519,7 @@ function Clouds.GUI.Variator()
         change, Clouds.Variator.t.parameters.chance = ImGui.SliderDouble(ctx, 'Chance to Variate', Clouds.Variator.t.parameters.chance, 0, 100)
         change, Clouds.Variator.t.parameters.percent = ImGui.DragDouble(ctx, "Variate Amount", Clouds.Variator.t.parameters.percent, 0.03, 0, 10000, '%.1f%%')
 
+        ImGui.NewLine(ctx)
         -- envelopes
         ImGui.SeparatorText(ctx, "Variate Clouds Envelopes")
         if ImGui.BeginTabBar(ctx, '##Variate Envelopes') then
@@ -1565,6 +1566,11 @@ function Clouds.GUI.Variator()
 
             ImGui.EndTabBar(ctx)
         end
+
+        ImGui.NewLine(ctx)
+        ImGui.Separator(ctx)
+        ImGui.Text(ctx, 'Press Ctrl/Command at the sliders and checkboxes to variate.')
+
 
         -- Create N copies
 
@@ -1643,5 +1649,5 @@ end
 
 function Clouds.GUI.InitVariator(is_start)
     Clouds.Variator.t.GUI.on = is_start
-    DL.imgui.keys.bypass[0x56] = is_start -- V key to bypass from SWSPassKeys
+    --DL.imgui.keys.bypass[0x56] = is_start -- V key to bypass from SWSPassKeys
 end

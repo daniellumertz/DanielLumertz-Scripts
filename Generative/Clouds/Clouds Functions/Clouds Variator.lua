@@ -42,7 +42,7 @@ function Clouds.Variator.Hub(ctx, w, vtype, env_idx)
     if Clouds.Variator.t.GUI.on then 
         Clouds.Variator.Draw(ctx, w)
         -- Check if key is pressed
-        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Key_V, false) then
+        if ImGui.IsItemHovered(ctx) and ImGui.IsKeyPressed(ctx, ImGui.Mod_Ctrl, false) then
             for kct, ct in ipairs(CloudsTables) do
                 if not env_idx then
                     Clouds.Variator[vtype](ct)
