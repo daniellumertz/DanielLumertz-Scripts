@@ -31,7 +31,7 @@ function Clouds.Presets.Load(path)
                 new_ct.tracks = ct.tracks
                 Clouds.Item.UpdateVersion(new_ct)
                 CloudsTables[ct_idx] = new_ct
-                Clouds.Item.SaveSettings(Proj, ct.cloud, ct)
+                Clouds.Item.SaveSettings(Proj, ct.cloud, new_ct)
             end
             CloudTable = CloudsTables[1]
             Clouds.Item.ShowHideAllEnvelopes()
