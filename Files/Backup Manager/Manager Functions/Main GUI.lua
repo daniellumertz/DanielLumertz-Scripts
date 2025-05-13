@@ -10,6 +10,7 @@ local FLT_MIN, FLT_MAX = ImGui.NumericLimits_Float()
 local INT_MIN, INT_MAX = ImGui.NumericLimits_Int()
 local gui_var = {
     donation_link = "https://www.paypal.com/donate/?hosted_button_id=RWA58GZTYMZ3N",
+    counter = 'https://script.google.com/macros/s/AKfycbwBxX9V8NRP-EFNao0jVbCKHns4m-2tY78h40gAm6xH5zkqwbtOCzJYBwAWqrt-KtAXLg/exec',
     proj_button = {
         text = 'Project Path',
         size = 120 
@@ -70,7 +71,12 @@ local gui_var = {
     }
 }
 local proj = 0
-local loading 
+local ext = reaper.GetExtState('DL_BackupManager', 'Counter') 
+if not ext or ext == '' then
+    local site = DL.url.CurlFormat(gui_var.counter)
+    reaper.ExecProcess(site, 500)
+    reaper.SetExtState('DL_BackupManager', 'Counter', 'y', true) 
+end 
 function DL_Manager.GUI()
     --- Window
     ImGui.SetNextWindowSize(ctx, guiW, guiH, ImGui.Cond_Once)
