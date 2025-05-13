@@ -2,6 +2,7 @@
 --version: 0.1
 -- 0.1
 -- Fix GetExtension
+-- add DirectoryExists
 
 DL = DL or {}
 DL.files = {}
@@ -61,5 +62,84 @@ function DL.files.IsValidExtension(file_name, valid_extensions)
         end
     end
     return false 
+end
+
+function DL.files.FindFilesByExtension(extension, path, recursive)
+    local files = {}
+    
+    for file in DL.enum.Files(path) do
+        local file_path = path..'/'..file
+        local file_extension = DL.files.GetExtension(file_path)
+        if file_extension == extension then
+            files[#files+1] = file_path
+        end 
+    end
+
+    if recursive then
+        for sub_directory in DL.enum.SubDirectories(path) do
+            local sub_path = path .. '/' .. sub_directory 
+            local sub_files = DL.files.FindFilesByExtension(extension, sub_path, recursive)
+            for k, v in ipairs(sub_files) do
+                files[#files+1] = v
+            end
+        end
+    end
+
+    return files
+end
+
+function DL.files.DirectoryExists(path)
+    local ok, err, code = os.rename(path, path)
+    if not ok then
+       if code == 13 then
+          -- Permission denied, but it exists
+          return true
+       end
+    end
+    return ok, err
+end
+
+---Opens the specified directory path in the default file explorer of the current operating system.
+---@param dirPath string The directory path to open
+---@return boolean success True if the directory was successfully opened, false otherwise
+function DL.files.GoToPath(dirPath)
+    -- Get the OS type
+    local osType = reaper.GetOS()
+    
+    -- Build the command based on OS
+    local command
+    if osType:match("^Win") then
+        -- Windows: Use explorer.exe
+        command = 'explorer.exe "' .. dirPath:gsub('/', '\\') .. '"'
+    elseif osType:match("^OSX") then
+        -- macOS: Use open command
+        command = 'open "' .. dirPath .. '"'
+    elseif osType:match("^Other") then
+        -- Linux: Try xdg-open (most common)
+        command = 'xdg-open "' .. dirPath .. '"'
+    else
+        reaper.ShowMessageBox("Unsupported operating system", "Error", 0)
+        return false
+    end
+    
+    -- Execute the command
+    local result = reaper.ExecProcess(command, -1) 
+end
+
+---Converts a file size in bytes to a human-readable string with appropriate units.
+---@param bytes number The file size in bytes
+---@return string Formatted file size with two decimal places and appropriate unit (B, KB, MB, GB, TB)
+function DL.files.formatFileSize(bytes)
+    local units = {"B", "KB", "MB", "GB", "TB"}
+    local unitIndex = 1
+    local size = bytes
+    
+    while size >= 1024 and unitIndex < #units do
+        size = size / 1024
+        unitIndex = unitIndex + 1
+    end
+    
+    -- Round to 2 decimal places
+    return string.format("%.2f %s", size, units[unitIndex])
 end
 

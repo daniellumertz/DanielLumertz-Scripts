@@ -1,5 +1,6 @@
 --@noindex
---version: 0.0
+--version: 0.1
+-- fix GetFullPath to add a / after the path
 
 DL = DL or {}
 DL.proj = {}
@@ -34,5 +35,5 @@ end
 ---@param proj ReaProject|0|nil project
 ---@return string path
 function DL.proj.GetFullPath(proj) -- with projct Name. with .rpp at the end
-    return reaper.GetProjectPathEx(proj):gsub("(.*)\\.*$","%1")  .. reaper.GetProjectName(proj)
+    return reaper.GetProjectPathEx(proj):gsub("(.*)\\.*$","%1")  .. '/' ..reaper.GetProjectName(proj)
 end

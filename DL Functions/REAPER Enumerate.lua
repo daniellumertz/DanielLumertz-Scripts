@@ -244,19 +244,9 @@ function DL.enum.MIDIInput()
     end
 end
 
----Enumerate files inside a directory
-function DL.enum.Files(path)
-    local i = -1
-    return function ()
-        i = i + 1
-        return reaper.EnumerateFiles( path, i ) 
-    end    
-end
-
 -------------
 ---- MIDI
 -------------
-
 
 --- This is the simple version that haves no filter besides the last event. Easy to understand and if you want to check the difference in performance with my IterateMIDI function. Or if you want to filter yourself. 
 ---@param MIDIstring string string with all MIDI events (use reaper.MIDI_GetAllEvts)
@@ -402,4 +392,26 @@ function DL.enum.MIDINotes(take)
             return selected, muted, startppqpos, endppqpos, chan, pitch, vel, noteidx
         end        
     end    
+end
+
+-------------
+---- Files
+-------------
+
+---Enumerate files inside a directory
+function DL.enum.Files(path)
+    local i = -1
+    return function ()
+        i = i + 1
+        return reaper.EnumerateFiles( path, i ) 
+    end    
+end
+
+---Enumerate SubDirectories inside a directory
+function DL.enum.SubDirectories(path)
+    local i = -1
+    return function ()
+        i = i + 1
+        return reaper.EnumerateSubdirectories( path, i )
+    end   
 end
