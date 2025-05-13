@@ -3,7 +3,6 @@
 -- @provides
 --    [nomain] DL Functions/*.lua
 --    [nomain] Manager Functions/*.lua
---    [nomain] Image/Cloud.png
 -- @changelog
 --    + Initial release
 -- @license MIT
