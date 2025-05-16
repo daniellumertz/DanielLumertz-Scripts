@@ -107,6 +107,7 @@ function DL_Manager.GUI()
             if ImGui.Button(ctx, gui_var.proj_button.text, gui_var.proj_button.size - 12) then
                 local proj_path = DL.proj.GetFullPath(proj)
                 if reaper.file_exists(proj_path) then -- if file does not exist, the project has not been saved. And it will return the documents folder or another directory.
+                    print(proj_path)
                     proj_path = DL.files.GetDir(proj_path)
                 end
                 DL_Manager.backup.input.path = proj_path
