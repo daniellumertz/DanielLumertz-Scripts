@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="222f0e4a9825add6603e3735537cb4cd5b146735">
+<index version="1" name="Daniel Lumertz Scripts" commit="1fa62b8c4208da68e10b58132914086eff353d80">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -187,6 +187,41 @@
         <source file="Manager Functions/Main GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/222f0e4a9825add6603e3735537cb4cd5b146735/Files/Backup%20Manager/Manager%20Functions/Main%20GUI.lua</source>
         <source file="Manager Functions/Misc.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/222f0e4a9825add6603e3735537cb4cd5b146735/Files/Backup%20Manager/Manager%20Functions/Misc.lua</source>
         <source file="Manager Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/222f0e4a9825add6603e3735537cb4cd5b146735/Files/Backup%20Manager/Manager%20Functions/Theme.lua</source>
+      </version>
+      <version name="0.1.2b" author="Daniel Lumertz" time="2025-05-16T19:13:08Z">
+        <changelog><![CDATA[+ Initial release]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/daniellumertz_Backup%20Manager.lua</source>
+        <source file="DL Functions/General Debug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/General%20Debug.lua</source>
+        <source file="DL Functions/General Files.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/General%20Files.lua</source>
+        <source file="DL Functions/General Number.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/General%20Number.lua</source>
+        <source file="DL Functions/General String.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/General%20String.lua</source>
+        <source file="DL Functions/General Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/General%20Table.lua</source>
+        <source file="DL Functions/ImGui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/ImGui.lua</source>
+        <source file="DL Functions/MIDI IO.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/MIDI%20IO.lua</source>
+        <source file="DL Functions/MIDI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/MIDI.lua</source>
+        <source file="DL Functions/Music.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/Music.lua</source>
+        <source file="DL Functions/REAPER Automation Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Automation%20Items.lua</source>
+        <source file="DL Functions/REAPER Checker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Checker.lua</source>
+        <source file="DL Functions/REAPER Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Chunks.lua</source>
+        <source file="DL Functions/REAPER Enumerate.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Enumerate.lua</source>
+        <source file="DL Functions/REAPER Envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Envelopes.lua</source>
+        <source file="DL Functions/REAPER FX.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20FX.lua</source>
+        <source file="DL Functions/REAPER Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Items.lua</source>
+        <source file="DL Functions/REAPER Markers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Markers.lua</source>
+        <source file="DL Functions/REAPER Play.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Play.lua</source>
+        <source file="DL Functions/REAPER Projects.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Projects.lua</source>
+        <source file="DL Functions/REAPER Take.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Take.lua</source>
+        <source file="DL Functions/REAPER Time.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Time.lua</source>
+        <source file="DL Functions/REAPER Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/REAPER%20Tracks.lua</source>
+        <source file="DL Functions/Serialize.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/Serialize.lua</source>
+        <source file="DL Functions/URL.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/URL.lua</source>
+        <source file="DL Functions/_example.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/_example.lua</source>
+        <source file="DL Functions/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/json.lua</source>
+        <source file="DL Functions/rxi_json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/DL%20Functions/rxi_json.lua</source>
+        <source file="Manager Functions/Backup.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/Manager%20Functions/Backup.lua</source>
+        <source file="Manager Functions/Main GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/Manager%20Functions/Main%20GUI.lua</source>
+        <source file="Manager Functions/Misc.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/Manager%20Functions/Misc.lua</source>
+        <source file="Manager Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/1fa62b8c4208da68e10b58132914086eff353d80/Files/Backup%20Manager/Manager%20Functions/Theme.lua</source>
       </version>
     </reapack>
   </category>
