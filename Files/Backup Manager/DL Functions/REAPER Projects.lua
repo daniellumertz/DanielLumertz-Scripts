@@ -35,5 +35,5 @@ end
 ---@param proj ReaProject|0|nil project
 ---@return string path
 function DL.proj.GetFullPath(proj) -- with projct Name. with .rpp at the end
-    return reaper.GetProjectPathEx(proj):gsub("(.*)\\.*$","%1")  .. '/' ..reaper.GetProjectName(proj)
+    return reaper.GetProjectPathEx(proj):gsub("(.*)[\\/].*$","%1")  .. '/' ..reaper.GetProjectName(proj)
 end
