@@ -18,6 +18,9 @@ If you prefer to watch a video tutorial: https://www.youtube.com/watch?v=hucbceV
 
 ## REAPER Scripts Highlights:
 
+### Backup Manager (2025)
+Backup Manager is a ReaScript designed to search for .rpp-bak files and delete them. It supports recursive folder scanning and includes an option to keep only the latest N backups in each directory. [More Info](https://forum.cockos.com/showthread.php?t=300616)
+
 ### Clouds (2025)
 Clouds is a REAPER script designed for experimenting with texture generation. With it, you create a "Cloud Item" that stores settings and defines the texture's position. The texture is created by copying, granularizing, and randomizing a group of items (audio/MIDI/video). [More Info](https://forum.cockos.com/showthread.php?t=298170), [Video](https://www.youtube.com/watch?v=IWLGhHi0nnE)
 
