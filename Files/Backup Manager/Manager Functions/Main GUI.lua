@@ -221,7 +221,17 @@ function DL_Manager.GUI()
                                     short_text = DL_Manager.misc.removeCommonDirectories(last_path, r_text)
                                 end
                                 last_path, last_row = r_text, row
-                                local change, new_val = ImGui.Selectable(ctx, short_text..'##sel '..row, files[row].select, ImGui.SelectableFlags_SpanAllColumns | ImGui.SelectableFlags_AllowOverlap, 0)
+                                ----------------------------  DEBUG, Delete if fixed
+                                if not short_text then
+                                    reaper.ClearConsole()
+                                    print('Please report the following information at the forum!!!:')
+                                    print('r_text: ', r_text)
+                                    print('text: ', text)
+                                    print('last_path: ', last_path)
+                                    print('removeCommonDirectories: ', DL_Manager.misc.removeCommonDirectories(last_path, r_text))
+                                end
+                                ----------------------------
+                                local change, new_val = ImGui.Selectable(ctx, (short_text or r_text)..'##sel '..row, files[row].select, ImGui.SelectableFlags_SpanAllColumns | ImGui.SelectableFlags_AllowOverlap, 0)
                                 if ImGui.BeginPopupContextItem(ctx) then
                                     if ImGui.MenuItem(ctx, 'Open in Explorer/Finder') then
                                         DL.files.GoToPath(DL.files.GetDir(files[row].path))
