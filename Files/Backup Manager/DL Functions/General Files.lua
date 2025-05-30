@@ -110,20 +110,21 @@ function DL.files.GoToPath(dirPath)
     local command
     if osType:match("^Win") then
         -- Windows: Use explorer.exe
-        command = 'explorer.exe "' .. dirPath:gsub('/', '\\') .. '"'
-    elseif osType:match("^OSX") then
+        command = 'explorer.exe "' .. dirPath:gsub('/+', '\\'):gsub('\\+', '\\') .. '"'
+    elseif osType:match("^OSX") or osType:match("^macOS") then
         -- macOS: Use open command
-        command = 'open "' .. dirPath .. '"'
+        command = '/usr/bin/open "' .. dirPath:gsub('/+','/') .. '"'
     elseif osType:match("^Other") then
         -- Linux: Try xdg-open (most common)
-        command = 'xdg-open "' .. dirPath .. '"'
+        command = '/usr/bin/xdg-open "' .. dirPath:gsub('/+','/') .. '"'
     else
         reaper.ShowMessageBox("Unsupported operating system", "Error", 0)
         return false
     end
     
     -- Execute the command
-    local result = reaper.ExecProcess(command, -1) 
+    local result = reaper.ExecProcess(command, -1)
+    return true
 end
 
 ---Converts a file size in bytes to a human-readable string with appropriate units.
