@@ -8,7 +8,7 @@ Clouds.Tracks.time = 0
 Clouds.Tracks.len = 2
 -- Get 
 function Clouds.Tracks.Get()
-    Clouds.Tracks.is_track = reaper.GetExtState(EXT_NAME, 'track')    
+    Clouds.Tracks.is_track = true -- reaper.GetExtState(EXT_NAME, 'track') always true while it is for free!    
 end
 
 -- Set

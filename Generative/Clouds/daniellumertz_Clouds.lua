@@ -1,4 +1,4 @@
--- @version 1.2.0
+-- @version 1.3.0
 -- @author Daniel Lumertz
 -- @provides
 --    [main] daniellumertz_Clouds Generate for All Items.lua
@@ -13,10 +13,10 @@
 --    [nomain] User Settings/.gitkeep
 --    [effect] FX/daniellumertz_Clouds.jsfx
 -- @changelog
---    + Fixed Randomization UI issue with out-of-bounds values for pan, volume, and stretch when the user manually inputs a value.
+--    + It is free from now on. MIT Lincense 
 -- @license 
 --[[
-    I am not sure which license to use. This code is open-source. You may not bypass the pay window, besides that you are free to modify this code, or use my functions in your project. If you make something cool share with me! 
+    MIT
 ]]
 -- Debug
 if reaper.file_exists( "c:/Users/DSL/.vscode/extensions/antoinebalaine.reascript-docs-0.1.12/debugger/LoadDebug.lua" ) then
@@ -29,7 +29,7 @@ reaper.defer = profiler.defer ]]
 
 -- Constants:
 SCRIPT_NAME = 'Clouds'
-SCRIPT_V  = '1.2.0' -- version should always be three digits! leters, for beta versions, are acceptable.
+SCRIPT_V  = '1.3.0' -- version should always be three digits! leters, for beta versions, are acceptable.
 EXT_NAME = 'daniellumertz_Clouds'     -- keys: settings (for clouds), is_item (for generated items)
 FX_NAME = 'daniellumertz_Clouds'
 Proj = 0
