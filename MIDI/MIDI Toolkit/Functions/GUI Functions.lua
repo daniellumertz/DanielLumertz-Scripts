@@ -4,13 +4,13 @@
 function GuiInit(ScriptName,ScriptPath)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
-    Gui_W,Gui_H= 200,450
+    Gui_W,Gui_H= 210,475
     --- Text Font
     FontText = reaper.ImGui_CreateFont('sans-serif', 14) -- Create the fonts you need
     reaper.ImGui_AttachFont(ctx, FontText)-- Attach the fonts you need
     --- Title Font
     --FontTitle = reaper.ImGui_CreateFont('sans-serif', 18) 
-    FontTitle = reaper.ImGui_CreateFont(ScriptPath..'Fonts/Poppins-Regular.ttf', 21)
+    FontTitle = reaper.ImGui_CreateFont(ScriptPath..'Fonts/Poppins-Regular.ttf', 19)
     reaper.ImGui_AttachFont(ctx, FontTitle)
     --- Symbol Font
     SymbolFont = reaper.ImGui_CreateFont(ScriptPath..'Fonts/Symbols.ttf', 14)

@@ -378,7 +378,7 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.cap, 'density', 'cap')
                 end
                 something_changed = something_changed or change
-                Clouds.Variator.Hub(ctx, 152, 'cap')
+                Clouds.Variator.Hub(ctx, 140, 'cap')
 
                 ----- N GEN
                 change, CloudTable.density.n_gen = ImGui.InputInt(ctx, 'Generate N Times', CloudTable.density.n_gen)
@@ -387,7 +387,7 @@ function Clouds.GUI.Main()
                     Clouds.Item.ApplyParameter(CloudTable.density.n_gen, 'density', 'n_gen')
                 end
                 something_changed = something_changed or change
-                Clouds.Variator.Hub(ctx, 152, 'n_gen')
+                Clouds.Variator.Hub(ctx, 140, 'n_gen')
 
                 ----- Quantize
                 change, CloudTable.density.quantize = ImGui.Checkbox(ctx, 'Quantize Items To Grid', CloudTable.density.quantize)

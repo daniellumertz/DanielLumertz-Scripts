@@ -1,4 +1,4 @@
--- @version 1.0.3
+-- @version 1.0.4
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] Functions/*.lua
@@ -29,7 +29,7 @@ dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')(
 
 -- Global Variables GUI
 ScriptName = 'Fake Grids'
-Version = '1.0.3' -- version of the script
+Version = '1.0.4' -- version of the script
 
 Settings = {Tips = true} -- GUI Settings for the script
 -- Global Variables Logic

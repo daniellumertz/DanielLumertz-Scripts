@@ -2,7 +2,7 @@
 function GuiInit(ScriptName)
     ctx = reaper.ImGui_CreateContext(ScriptName) -- Add VERSION TODO
     -- Define Globals GUI
-    Gui_W,Gui_H= 365,400
+    Gui_W,Gui_H= 400,450
     --- Text Font
     FontText = reaper.ImGui_CreateFont('sans-serif', 14) -- Create the fonts you need
     reaper.ImGui_AttachFont(ctx, FontText)-- Attach the fonts you need

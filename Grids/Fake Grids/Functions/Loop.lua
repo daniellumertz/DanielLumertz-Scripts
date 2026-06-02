@@ -4,7 +4,7 @@ function GuiInit()
     ctx = reaper.ImGui_CreateContext(ScriptName)
     -- set the font
     --- Text Font
-    TextFont = reaper.ImGui_CreateFont(ScriptPath..'Fonts/Poppins-Regular.ttf', 18)
+    TextFont = reaper.ImGui_CreateFont(ScriptPath..'Fonts/Poppins-Regular.ttf', 14)
     reaper.ImGui_AttachFont(ctx, TextFont)
     --- Set Initital Values
     Gui_W, Gui_H = 215, 350

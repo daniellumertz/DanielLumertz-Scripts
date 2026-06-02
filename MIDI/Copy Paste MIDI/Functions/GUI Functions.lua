@@ -4,7 +4,7 @@ function GuiInit()
     ctx = reaper.ImGui_CreateContext('Copy Paste MIDI') -- Add VERSION TODO
     -- Define Globals GUI
     W,H= 200,375
-    local difference_gap = 98
+    local difference_gap = 105
     local n_buttons = 7
     Btn_size = (H/n_buttons) - (difference_gap/n_buttons)
 end

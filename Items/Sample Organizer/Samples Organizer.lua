@@ -1,10 +1,10 @@
--- @version 1.2
+-- @version 1.2.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Function.lua
 --    [nomain] REAPER Functions.lua
 -- @changelog
---    + Update Checkers
+--    + Fix Imgui Size
 
 
 ----------------------
@@ -13,7 +13,7 @@
 
 
 
-script_version = "1.2"
+script_version = "1.2.1"
 ---
 info = debug.getinfo(1,'S')
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]] -- this script folder
@@ -237,7 +237,7 @@ function loop()
     reaper.ImGui_PushFont(ctx, font)
     reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
 
-    reaper.ImGui_SetNextWindowSize(ctx, 208, 225, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    reaper.ImGui_SetNextWindowSize(ctx, 225, 240, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
 
     --Begin
     local visible, open = reaper.ImGui_Begin(ctx, 'Sample Organizer', true,    reaper.ImGui_WindowFlags_None()
@@ -286,7 +286,7 @@ function loop()
 
         --SetColor(4)
 
-        if reaper.ImGui_Button(ctx, ' Copy/Paste ',192,115) then
+        if reaper.ImGui_Button(ctx, ' Copy/Paste ',-1,-1) then
             Paste()
         end
         

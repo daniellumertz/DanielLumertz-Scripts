@@ -45,7 +45,7 @@ local gui_var = {
             cancel = 'Cancel'
         },
         w = 475,
-        h = 125
+        h = 150
     },
 
     ver_pu = {

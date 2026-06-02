@@ -1,10 +1,10 @@
--- @version 0.1.4
+-- @version 0.1.5
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] DL Functions/*.lua
 --    [nomain] Manager Functions/*.lua
 -- @changelog
---    + Looking for bug reported about line 224 and a nil strng. This will print whenever the error is triggered
+--    + Update for new ImGui font version 
 -- @license MIT
 
 --[[

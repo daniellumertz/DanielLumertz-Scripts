@@ -69,7 +69,7 @@ function loop()
         ------------------- Action Parameters
         local col1 = 40
         local col2 = 85+col1 -- for the second radio option 
-        local col3 = 215+col1 -- for the order
+        local col3 = 235+col1 -- for the order
         ----------------------- Pitch
         reaper.ImGui_SetCursorPosX(ctx, col1)
         local retval, retval2, old_radio_pitch = nil,nil,PitchSettings.mode
