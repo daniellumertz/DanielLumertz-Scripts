@@ -3,7 +3,7 @@ DL_Manager = DL_Manager or {}
 -- Gui variable
 local ctx = ImGui.CreateContext(SCRIPT_NAME..SCRIPT_V)
 --- Text Font
-local font_text = ImGui.CreateFont('monospace', 24) -- Create the fonts you need
+local font_text = ImGui.CreateFont('monospace', 11) -- Create the fonts you need
 ImGui.Attach(ctx, font_text)-- Attach the fonts you need
 local guiW, guiH = 1280,375
 local FLT_MIN, FLT_MAX = ImGui.NumericLimits_Float()
@@ -81,7 +81,7 @@ function DL_Manager.GUI()
     --- Window
     ImGui.SetNextWindowSize(ctx, guiW, guiH, ImGui.Cond_Once)
     ImGui.SetNextWindowSizeConstraints(ctx, gui_var.min_size.w, gui_var.min_size.h, INT_MAX, INT_MAX)
-    --ImGui.PushFont(ctx, font_text)
+    ImGui.PushFont(ctx, font_text)
     DL_Manager.Themes.Dark.Push(ctx)
     local window_flags
     local visible, open = ImGui.Begin(ctx, SCRIPT_NAME..' '..SCRIPT_V, true, window_flags) 
@@ -372,7 +372,7 @@ function DL_Manager.GUI()
 
         ImGui.End(ctx)
     end
-    --ImGui.PopFont(ctx)
+    ImGui.PopFont(ctx)
     DL_Manager.Themes.Dark.Pop(ctx)
 
     if open then

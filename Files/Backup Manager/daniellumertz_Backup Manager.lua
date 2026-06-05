@@ -1,10 +1,10 @@
--- @version 0.1.5
+-- @version 0.1.6
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] DL Functions/*.lua
 --    [nomain] Manager Functions/*.lua
 -- @changelog
---    + Update for new ImGui font version 
+--    + Fix monospace font  
 -- @license MIT
 
 --[[
@@ -38,7 +38,7 @@ ImGui = require 'imgui' '0.9.3'
 
 -- Variables
 SCRIPT_NAME = 'Backup Manager'
-SCRIPT_V = '0.1.4' 
+SCRIPT_V = '0.1.6' 
 DL_version_btn = false -- if you turn this true, it will enable an >experimental< feature to limit the number of versions of each file. Seems to be working, but it is too slow, so I stopped developing it in lua.  
 
 -- Import functions from DL functions folder
