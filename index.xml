@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="351637fb8862084cb98514a8462181ebd726c7b9">
+<index version="1" name="Daniel Lumertz Scripts" commit="d08bf3711677f135f0ddbdcf1ac540d76ea5f867">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -327,6 +327,41 @@
         <source file="Manager Functions/Main GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4e3d9462cbb507614b589ee9b816ffd123214d1d/Files/Backup%20Manager/Manager%20Functions/Main%20GUI.lua</source>
         <source file="Manager Functions/Misc.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4e3d9462cbb507614b589ee9b816ffd123214d1d/Files/Backup%20Manager/Manager%20Functions/Misc.lua</source>
         <source file="Manager Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/4e3d9462cbb507614b589ee9b816ffd123214d1d/Files/Backup%20Manager/Manager%20Functions/Theme.lua</source>
+      </version>
+      <version name="0.1.5" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ Update for new ImGui font version ]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/daniellumertz_Backup%20Manager.lua</source>
+        <source file="DL Functions/General Debug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/General%20Debug.lua</source>
+        <source file="DL Functions/General Files.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/General%20Files.lua</source>
+        <source file="DL Functions/General Number.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/General%20Number.lua</source>
+        <source file="DL Functions/General String.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/General%20String.lua</source>
+        <source file="DL Functions/General Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/General%20Table.lua</source>
+        <source file="DL Functions/ImGui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/ImGui.lua</source>
+        <source file="DL Functions/MIDI IO.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/MIDI%20IO.lua</source>
+        <source file="DL Functions/MIDI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/MIDI.lua</source>
+        <source file="DL Functions/Music.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/Music.lua</source>
+        <source file="DL Functions/REAPER Automation Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Automation%20Items.lua</source>
+        <source file="DL Functions/REAPER Checker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Checker.lua</source>
+        <source file="DL Functions/REAPER Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Chunks.lua</source>
+        <source file="DL Functions/REAPER Enumerate.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Enumerate.lua</source>
+        <source file="DL Functions/REAPER Envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Envelopes.lua</source>
+        <source file="DL Functions/REAPER FX.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20FX.lua</source>
+        <source file="DL Functions/REAPER Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Items.lua</source>
+        <source file="DL Functions/REAPER Markers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Markers.lua</source>
+        <source file="DL Functions/REAPER Play.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Play.lua</source>
+        <source file="DL Functions/REAPER Projects.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Projects.lua</source>
+        <source file="DL Functions/REAPER Take.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Take.lua</source>
+        <source file="DL Functions/REAPER Time.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Time.lua</source>
+        <source file="DL Functions/REAPER Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/REAPER%20Tracks.lua</source>
+        <source file="DL Functions/Serialize.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/Serialize.lua</source>
+        <source file="DL Functions/URL.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/URL.lua</source>
+        <source file="DL Functions/_example.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/_example.lua</source>
+        <source file="DL Functions/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/json.lua</source>
+        <source file="DL Functions/rxi_json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/DL%20Functions/rxi_json.lua</source>
+        <source file="Manager Functions/Backup.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/Manager%20Functions/Backup.lua</source>
+        <source file="Manager Functions/Main GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/Manager%20Functions/Main%20GUI.lua</source>
+        <source file="Manager Functions/Misc.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/Manager%20Functions/Misc.lua</source>
+        <source file="Manager Functions/Theme.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Files/Backup%20Manager/Manager%20Functions/Theme.lua</source>
       </version>
     </reapack>
   </category>
@@ -1986,6 +2021,116 @@
         <source file="User Settings/.gitkeep">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/351637fb8862084cb98514a8462181ebd726c7b9/Generative/Clouds/User%20Settings/.gitkeep</source>
         <source type="effect" file="FX/daniellumertz_Clouds.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/351637fb8862084cb98514a8462181ebd726c7b9/Generative/Clouds/FX/daniellumertz_Clouds.jsfx</source>
       </version>
+      <version name="1.2.1" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ Update to new ImGui font size.]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/daniellumertz_Clouds.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items.lua</source>
+        <source file="DL Functions/General Debug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/General%20Debug.lua</source>
+        <source file="DL Functions/General Files.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/General%20Files.lua</source>
+        <source file="DL Functions/General Number.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/General%20Number.lua</source>
+        <source file="DL Functions/General String.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/General%20String.lua</source>
+        <source file="DL Functions/General Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/General%20Table.lua</source>
+        <source file="DL Functions/ImGui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/ImGui.lua</source>
+        <source file="DL Functions/MIDI IO.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/MIDI%20IO.lua</source>
+        <source file="DL Functions/MIDI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/MIDI.lua</source>
+        <source file="DL Functions/Music.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/Music.lua</source>
+        <source file="DL Functions/REAPER Automation Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Automation%20Items.lua</source>
+        <source file="DL Functions/REAPER Checker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Checker.lua</source>
+        <source file="DL Functions/REAPER Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Chunks.lua</source>
+        <source file="DL Functions/REAPER Enumerate.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Enumerate.lua</source>
+        <source file="DL Functions/REAPER Envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Envelopes.lua</source>
+        <source file="DL Functions/REAPER FX.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20FX.lua</source>
+        <source file="DL Functions/REAPER Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Items.lua</source>
+        <source file="DL Functions/REAPER Markers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Markers.lua</source>
+        <source file="DL Functions/REAPER Play.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Play.lua</source>
+        <source file="DL Functions/REAPER Projects.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Projects.lua</source>
+        <source file="DL Functions/REAPER Take.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Take.lua</source>
+        <source file="DL Functions/REAPER Time.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Time.lua</source>
+        <source file="DL Functions/REAPER Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/REAPER%20Tracks.lua</source>
+        <source file="DL Functions/Serialize.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/Serialize.lua</source>
+        <source file="DL Functions/URL.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/URL.lua</source>
+        <source file="DL Functions/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/json.lua</source>
+        <source file="DL Functions/rxi_json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/DL%20Functions/rxi_json.lua</source>
+        <source file="Clouds Functions/Clouds Apply.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Apply.lua</source>
+        <source file="Clouds Functions/Clouds Convert GUIDS.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Convert%20GUIDS.lua</source>
+        <source file="Clouds Functions/Clouds GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20GUI.lua</source>
+        <source file="Clouds Functions/Clouds Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Items.lua</source>
+        <source file="Clouds Functions/Clouds Presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Presets.lua</source>
+        <source file="Clouds Functions/Clouds Randomizer.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Randomizer.lua</source>
+        <source file="Clouds Functions/Clouds ReRoll.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20ReRoll.lua</source>
+        <source file="Clouds Functions/Clouds Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Settings.lua</source>
+        <source file="Clouds Functions/Clouds Themes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Themes.lua</source>
+        <source file="Clouds Functions/Clouds Tooltips.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Tooltips.lua</source>
+        <source file="Clouds Functions/Clouds Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Tracks.lua</source>
+        <source file="Clouds Functions/Clouds Variator.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Clouds%20Functions/Clouds%20Variator.lua</source>
+        <source file="Image/Cloud.png">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Image/Cloud.png</source>
+        <source file="Info/Cloud Items Table.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Info/Cloud%20Items%20Table.txt</source>
+        <source file="Info/Reroll Table.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Info/Reroll%20Table.txt</source>
+        <source file="Info/counter.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/Info/counter.txt</source>
+        <source file="User Presets/Default.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/User%20Presets/Default.json</source>
+        <source file="User Presets/Game Voice.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/User%20Presets/Game%20Voice.json</source>
+        <source file="User Presets/Slow Textures.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/User%20Presets/Slow%20Textures.json</source>
+        <source file="User Settings/.gitkeep">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/User%20Settings/.gitkeep</source>
+        <source type="effect" file="FX/daniellumertz_Clouds.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Generative/Clouds/FX/daniellumertz_Clouds.jsfx</source>
+      </version>
+      <version name="1.3.1" author="Daniel Lumertz" time="2026-06-02T17:54:27Z">
+        <changelog><![CDATA[+ Fix for ImGui Font]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/daniellumertz_Clouds.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for All Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20All%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items Without Deleting.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items%20Without%20Deleting.lua</source>
+        <source main="main" file="daniellumertz_Clouds Generate for Selected Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/daniellumertz_Clouds%20Generate%20for%20Selected%20Items.lua</source>
+        <source file="DL Functions/General Debug.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/General%20Debug.lua</source>
+        <source file="DL Functions/General Files.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/General%20Files.lua</source>
+        <source file="DL Functions/General Number.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/General%20Number.lua</source>
+        <source file="DL Functions/General String.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/General%20String.lua</source>
+        <source file="DL Functions/General Table.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/General%20Table.lua</source>
+        <source file="DL Functions/ImGui.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/ImGui.lua</source>
+        <source file="DL Functions/MIDI IO.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/MIDI%20IO.lua</source>
+        <source file="DL Functions/MIDI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/MIDI.lua</source>
+        <source file="DL Functions/Music.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/Music.lua</source>
+        <source file="DL Functions/REAPER Automation Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Automation%20Items.lua</source>
+        <source file="DL Functions/REAPER Checker.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Checker.lua</source>
+        <source file="DL Functions/REAPER Chunks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Chunks.lua</source>
+        <source file="DL Functions/REAPER Enumerate.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Enumerate.lua</source>
+        <source file="DL Functions/REAPER Envelopes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Envelopes.lua</source>
+        <source file="DL Functions/REAPER FX.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20FX.lua</source>
+        <source file="DL Functions/REAPER Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Items.lua</source>
+        <source file="DL Functions/REAPER Markers.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Markers.lua</source>
+        <source file="DL Functions/REAPER Play.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Play.lua</source>
+        <source file="DL Functions/REAPER Projects.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Projects.lua</source>
+        <source file="DL Functions/REAPER Take.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Take.lua</source>
+        <source file="DL Functions/REAPER Time.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Time.lua</source>
+        <source file="DL Functions/REAPER Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/REAPER%20Tracks.lua</source>
+        <source file="DL Functions/Serialize.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/Serialize.lua</source>
+        <source file="DL Functions/URL.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/URL.lua</source>
+        <source file="DL Functions/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/json.lua</source>
+        <source file="DL Functions/rxi_json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/DL%20Functions/rxi_json.lua</source>
+        <source file="Clouds Functions/Clouds Apply.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Apply.lua</source>
+        <source file="Clouds Functions/Clouds Convert GUIDS.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Convert%20GUIDS.lua</source>
+        <source file="Clouds Functions/Clouds GUI.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20GUI.lua</source>
+        <source file="Clouds Functions/Clouds Items.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Items.lua</source>
+        <source file="Clouds Functions/Clouds Presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Presets.lua</source>
+        <source file="Clouds Functions/Clouds Randomizer.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Randomizer.lua</source>
+        <source file="Clouds Functions/Clouds ReRoll.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20ReRoll.lua</source>
+        <source file="Clouds Functions/Clouds Settings.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Settings.lua</source>
+        <source file="Clouds Functions/Clouds Themes.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Themes.lua</source>
+        <source file="Clouds Functions/Clouds Tooltips.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Tooltips.lua</source>
+        <source file="Clouds Functions/Clouds Tracks.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Tracks.lua</source>
+        <source file="Clouds Functions/Clouds Variator.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Clouds%20Functions/Clouds%20Variator.lua</source>
+        <source file="Image/Cloud.png">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Image/Cloud.png</source>
+        <source file="Info/Cloud Items Table.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Info/Cloud%20Items%20Table.txt</source>
+        <source file="Info/Reroll Table.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Info/Reroll%20Table.txt</source>
+        <source file="Info/counter.txt">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/Info/counter.txt</source>
+        <source file="User Presets/Default.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/User%20Presets/Default.json</source>
+        <source file="User Presets/Game Voice.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/User%20Presets/Game%20Voice.json</source>
+        <source file="User Presets/Slow Textures.json">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/User%20Presets/Slow%20Textures.json</source>
+        <source file="User Settings/.gitkeep">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/User%20Settings/.gitkeep</source>
+        <source type="effect" file="FX/daniellumertz_Clouds.jsfx">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/d08bf3711677f135f0ddbdcf1ac540d76ea5f867/Generative/Clouds/FX/daniellumertz_Clouds.jsfx</source>
+      </version>
     </reapack>
   </category>
   <category name="Generative/Its Gonna Phase">
@@ -2074,6 +2219,19 @@
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Grids/Fake%20Grids/Functions/MIDI%20Functions.lua</source>
         <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Grids/Fake%20Grids/Functions/REAPER%20Functions.lua</source>
         <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Grids/Fake%20Grids/Fonts/Poppins-Regular.ttf</source>
+      </version>
+      <version name="1.0.4" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ Correct checkers]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/daniellumertz_Fake%20Grids.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Fake Grids Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/Fake%20Grids%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/Imgui Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/Imgui%20Functions.lua</source>
+        <source file="Functions/Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/Loop.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Functions/REAPER%20Functions.lua</source>
+        <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Grids/Fake%20Grids/Fonts/Poppins-Regular.ttf</source>
       </version>
     </reapack>
   </category>
@@ -2236,6 +2394,12 @@
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Items/Sample%20Organizer/Samples%20Organizer.lua</source>
         <source file="General Function.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Items/Sample%20Organizer/General%20Function.lua</source>
         <source file="REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/Items/Sample%20Organizer/REAPER%20Functions.lua</source>
+      </version>
+      <version name="1.2.1" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ Fix Imgui Size]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Items/Sample%20Organizer/Samples%20Organizer.lua</source>
+        <source file="General Function.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Items/Sample%20Organizer/General%20Function.lua</source>
+        <source file="REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/Items/Sample%20Organizer/REAPER%20Functions.lua</source>
       </version>
     </reapack>
   </category>
@@ -4140,6 +4304,16 @@
         <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
         <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5b40b68c80d85742d2c96ab6facd71c7fa81820b/MIDI/Copy%20Paste%20MIDI/Functions/REAPER%20Functions.lua</source>
       </version>
+      <version name="0.4.5" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ Update GUI size for ImGui]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Copy%20Paste%20MIDI.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Copy%20Paste%20MIDI/Functions/REAPER%20Functions.lua</source>
+      </version>
     </reapack>
   </category>
   <category name="MIDI/Markov Chains">
@@ -4433,6 +4607,27 @@
         <source file="Functions/Reaper Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/fb2bfcaddb11bf4806e1f498fdac170d143dc62c/MIDI/Markov%20Chains/Functions/Reaper%20Markov%20Functions.lua</source>
         <source file="Functions/Settings Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/fb2bfcaddb11bf4806e1f498fdac170d143dc62c/MIDI/Markov%20Chains/Functions/Settings%20Functions.lua</source>
         <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/fb2bfcaddb11bf4806e1f498fdac170d143dc62c/MIDI/Markov%20Chains/Functions/Style.lua</source>
+      </version>
+      <version name="1.0.7" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ fix Gui size after ImGui update]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Markov%20Chains.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Drop Enhance Resolution Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Drop%20Enhance%20Resolution%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/GUID Convert.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/GUID%20Convert.lua</source>
+        <source file="Functions/General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/General%20Functions.lua</source>
+        <source file="Functions/Generate New Sequences.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Generate%20New%20Sequences.lua</source>
+        <source file="Functions/ImGUI Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/ImGUI%20Widgets.lua</source>
+        <source file="Functions/Json Main.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Json%20Main.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop Function.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Main%20Loop%20Function.lua</source>
+        <source file="Functions/Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Markov%20Functions.lua</source>
+        <source file="Functions/Music General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Music%20General%20Functions.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Reaper Markov Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Reaper%20Markov%20Functions.lua</source>
+        <source file="Functions/Settings Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Settings%20Functions.lua</source>
+        <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/Markov%20Chains/Functions/Style.lua</source>
       </version>
     </reapack>
   </category>
@@ -4744,6 +4939,27 @@
         <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6d41a5407e01fcc8cab1e8e2e6fa92a58aa08f93/MIDI/MIDI%20Toolkit/Functions/Style.lua</source>
         <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6d41a5407e01fcc8cab1e8e2e6fa92a58aa08f93/MIDI/MIDI%20Toolkit/Fonts/Poppins-Regular.ttf</source>
         <source file="Fonts/Symbols.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/6d41a5407e01fcc8cab1e8e2e6fa92a58aa08f93/MIDI/MIDI%20Toolkit/Fonts/Symbols.ttf</source>
+      </version>
+      <version name="1.1.2" author="Daniel Lumertz" time="2026-06-02T17:49:46Z">
+        <changelog><![CDATA[+ fix GUI size after ImGui change]]></changelog>
+        <source main="midi_editor">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/DanielLumertz_MIDI%20Toolkit.lua</source>
+        <source file="Functions/Arrange Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Arrange%20Functions.lua</source>
+        <source file="Functions/Copy Paste Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Copy%20Paste%20Functions.lua</source>
+        <source file="Functions/GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/GUI%20Functions.lua</source>
+        <source file="Functions/General Lua Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/General%20Lua%20Functions.lua</source>
+        <source file="Functions/General Music Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/General%20Music%20Functions.lua</source>
+        <source file="Functions/ImGUI Custom Widgets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/ImGUI%20Custom%20Widgets.lua</source>
+        <source file="Functions/Imgui Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Imgui%20Functions.lua</source>
+        <source file="Functions/MIDI Apply Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/MIDI%20Apply%20Functions.lua</source>
+        <source file="Functions/MIDI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/MIDI%20Functions.lua</source>
+        <source file="Functions/Main Loop.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Main%20Loop.lua</source>
+        <source file="Functions/Mapper Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Mapper%20Functions.lua</source>
+        <source file="Functions/Param Tables Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Param%20Tables%20Functions.lua</source>
+        <source file="Functions/Permutate Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Permutate%20Functions.lua</source>
+        <source file="Functions/REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/REAPER%20Functions.lua</source>
+        <source file="Functions/Style.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Functions/Style.lua</source>
+        <source file="Fonts/Poppins-Regular.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Fonts/Poppins-Regular.ttf</source>
+        <source file="Fonts/Symbols.ttf">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/5aa6bc1135e0cc179f2e5240edec5eb2b7d9b9e9/MIDI/MIDI%20Toolkit/Fonts/Symbols.ttf</source>
       </version>
     </reapack>
   </category>
