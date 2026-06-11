@@ -270,7 +270,6 @@ function DL.num.FormatSecondsAsTime(val, is_hour, is_ms)
     local formatted = string.format(format, table.unpack(vals))
     return formatted
 end
-
 ---------------------
 ----------------- Bits
 ---------------------
