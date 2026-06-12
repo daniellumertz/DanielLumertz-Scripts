@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="f61f68668e35514175125cd42de85f8fc67c1cd5">
+<index version="1" name="Daniel Lumertz Scripts" commit="a9d39e1018f56232b33de4c10a7328cc433f763a">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -5286,6 +5286,12 @@
       <version name="1.0" author="Daniel Lumertz" time="2022-07-24T18:52:12Z">
         <changelog><![CDATA[+ Initial Release]]></changelog>
         <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/f5051eb942e9a6934aa023c9db07a282479d7b30/Takes/Misc/Randomize%20Takes.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Remove All Takes Except Active.lua" type="script">
+      <version name="1.0" author="Daniel Lumertz" time="2026-06-12T03:01:10Z">
+        <changelog><![CDATA[+ Initial Release]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/a9d39e1018f56232b33de4c10a7328cc433f763a/Takes/Misc/Remove%20All%20Takes%20Except%20Active.lua</source>
       </version>
     </reapack>
   </category>
