@@ -1,4 +1,8 @@
--- todo add the reapack index here! 
+-- @version 1.0
+-- @author Daniel Lumertz
+-- @changelog
+--    + Initial Release
+
 reaper.Undo_BeginBlock2(proj)
 reaper.PreventUIRefresh(1)
 
@@ -17,6 +21,6 @@ for i_idx = 0, n_items - 1 do
   end
 end
 
-reaper.Undo_EndBlock2(proj, "Remove All Takes Except Ative", 1)
+reaper.Undo_EndBlock2(proj, "Remove All Takes Except Active", 1)
 reaper.UpdateArrange()
 reaper.PreventUIRefresh(-1)
