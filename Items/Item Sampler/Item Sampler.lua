@@ -1,4 +1,4 @@
--- @version 1.3.6
+-- @version 1.4.0b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -9,12 +9,17 @@
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + Correct Checkers
+--    + Added feature to select Tracks as sources
+--    + New menu for displaying the Sources 
+--    + Added feature for using a track as the MIDI input
+--    + Added feature for selecting track(s) as targets for the new items
+--    + New menu for Track Targets
+
 
 --TODOs
 -- Update header require
 
-local version = '1.3.6'
+local version = '1.4.0'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -51,6 +56,16 @@ function ListItems()
     return list
 end
 
+function ListTracks(proj)
+    local t = {}
+    local count = reaper.CountSelectedTracks2(proj, false)
+    for i = 0, count -1 do
+        local track = reaper.GetSelectedTrack2(proj, i, false)
+        t[#t+1] = track
+    end
+    return t
+end
+
 function CleanArea()
     local track_erase_list = {}
     -- Get list of tracks
@@ -82,7 +97,7 @@ function CleanArea()
     end
 end
 
-function CheckGroups() -- Return false if fails tests; return true if pass all tests
+function CheckGroups() -- Return false if fails tests; return list similar to groups if pass all tests and make track sources into items
 
     if not ListMidi then 
         print("Select some MIDI!")
@@ -94,34 +109,92 @@ function CheckGroups() -- Return false if fails tests; return true if pass all t
         return false
     end
 
+    local new_lists = {}
     for i, value in pairs(Groups) do
+        new_lists[i] = {Selected = Groups[i].Selected}
         if Groups[i].Selected == true and (not Groups[i].list_sequence or #Groups[i].list_sequence < 1) then
             print("Select some Items Sequence!")
             print("In Group "..Groups[i].name)
             return false
         elseif Groups[i].Selected == true then
-            for k,item in pairs(Groups[i].list_sequence) do
-                local bol = reaper.ValidatePtr( item, 'MediaItem*' )
-                if bol == false then
-                    print('At least one item in your sequence is missing in the group '..Groups[i].name)
-                    print('Please reselect your Item Sequence')
-                    return false
+            new_lists[i].list_sequence = {}
+            local remove_list = {}
+            for k,thing in pairs(Groups[i].list_sequence) do
+                local is_item = reaper.ValidatePtr( thing, 'MediaItem*' )
+                local is_track =  reaper.ValidatePtr( thing, 'MediaTrack*' )
+
+                if is_item then
+                    table.insert(new_lists[i].list_sequence, thing)
+                elseif is_track then -- Transform tracks in items
+                    local track = thing
+                    local i_cnt = reaper.CountTrackMediaItems(track)
+                    for i_idx = 0, i_cnt -1 do
+                        local item = reaper.GetTrackMediaItem(track, i_idx)
+                        local  retval, string = reaper.GetSetMediaItemInfo_String( item, 'P_EXT:Sampler', '', false ) -- Get Ext
+                        -- Items cant be created from Item Sampler
+                        if string ~= 'pasted' then 
+                            table.insert(new_lists[i].list_sequence, item)
+                        end
+                    end 
+                else
+                    print('The Source #'..k..', from the group #' ..i..', was not found on your project.')
+                    print('Removing this Source!')
+                    remove_list[#remove_list+1] = k
                 end
             end
 
+            -- Remove not found sources
+            for k, idx in ipairs(remove_list) do
+                table.remove(Groups[i].list_sequence, idx)
+            end
+            
+            -- Check if any valid sequence
+            if #new_lists[i].list_sequence == 0 then
+                print('No Valid Source at Group #'..i)
+                return false
+            end
+
+            -- Check for Targets Tracks
+            if Groups[i].Targets then
+                for idx = #Groups[i].Targets, 1, -1 do
+                    local track = Groups[i].Targets[idx]
+                    if not reaper.ValidatePtr2(0, track, 'MediaTrack*') then
+                        table.remove(Groups[i].Targets, idx)
+                    end
+                end
+                if #Groups[i].Targets == 0 then
+                    Groups[i].Targets = nil
+                end
+            end
         end
     end
 
+    -- Check ListMidi and make tracks a set of its MIDI items
+    local new_midi_list = {}
+    for k,thing in pairs(ListMidi) do
+        local is_item = reaper.ValidatePtr( thing, 'MediaItem*' )
+        local is_track = reaper.ValidatePtr( thing, 'MediaTrack*' )
 
-    for k,item in pairs(ListMidi) do
-        local bol = reaper.ValidatePtr( item, 'MediaItem*' )
-        if bol == false then
+        if is_track then
+            local cnt_item = reaper.CountTrackMediaItems(thing) 
+            for idx = 0, cnt_item - 1 do
+                local item = reaper.GetTrackMediaItem(thing, idx)
+                local take = reaper.GetActiveTake(item)
+                local is_midi = reaper.BR_IsTakeMidi(take)
+                if is_midi then
+                    new_midi_list[#new_midi_list+1] = item
+                end
+            end
+        elseif is_item then
+            new_midi_list[#new_midi_list+1] = thing
+        elseif not is_item and not is_track then
             print('At least one MIDI item is missing')
             print('Please reselect your Midi Items')
             return false
         end
     end
-    return true
+
+    return new_lists, new_midi_list
 end
 
 function Check2() -- Return false if fails tests; return true if pass all tests
@@ -150,22 +223,26 @@ function Check2() -- Return false if fails tests; return true if pass all tests
     return true
 end
 
-function CleanArea2(list_sequence)
-
-
-    local track_erase_list = {}
+function CleanArea2(list_sequence, target_tracks, new_midi_list)
     -- Get list of tracks
-    
-
-    for k,item_loop in ipairs(list_sequence) do
-        track_erase_list[reaper.GetMediaItemTrack(item_loop)] = 1
+    local track_erase_list = {}
+    if not target_tracks then
+        for k,thing in ipairs(list_sequence) do
+            if reaper.ValidatePtr2(0, thing, 'MediaItem*') then
+                track_erase_list[reaper.GetMediaItemTrack(thing)] = 1
+            elseif  reaper.ValidatePtr2(0, thing, 'MediaTrack*') then 
+                track_erase_list[thing] = 1
+            end 
+        end
+    else 
+        for k, v in ipairs(target_tracks) do
+            track_erase_list[v] = 1
+        end
     end
-
-
 
     local edge = 0.01 -- A liitle time folga
     for track_loop,_ in pairs(track_erase_list) do
-        for _,midi_item in ipairs(ListMidi) do
+        for _,midi_item in ipairs(new_midi_list) do
             local item_start = reaper.GetMediaItemInfo_Value(midi_item, "D_POSITION") 
             local item_len = reaper.GetMediaItemInfo_Value(midi_item, "D_LENGTH") 
             -- Clean with Comparasion
@@ -189,11 +266,11 @@ function CleanArea2(list_sequence)
     
 end
 
-function TryCleanArea()
+function TryCleanArea(new_midi_list)
     for i, value in pairs(Groups) do
         
         if Groups[i].Settings.Erase == true and Groups[i].Selected == true then
-            CleanArea2(Groups[i].list_sequence)
+            CleanArea2(Groups[i].list_sequence, Groups[i].Settings.Targets, new_midi_list)
         end
     end    
 end
@@ -222,18 +299,19 @@ end
 
 function PlaceSequenceInGroups(is_random,sequence_reverse,isrand_sequence)
     -- Check 
-    if CheckGroups() == false then return end
+    local new_list, new_midi_list = CheckGroups()
+    if not new_list then return end
     reaper.PreventUIRefresh(1)
     reaper.Undo_BeginBlock()
 
     
-    TryCleanArea()
+    TryCleanArea(new_midi_list)
     for i, v in pairs(Groups) do
         if Groups[i].Selected == true then 
-            list_sequence = Groups[i].list_sequence
+            list_sequence = new_list[i].list_sequence
             Settings = Groups[i].Settings
             --Settings.ListMidi=ListMidi
-            Place_Sequence(is_random,sequence_reverse,isrand_sequence) -- (is_random,sequence_reverse,isrand_sequence)
+            Place_Sequence(is_random,sequence_reverse,isrand_sequence,new_midi_list) -- (is_random,sequence_reverse,isrand_sequence)
         end
     end
     reaper.Undo_EndBlock2(0, 'Item Sampler: Place Sequence', -1)
@@ -241,7 +319,9 @@ function PlaceSequenceInGroups(is_random,sequence_reverse,isrand_sequence)
     
 end
 
-function Place_Sequence(is_random,sequence_reverse,isrand_sequence)
+
+
+function Place_Sequence(is_random,sequence_reverse,isrand_sequence,midi_items)
     
 
     --Save Info
@@ -276,8 +356,8 @@ function Place_Sequence(is_random,sequence_reverse,isrand_sequence)
     end
     local counter = 0
 
-    for i_midi = 1, #ListMidi do
-        local item = ListMidi[i_midi]
+    for i_midi = 1, #midi_items do
+        local item = midi_items[i_midi]
         local item_take = reaper.GetMediaItemTake(item, 0)
         local retval, notecnt, ccevtcnt, textsyxevtcnt = reaper.MIDI_CountEvts(item_take)
         for idx_note = 0, notecnt-1 do
@@ -320,7 +400,12 @@ function Place_Sequence(is_random,sequence_reverse,isrand_sequence)
             end
 
             --  Copy 
-            local paste_track = reaper.GetMediaItemTrack(list_sequence[list_idx])
+            local paste_track 
+            if not Settings.Targets or #Settings.Targets == 0 then
+                paste_track = reaper.GetMediaItemTrack(list_sequence[list_idx])
+            else
+                paste_track = Settings.Targets[math.random(#Settings.Targets)]
+            end
             local pasted_item = CopyMediaItemToTrack(list_sequence[list_idx], paste_track, time )
 
             -- Set Volume Items 
@@ -425,7 +510,7 @@ function loop()
 
     local _
     local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
-    reaper.ImGui_SetNextWindowSize(ctx, 300, 700, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    reaper.ImGui_SetNextWindowSize(ctx, 350, 800, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     reaper.ImGui_PushFont(ctx, FONT)
 
     if SetDock then
@@ -487,10 +572,13 @@ function loop()
                 --Item Group
                         --------- Get Items sequence Buttons
                 ChangeColorButton((0.05*i),1,0.4,1)
-                if reaper.ImGui_Button(ctx, 'Get Item Sequence', -1) then
-                    if not Shift and not Ctrl then
+                local label = Alt and 'Get Track Sources' or 'Get Item Sources'
+                if reaper.ImGui_Button(ctx, label, -1) then
+                    if not Shift and not Ctrl and not Alt then -- Get Items
                         Groups[i].list_sequence = ListItems()
-                    elseif Shift then
+                    elseif Alt and not Shift and not Ctrl then -- Get Tracks
+                        Groups[i].list_sequence = ListTracks(0)                        
+                    elseif Shift then -- Select Sources
                         if Groups[i].list_sequence and #Groups[i].list_sequence > 1 then
                             reaper.Undo_BeginBlock()
                             reaper.PreventUIRefresh(1)
@@ -503,10 +591,78 @@ function loop()
                         end
                     end
                 end
-                if Settings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project") end
+                if Settings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project. Hold Alt to select a tracks as sources.") end
 
                 reaper.ImGui_PopStyleColor(ctx, 3)
                 --local GUIIsMaxClicked
+
+                --Sources
+                if reaper.ImGui_TreeNode(ctx, 'Sources') then
+                    if reaper.ImGui_BeginListBox(ctx,  '###sourceslist',-1,150) then
+                        if not Groups[i].list_sequence or #Groups[i].list_sequence == 0 then 
+                            reaper.ImGui_Text(ctx, '--- No Sources Selected! ---')
+                        else
+                            local remove_list = {}
+                            for idx, v in pairs(Groups[i].list_sequence) do
+                                local is_item = reaper.ValidatePtr2(0, v, 'MediaItem*')
+                                local is_track = reaper.ValidatePtr2(0, v, 'MediaTrack*')
+                                -- Shource deleted
+                                if not is_item and not is_track then
+                                    remove_list[#remove_list+1] = idx
+                                    goto continue
+                                end
+                                -- Draw Source Selectable
+                                local name
+                                if is_item then
+                                    local take = reaper.GetActiveTake(v)
+                                    local _, i_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
+                                    name = 'Item: '..i_name
+                                else -- Assumes is a track
+                                    local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
+                                    if t_name == '' then
+                                        local _
+                                        t_name = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
+                                        t_name = string.format('%d', t_name)
+                                    end
+                                    name = 'Track: '..t_name
+                                end
+                                if reaper.ImGui_Selectable(ctx,  name..'##Source'..idx, false) then
+                                    reaper.Undo_BeginBlock()
+                                    if is_item then
+                                        if not Ctrl then
+                                            reaper.SelectAllMediaItems(0, false)
+                                        end
+                                        reaper.SetMediaItemSelected(v, true)
+                                    else
+                                        if not Ctrl then
+                                            reaper.SetOnlyTrackSelected(v)
+                                        else
+                                            reaper.SetTrackSelected(v, true)
+                                        end
+                                    end
+                                    reaper.Undo_EndBlock2(0, 'Item Sampler: Select Source', -1)
+                                    reaper.UpdateArrange()
+                                end
+                                -- Right Click
+                                if reaper.ImGui_BeginPopupContextItem(ctx, name..'##ContextSource'..idx) then
+                                    if reaper.ImGui_Selectable(ctx,  'Remove'..'##Source'..idx, false) then
+                                        remove_list[#remove_list+1] = idx
+                                    end
+                                    reaper.ImGui_EndPopup(ctx)
+                                end
+                                ::continue::
+                            end
+                            -- Remove Sources
+                            for r_idx = #remove_list, 1, -1 do
+                                local idx = remove_list[r_idx]
+                                table.remove(Groups[i].list_sequence, idx)
+                            end
+                        end
+                        
+                        reaper.ImGui_EndListBox(ctx)
+                    end
+                    reaper.ImGui_TreePop(ctx)
+                end
                 --Range
                 if reaper.ImGui_TreeNode(ctx, 'Range') then
 
@@ -571,7 +727,7 @@ function loop()
 
 
                 --Trim
-                if reaper.ImGui_TreeNode(ctx, 'Trim', reaper.ImGui_TreeNodeFlags_DefaultOpen()) then
+                if reaper.ImGui_TreeNode(ctx, 'Trim') then
 
                     if reaper.ImGui_Checkbox(ctx, 'Clean Area Before Paste',Groups[i].Settings.Erase) then
                         Groups[i].Settings.Erase = not Groups[i].Settings.Erase
@@ -597,13 +753,13 @@ function loop()
                 end
 
                 --Velocity
-                if reaper.ImGui_TreeNode(ctx, 'Velocity', reaper.ImGui_TreeNodeFlags_DefaultOpen()) then
+                if reaper.ImGui_TreeNode(ctx, 'Velocity') then
 
                     if reaper.ImGui_Checkbox(ctx, 'Velocity Change Item dB',Groups[i].Settings.Velocity) then
                         Groups[i].Settings.Velocity = not Groups[i].Settings.Velocity
                     end
                     
-                    reaper.ImGui_PushItemWidth( ctx,  -100)
+                    reaper.ImGui_PushItemWidth( ctx,  -120)
 
                     local name = 'Max dB added'
                     _, Groups[i].Settings.Vel_Max = reaper.ImGui_InputInt(ctx,  name, Groups[i].Settings.Vel_Max)
@@ -617,7 +773,7 @@ function loop()
 
                     reaper.ImGui_PopItemWidth(ctx)
 
-                    reaper.ImGui_PushItemWidth( ctx,  -100)
+                    reaper.ImGui_PushItemWidth( ctx,  -120)
                     _, Groups[i].Settings.Vel_OriginalVal = reaper.ImGui_SliderInt(ctx, 'Velocity to use\noriginal Item dB', Groups[i].Settings.Vel_OriginalVal, 0, 127)
                     reaper.ImGui_PopItemWidth(ctx)
 
@@ -625,7 +781,7 @@ function loop()
                 end
 
                 --Pitch
-                if reaper.ImGui_TreeNode(ctx, 'Pitch', reaper.ImGui_TreeNodeFlags_DefaultOpen()) then
+                if reaper.ImGui_TreeNode(ctx, 'Pitch') then
 
                     if reaper.ImGui_Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',Groups[i].Settings.Pitch) then
                         Groups[i].Settings.Pitch = not Groups[i].Settings.Pitch
@@ -638,9 +794,63 @@ function loop()
                 reaper.ImGui_TreePop(ctx)
                 end
 
+                --Track Target
+                if reaper.ImGui_TreeNode(ctx, 'Track Target') then
+                    if reaper.ImGui_Button(ctx, 'Get Selected Tracks') then
+                        Groups[i].Settings.Targets = ListTracks(0)
+                    end
+                    if Settings.Tips then ToolTip("Select the tracks where the created items will be placed. If multiple tracks are selected, it will randomly choose one per item.") end
+
+                    if reaper.ImGui_BeginListBox(ctx,  '###targetlist',-1,150) then
+                        if Groups[i].Settings.Targets and #Groups[i].Settings.Targets > 0 then
+                            local remove = {}
+                            for k, v in ipairs(Groups[i].Settings.Targets) do 
+                                -- Check if source is deleted
+                                local is_track = reaper.ValidatePtr2(0, v, 'MediaTrack*')
+                                if not is_track then
+                                    remove[#remove+1] = k
+                                    goto continue
+                                end
+                                -- Name
+                                local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
+                                if t_name == '' then
+                                    local _
+                                    t_name = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
+                                    t_name = string.format('%d', t_name)
+                                end
+                                t_name = 'Track: '..t_name
+                                -- Selectable
+                                if reaper.ImGui_Selectable(ctx, t_name..'##TargetTrack'..k) then
+                                    if not Ctrl then
+                                        reaper.SetOnlyTrackSelected(v)
+                                    else
+                                        reaper.SetTrackSelected(v, true)
+                                    end
+                                end
+                                -- Right Click
+                                if reaper.ImGui_BeginPopupContextItem(ctx, t_name..'##ContextSource'..k) then
+                                    if reaper.ImGui_Selectable(ctx,  'Remove'..'##Source'..k, false) then
+                                        remove[#remove+1] = k
+                                    end
+                                    reaper.ImGui_EndPopup(ctx)
+                                end
+                                ::continue::
+                            end
+                            if #remove > 0 then
+                                for idx = #remove, 1, -1 do
+                                    table.remove(Groups[i].Settings.Targets, remove[idx])
+                                end
+                            end
+                        end
+                        reaper.ImGui_EndListBox(ctx)
+                    end
+                    reaper.ImGui_TreePop(ctx)
+                end
+
 
                 reaper.ImGui_EndTabItem(ctx)
             end
+            
             
             if not keep then -- If Close
                 table.remove(Groups,i) 
@@ -664,18 +874,20 @@ function loop()
 
         --------- Get MIDI button
         ChangeColor(0.4,1,0.4,1)
-        reaper.ImGui_Button(ctx, 'Get MIDI Item', -2)
+        local label = Alt and 'Get MIDI Track' or 'Get MIDI Item'
+        reaper.ImGui_Button(ctx, label, -2)
         if reaper.ImGui_IsItemClicked( ctx) then
-            ListMidi = ListItems()
+            if Alt then
+                ListMidi = ListTracks(0)
+            else
+                ListMidi = ListItems()
+            end
         end
-        if Settings.Tips then ToolTip("Select the MIDI items with the notes where the items will be placed") end
+        
+        if Settings.Tips then ToolTip("Select the MIDI items with the notes where the items will be placed. Hold Alt to select a tracks instead of items.") end
         reaper.ImGui_PopStyleColor(ctx, 3); reaper.ImGui_PopID(ctx)
 
-
-
-
         --------Place Button
-
         ChangeColor(1,1,0.4,1)
         reaper.ImGui_Button(ctx, 'Place in Sequence', -2)
         if reaper.ImGui_IsItemClicked( ctx) then
