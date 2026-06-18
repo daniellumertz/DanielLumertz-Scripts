@@ -1,4 +1,4 @@
--- @version 1.4.0b
+-- @version 1.4.1b
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -14,12 +14,14 @@
 --    + Added feature for using a track as the MIDI input
 --    + Added feature for selecting track(s) as targets for the new items
 --    + New menu for Track Targets
+--    + Remove the Presets function 
+--    + Add option to copy/paste Groups settings with right click
 
 
 --TODOs
 -- Update header require
 
-local version = '1.4.0'
+local version = '1.4.1b'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -158,7 +160,7 @@ function CheckGroups() -- Return false if fails tests; return list similar to gr
             if Groups[i].Targets then
                 for idx = #Groups[i].Targets, 1, -1 do
                     local track = Groups[i].Targets[idx]
-                    if not reaper.ValidatePtr2(0, track, 'MediaTrack*') then
+                    if not reaper.ValidatePtr(track, 'MediaTrack*') then
                         table.remove(Groups[i].Targets, idx)
                     end
                 end
@@ -226,11 +228,11 @@ end
 function CleanArea2(list_sequence, target_tracks, new_midi_list)
     -- Get list of tracks
     local track_erase_list = {}
-    if not target_tracks then
+    if not target_tracks or #target_tracks == 0 then
         for k,thing in ipairs(list_sequence) do
-            if reaper.ValidatePtr2(0, thing, 'MediaItem*') then
+            if reaper.ValidatePtr(thing, 'MediaItem*') then
                 track_erase_list[reaper.GetMediaItemTrack(thing)] = 1
-            elseif  reaper.ValidatePtr2(0, thing, 'MediaTrack*') then 
+            elseif  reaper.ValidatePtr(thing, 'MediaTrack*') then 
                 track_erase_list[thing] = 1
             end 
         end
@@ -550,6 +552,17 @@ function loop()
                     PreventPassKeys2 = CheckPreventPassThrough(true, 'rename'..i, PreventPassKeys2) 
                 end
                 is_popup_now = true
+                if reaper.ImGui_Button(ctx, 'Copy Settings', -1) then
+                    CopyGroupSettings = table_copy(Groups[i])
+                end
+
+                if reaper.ImGui_Button(ctx, 'Paste Settings', -1) then
+                    local old_name = Groups[i].name 
+                    Groups[i] = table_copy(CopyGroupSettings)
+                    Groups[i].name = old_name
+                end
+
+                reaper.ImGui_Separator(ctx)
                 reaper.ImGui_Text(ctx, 'Edit name:')
                 _, Groups[i].name = reaper.ImGui_InputText(ctx, "###", Groups[i].name)
                 -- Enter
@@ -591,7 +604,7 @@ function loop()
                         end
                     end
                 end
-                if Settings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project. Hold Alt to select a tracks as sources.") end
+                if Settings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project. Hold Alt to select a track as source(s).") end
 
                 reaper.ImGui_PopStyleColor(ctx, 3)
                 --local GUIIsMaxClicked
@@ -604,8 +617,8 @@ function loop()
                         else
                             local remove_list = {}
                             for idx, v in pairs(Groups[i].list_sequence) do
-                                local is_item = reaper.ValidatePtr2(0, v, 'MediaItem*')
-                                local is_track = reaper.ValidatePtr2(0, v, 'MediaTrack*')
+                                local is_item = reaper.ValidatePtr(v, 'MediaItem*')
+                                local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
                                 -- Shource deleted
                                 if not is_item and not is_track then
                                     remove_list[#remove_list+1] = idx
@@ -806,7 +819,7 @@ function loop()
                             local remove = {}
                             for k, v in ipairs(Groups[i].Settings.Targets) do 
                                 -- Check if source is deleted
-                                local is_track = reaper.ValidatePtr2(0, v, 'MediaTrack*')
+                                local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
                                 if not is_track then
                                     remove[#remove+1] = k
                                     goto continue

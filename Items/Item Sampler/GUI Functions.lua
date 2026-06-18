@@ -94,19 +94,13 @@ end
 function MenuBar()
     if reaper.ImGui_BeginMenuBar(ctx) then
         if reaper.ImGui_BeginMenu(ctx, 'Extra') then
-
             if reaper.ImGui_MenuItem(ctx, 'Show Tool Tips',"",Settings.Tips) then
                 Settings.Tips = not Settings.Tips
             end
-
             reaper.ImGui_EndMenu(ctx)
-
         end
-        reaper.ImGui_EndMenuBar(ctx)
-    end
 
-    if reaper.ImGui_BeginMenuBar(ctx) then
-        if reaper.ImGui_BeginMenu(ctx, 'Project Presets') then
+        --[[ if reaper.ImGui_BeginMenu(ctx, 'Project Presets') then
             -- Save
 
             if reaper.ImGui_Button(ctx, 'Save Preset') then
@@ -184,14 +178,9 @@ function MenuBar()
             end
             
             reaper.ImGui_EndMenu(ctx)
-        end
-        reaper.ImGui_EndMenuBar(ctx)
-    end
-    if Settings.Tips then ToolTip("Save/Load Presets in the Project. Store Groups, Item Selection and Settings") end
+        end ]]
 
-
-    if reaper.ImGui_BeginMenuBar(ctx) then
-        if reaper.ImGui_BeginMenu(ctx, 'Presets') then
+        --[[ if reaper.ImGui_BeginMenu(ctx, 'Presets') then
             -- Save
 
             if reaper.ImGui_Button(ctx, 'Save Preset') then
@@ -215,12 +204,12 @@ function MenuBar()
                     --PreventPassKeys = false
                     PreventPassKeys2 = CheckPreventPassThrough(false, 'save preset', PreventPassKeys2)
                     GlobalPresets[GUI_String_save] = {
-                        Settings = table_copy(Settings),
                         Groups = table_copy(Groups)
                     }
                     -- Dont Save Project Userdata
                     for k , v in pairs(GlobalPresets[GUI_String_save].Groups) do 
-                        GlobalPresets[GUI_String_save].Groups[k].list_sequence = nil
+                        GlobalPresets[GUI_String_save].Groups[k].Settings.list_sequence = nil
+                        GlobalPresets[GUI_String_save].Groups[k].Settings.Targets = nil
                     end
 
                     GlobalPresets[GUI_String_save].Settings.ListMidi = nil -- ????? PRECISA
@@ -271,9 +260,8 @@ function MenuBar()
             end
             
             reaper.ImGui_EndMenu(ctx)
-        end
+        end ]]
         if Settings.Tips then ToolTip("Save/Load Presets Globally. Store Groups and Settings") end
-
 
         -- Dock
         local reval_dock =  reaper.ImGui_IsWindowDocked(ctx)
@@ -288,6 +276,10 @@ function MenuBar()
         end
         reaper.ImGui_EndMenuBar(ctx)
     end
+
+
+    
+
     
 end
 

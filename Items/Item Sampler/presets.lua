@@ -348,11 +348,11 @@ function LoadInitialPreseetGroups()
         }
     end   
 
-    if file_exists(script_path .. "/" .. 'user_presets_complete' .. ".json") == false then
+    --[[ if file_exists(script_path .. "/" .. 'user_presets_complete' .. ".json") == false then
       GlobalPresets = {}
     else
       GlobalPresets = load_json(script_path, 'user_presets_complete')
-    end
+    end ]]
 end
 
 
