@@ -64,7 +64,7 @@ end
 function tprint (tbl, indent)
     if not indent then indent = 0 end
     for k, v in pairs(tbl) do
-      formatting = string.rep("  ", indent) .. tostring(k) .. ": "
+      local formatting = string.rep("  ", indent) .. tostring(k) .. ": "
       if type(v) == "table" then
         print(formatting)
         tprint(v, indent+1)
@@ -307,11 +307,11 @@ function IsStringNote(string)
 end
 
 function GetProjectPath()
-    return reaper.GetProjectPath(0 , '' ):gsub("(.*)\\.*$","%1")  .. "\\"
+    return reaper.GetProjectPath():gsub("(.*)\\.*$","%1")  .. "\\"
 end
 
 function GetFullProjectPath() -- with projct Name. with .rpp at the end
-    return reaper.GetProjectPath(0 , '' ):gsub("(.*)\\.*$","%1")  .. reaper.GetProjectName(0)
+    return reaper.GetProjectPath():gsub("(.*)\\.*$","%1")  .. reaper.GetProjectName(0)
 end
 
 function table_copy(obj, seen)
@@ -337,8 +337,8 @@ function PostKey(hwnd, vk_code)
 end
 
 
-function CheckRequirements()
-    local wind_name = ScriptName..' '..ScriptVersion
+function CheckRequirements(script_name, script_version)
+    local wind_name = script_name..' '..script_version
     if not reaper.APIExists('ImGui_GetVersion') then
         reaper.ShowMessageBox('Please Install ReaImGui at ReaPack', wind_name, 0)
         return false
@@ -372,7 +372,7 @@ function CheckRequirements()
         return bol == 6
     end ]]
 
-    --print(reaper.ImGui_GetVersion())
+    --print(ImGui.GetVersion())
     --print(reaper.JS_ReaScriptAPI_Version())
     --print(reaper.CF_GetSWSVersion())
     return true 

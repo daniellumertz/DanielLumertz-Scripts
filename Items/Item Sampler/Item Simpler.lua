@@ -1,9 +1,15 @@
 -- @noindex
 
 
-local version = '1.0.3'
+local version = '1.0.4'
 local info = debug.getinfo(1, 'S');
 script_path = info.source:match[[^@?(.*[\/])[^\/]-$]];
+
+
+package.path = package.path  .. ';' ..  reaper.ImGui_GetBuiltinPath() .. '/?.lua'
+ImGui = require 'imgui' '0.10'
+ctx = ImGui.CreateContext('daniellumertz_Item Simpler')
+
 
 
 --- Loading
@@ -15,18 +21,9 @@ dofile(script_path .. 'REAPER Functions.lua') -- preset to work with Tables
 
 if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
 -- Imgui shims to 0.7.2 (added after the news at 0.8)
-dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
+--dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
 
 LoadInitialPreset()
-
-
-function TableMin(tab)
-    local min = math.huge
-    for i = 1, #test_1  do
-        min = min < test_1[i] and min or test_1[i]
-    end
-    return min
-end
 
 function ListItems()
     local list = {}
@@ -296,77 +293,79 @@ end
 
 ------ Gui Func
 function HSV(h, s, v, a)
-    local r, g, b = reaper.ImGui_ColorConvertHSVtoRGB(h, s, v)
-    return reaper.ImGui_ColorConvertDouble4ToU32(r, g, b, a or 1.0)
+    local r, g, b = ImGui.ColorConvertHSVtoRGB(h, s, v)
+    return ImGui.ColorConvertDouble4ToU32(r, g, b, a or 1.0)
 end
 
 function ChangeColor(H,S,V,A)
-    reaper.ImGui_PushID(ctx, 3)
+    --ImGui.PushID(ctx, 3)
     local button = HSV( H, S, V, A)
     local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
     local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
-    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_Button(),  button)
-    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonHovered(), hover)
-    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_ButtonActive(),  active)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Button,  button)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, hover)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,  active)
 end
 
 function ToolTip(text)
-    if reaper.ImGui_IsItemHovered(ctx) then
-        reaper.ImGui_BeginTooltip(ctx)
-        reaper.ImGui_PushTextWrapPos(ctx, reaper.ImGui_GetFontSize(ctx) * 35.0)
-        reaper.ImGui_Text(ctx, text)
-        reaper.ImGui_PopTextWrapPos(ctx)
-        reaper.ImGui_EndTooltip(ctx)
+    if ImGui.IsItemHovered(ctx) then
+        if ImGui.BeginTooltip(ctx) then
+            ImGui.PushTextWrapPos(ctx, ImGui.GetFontSize(ctx) * 35.0)
+            ImGui.PushTextWrapPos(ctx, 200)
+            ImGui.Text(ctx, text)
+            ImGui.PopTextWrapPos(ctx)
+            ImGui.EndTooltip(ctx)
+        end
     end
 end
-
 -- GUI init
 function GuiInit()
-    ctx = reaper.ImGui_CreateContext('Item Simpler') -- Add VERSION TODO
-    FONT = reaper.ImGui_CreateFont('sans-serif', 15) -- Create the fonts you need
-    reaper.ImGui_AttachFont(ctx, FONT)-- Attach the fonts you need
+    ctx = ImGui.CreateContext('Item Simpler') -- Add VERSION TODO
+    FONT = ImGui.CreateFont('sans-serif', 15) -- Create the fonts you need
+    --ImGui.AttachFont(ctx, FONT)-- Attach the fonts you need
 end
 
 function loop()
     if not PreventPassKeys2 then -- Passthrough keys
-        PassThorugh()
+    DL.imgui.SWSPassKeys(ctx, false)    
+    --PassThorugh()
     end
     Ctrl, Shift, Alt = GetModKeys()
-    reaper.ImGui_PushStyleColor(ctx, reaper.ImGui_Col_WindowBg(),              0x000000FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_WindowBg,              0x000000FF)
 
-    local window_flags = reaper.ImGui_WindowFlags_MenuBar() 
-    reaper.ImGui_SetNextWindowSize(ctx, 270, 300, reaper.ImGui_Cond_Once())-- Set the size of the windows.  Use in the 4th argument reaper.ImGui_Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
-    reaper.ImGui_PushFont(ctx, FONT)
+    local window_flags = ImGui.WindowFlags_MenuBar 
+    ImGui.SetNextWindowSize(ctx, 270, 300, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    ImGui.PushFont(ctx, FONT, 15)
 
-    local visible, open  = reaper.ImGui_Begin(ctx, 'Item Simpler ' ..version, true, window_flags)
+    local visible, open  = ImGui.Begin(ctx, 'Item Simpler ' ..version, true, window_flags)
 
 
-    local gui_w , gui_h = reaper.ImGui_GetContentRegionAvail( ctx)
+    local gui_w , gui_h = ImGui.GetContentRegionAvail( ctx)
     gui_w = gui_w -- 15
     gui_h = gui_h - 15
     --- GUI HERE
     n_lines = 4
 
     if visible then
-        if reaper.ImGui_BeginMenuBar(ctx) then
-            if reaper.ImGui_BeginMenu(ctx, 'Trim') then
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Trim') then
 
-                if reaper.ImGui_MenuItem(ctx, 'Clean Area Before Paste',"",Settings.Erase) then
+                if ImGui.MenuItem(ctx, 'Clean Area Before Paste',"",Settings.Erase) then
                     Settings.Erase = not Settings.Erase
                 end
                 if Settings.Tips then ToolTip("Before pasting delete Any Item\nin the space of the Pasted Items") end
 
-                if reaper.ImGui_MenuItem(ctx, 'Trim Items Using MIDI Item End',"",Settings.Is_trim_ItemEnd) then
+                if ImGui.MenuItem(ctx, 'Trim Items Using MIDI Item End',"",Settings.Is_trim_ItemEnd) then
                     Settings.Is_trim_ItemEnd = not Settings.Is_trim_ItemEnd
                 end
                 if Settings.Tips then ToolTip("The pasted items will be trimmed\nat the end of the MIDI item") end
 
-                if reaper.ImGui_MenuItem(ctx, 'Trim Items Using Start Next Midi Note',"",Settings.Is_trim_StartNextNote) then
+                if ImGui.MenuItem(ctx, 'Trim Items Using Start Next Midi Note',"",Settings.Is_trim_StartNextNote) then
                     Settings.Is_trim_StartNextNote = not Settings.Is_trim_StartNextNote
                 end
                 if Settings.Tips then ToolTip("The pasted items will be trimmed\nat the start of the next MIDI note") end
 
-                if reaper.ImGui_MenuItem(ctx, 'Trim Items Using End MIDI Note',"",Settings.Is_trim_EndNote) then
+                if ImGui.MenuItem(ctx, 'Trim Items Using End MIDI Note',"",Settings.Is_trim_EndNote) then
                     Settings.Is_trim_EndNote = not Settings.Is_trim_EndNote
                 end
                 if Settings.Tips then ToolTip("The pasted items will be trimmed\nat the end of the MIDI note") end
@@ -374,88 +373,88 @@ function loop()
 
                 
                 
-                reaper.ImGui_EndMenu(ctx)
+                ImGui.EndMenu(ctx)
             end
-            reaper.ImGui_EndMenuBar(ctx)
+            ImGui.EndMenuBar(ctx)
         end
 
-        if reaper.ImGui_BeginMenuBar(ctx) then
-            if reaper.ImGui_BeginMenu(ctx, 'Velocity') then
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Velocity') then
 
-                if reaper.ImGui_Checkbox(ctx, 'Velocity Change Item dB',Settings.Velocity) then
+                if ImGui.Checkbox(ctx, 'Velocity Change Item dB',Settings.Velocity) then
                     Settings.Velocity = not Settings.Velocity
                 end
                 local _
 
                 local name =  'Max dB added'
-                _, Settings.Vel_Max = reaper.ImGui_InputInt(ctx, name, Settings.Vel_Max)
-                local focus = reaper.ImGui_IsItemFocused(ctx)
+                _, Settings.Vel_Max = ImGui.InputInt(ctx, name, Settings.Vel_Max)
+                local focus = ImGui.IsItemFocused(ctx)
                 PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
 
                 local name = 'Max dB reduce'
-                _, Settings.Vel_Min = reaper.ImGui_InputInt(ctx,  'Max dB reduce', Settings.Vel_Min)
-                local focus = reaper.ImGui_IsItemFocused(ctx)
+                _, Settings.Vel_Min = ImGui.InputInt(ctx,  'Max dB reduce', Settings.Vel_Min)
+                local focus = ImGui.IsItemFocused(ctx)
                 PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
 
-                _, Settings.Vel_OriginalVal = reaper.ImGui_SliderInt(ctx, 'Velocity to use original Item dB', Settings.Vel_OriginalVal, 0, 127)
+                _, Settings.Vel_OriginalVal = ImGui.SliderInt(ctx, 'Velocity to use original Item dB', Settings.Vel_OriginalVal, 0, 127)
                 
 
-                reaper.ImGui_EndMenu(ctx)
+                ImGui.EndMenu(ctx)
 
             end
-            reaper.ImGui_EndMenuBar(ctx)
+            ImGui.EndMenuBar(ctx)
         end
         
-        if reaper.ImGui_BeginMenuBar(ctx) then
-            if reaper.ImGui_BeginMenu(ctx, 'Pitch') then
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Pitch') then
 
-                if reaper.ImGui_Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',Settings.Pitch) then
+                if ImGui.Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',Settings.Pitch) then
                     Settings.Pitch = not Settings.Pitch
                 end
                 local _
 
-                _, Settings.Pitch_Original = reaper.ImGui_SliderInt(ctx, 'Original Pitch at MIDI Note', Settings.Pitch_Original, 0, 127, NumberToNote(Settings.Pitch_Original, true))
-                --_, Settings.Pitch_Original = reaper.ImGui_SliderInt(ctx, 'Original Pitch at MIDI Note', Settings.Pitch_Original, 0, 127)
+                _, Settings.Pitch_Original = ImGui.SliderInt(ctx, 'Original Pitch at MIDI Note', Settings.Pitch_Original, 0, 127, NumberToNote(Settings.Pitch_Original, true))
+                --_, Settings.Pitch_Original = ImGui.SliderInt(ctx, 'Original Pitch at MIDI Note', Settings.Pitch_Original, 0, 127)
                 
 
-                reaper.ImGui_EndMenu(ctx)
+                ImGui.EndMenu(ctx)
 
             end
-            reaper.ImGui_EndMenuBar(ctx)
+            ImGui.EndMenuBar(ctx)
         end
 
-        if reaper.ImGui_BeginMenuBar(ctx) then
-            if reaper.ImGui_BeginMenu(ctx, 'Extra') then
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Extra') then
 
-                if reaper.ImGui_MenuItem(ctx, 'Show Tool Tips',"",Settings.Tips) then
+                if ImGui.MenuItem(ctx, 'Show Tool Tips',"",Settings.Tips) then
                     Settings.Tips = not Settings.Tips
                 end
 
-                reaper.ImGui_EndMenu(ctx)
+                ImGui.EndMenu(ctx)
 
             end
-            reaper.ImGui_EndMenuBar(ctx)
+            ImGui.EndMenuBar(ctx)
         end
 
-        if reaper.ImGui_BeginMenuBar(ctx) then
-            if reaper.ImGui_BeginMenu(ctx, 'Presets') then
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Presets') then
                 -- Save
 
-                if reaper.ImGui_Button(ctx, 'Save Preset') then
-                    reaper.ImGui_OpenPopup(ctx, 'Save Preset')
+                if ImGui.Button(ctx, 'Save Preset') then
+                    ImGui.OpenPopup(ctx, 'Save Preset')
                 end
 
-                local center = {reaper.ImGui_Viewport_GetCenter(reaper.ImGui_GetMainViewport(ctx))}
-                reaper.ImGui_SetNextWindowPos(ctx, center[1], center[2], reaper.ImGui_Cond_Appearing(), 0.5, 0.5)
+                local center = {ImGui.Viewport_GetCenter(ImGui.GetMainViewport(ctx))}
+                ImGui.SetNextWindowPos(ctx, center[1], center[2], ImGui.Cond_Appearing(), 0.5, 0.5)
 
-                if reaper.ImGui_BeginPopupModal(ctx, 'Save Preset', nil, reaper.ImGui_WindowFlags_AlwaysAutoResize()) then
-                    if reaper.ImGui_IsWindowAppearing(ctx) then
+                if ImGui.BeginPopupModal(ctx, 'Save Preset', nil, ImGui.WindowFlags_AlwaysAutoResize()) then
+                    if ImGui.IsWindowAppearing(ctx) then
                         PreventPassKeys2 = CheckPreventPassThrough(true, 'preset', PreventPassKeys2)
                     end
-                    _, GUI_String_save = reaper.ImGui_InputText( ctx, 'Preset Name', GUI_String_save)
-                    reaper.ImGui_Separator(ctx)
+                    _, GUI_String_save = ImGui.InputText( ctx, 'Preset Name', GUI_String_save)
+                    ImGui.Separator(ctx)
 
-                    if reaper.ImGui_Button(ctx, 'Save', 120, 0) then
+                    if ImGui.Button(ctx, 'Save', 120, 0) then
                         if GUI_String_save == '' then
                             local tlen = TableLen2(UserPresets)+1
                             GUI_String_save = 'Preset Nº '..tlen
@@ -464,54 +463,54 @@ function loop()
                         UserPresets[GUI_String_save] = table_copy(Settings)
                         save_json(script_path, 'user_presets', UserPresets)
                         PreventPassKeys2 = CheckPreventPassThrough(false, 'preset', PreventPassKeys2)
-                        reaper.ImGui_CloseCurrentPopup(ctx)
+                        ImGui.CloseCurrentPopup(ctx)
                     end
-                    reaper.ImGui_SameLine(ctx)
-                    if reaper.ImGui_Button(ctx, 'Cancel', 120, 0) then 
+                    ImGui.SameLine(ctx)
+                    if ImGui.Button(ctx, 'Cancel', 120, 0) then 
                         PreventPassKeys2 = CheckPreventPassThrough(false, 'preset', PreventPassKeys2)
-                        reaper.ImGui_CloseCurrentPopup(ctx) 
+                        ImGui.CloseCurrentPopup(ctx) 
                     end
-                    reaper.ImGui_EndPopup(ctx)
+                    ImGui.EndPopup(ctx)
                 end
 
                 -- Load
-                if reaper.ImGui_BeginMenu(ctx, 'Load') then
+                if ImGui.BeginMenu(ctx, 'Load') then
 
                     for key, value in pairs(UserPresets) do
                         if key == 'LS_Hide' then 
                             goto gui_continue 
                         end
 
-                       if reaper.ImGui_MenuItem( ctx,  key) then
+                       if ImGui.MenuItem( ctx,  key) then
                            Settings = table_copy(UserPresets[key])
                        end
 
                        ::gui_continue::
                     end
-                    reaper.ImGui_EndMenu(ctx)
+                    ImGui.EndMenu(ctx)
                 end
 
                 --Remove
-                if reaper.ImGui_BeginMenu(ctx, 'Remove') then
+                if ImGui.BeginMenu(ctx, 'Remove') then
 
                     for key, value in pairs(UserPresets) do
                         if key == 'LS_Hide' or key == 'Default' then 
                             goto gui_continue 
                         end
 
-                       if reaper.ImGui_MenuItem( ctx,  key) then
+                       if ImGui.MenuItem( ctx,  key) then
                             UserPresets[key] = nil
                             save_json(script_path, 'user_presets', UserPresets)
                        end
 
                        ::gui_continue::
                     end
-                    reaper.ImGui_EndMenu(ctx)
+                    ImGui.EndMenu(ctx)
                 end
                 
-                reaper.ImGui_EndMenu(ctx)
+                ImGui.EndMenu(ctx)
             end
-            reaper.ImGui_EndMenuBar(ctx)
+            ImGui.EndMenuBar(ctx)
         end
 
 
@@ -520,16 +519,16 @@ function loop()
         
         --------- Get MIDI button
         ChangeColor(0.4,1,0.4,1)
-        reaper.ImGui_Button(ctx, 'Get MIDI Item', gui_w, gui_h/n_lines)
-        if reaper.ImGui_IsItemClicked( ctx) then
+        ImGui.Button(ctx, 'Get MIDI Item', gui_w, gui_h/n_lines)
+        if ImGui.IsItemClicked( ctx) then
             list_midi = ListItems()
         end
         if Settings.Tips then ToolTip("Select the MIDI items with the notes\nwhere the items will be placed") end
-        reaper.ImGui_PopStyleColor(ctx, 3); reaper.ImGui_PopID(ctx)
+        ImGui.PopStyleColor(ctx, 3); 
 
         --------- Get Items sequence Buttons
-        reaper.ImGui_Button(ctx, 'Get Item Sequence', gui_w, gui_h/n_lines)
-        if reaper.ImGui_IsItemClicked( ctx) then
+        ImGui.Button(ctx, 'Get Item Sequence', gui_w, gui_h/n_lines)
+        if ImGui.IsItemClicked( ctx) then
             list_sequence = ListItems()
         end
         if Settings.Tips then ToolTip("Select a sequence of items to be placed\non the notes of the MIDI objects") end
@@ -537,35 +536,35 @@ function loop()
 
         --------Place Button
         ChangeColor(1,1,0.4,1)
-        reaper.ImGui_Button(ctx, 'Place in Sequence', gui_w, gui_h/n_lines)
-        if reaper.ImGui_IsItemClicked( ctx) then
+        ImGui.Button(ctx, 'Place in Sequence', gui_w, gui_h/n_lines)
+        if ImGui.IsItemClicked( ctx) then
             local is_reverse = Ctrl
             Place_Sequence(false, is_reverse, false) -- (is_random,sequence_reverse,isrand_sequence)
         end
         if Settings.Tips then ToolTip("Click: Paste the items sequence in order\nCtrl+Click: Paste the sequence in reverse order") end
-        reaper.ImGui_PopStyleColor(ctx, 3); reaper.ImGui_PopID(ctx)
+        ImGui.PopStyleColor(ctx, 3);
         --------Place Random
         ChangeColor(0.15,1,0.4,1)
-        reaper.ImGui_Button(ctx, 'Place Random', gui_w, gui_h/n_lines)
-        if reaper.ImGui_IsItemClicked( ctx) then
+        ImGui.Button(ctx, 'Place Random', gui_w, gui_h/n_lines)
+        if ImGui.IsItemClicked( ctx) then
             local is_rand_sequence = Ctrl
             Place_Sequence(true, false, is_rand_sequence)   --isrand_sequence     
         end
         if Settings.Tips then ToolTip("Click: Paste the items sequence randomly\nCtrl+Click: Paste the sequence randomly without repetitions") end
-        reaper.ImGui_PopStyleColor(ctx, 3); reaper.ImGui_PopID(ctx)
+        ImGui.PopStyleColor(ctx, 3);
 
         --------
         ----
-        reaper.ImGui_End(ctx)
+        ImGui.End(ctx)
     end        
-    reaper.ImGui_PopFont(ctx) 
-    reaper.ImGui_PopStyleColor(ctx) -- pop background
+    ImGui.PopFont(ctx) 
+    ImGui.PopStyleColor(ctx) -- pop background
 
         
     if open then
         reaper.defer(loop)
     else
-        reaper.ImGui_DestroyContext(ctx)
+        ImGui.DestroyContext(ctx)
     end
 end
 

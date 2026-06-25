@@ -60,7 +60,7 @@ function CheckReaImGUI(min_version, max_version)
         local ret = reaper.ShowMessageBox(text, 'Error - Missing Dependency', 0)
         return false
     else
-        local imgui_version, imgui_version_num, reaimgui_version = reaper.ImGui_GetVersion()
+        local imgui_version, imgui_version_num, reaimgui_version = ImGui.GetVersion()
         local bol, why = CompareVersion(reaimgui_version, min_version, max_version)
         if not bol then
             local text
