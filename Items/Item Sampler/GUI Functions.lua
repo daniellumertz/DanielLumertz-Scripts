@@ -112,174 +112,13 @@ end
 function MenuBar()
     if ImGui.BeginMenuBar(ctx) then
         if ImGui.BeginMenu(ctx, 'Extra') then
-            if ImGui.MenuItem(ctx, 'Show Tool Tips',"",Settings.Tips) then
-                Settings.Tips = not Settings.Tips
+            if ImGui.MenuItem(ctx, 'Show Tool Tips',"",UserSettings.Tips) then
+                UserSettings.Tips = not UserSettings.Tips
             end
             ImGui.EndMenu(ctx)
         end
-
-        --[[ if ImGui.BeginMenu(ctx, 'Project Presets') then
-            -- Save
-
-            if ImGui.Button(ctx, 'Save Preset') then
-                --PreventPassKeys = true
-                PreventPassKeys2 = CheckPreventPassThrough(true, 'save preset', PreventPassKeys2)
-                ImGui.OpenPopup(ctx, 'Save Preset')
-            end
-
-            local center = {ImGui.Viewport_GetCenter(ImGui.GetMainViewport(ctx))}
-            ImGui.SetNextWindowPos(ctx, center[1], center[2], ImGui.Cond_Appearing(), 0.5, 0.5)
-
-            if ImGui.BeginPopupModal(ctx, 'Save Preset', nil, ImGui.WindowFlags_AlwaysAutoResize()) then
-                PreventPassKeys = true
-                _, GUI_String_save = ImGui.InputText( ctx, 'Preset Name', GUI_String_save)
-                ImGui.Separator(ctx)
-
-                if ImGui.Button(ctx, 'Save', 120, 0) then
-                    if GUI_String_save == '' then
-                        GUI_String_save = 'Preset Nº '..(TableLen2(GlobalPresets)+1)
-                    end
-                    UserPresets[GUI_String_save] = {
-                        Setting = table_copy(Settings),
-                        Groups = table_copy(Groups)
-                    }
-                    PreventPassKeys2 = CheckPreventPassThrough(false, 'save preset', PreventPassKeys2)
-                    ImGui.CloseCurrentPopup(ctx)
-                end
-                ImGui.SameLine(ctx)
-                if ImGui.Button(ctx, 'Cancel', 120, 0) then
-                    --PreventPassKeys = false
-                    PreventPassKeys2 = CheckPreventPassThrough(false, 'save preset', PreventPassKeys2)
-                    ImGui.CloseCurrentPopup(ctx)
-                end
-                ImGui.EndPopup(ctx)
-            end
-
-            -- Load
-            if ImGui.BeginMenu(ctx, 'Load') then
-
-                for key, value in pairs(UserPresets) do
-                    if key == 'Settings' then 
-                        goto gui_continue 
-                    end
-                    if key == 'Groups' then 
-                        goto gui_continue 
-                    end
-                    if ImGui.MenuItem( ctx,  key) then
-                       Settings = UserPresets[key].Setting
-                       Groups = UserPresets[key].Groups
-                    end
-
-                   ::gui_continue::
-                end
-                ImGui.EndMenu(ctx)
-            end
-
-            --Remove
-            if ImGui.BeginMenu(ctx, 'Remove') then
-
-                for key, value in pairs(UserPresets) do
-                    if key == 'Settings' then 
-                        goto gui_continue 
-                    end
-                    if key == 'Groups' then 
-                        goto gui_continue 
-                    end
-
-                   if ImGui.MenuItem( ctx,  key) then
-                        UserPresets[key] = nil
-                   end
-
-                   ::gui_continue::
-                end
-                ImGui.EndMenu(ctx)
-            end
-            
-            ImGui.EndMenu(ctx)
-        end ]]
-
-        --[[ if ImGui.BeginMenu(ctx, 'Presets') then
-            -- Save
-
-            if ImGui.Button(ctx, 'Save Preset') then
-                --PreventPassKeys = true
-                PreventPassKeys2 = CheckPreventPassThrough(true, 'save preset', PreventPassKeys2)
-                ImGui.OpenPopup(ctx, 'Save Preset')
-            end
-
-            local center = {ImGui.Viewport_GetCenter(ImGui.GetMainViewport(ctx))}
-            ImGui.SetNextWindowPos(ctx, center[1], center[2], ImGui.Cond_Appearing(), 0.5, 0.5)
-
-            if ImGui.BeginPopupModal(ctx, 'Save Preset', nil, ImGui.WindowFlags_AlwaysAutoResize()) then
-                _, GUI_String_save = ImGui.InputText( ctx, 'Preset Name', GUI_String_save)
-                ImGui.Separator(ctx)
-
-                if ImGui.Button(ctx, 'Save', 120, 0) then
-                    if GUI_String_save == '' then
-                        GUI_String_save = 'Preset Nº '..(TableLen2(GlobalPresets)+1)
-                    end
-
-                    --PreventPassKeys = false
-                    PreventPassKeys2 = CheckPreventPassThrough(false, 'save preset', PreventPassKeys2)
-                    GlobalPresets[GUI_String_save] = {
-                        Groups = table_copy(Groups)
-                    }
-                    -- Dont Save Project Userdata
-                    for k , v in pairs(GlobalPresets[GUI_String_save].Groups) do 
-                        GlobalPresets[GUI_String_save].Groups[k].Settings.list_sequence = nil
-                        GlobalPresets[GUI_String_save].Groups[k].Settings.Targets = nil
-                    end
-
-                    GlobalPresets[GUI_String_save].Settings.ListMidi = nil -- ????? PRECISA
-                    save_json(script_path, 'user_presets_complete', GlobalPresets)
-
-                    ImGui.CloseCurrentPopup(ctx)
-                end
-                ImGui.SameLine(ctx)
-                if ImGui.Button(ctx, 'Cancel', 120, 0) then
-                    --PreventPassKeys = false
-                    PreventPassKeys2 = CheckPreventPassThrough(false, 'save preset', PreventPassKeys2)
-                    ImGui.CloseCurrentPopup(ctx) 
-                end
-                ImGui.EndPopup(ctx)
-            end
-
-            -- Load
-            if ImGui.BeginMenu(ctx, 'Load') then
-
-                for key, value in pairs(GlobalPresets) do
-                    if ImGui.MenuItem( ctx,  key) then
-                        Settings = table_copy(GlobalPresets[key].Settings)
-                        Groups = table_copy(GlobalPresets[key].Groups)
-                    end
-                end
-                ImGui.EndMenu(ctx)
-            end
-
-            --Remove
-            if ImGui.BeginMenu(ctx, 'Remove') then
-
-                for key, value in pairs(GlobalPresets) do
-                    if key == 'Settings' then 
-                        goto gui_continue 
-                    end
-                    if key == 'Groups' then 
-                        goto gui_continue 
-                    end
-
-                   if ImGui.MenuItem( ctx,  key) then
-                        GlobalPresets[key] = nil
-                        save_json(script_path, 'user_presets_complete', GlobalPresets)
-                   end
-
-                   ::gui_continue::
-                end
-                ImGui.EndMenu(ctx)
-            end
-            
-            ImGui.EndMenu(ctx)
-        end ]]
-        if Settings.Tips then ToolTip("Save/Load Presets Globally. Store Groups and Settings") end
+        
+        if UserSettings.Tips then ToolTip("Save/Load Presets Globally. Store Groups and Settings") end
 
         -- Dock
         local reval_dock =  ImGui.IsWindowDocked(ctx)
@@ -342,21 +181,9 @@ function CheckRequirements()
     return true 
 end
 
-function CheckProjChange() 
-    local current_proj = reaper.EnumProjects(-1)
-    local current_path = GetFullProjectPath()
-    if OldProj or OldPath  then  -- Not First run
-        if OldProj ~= current_proj or OldPath ~= current_path then -- Changed the path (can be caused by a new save or dif project but it doesnt matter as it will just reload Snapshot and Configs)
-            salvar(OldProj)
-            ProjectPath = GetProjectPath()
-            LoadInitialPreseetGroups()
-        end
-    end 
-    OldPath = current_path
-    OldProj = current_proj        
-end
 
-function PushStyle()
+
+function PushStyle(ctx)
     ImGui.PushStyleVar(ctx, ImGui.StyleVar_Alpha,               1)
     ImGui.PushStyleVar(ctx, ImGui.StyleVar_DisabledAlpha,       0.62)
     ImGui.PushStyleVar(ctx, ImGui.StyleVar_WindowPadding,       8, 8)

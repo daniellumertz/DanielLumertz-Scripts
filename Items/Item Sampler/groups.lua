@@ -16,6 +16,7 @@ function BlankGroup:Create(name)
             Vel_Max = 6,
             Pitch = false,
             Pitch_Original = 60,
+            Check = true, -- If passes all checks it will be pasted, else it will fail
             NoteRange = {
                 Min = 0,
                 Max = 127
@@ -23,8 +24,11 @@ function BlankGroup:Create(name)
             VelocityRange = {
                 Min = 0,
                 Max = 127
-            }
+            },
+            GUID = reaper.genGuid()
         },
+        list_sequence = {},
+        Targets = {},
         Selected = true
     }
     setmetatable(temp,BlankGroup)

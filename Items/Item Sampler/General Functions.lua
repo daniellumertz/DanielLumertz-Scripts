@@ -179,7 +179,7 @@ end
 
 
 
-function TrimItem(pasted_item, item, idx_note, notecnt, item_take, endppqpos )
+function TrimItem(Settings, pasted_item, item, idx_note, notecnt, item_take, endppqpos )
     if Settings.Is_trim_ItemEnd == true  or Settings.Is_trim_StartNextNote == true or Settings.Is_trim_EndNote == true then
         local pasted_start = reaper.GetMediaItemInfo_Value(pasted_item, "D_POSITION")
         local pasted_len = reaper.GetMediaItemInfo_Value(pasted_item, "D_LENGTH")
