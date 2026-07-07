@@ -46,7 +46,23 @@ ExtStates = {
     }
 }
 UserSettings = {
-    tips = true
+    tips = true,
+    gui = {
+        draw = {
+            active = {
+                is_draw = true,
+                color = 0x52BAFF,
+                thick = 4,
+                is_multicolor = false
+            },
+            focused = {
+                is_draw = true,
+                color = 0xFF4444FF,
+                thick = 4,
+                is_multicolor = true
+            }
+        }
+    }
 }
 GUI = {
     groups_popup = {
@@ -61,8 +77,10 @@ GUI = {
         end
     }),
     sequencers = {
-        draw_active = true,
         draw_window = {
+            arrange_win = reaper.JS_Window_FindChildByID(reaper.GetMainHwnd(), 0x3E8),
+            arrange = {
+            },
             flags = 
                 ImGui.WindowFlags_NoBackground      |
                 ImGui.WindowFlags_NoTitleBar        |
@@ -90,6 +108,7 @@ require('DL Functions.Serialize')
 require('DL Functions.REAPER Items')
 require('DL Functions.REAPER Enumerate')
 require('DL Functions.General Table')
+require('DL Functions.ImGui')
 local is = require('Sequencer Item')
 
 
@@ -989,13 +1008,180 @@ function loop()
     ImGui.PopFont(ctx)
     PopStyle()
 
-    if ImGui.Begin(ctx, 'Item Sampler: Draw Window', true, GUI.sequencers.draw_window.flags) then
-        ImGui.End(ctx)
+    local dw = GUI.sequencers.draw_window
+    local dw_options = UserSettings.gui.draw
+    if (ProjTable[proj].Sequencers) and (#ProjTable[proj].Sequencers > 0) and (dw_options.active.is_draw) then
+        ------ Get info about arrange window position
+        -- Get Window information 
+        dw.arrange = {}
+        _, dw.arrange.left, dw.arrange.top, dw.arrange.right, dw.arrange.bottom = reaper.JS_Window_GetRect( dw.arrange_win )
+        dw.arrange.width = dw.arrange.right - dw.arrange.left
+        -- Get Scroll information
+        if not dw.scroll_size then
+            local retval, position, pageSize, min, max, trackPos = reaper.JS_Window_GetScrollInfo(dw.arrange_win, "HORZ")
+            dw.scroll_size = dw.arrange.width  - pageSize
+        end
+        dw.arrange.right = dw.arrange.right - dw.scroll_size
+        dw.arrange.bottom = dw.arrange.bottom - dw.scroll_size
+        -- Set window position / only when needed
+        local current_pos = dw.arrange.left .. ';' .. dw.arrange.top .. ';' .. dw.arrange.right .. ';' .. dw.arrange.bottom 
+        if dw.LastWinPosition ~= current_pos then
+            dw.LastWinPosition = current_pos 
+            -- convert native screen rect -> ImGui logical coords for window pos/size CHANGE
+            local i_left, i_top = ImGui.PointConvertNative(ctx, dw.arrange.left, dw.arrange.top)
+            local i_right, i_bot = ImGui.PointConvertNative(ctx, dw.arrange.right, dw.arrange.bottom)   
+            -- Set window pos / size
+            ImGui.SetNextWindowPos(ctx, i_left, i_top)
+            ImGui.SetNextWindowSize(ctx, i_right - i_left, i_bot - i_top)
+        end
+
+        -- Gatter information about Arrange time and Arrange Y 
+        -- Time
+        dw.arrange.start, dw.arrange.fim = reaper.GetSet_ArrangeView2(proj, false, 0, 0)
+        dw.arrange.time_len  = dw.arrange.fim - dw.arrange.start
+        dw.arrange.tpp = dw.arrange.time_len / dw.arrange.width-- time per pixel
+
+        -- Create Window
+        if ImGui.Begin(ctx, 'Item Sampler: Draw Window', true, dw.flags) then
+            
+            -- Collect items/tracks information to be drawn
+            local is_multicolor = false
+            do
+                local sequencers = ProjTable[proj].Sequencers
+                dw.sequencers = { -- Save information about where to draw until it is needed to recalculate
+                    track_info = {}, -- Store information about tracks, so it dont need to calculate twice
+                    dl = ImGui.GetWindowDrawList(ctx)
+                }
+                for k, sequencer in ipairs(sequencers) do
+                    local f = sequencer.is_item and GetItemImGuiCordinates or GetTrackItemAreaImGuiCordinates 
+                    local bol, x1, y1, x2, y2 = f(sequencer.seq, dw.sequencers.track_info, dw)
+                    local is_focused = k == sequencers.focus
+                    local options = is_focused and dw_options.focused or dw_options.active
+                    if bol then
+                        dw.sequencers[#dw.sequencers + 1] = {
+                            color = options.color,
+                            thick = options.thick,
+                            is_multicolor = options.is_multicolor,
+                            cordinates = {
+                                x1 = x1,
+                                y1 = y1,
+                                x2 = x2,
+                                y2 = y2
+                            }
+                        }
+                        is_multicolor = is_multicolor or  options.is_multicolor
+                    end
+                end
+            end
+
+            -- Draw
+            -- For multicolor only: create animated colors using HSV
+            local col
+            if is_multicolor then
+                local velocity = 4
+                local time = (reaper.time_precise() % velocity) / velocity
+                local hue = {0,.1}
+                col = {}
+                for k, h in ipairs(hue) do
+                    h = (time + h) % 1.0
+                    local r,g,b = ImGui.ColorConvertHSVtoRGB(h, 1, 1)
+                    col[#col+1] = ImGui.ColorConvertDouble4ToU32(r, g, b, 1)
+                end
+            end
+        
+            for k, sd in ipairs(dw.sequencers) do -- sd = sequencer draw
+                local cord = sd.cordinates
+                if sd.is_multicolor then
+                    DL.imgui.DrawList_AddRectMultiColor(dw.sequencers.dl, cord.x1, cord.y1, cord.x2+1 , cord.y2+1, sd.thick, col[1], col[2], col[2], col[1])
+                else
+                    ImGui.DrawList_AddRect(dw.sequencers.dl, cord.x1, cord.y1, cord.x2 , cord.y2, sd.color, 0, nil, sd.thick)     -- the -1 comes because selected items increase 1pixel in all directions
+                end
+            end
+        
+            ImGui.End(ctx)
+        end
     end
 
     if open then
         reaper.defer(loop)
     end
+end
+
+
+function GetTrackItemAreaImGuiCordinates(track, tracks_info, dw) 
+    if tracks_info[track] and tracks_info[track].hide then
+        return false
+    end
+
+    if not tracks_info[track] then
+        tracks_info[track] = {
+            y = reaper.GetMediaTrackInfo_Value(track, 'I_TCPY'),
+            h = reaper.GetMediaTrackInfo_Value(track, 'I_TCPH')
+        }
+
+        if (tracks_info[track].y > dw.arrange.bottom) or ((tracks_info[track].y + tracks_info[track].h) < 0) then
+            tracks_info[track].hide = true
+            return false
+        end
+    end
+    local x1 = dw.arrange.left 
+    local y1 = dw.arrange.top + tracks_info[track].y
+    local x2 = dw.arrange.right 
+    local y2 = y1 + tracks_info[track].h
+
+    local ix1, iy1 = ImGui.PointConvertNative(ctx, x1, y1)
+    local ix2, iy2 = ImGui.PointConvertNative(ctx, x2, y2)
+    return  true, ix1, iy1, ix2, iy2
+end
+
+function GetItemImGuiCordinates(item, tracks_info, dw)
+    --if sequencer_draw.is_item then
+    local track = reaper.GetMediaItemTrack(item)
+    if tracks_info[track] and tracks_info[track].hide then
+        return false
+    end
+    -- X
+    local start = reaper.GetMediaItemInfo_Value(item, 'D_POSITION')
+    local len = reaper.GetMediaItemInfo_Value(item, 'D_LENGTH')
+    local fim = start + len
+    if ((start < dw.arrange.start) and (fim < dw.arrange.start)) or (start > dw.arrange.fim) then             -- rule out items that are not in the width of the project
+        return false
+    end
+
+    local x1 = dw.arrange.left + ((start - dw.arrange.start) / dw.arrange.tpp)
+    local x2 = x1 + (len / dw.arrange.tpp)
+    x1 = math.ceil(x1 + 0.5)
+    x1 = math.max(x1, dw.arrange.left)
+    x2 = math.ceil(x2 + 0.5)
+    x2 = math.min(x2, dw.arrange.right)
+
+    -- Y
+    if not tracks_info[track] then
+        tracks_info[track] = {
+            y = reaper.GetMediaTrackInfo_Value(track, 'I_TCPY'),
+            h = reaper.GetMediaTrackInfo_Value(track, 'I_TCPH')
+        }
+
+        if (tracks_info[track].y > dw.arrange.bottom) or ((tracks_info[track].y + tracks_info[track].h) < 0) then
+            tracks_info[track].hide = true
+            return false
+        end
+    end
+    local item_y = reaper.GetMediaItemInfo_Value(item, 'I_LASTY')
+    local y1 = dw.arrange.top + tracks_info[track].y + item_y
+    local item_h = reaper.GetMediaItemInfo_Value(item, 'I_LASTH')
+    local y2 = y1 + item_h
+
+    -- Convert
+    local ix1, iy1 = ImGui.PointConvertNative(ctx, x1, y1)
+    local ix2, iy2 = ImGui.PointConvertNative(ctx, x2, y2)
+    if reaper.GetMediaItemInfo_Value(item, 'B_UISEL') == 1 then
+        ix1 = ix1 - 1
+        iy1 = iy1 - 1
+        iy2 = iy2 + 2
+    end
+
+    return true, ix1, iy1, ix2, iy2
 end
 
 function salvar(proj) -- OFF Right now
