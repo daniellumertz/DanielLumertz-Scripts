@@ -109,11 +109,60 @@ end
 
 
 
-function MenuBar()
+function MenuBar(ctx, UserSettings, GUI, config, version)
     if ImGui.BeginMenuBar(ctx) then
-        if ImGui.BeginMenu(ctx, 'Extra') then
-            if ImGui.MenuItem(ctx, 'Show Tool Tips',"",UserSettings.Tips) then
-                UserSettings.Tips = not UserSettings.Tips
+        if ImGui.BeginMenu(ctx, 'Options') then
+            if ImGui.MenuItem(ctx, 'Show Tool Tips', nil, UserSettings.tips) then
+                UserSettings.tips = not UserSettings.tips
+                GUI.is_save_us.check = true
+            end
+
+            if ImGui.MenuItem(ctx, 'Reset Settings') then
+                UserSettings = config.default(version)
+                GUI.is_save_us.check = true
+            end
+
+            ImGui.Separator(ctx)
+
+            if ImGui.MenuItem(ctx, 'Draw Over Active Sequencers',"",UserSettings.gui.draw.active.is_draw) then
+                UserSettings.gui.draw.active.is_draw = not UserSettings.gui.draw.active.is_draw
+                GUI.is_save_us.check = true
+            end
+            if UserSettings.gui.draw.active.is_draw then
+                if ImGui.BeginMenu(ctx, 'DrawOptions') then
+                    local dmenu = {
+                        {
+                            text = 'Focused Sequencers:',
+                            configs = UserSettings.gui.draw.focused
+                        },
+                        {
+                            text = 'Active Sequencers:',
+                            configs = UserSettings.gui.draw.active
+                        },
+                        {
+                            text = 'Target Tracks:',
+                            configs = UserSettings.gui.draw.target_tracks
+                        },
+                        {
+                            text = 'Sources:',
+                            configs = UserSettings.gui.draw.sources
+                        },
+                    }
+                    for k, menu in ipairs(dmenu) do          
+                        ImGui.Text(ctx, menu.text)
+                        local change
+                        if not menu.configs.is_multicolor then
+                            GUI.is_save_us.check, menu.configs.color = ImGui.ColorEdit4(ctx, 'Sequencer Color##'..k, menu.configs.color, ImGui.ColorEditFlags_NoInputs)
+                        end
+                        --change, menu.configs.is_multicolor = ImGui.Checkbox(ctx, 'Use Multi-Color##'..k, menu.configs.is_multicolor)
+                        ImGui.SetNextItemWidth(ctx, 150)
+                        GUI.is_save_us.check, menu.configs.thick = ImGui.SliderInt(ctx, 'Thickness##'..k, menu.configs.thick, 1, 10)
+                        if k ~= #dmenu then 
+                            ImGui.Separator(ctx)
+                        end
+                    end
+                    ImGui.EndMenu(ctx)
+                end
             end
             ImGui.EndMenu(ctx)
         end
@@ -133,11 +182,7 @@ function MenuBar()
         end
         ImGui.EndMenuBar(ctx)
     end
-
-
-    
-
-    
+    return UserSettings
 end
 
 function CheckRequirements()

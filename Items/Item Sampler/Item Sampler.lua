@@ -43,39 +43,27 @@ ExtStates = {
     pasted = {
         seq_key = 'PastedSequencer', -- value is the Sequencer item/track GUID  
         group_key = 'PastedGroup'-- value is the group GUID  
+    },
+    user_settings = {
+        key = 'UserSettings' 
     }
 }
-UserSettings = {
-    tips = true,
-    gui = {
-        draw = {
-            active = {
-                is_draw = true,
-                color = 0x52BAFF,
-                thick = 4,
-                is_multicolor = false
-            },
-            focused = {
-                is_draw = true,
-                color = 0xFF4444FF,
-                thick = 4,
-                is_multicolor = true
-            }
-        }
-    }
+
+local save_mt = { -- if is_save[1] then save end
+    __newindex = function(tbl, key, value)
+        if value then
+            rawset(tbl, 1, true)
+        end
+        -- if value is false, do nothing at all
+    end
 }
+
 GUI = {
     groups_popup = {
         was_open = false
     },
-    is_save = setmetatable({}, { -- if is_save[1] then save end
-        __newindex = function(tbl, key, value)
-            if value then
-                rawset(tbl, 1, true)
-            end
-            -- if value is false, do nothing at all
-        end
-    }),
+    is_save = setmetatable({}, save_mt),
+    is_save_us = setmetatable({}, save_mt), -- User settings!
     sequencers = {
         draw_window = {
             arrange_win = reaper.JS_Window_FindChildByID(reaper.GetMainHwnd(), 0x3E8),
@@ -110,11 +98,20 @@ require('DL Functions.REAPER Enumerate')
 require('DL Functions.General Table')
 require('DL Functions.ImGui')
 local is = require('Sequencer Item')
-
+local config = require('Item Sampler Settings Management')
 
 if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
 -- Imgui shims to 0.7.2 (added after the news at 0.8)
 --dofile(reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua')('0.7.2')
+
+
+--- Load User Settings
+
+UserSettings = config.Load(ExtStates.ext_name, ExtStates.user_settings.key) or config.default(version)
+
+
+
+--- Load Functions
 
 
 function ListItems()
@@ -316,8 +313,12 @@ function PlaceSequenceInGroups(proj, sequencers, is_random,sequence_reverse,isra
             local groups = sequencer.groups
             for gi, group in pairs(groups) do
                 if group.Selected then 
+                    if #group.list_sources_solved == 0 then
+                        goto continue
+                    end
                     Place_Sequence(group, sequencer, is_random,sequence_reverse,isrand_sequence) -- (is_random,sequence_reverse,isrand_sequence)
                 end
+                ::continue::
             end
         end
         sequencer.proceed = nil
@@ -547,7 +548,7 @@ function loop()
 
     if visible then
 
-        MenuBar()
+        UserSettings = MenuBar(ctx, UserSettings, GUI, config, version)
         
         
         --------- Get MIDI button
@@ -690,7 +691,7 @@ function loop()
                                             local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
                                             if t_name == '' then
                                                 local t_name_str = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
-                                                t_name = string.format('%d', t_name_str)
+                                                t_name = '#'..string.format('%d', t_name_str)
                                             end
                                             name = 'Track: '..t_name
                                         end
@@ -997,7 +998,14 @@ function loop()
             if GUI.is_save[1] then
                 is.SaveSequencer(sequencer.seq, sequencer, sequencer.is_item)
                 GUI.is_save[1] = nil
+                GUI.is_save.check = nil
             end
+        end
+
+        if GUI.is_save_us[1] then
+            config.Save(ExtStates.ext_name, ExtStates.user_settings.key, UserSettings)
+            GUI.is_save_us[1] = nil
+            GUI.is_save_us.check = nil
         end
 
         ----
@@ -1023,6 +1031,7 @@ function loop()
         end
         dw.arrange.right = dw.arrange.right - dw.scroll_size
         dw.arrange.bottom = dw.arrange.bottom - dw.scroll_size
+
         -- Set window position / only when needed
         local current_pos = dw.arrange.left .. ';' .. dw.arrange.top .. ';' .. dw.arrange.right .. ';' .. dw.arrange.bottom 
         if dw.LastWinPosition ~= current_pos then
@@ -1041,6 +1050,7 @@ function loop()
         dw.arrange.time_len  = dw.arrange.fim - dw.arrange.start
         dw.arrange.tpp = dw.arrange.time_len / dw.arrange.width-- time per pixel
 
+        ImGui.PushStyleVar(ctx, ImGui.StyleVar_WindowBorderSize, 0)
         -- Create Window
         if ImGui.Begin(ctx, 'Item Sampler: Draw Window', true, dw.flags) then
             
@@ -1048,28 +1058,81 @@ function loop()
             local is_multicolor = false
             do
                 local sequencers = ProjTable[proj].Sequencers
-                dw.sequencers = { -- Save information about where to draw until it is needed to recalculate
+                dw.sequencers = { 
                     track_info = {}, -- Store information about tracks, so it dont need to calculate twice
                     dl = ImGui.GetWindowDrawList(ctx)
                 }
                 for k, sequencer in ipairs(sequencers) do
-                    local f = sequencer.is_item and GetItemImGuiCordinates or GetTrackItemAreaImGuiCordinates 
-                    local bol, x1, y1, x2, y2 = f(sequencer.seq, dw.sequencers.track_info, dw)
-                    local is_focused = k == sequencers.focus
-                    local options = is_focused and dw_options.focused or dw_options.active
-                    if bol then
-                        dw.sequencers[#dw.sequencers + 1] = {
-                            color = options.color,
-                            thick = options.thick,
-                            is_multicolor = options.is_multicolor,
-                            cordinates = {
-                                x1 = x1,
-                                y1 = y1,
-                                x2 = x2,
-                                y2 = y2
+                    -- The Sequencers
+                    do 
+                        local f = sequencer.is_item and GetItemImGuiCordinates or GetTrackItemAreaImGuiCordinates 
+                        local bol, x1, y1, x2, y2 = f(sequencer.seq, dw.sequencers.track_info, dw)
+                        local is_focused = k == sequencers.focus
+                        local options = is_focused and dw_options.focused or dw_options.active
+                        if bol then
+                            dw.sequencers[#dw.sequencers + 1] = {
+                                color = options.color,
+                                thick = options.thick,
+                                is_multicolor = options.is_multicolor,
+                                cordinates = {
+                                    x1 = x1,
+                                    y1 = y1,
+                                    x2 = x2,
+                                    y2 = y2
+                                }
                             }
-                        }
-                        is_multicolor = is_multicolor or  options.is_multicolor
+                            is_multicolor = is_multicolor or  options.is_multicolor
+                        end
+                    end
+                    if dw_options.target_tracks.is_draw or dw_options.sources.is_draw then
+                        local groups = sequencer.groups
+                        for k, group in ipairs(groups) do
+                            -- Target Tracks
+                            if dw_options.target_tracks.is_draw and group.Settings.Targets then
+                                local options =  dw_options.target_tracks
+                                for k, track in ipairs(group.Settings.Targets) do
+                                    local bol, x1, y1, x2, y2 = GetTrackItemAreaImGuiCordinates(track, dw.sequencers.track_info, dw)
+                                    if bol then
+                                        dw.sequencers[#dw.sequencers + 1] = {
+                                            color = options.color,
+                                            thick = options.thick,
+                                            is_multicolor = options.is_multicolor,
+                                            cordinates = {
+                                                x1 = x1,
+                                                y1 = y1,
+                                                x2 = x2,
+                                                y2 = y2
+                                            }
+                                        }
+                                        is_multicolor = is_multicolor or  options.is_multicolor
+                                    end
+                                end
+                            end
+
+                            --
+                            if dw_options.sources.is_draw then
+                                local options =  dw_options.sources
+                                for k, source in ipairs(group.list_sequence) do
+                                    local is_item = reaper.ValidatePtr(source, 'MediaItem*')
+                                    local f = is_item and GetItemImGuiCordinates or GetTrackItemAreaImGuiCordinates 
+                                    local bol, x1, y1, x2, y2 = f(source, dw.sequencers.track_info, dw)
+                                    if bol then
+                                        dw.sequencers[#dw.sequencers + 1] = {
+                                            color = options.color,
+                                            thick = options.thick,
+                                            is_multicolor = options.is_multicolor,
+                                            cordinates = {
+                                                x1 = x1,
+                                                y1 = y1,
+                                                x2 = x2,
+                                                y2 = y2
+                                            }
+                                        }
+                                        is_multicolor = is_multicolor or options.is_multicolor
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -1092,14 +1155,16 @@ function loop()
             for k, sd in ipairs(dw.sequencers) do -- sd = sequencer draw
                 local cord = sd.cordinates
                 if sd.is_multicolor then
-                    DL.imgui.DrawList_AddRectMultiColor(dw.sequencers.dl, cord.x1, cord.y1, cord.x2+1 , cord.y2+1, sd.thick, col[1], col[2], col[2], col[1])
+                    DL.imgui.DrawList_AddRectMultiColor(dw.sequencers.dl, cord.x1, cord.y1, cord.x2 , cord.y2, sd.thick, col[1], col[2], col[2], col[1])
                 else
-                    ImGui.DrawList_AddRect(dw.sequencers.dl, cord.x1, cord.y1, cord.x2 , cord.y2, sd.color, 0, nil, sd.thick)     -- the -1 comes because selected items increase 1pixel in all directions
+                    DL.imgui.DrawList_AddRect_Inside(dw.sequencers.dl, cord.x1, cord.y1, cord.x2 , cord.y2, sd.color, 0, nil, sd.thick)
+                    --ImGui.DrawList_AddRect(dw.sequencers.dl, cord.x1, cord.y1, cord.x2 , cord.y2, sd.color, 0, nil, sd.thick)     -- the -1 comes because selected items increase 1pixel in all directions
                 end
             end
         
             ImGui.End(ctx)
         end
+        ImGui.PopStyleVar(ctx, 1)
     end
 
     if open then
@@ -1128,6 +1193,8 @@ function GetTrackItemAreaImGuiCordinates(track, tracks_info, dw)
     local y1 = dw.arrange.top + tracks_info[track].y
     local x2 = dw.arrange.right 
     local y2 = y1 + tracks_info[track].h
+    y1 = math.max(dw.arrange.top, y1)
+    y2 = math.min(dw.arrange.bottom, y2)
 
     local ix1, iy1 = ImGui.PointConvertNative(ctx, x1, y1)
     local ix2, iy2 = ImGui.PointConvertNative(ctx, x2, y2)
@@ -1171,15 +1238,15 @@ function GetItemImGuiCordinates(item, tracks_info, dw)
     local y1 = dw.arrange.top + tracks_info[track].y + item_y
     local item_h = reaper.GetMediaItemInfo_Value(item, 'I_LASTH')
     local y2 = y1 + item_h
+    y1 = math.max(y1, dw.arrange.top )
+    y2 = math.min(y2, dw.arrange.bottom )
+
 
     -- Convert
     local ix1, iy1 = ImGui.PointConvertNative(ctx, x1, y1)
     local ix2, iy2 = ImGui.PointConvertNative(ctx, x2, y2)
-    if reaper.GetMediaItemInfo_Value(item, 'B_UISEL') == 1 then
-        ix1 = ix1 - 1
-        iy1 = iy1 - 1
-        iy2 = iy2 + 2
-    end
+    ix1 = ix1 - 1
+    iy1 = iy1 - 1
 
     return true, ix1, iy1, ix2, iy2
 end

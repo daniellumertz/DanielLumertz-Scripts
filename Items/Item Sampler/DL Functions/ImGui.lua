@@ -263,6 +263,25 @@ function DL.imgui.DrawList_AddRectMultiColor(draw_list, p_min_x, p_min_y, p_max_
     ImGui.DrawList_AddRectFilledMultiColor(draw_list, p_min_x, p_min_y, p_min_x+stroke, p_max_y, col_upr_left, col_upr_left, col_bot_left, col_bot_left) 
 end
 
+function DL.imgui.DrawList_AddRect_Inside(draw_list, p_min_x, p_min_y, p_max_x, p_max_y, col, rounding, flags, thickness)
+    thickness = thickness or 1.0
+    rounding = rounding or 0.0
+    flags = flags or 0
+
+    local half = thickness * 0.5
+
+    -- Inset the rect so the outer edge of the stroke lands on the original bounds
+    local inset_min_x = p_min_x - 0.5 + half
+    local inset_min_y = p_min_y - 0.5 + half
+    local inset_max_x = p_max_x + 0.5 - half
+    local inset_max_y = p_max_y + 0.5 - half
+
+    -- Adjust rounding so it still looks right on the smaller rect
+    local adj_rounding = rounding > 0 and math.max(0, rounding - half) or 0
+
+    ImGui.DrawList_AddRect(draw_list, inset_min_x, inset_min_y, inset_max_x, inset_max_y, col, adj_rounding, flags, thickness)
+end
+
 ----------------
 ---- Keys
 ----------------

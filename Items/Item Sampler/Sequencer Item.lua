@@ -29,7 +29,10 @@ function is.OpenaAllSelectedMediaAsSequencer(proj, is_item)
     local seqs = {}
     local func = (is_item and DL.enum.SelectedMediaItem(proj)) or DL.enum.SelectedTracks2(proj, false)
     for seq in func do 
-        seqs[#seqs+1] = is.OpenSequencer(proj, seq, is_item)
+        local st = is.OpenSequencer(proj, seq, is_item)
+        if st then
+            seqs[#seqs+1] = st
+        end
     end
     seqs.focus = 1
     return seqs 
@@ -54,6 +57,15 @@ end
 function is.OpenSequencer(proj, seq, is_item)
     local st = is.LoadSequencer(proj, seq, is_item)
     if not st then
+        -- Check if item is not an pasted item
+        if is_item then
+            local _, s_guid = DL.item.GetExtState(seq, ExtStates.ext_name, ExtStates.pasted.seq_key)
+            if s_guid ~= '' then
+                print("Can't make an pasted item into a sequencer item!")
+                return false
+            end
+        end
+        -- Make it 
         st = is.MakeSequencer(proj, seq, is_item)
     end
     return st
@@ -117,8 +129,16 @@ function is.GetSequencerName(st)
     if st.is_item then
         local take = reaper.GetActiveTake(st.seq)
         _, sequencer_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
+        if sequencer_name == '' then
+            sequencer_name = 'Nameless MIDI Item'
+        end
     else
         _, sequencer_name = reaper.GetSetMediaTrackInfo_String(st.seq, 'P_NAME', '', false)
+        if sequencer_name == '' then
+            local idx = reaper.GetMediaTrackInfo_Value(st.seq, 'IP_TRACKNUMBER')
+            sequencer_name = '#'..string.format('%d', idx)
+        end
+        sequencer_name = 'Track: '..sequencer_name
     end
     return sequencer_name
 end
@@ -168,17 +188,17 @@ function is.UserDataToGuid(seq, st)
         -- Target Track
         do
             local remove_list = {}
-            if gt.Targets then
-                for k, track in ipairs(gt.Targets) do
+            if gt.Settings.Targets then
+                for k, track in ipairs(gt.Settings.Targets) do
                     local is_track =  reaper.ValidatePtr( track, 'MediaTrack*' )
                     if not is_track then
                         remove_list[#remove_list+1] = k
                     else
-                        gt.Targets[k] = reaper.GetSetMediaTrackInfo_String(track, 'GUID', '', false)
+                        _, gt.Settings.Targets[k] = reaper.GetSetMediaTrackInfo_String(track, 'GUID', '', false)
                     end
                 end
                 for ri = #remove_list, 1, -1 do
-                    table.remove(gt.Targets, ri)
+                    table.remove(gt.Settings.Targets, ri)
                 end
             end
         end
@@ -211,18 +231,18 @@ function is.GuidToUserData(proj, seq, st)
             end
         end
         -- Target Track
-        if gt.Targets then
+        if gt.Settings.Targets then
             local remove_list = {}
-            for k, guid in ipairs(gt.Targets) do
+            for k, guid in ipairs(gt.Settings.Targets) do
                 local ptr = reaper.BR_GetMediaTrackByGUID(proj, guid)
                 if not ptr or not reaper.ValidatePtr(ptr, 'MediaTrack*') then
                     remove_list[#remove_list+1] = k
                 else
-                    gt.Targets[k] = ptr
+                    gt.Settings.Targets[k] = ptr
                 end
             end
             for ri = #remove_list, 1, -1 do
-                table.remove(gt.Targets, ri)
+                table.remove(gt.Settings.Targets, ri)
             end
         end
     end
