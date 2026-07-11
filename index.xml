@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Daniel Lumertz Scripts" commit="ebcbfe36cc899206c863d442e7ce612c46a1f5fa">
+<index version="1" name="Daniel Lumertz Scripts" commit="89de48abf0a5b0be6c8e08fa30c51f3d760287a9">
   <category name="Embass Razor Edit Comp GUI">
     <reapack name="Comp Razor Edit Embass.lua" type="script">
       <version name="1.2" author="Daniel Lumertz" time="2021-03-17T19:09:57Z">
@@ -2421,6 +2421,25 @@
         <source file="REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ebcbfe36cc899206c863d442e7ce612c46a1f5fa/Items/Item%20Sampler/REAPER%20Functions.lua</source>
         <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ebcbfe36cc899206c863d442e7ce612c46a1f5fa/Items/Item%20Sampler/utils/json.lua</source>
         <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/ebcbfe36cc899206c863d442e7ce612c46a1f5fa/Items/Item%20Sampler/Item%20Simpler.lua</source>
+      </version>
+      <version name="1.4.2b" author="Daniel Lumertz" time="2026-06-25T17:15:06Z">
+        <changelog><![CDATA[+ Added feature to select Tracks as sources
++ New menu for displaying the Sources 
++ Added feature for using a track as the MIDI input
++ Added feature for selecting track(s) as targets for the new items
++ New menu for Track Targets
++ Remove the Presets function 
++ Add option to copy/paste Groups settings with right click
++ Updated ImGui to 0.10
++ Review code]]></changelog>
+        <source main="main">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/Item%20Sampler.lua</source>
+        <source file="General Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/General%20Functions.lua</source>
+        <source file="presets.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/presets.lua</source>
+        <source file="GUI Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/GUI%20Functions.lua</source>
+        <source file="groups.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/groups.lua</source>
+        <source file="REAPER Functions.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/REAPER%20Functions.lua</source>
+        <source file="utils/json.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/utils/json.lua</source>
+        <source main="main" file="Item Simpler.lua">https://github.com/daniellumertz/DanielLumertz-Scripts/raw/89de48abf0a5b0be6c8e08fa30c51f3d760287a9/Items/Item%20Sampler/Item%20Simpler.lua</source>
       </version>
     </reapack>
   </category>
