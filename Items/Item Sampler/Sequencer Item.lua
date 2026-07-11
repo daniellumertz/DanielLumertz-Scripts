@@ -1,3 +1,4 @@
+-- @noindex
 local is = {}
 
 ---Applies a parameter to all other clouds

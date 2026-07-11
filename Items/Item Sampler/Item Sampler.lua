@@ -1,4 +1,4 @@
--- @version 1.5.0
+-- @version 1.5.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -28,7 +28,7 @@
 --TODOs
 -- Update header require
 
-local version = '1.5.0'
+local version = '1.5.1'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 

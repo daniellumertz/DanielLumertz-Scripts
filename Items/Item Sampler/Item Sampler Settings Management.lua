@@ -1,3 +1,4 @@
+-- @noindex
 local configs = {}
 
 function configs.Save(section, key, ct)
