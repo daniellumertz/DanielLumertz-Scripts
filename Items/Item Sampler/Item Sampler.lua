@@ -1,15 +1,19 @@
-local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascript-docs-0.1.16/debugger/LoadDebug.lua")
--- @version 1.4.2b
+-- @version 1.5.0
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
 --    [nomain] presets.lua
 --    [nomain] GUI Functions.lua
 --    [nomain] groups.lua
+--    [nomain] Item Sampler Settings Management.lua
 --    [nomain] REAPER Functions.lua
+--    [nomain] Sequencer Item.lua
 --    [nomain] utils/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
+--    + Save Sequencer options inside MIDI Items/Tracks
+--    + Save User Settings within REAPER ExtSates
+--    + Option to draw over Sequencer/Source/Target Items/Tracks 
 --    + Added feature to select Tracks as sources
 --    + New menu for displaying the Sources 
 --    + Added feature for using a track as the MIDI input
@@ -24,7 +28,7 @@ local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascri
 --TODOs
 -- Update header require
 
-local version = '1.4.2b'
+local version = '1.5.0'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -312,13 +316,9 @@ function PlaceSequenceInGroups(proj, sequencers, is_random,sequence_reverse,isra
         if sequencer.proceed then
             local groups = sequencer.groups
             for gi, group in pairs(groups) do
-                if group.Selected then 
-                    if #group.list_sources_solved == 0 then
-                        goto continue
-                    end
+                if group.Selected and group.list_sources_solved and #group.list_sources_solved > 0 then
                     Place_Sequence(group, sequencer, is_random,sequence_reverse,isrand_sequence) -- (is_random,sequence_reverse,isrand_sequence)
                 end
-                ::continue::
             end
         end
         sequencer.proceed = nil
@@ -526,8 +526,10 @@ function loop()
     Ctrl, Shift, Alt = GetModKeys()
 
     local _
-    local window_flags = ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoNav
+    local window_flags = ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoNav | ImGui.WindowFlags_TopMost
+
     ImGui.SetNextWindowSize(ctx, 350, 800, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    
     ImGui.PushFont(ctx, FONT, 15)
 
     if SetDock then
@@ -820,7 +822,7 @@ function loop()
                             end
                             if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the end of the MIDI item") end
             
-                            if ImGui.Checkbox(ctx, 'Trim Items Using Start Next Midi Note',groups[i].Settings.Is_trim_StartNextNote) then
+                            if ImGui.Checkbox(ctx, 'Trim Items Using Start Next MIDI Note',groups[i].Settings.Is_trim_StartNextNote) then
                                 groups[i].Settings.Is_trim_StartNextNote = not groups[i].Settings.Is_trim_StartNextNote
                                 GUI.is_save.check = true
                             end

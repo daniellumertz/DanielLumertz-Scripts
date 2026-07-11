@@ -124,12 +124,12 @@ function MenuBar(ctx, UserSettings, GUI, config, version)
 
             ImGui.Separator(ctx)
 
-            if ImGui.MenuItem(ctx, 'Draw Over Active Sequencers',"",UserSettings.gui.draw.active.is_draw) then
+            if ImGui.MenuItem(ctx, 'Draw Over Items/Tracks',"",UserSettings.gui.draw.active.is_draw) then
                 UserSettings.gui.draw.active.is_draw = not UserSettings.gui.draw.active.is_draw
                 GUI.is_save_us.check = true
             end
             if UserSettings.gui.draw.active.is_draw then
-                if ImGui.BeginMenu(ctx, 'DrawOptions') then
+                if ImGui.BeginMenu(ctx, 'Draw Options') then
                     local dmenu = {
                         {
                             text = 'Focused Sequencers:',
@@ -152,11 +152,12 @@ function MenuBar(ctx, UserSettings, GUI, config, version)
                         ImGui.Text(ctx, menu.text)
                         local change
                         if not menu.configs.is_multicolor then
-                            GUI.is_save_us.check, menu.configs.color = ImGui.ColorEdit4(ctx, 'Sequencer Color##'..k, menu.configs.color, ImGui.ColorEditFlags_NoInputs)
+                            GUI.is_save_us.check, menu.configs.color = ImGui.ColorEdit4(ctx, '##color'..k, menu.configs.color, ImGui.ColorEditFlags_NoInputs)
                         end
+                        ImGui.SameLine(ctx)
                         --change, menu.configs.is_multicolor = ImGui.Checkbox(ctx, 'Use Multi-Color##'..k, menu.configs.is_multicolor)
                         ImGui.SetNextItemWidth(ctx, 150)
-                        GUI.is_save_us.check, menu.configs.thick = ImGui.SliderInt(ctx, 'Thickness##'..k, menu.configs.thick, 1, 10)
+                        GUI.is_save_us.check, menu.configs.thick = ImGui.SliderInt(ctx, '##Thickness##'..k, menu.configs.thick, 1, 10)
                         if k ~= #dmenu then 
                             ImGui.Separator(ctx)
                         end
