@@ -1,4 +1,4 @@
--- @version 1.5.1
+-- @version 1.5.2
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -9,6 +9,7 @@
 --    [nomain] REAPER Functions.lua
 --    [nomain] Sequencer Item.lua
 --    [nomain] utils/*.lua
+--    [nomain] DL Functions/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
 --    + Save Sequencer options inside MIDI Items/Tracks
@@ -28,7 +29,7 @@
 --TODOs
 -- Update header require
 
-local version = '1.5.1'
+local version = '1.5.2'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
