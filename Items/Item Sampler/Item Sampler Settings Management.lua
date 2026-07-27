@@ -22,6 +22,9 @@ function configs.default(version)
     return {
         version = version,
         tips = true,
+        activate = {
+            follow_selection = false,
+        },
         gui = {
             draw = {
                 active = {

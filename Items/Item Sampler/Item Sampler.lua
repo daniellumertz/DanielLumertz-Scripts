@@ -1,4 +1,5 @@
--- @version 1.5.2
+local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascript-docs-0.1.16/debugger/LoadDebug.lua")
+-- @version 1.6.0
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -12,24 +13,13 @@
 --    [nomain] DL Functions/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + Save Sequencer options inside MIDI Items/Tracks
---    + Save User Settings within REAPER ExtSates
---    + Option to draw over Sequencer/Source/Target Items/Tracks 
---    + Added feature to select Tracks as sources
---    + New menu for displaying the Sources 
---    + Added feature for using a track as the MIDI input
---    + Added feature for selecting track(s) as targets for the new items
---    + New menu for Track Targets
---    + Remove the Presets function 
---    + Add option to copy/paste Groups settings with right click
---    + Updated ImGui to 0.10
---    + Review code
+--    + Add right click contexts to copy/paste multiple settings (right-clicking an source at the drop-down or an Setting tree  node)
 
 
 --TODOs
 -- Update header require
 
-local version = '1.5.2'
+local version = '1.6.0'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -67,6 +57,7 @@ GUI = {
     groups_popup = {
         was_open = false
     },
+    copies = {}, -- Where it store something that is copied ex: Gui.copies.targets = targets table 
     is_save = setmetatable({}, save_mt),
     is_save_us = setmetatable({}, save_mt), -- User settings!
     sequencers = {
@@ -518,6 +509,36 @@ function CheckProjChange(ProjTable)
     return current_proj, ProjTable
 end
 
+function CopyPasteContext(copy_id, t)
+    if ImGui.BeginPopupContextItem(ctx) then
+        if ImGui.Button(ctx, 'Copy Settings', 125) then
+            GUI.copies[copy_id] = table_copy(t)[copy_id]
+        end
+
+        if GUI.copies[copy_id] and ImGui.Button(ctx, 'Paste Settings', 125) then
+            t[copy_id] = GUI.copies[copy_id]
+            GUI.is_save.check = true
+        end
+        ImGui.EndPopup(ctx)
+    end
+end
+
+function CopyPasteSequencerSettings(st)
+    if ImGui.BeginPopupContextItem(ctx) then
+        if ImGui.Button(ctx, 'Copy Settings', 125) then
+            GUI.copies['sequencer'] = table_copy(st)
+        end
+    
+        if GUI.copies['sequencer'] and ImGui.Button(ctx, 'Paste Settings', 125) then
+            st.groups = GUI.copies['sequencer'].groups -- The only thing that needs to be copied over, the rest is sequencer specific.
+            GUI.is_save.check = true
+        end
+        ImGui.EndPopup(ctx)
+    end
+end
+
+ 
+
 function loop()
     local proj = CheckProjChange(ProjTable)
     PushStyle(ctx)
@@ -584,10 +605,12 @@ function loop()
                     if ImGui.Selectable(ctx, loop_sname..'##sequencers'..k, k == sequencers.focus) then
                         sequencers.focus = k
                     end
+                    -- Copy Paste Area.
+                    CopyPasteSequencerSettings(v)
                 end
-
                 ImGui.EndCombo(ctx)
             end 
+            CopyPasteSequencerSettings(sequencers[sequencers.focus])
 
             ImGui.Separator(ctx)
             ImGui.Separator(ctx)
@@ -670,7 +693,9 @@ function loop()
                         --local GUIIsMaxClicked
 
                         --Sources
-                        if ImGui.TreeNode(ctx, 'Sources') then
+                        local opn = ImGui.TreeNode(ctx, 'Sources')
+                        CopyPasteContext('list_sequence',  groups[i])
+                        if opn then
                             if ImGui.BeginListBox(ctx,  '###sourceslist',-1,150) then
                                 if not groups[i].list_sequence or #groups[i].list_sequence == 0 then 
                                     ImGui.Text(ctx, '--- No Sources Selected! ---')
@@ -738,8 +763,23 @@ function loop()
                             end
                             ImGui.TreePop(ctx)
                         end
+
                         --Range
-                        if ImGui.TreeNode(ctx, 'Range') then
+                        local opn = ImGui.TreeNode(ctx, 'Range')
+                        if ImGui.BeginPopupContextItem(ctx) then
+                            if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                GUI.copies.NoteRange = table_copy(groups[i].Settings.NoteRange)
+                                GUI.copies.VelocityRange = table_copy(groups[i].Settings.VelocityRange)
+                            end
+
+                            if GUI.copies.NoteRange and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                groups[i].Settings.NoteRange = GUI.copies.NoteRange
+                                groups[i].Settings.VelocityRange = GUI.copies.VelocityRange
+                                GUI.is_save.check = true
+                            end
+                            ImGui.EndPopup(ctx)
+                        end
+                        if opn then
                             ImGui.PushItemWidth( ctx,  -15)
                             ImGui.Text(ctx, 'Note Range')
                             local min_note, max_note  = NumberToNote(groups[i].Settings.NoteRange.Min), NumberToNote(groups[i].Settings.NoteRange.Max) 
@@ -807,10 +847,30 @@ function loop()
 
                             ImGui.TreePop(ctx)
                         end
-
-
+                        
                         --Trim
-                        if ImGui.TreeNode(ctx, 'Trim') then
+
+
+                        
+                        local opn = ImGui.TreeNode(ctx, 'Trim')
+                        if ImGui.BeginPopupContextItem(ctx) then
+                            local keys = {'Erase', 'Is_trim_ItemEnd', 'Is_trim_StartNextNote', 'Is_trim_EndNote'}
+                            if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                GUI.copies.Trim = {}
+                                for k, key in ipairs(keys) do
+                                    GUI.copies.Trim[key] = groups[i].Settings[key] 
+                                end
+                            end
+
+                            if GUI.copies.Trim and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                for key, val in pairs(GUI.copies.Trim) do
+                                    groups[i].Settings[key] = val
+                                end
+                                GUI.is_save.check = true
+                            end
+                            ImGui.EndPopup(ctx)
+                        end
+                        if opn then
                             if ImGui.Checkbox(ctx, 'Clean Area Before Paste',groups[i].Settings.Erase) then
                                 groups[i].Settings.Erase = not groups[i].Settings.Erase
                                 GUI.is_save.check = true
@@ -839,7 +899,25 @@ function loop()
                         end
 
                         --Velocity
-                        if ImGui.TreeNode(ctx, 'Velocity') then
+                        local opn = ImGui.TreeNode(ctx, 'Velocity')
+                        if ImGui.BeginPopupContextItem(ctx) then
+                            local keys = {'Velocity', 'Vel_OriginalVal', 'Vel_Max', 'Vel_Min'}
+                            if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                GUI.copies.Velocity = {}
+                                for k, key in ipairs(keys) do
+                                    GUI.copies.Velocity[key] = groups[i].Settings[key] 
+                                end
+                            end
+
+                            if GUI.copies.Velocity and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                for key, val in pairs(GUI.copies.Velocity) do
+                                    groups[i].Settings[key] = val
+                                end
+                                GUI.is_save.check = true
+                            end
+                            ImGui.EndPopup(ctx)
+                        end
+                        if opn then
 
                             if ImGui.Checkbox(ctx, 'Velocity Change Item dB',groups[i].Settings.Velocity) then
                                 groups[i].Settings.Velocity = not groups[i].Settings.Velocity
@@ -868,7 +946,25 @@ function loop()
                         end
 
                         --Pitch
-                        if ImGui.TreeNode(ctx, 'Pitch') then
+                        local opn = ImGui.TreeNode(ctx, 'Pitch')
+                        if ImGui.BeginPopupContextItem(ctx) then
+                            local keys = {'Pitch', 'Pitch_Original'}
+                            if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                GUI.copies.Pitch = {}
+                                for k, key in ipairs(keys) do
+                                    GUI.copies.Pitch[key] = groups[i].Settings[key] 
+                                end
+                            end
+
+                            if GUI.copies.Pitch and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                for key, val in pairs(GUI.copies.Pitch) do
+                                    groups[i].Settings[key] = val
+                                end
+                                GUI.is_save.check = true
+                            end
+                            ImGui.EndPopup(ctx)
+                        end
+                        if opn then
 
                             if ImGui.Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',groups[i].Settings.Pitch) then
                                 groups[i].Settings.Pitch = not groups[i].Settings.Pitch
@@ -883,7 +979,9 @@ function loop()
                         end
 
                         --Track Target
-                        if ImGui.TreeNode(ctx, 'Track Target') then
+                        local opn = ImGui.TreeNode(ctx, 'Targets')
+                        CopyPasteContext('Target Tracks',  groups[i].Settings)
+                        if opn then
                             if ImGui.Button(ctx, 'Get Selected Tracks') then
                                 groups[i].Settings.Targets = ListTracks(0)
                                 GUI.is_save.check = true
