@@ -122,6 +122,11 @@ function MenuBar(ctx, UserSettings, GUI, config, version)
                 GUI.is_save_us.check = true
             end
 
+            if ImGui.MenuItem(ctx, 'Activated Sequencer Follows Selection', nil, UserSettings.activate.follow_selection) then
+                UserSettings.activate.follow_selection = not UserSettings.activate.follow_selection 
+                GUI.is_save_us.check = true
+            end
+
             ImGui.Separator(ctx)
 
             if ImGui.MenuItem(ctx, 'Draw Over Items/Tracks',"",UserSettings.gui.draw.active.is_draw) then

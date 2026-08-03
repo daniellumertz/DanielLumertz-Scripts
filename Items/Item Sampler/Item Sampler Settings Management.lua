@@ -15,7 +15,20 @@ function configs.Load(section, key)
     if s_ct then
         return DL.serialize.stringToTable(s_ct)
     end
+
     return false    
+end
+
+function configs.Update(s_ct)
+    local is_change = false
+    if not DL.num.CompareVersion(s_ct.version, '1.6.0') then
+        s_ct.activate = configs.default('1.6.0').activate
+        s_ct.version = '1.6.0'
+
+        is_change = true
+    end
+
+    return s_ct, is_change
 end
 
 function configs.default(version)

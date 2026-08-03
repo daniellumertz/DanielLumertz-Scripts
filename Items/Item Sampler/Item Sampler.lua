@@ -93,6 +93,7 @@ require('DL Functions.REAPER Items')
 require('DL Functions.REAPER Enumerate')
 require('DL Functions.General Table')
 require('DL Functions.ImGui')
+require('DL Functions.General Number')
 local is = require('Sequencer Item')
 local config = require('Item Sampler Settings Management')
 
@@ -104,8 +105,11 @@ if not CheckSWS() or not CheckReaImGUI() or not CheckJS() then return end
 --- Load User Settings
 
 UserSettings = config.Load(ExtStates.ext_name, ExtStates.user_settings.key) or config.default(version)
-
-
+local is_change
+UserSettings, is_change = config.Update(UserSettings)
+if is_change then -- Some update happended
+    config.Save(ExtStates.ext_name, ExtStates.user_settings.key, UserSettings)
+end
 
 --- Load Functions
 
@@ -491,7 +495,7 @@ function GuiInit()
     FONT = ImGui.CreateFont('sans-serif', 15) -- Create the fonts you need
 end
 
-function CheckProjChange(ProjTable) 
+function CheckProjChange(ProjTable, UserSettings) 
     local current_proj = reaper.EnumProjects(-1)
     if (not OldProj) or (OldProj ~= current_proj)  then  -- Not First run or project changed
         ProjTable[current_proj] = ProjTable[current_proj] or {}
@@ -502,6 +506,34 @@ function CheckProjChange(ProjTable)
         local action = reaper.Undo_CanRedo2( current_proj )
         if ProjTable[current_proj].Sequencers and action and string.match(action, 'Item Sampler:') then
             is.ReopenSequencers(current_proj, ProjTable[current_proj].Sequencers)
+        end
+        -- 
+        if UserSettings.activate.follow_selection then
+            local selected_sequencers = {}
+            for track in DL.enum.SelectedTracks2(current_proj, false) do
+                local bol, ext = reaper.GetSetMediaTrackInfo_String(track, string.format('P_EXT:%s : %s', ExtStates.ext_name, ExtStates.sequencers.key), '', false)
+                if ext ~= '' then
+                    selected_sequencers[#selected_sequencers+1] = {is_item = false, seq = track}
+                end
+            end 
+
+            for item in DL.enum.SelectedMediaItem(current_proj) do
+                local bol, ext = DL.item.GetExtState(item, ExtStates.ext_name, ExtStates.sequencers.key)
+                if ext ~= '' then
+                    selected_sequencers[#selected_sequencers+1] = {is_item = true, seq = item}
+                end
+            end
+            
+            if #selected_sequencers > 0 then
+                ProjTable[current_proj].Sequencers = {}
+                local sequencers = ProjTable[current_proj].Sequencers
+
+                for k, sequencer in ipairs(selected_sequencers) do
+                    sequencers[#sequencers+1] = is.OpenSequencer(current_proj, sequencer.seq, sequencer.is_item)
+                end
+
+                sequencers.focus = 1
+            end
         end
         ProjTable[current_proj].change_cnt = cnt
     end
@@ -540,7 +572,7 @@ end
  
 
 function loop()
-    local proj = CheckProjChange(ProjTable)
+    local proj = CheckProjChange(ProjTable, UserSettings)
     PushStyle(ctx)
     if not PreventPassKeys2 then -- Passthrough keys
         DL.imgui.SWSPassKeys(ctx, false)
