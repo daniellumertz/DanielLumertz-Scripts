@@ -13,7 +13,10 @@ local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascri
 --    [nomain] DL Functions/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
+--    + Add option that activated sequencers follow item/track selection
 --    + Add right click contexts to copy/paste multiple settings (right-clicking an source at the drop-down or an Setting tree  node)
+--    + Restylized the UI
+--    + Bug Fix: Fixed renaming/deleting groups. It was not saving and was scrambling the groups after user action
 
 
 --TODOs
@@ -26,6 +29,8 @@ local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 package.path = package.path  .. ';' ..  reaper.ImGui_GetBuiltinPath() .. '/?.lua'
 ImGui = require 'imgui' '0.10'
 ctx = ImGui.CreateContext('daniellumertz_Item Sampler')
+
+local demo = require 'ReaImGui_Demo'
 
 -- Main Tables
 local ProjTable = {
@@ -443,8 +448,8 @@ end
 function ChangeColor(H,S,V,A)
     --ImGui.PushID(ctx, '')
     local button = HSV( H, S, V, A)
-    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local hover =  HSV( H, S , (V+0.2 < 1) and V+0.2 or 1 , A)
+    local active = HSV( H, S, (V+0.3 < 1) and V+0.3 or 1 , A)
     ImGui.PushStyleColor(ctx, ImGui.Col_Button,  button)
     ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, hover)
     ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,  active)
@@ -452,8 +457,8 @@ end
 
 function ChangeColorButton(H,S,V,A)
     local button = HSV( H, S, V, A)
-    local hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
-    local active = HSV( H, S, (V+0.2 < 1) and V+0.2 or 1 , A)
+    local hover =  HSV( H, S , (V+0.2 < 1) and V+0.2 or 1 , A)
+    local active = HSV( H, S, (V+0.3 < 1) and V+0.3 or 1 , A)
     ImGui.PushStyleColor(ctx, ImGui.Col_Button,  button)
     ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, hover)
     ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,  active)
@@ -481,11 +486,12 @@ end
 
 function ChangeColorTab(H,S,V,A)
     local button = HSV( H, S, V, A)
-    local act_hover =  HSV( H, S , (V+0.4 < 1) and V+0.4 or 1 , A)
+    local act_hover =  HSV( H, S + 0.3 , (V+0.4 < 1) and V+0.4 or 1 , A)
     ImGui.PushStyleColor(ctx, ImGui.Col_Tab,  button)
     ImGui.PushStyleColor(ctx, ImGui.Col_TabHovered, act_hover)
     ImGui.PushStyleColor(ctx,  ImGui.Col_TabSelected,  act_hover)
-    CounterStyle = CounterStyle + 3
+    ImGui.PushStyleColor(ctx,  ImGui.Col_TabSelectedOverline,  button) 
+    CounterStyle = CounterStyle + 4
 end
 
 
@@ -572,6 +578,9 @@ end
  
 
 function loop()
+    --demo.PushStyle(ctx)
+    --demo.ShowDemoWindow(ctx)
+
     local proj = CheckProjChange(ProjTable, UserSettings)
     PushStyle(ctx)
     if not PreventPassKeys2 then -- Passthrough keys
@@ -580,9 +589,9 @@ function loop()
     Ctrl, Shift, Alt = GetModKeys()
 
     local _
-    local window_flags = ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoNav | ImGui.WindowFlags_TopMost
+    local window_flags = ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoNav | ImGui.WindowFlags_TopMost 
 
-    ImGui.SetNextWindowSize(ctx, 350, 800, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    --ImGui.SetNextWindowSize(ctx, 350, 825, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     
     ImGui.PushFont(ctx, FONT, 15)
 
@@ -603,12 +612,9 @@ function loop()
     --- GUI HERE
 
     if visible then
-
         UserSettings = MenuBar(ctx, UserSettings, GUI, config, version)
-        
-        
         --------- Get MIDI button
-        ChangeColor(0.4,1,0.4,1)
+        ChangeColor(0.4,0.55,0.4,1)
         local label = Alt and 'Get Sequencer Track' or 'Get Sequencer Item'
         ImGui.Button(ctx, label, -2)
         if ImGui.IsItemClicked(ctx) then
@@ -645,11 +651,12 @@ function loop()
             CopyPasteSequencerSettings(sequencers[sequencers.focus])
 
             ImGui.Separator(ctx)
-            ImGui.Separator(ctx)
+            
             if ImGui.BeginTabBar(ctx, 'Groups', ImGui.TabBarFlags_Reorderable | ImGui.TabBarFlags_AutoSelectNewTabs ) then
+                local remove_t = {}
                 for i,v in pairs(groups) do -- Loop Tabs
-                    ChangeColorTab((0.05*i),1,0.4,1) -- Change Tab Colors
-                    local open, keep = ImGui.BeginTabItem(ctx, ('%s###tab%d'):format(groups[i].name, i), true) -- Start each tab
+                    ChangeColorTab((0.05*i),0.55,0.4,1) -- Change Tab Colors
+                    local open, keep = ImGui.BeginTabItem(ctx, ('%s###tab%s'):format(groups[i].name, groups[i].Settings.GUID), true) -- Start each tab
 
                     -- Popup to rename
                     local is_popup_now = false
@@ -664,8 +671,10 @@ function loop()
 
                         if ImGui.Button(ctx, 'Paste Settings', -1) then
                             local old_name = groups[i].name 
+                            local old_guid = groups[i].Settings.GUID
                             groups[i] = table_copy(CopyGroupSettings)
                             groups[i].name = old_name
+                            groups[i].Settings.GUID = old_guid
                             GUI.is_save.check = true
                         end
 
@@ -690,398 +699,403 @@ function loop()
                     end
 
                     if open then -- Inside Each Tab
-                        
-                        --Do Things at this tab
+                        if ImGui.BeginChild(ctx, '##Child'..i, -1, 400) then
+                            
+                            --Do Things at this tab
 
-                        --Item Group
-                                --------- Get Items sequence Buttons
-                        ChangeColorButton((0.05*i),1,0.4,1)
-                        local label = Alt and 'Get Track Sources' or 'Get Item Sources'
-                        if ImGui.Button(ctx, label, -1) then
-                            if not Shift and not Ctrl and not Alt then -- Get Items
-                                groups[i].list_sequence = ListItems()
-                            elseif Alt and not Shift and not Ctrl then -- Get Tracks
-                                groups[i].list_sequence = ListTracks(0)                        
-                            elseif Shift then -- Select Sources
-                                if groups[i].list_sequence and #groups[i].list_sequence > 1 then
-                                    reaper.Undo_BeginBlock()
-                                    reaper.PreventUIRefresh(1)
-                                    LoadSelectedItems(groups[i].list_sequence)
-                                    reaper.UpdateArrange()
-                                    reaper.PreventUIRefresh(-1)
-                                    reaper.Undo_EndBlock2(0, 'Item Sampler: Select Item Sequence', -1)
-                                else
-                                    print('No Item Sequence')
+                            --Item Group
+                                    --------- Get Items sequence Buttons
+                            ChangeColorButton((0.05*i),0.6,0.4,1)
+                            local label = Alt and 'Get Track Sources' or 'Get Item Sources'
+                            if ImGui.Button(ctx, label, -1) then
+                                if not Shift and not Ctrl and not Alt then -- Get Items
+                                    groups[i].list_sequence = ListItems()
+                                elseif Alt and not Shift and not Ctrl then -- Get Tracks
+                                    groups[i].list_sequence = ListTracks(0)                        
+                                elseif Shift then -- Select Sources
+                                    if groups[i].list_sequence and #groups[i].list_sequence > 1 then
+                                        reaper.Undo_BeginBlock()
+                                        reaper.PreventUIRefresh(1)
+                                        LoadSelectedItems(groups[i].list_sequence)
+                                        reaper.UpdateArrange()
+                                        reaper.PreventUIRefresh(-1)
+                                        reaper.Undo_EndBlock2(0, 'Item Sampler: Select Item Sequence', -1)
+                                    else
+                                        print('No Item Sequence')
+                                    end
+                                end
+
+                                if not Shift then
+                                    GUI.is_save.check = true
                                 end
                             end
+                            if UserSettings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project. Hold Alt to select a track as source(s).") end
 
-                            if not Shift then
-                                GUI.is_save.check = true
-                            end
-                        end
-                        if UserSettings.Tips then ToolTip("Get the selected items as the sequence of items to be placed on the notes of the MIDI Item\nShift: Select the sequence of items in the project. Hold Alt to select a track as source(s).") end
+                            ImGui.PopStyleColor(ctx, 3)
+                            --local GUIIsMaxClicked
 
-                        ImGui.PopStyleColor(ctx, 3)
-                        --local GUIIsMaxClicked
-
-                        --Sources
-                        local opn = ImGui.TreeNode(ctx, 'Sources')
-                        CopyPasteContext('list_sequence',  groups[i])
-                        if opn then
-                            if ImGui.BeginListBox(ctx,  '###sourceslist',-1,150) then
-                                if not groups[i].list_sequence or #groups[i].list_sequence == 0 then 
-                                    ImGui.Text(ctx, '--- No Sources Selected! ---')
-                                else
-                                    local remove_list = {}
-                                    for idx, v in pairs(groups[i].list_sequence) do
-                                        local is_item = reaper.ValidatePtr(v, 'MediaItem*')
-                                        local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
-                                        -- Shource deleted
-                                        if not is_item and not is_track then
-                                            remove_list[#remove_list+1] = idx
-                                            goto continue
+                            --Sources
+                            local opn = ImGui.TreeNode(ctx, 'Sources', ImGui.TreeNodeFlags_DrawLinesFull)
+                            CopyPasteContext('list_sequence',  groups[i])
+                            if opn then
+                                if ImGui.BeginListBox(ctx,  '###sourceslist',-1,150) then
+                                    if not groups[i].list_sequence or #groups[i].list_sequence == 0 then 
+                                        ImGui.Text(ctx, '--- No Sources Selected! ---')
+                                    else
+                                        local remove_list = {}
+                                        for idx, v in pairs(groups[i].list_sequence) do
+                                            local is_item = reaper.ValidatePtr(v, 'MediaItem*')
+                                            local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
+                                            -- Shource deleted
+                                            if not is_item and not is_track then
+                                                remove_list[#remove_list+1] = idx
+                                                goto continue
+                                            end
+                                            -- Draw Source Selectable
+                                            local name
+                                            if is_item then
+                                                local take = reaper.GetActiveTake(v)
+                                                local _, i_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
+                                                name = 'Item: '..i_name
+                                            else -- Assumes is a track
+                                                local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
+                                                if t_name == '' then
+                                                    local t_name_str = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
+                                                    t_name = '#'..string.format('%d', t_name_str)
+                                                end
+                                                name = 'Track: '..t_name
+                                            end
+                                            if ImGui.Selectable(ctx,  name..'##Source'..idx, false) then
+                                                reaper.Undo_BeginBlock()
+                                                if is_item then
+                                                    if not Ctrl then
+                                                        reaper.SelectAllMediaItems(0, false)
+                                                    end
+                                                    reaper.SetMediaItemSelected(v, true)
+                                                else
+                                                    if not Ctrl then
+                                                        reaper.SetOnlyTrackSelected(v)
+                                                    else
+                                                        reaper.SetTrackSelected(v, true)
+                                                    end
+                                                end
+                                                reaper.Undo_EndBlock2(0, 'Item Sampler: Select Source', -1)
+                                                reaper.UpdateArrange()
+                                            end
+                                            -- Right Click
+                                            if ImGui.BeginPopupContextItem(ctx, name..'##ContextSource'..idx) then
+                                                if ImGui.Selectable(ctx,  'Remove'..'##Source'..idx, false) then
+                                                    remove_list[#remove_list+1] = idx
+                                                end
+                                                ImGui.EndPopup(ctx)
+                                            end
+                                            ::continue::
                                         end
-                                        -- Draw Source Selectable
-                                        local name
-                                        if is_item then
-                                            local take = reaper.GetActiveTake(v)
-                                            local _, i_name = reaper.GetSetMediaItemTakeInfo_String(take, 'P_NAME', '', false)
-                                            name = 'Item: '..i_name
-                                        else -- Assumes is a track
+                                        -- Remove Sources
+                                        if #remove_list > 0 then
+                                            for r_idx = #remove_list, 1, -1 do
+                                                local idx = remove_list[r_idx]
+                                                table.remove(groups[i].list_sequence, idx)
+                                            end
+                                            GUI.is_save.check = true
+                                        end
+                                    end
+                                    
+                                    ImGui.EndListBox(ctx)
+                                end
+                                ImGui.TreePop(ctx)
+                            end
+
+                            --Range
+                            local opn = ImGui.TreeNode(ctx, 'Range', ImGui.TreeNodeFlags_DrawLinesFull)
+                            if ImGui.BeginPopupContextItem(ctx) then
+                                if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                    GUI.copies.NoteRange = table_copy(groups[i].Settings.NoteRange)
+                                    GUI.copies.VelocityRange = table_copy(groups[i].Settings.VelocityRange)
+                                end
+
+                                if GUI.copies.NoteRange and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                    groups[i].Settings.NoteRange = GUI.copies.NoteRange
+                                    groups[i].Settings.VelocityRange = GUI.copies.VelocityRange
+                                    GUI.is_save.check = true
+                                end
+                                ImGui.EndPopup(ctx)
+                            end
+                            if opn then
+                                ImGui.PushItemWidth( ctx,  -15)
+                                ImGui.Text(ctx, 'Note Range')
+                                local min_note, max_note  = NumberToNote(groups[i].Settings.NoteRange.Min), NumberToNote(groups[i].Settings.NoteRange.Max) 
+                                GUI.is_save.check, groups[i].Settings.NoteRange.Min, groups[i].Settings.NoteRange.Max = ImGui.DragIntRange2(ctx, '###a', groups[i].Settings.NoteRange.Min , groups[i].Settings.NoteRange.Max, 0.03, 0, 127,  'Min: '..min_note, "Max: "..max_note)
+
+                                --- Pop Up Open
+                                -- Check if double clicked and open pop up
+                                if ImGui.IsItemHovered(ctx) and ImGui.IsMouseDoubleClicked( ctx, 0) then 
+                                    ImGui.OpenPopup(ctx, 'str_id')
+                                    PreventPassKeys2 = CheckPreventPassThrough(true, 'setnote', PreventPassKeys2)
+                                    local mouse_x = ImGui.GetMousePos( ctx)
+                                    GUIIsMaxClicked = mouse_x > (gui_x + (gui_w/2) + 10) 
+                                end
+
+                                -- Pop Up
+                                local popup_setnote
+                                if ImGui.BeginPopup(ctx, 'str_id') then
+                                    popup_setnote = true
+                                    if ImGui.IsWindowAppearing(ctx) then
+                                        ImGui.SetKeyboardFocusHere(ctx)
+                                    end
+                                    if GUIIsMaxClicked == true then -------- Max Value
+                                        ImGui.SetNextItemWidth( ctx,  60)      
+                                        local max_text = NumberToNote(groups[i].Settings.NoteRange.Max)
+                                        local bol, max_text = ImGui.InputText(ctx, '###New Notemax', max_text)
+                                        if bol then
+                                            max_text = MakeUpperCaseFirstLetter(max_text)
+                                            if  IsStringNote(max_text) then 
+                                                groups[i].Settings.NoteRange.Max  = NoteToNumber(max_text,4)
+                                            end
+                                            GUI.is_save.check = true
+                                        end
+                                    else ----------------------------------  Min Value
+                                        ImGui.SetNextItemWidth( ctx,  60) 
+                                        local min_text = NumberToNote(groups[i].Settings.NoteRange.Min)
+                                        local bol, min_text = ImGui.InputText(ctx, '###New Notemin', min_text)
+                                        if bol then
+                                            min_text = MakeUpperCaseFirstLetter(min_text)
+                                            if  IsStringNote(min_text) then 
+                                                groups[i].Settings.NoteRange.Min  = NoteToNumber(min_text,4)
+                                            end
+                                            GUI.is_save.check = true
+                                        end
+                                    end
+                                    if  ImGui.IsKeyPressed(ctx, ImGui.Key_Enter) then
+                                        ImGui.CloseCurrentPopup(ctx)
+                                        PreventPassKeys2 = CheckPreventPassThrough(false, 'setnote', PreventPassKeys2)
+                                    end
+
+                                    --boolean retval, string buf = ImGui.InputText(ImGui_Context ctx, string label, string buf, number flags = nil)
+                                    ImGui.EndPopup(ctx)
+                                end
+
+                                if GetSourceKey('setnote', PreventPassKeys2) and not popup_setnote then
+                                    PreventPassKeys2 = CheckPreventPassThrough(false, 'setnote', PreventPassKeys2)
+                                end
+
+                                if UserSettings.Tips then ToolTip("Set a Note Range for the Group. Only paste if MIDI note in between these notes(included)") end
+
+                                -----------------
+                                ImGui.Text(ctx, 'Velocity Range')
+                                GUI.is_save.check, groups[i].Settings.VelocityRange.Min, groups[i].Settings.VelocityRange.Max = ImGui.DragIntRange2(ctx, '###b', groups[i].Settings.VelocityRange.Min, groups[i].Settings.VelocityRange.Max, 0.03, 0, 127,  'Min: %d', "Max: %d")
+                                ImGui.PopItemWidth(ctx)
+                                if UserSettings.Tips then ToolTip("Set a Velocity Range for the Group. Only paste if MIDI note velocity is in between these values(included)") end
+
+                                ImGui.TreePop(ctx)
+                            end
+                            
+                            --Trim
+
+
+                            
+                            local opn = ImGui.TreeNode(ctx, 'Trim', ImGui.TreeNodeFlags_DrawLinesFull)
+                            if ImGui.BeginPopupContextItem(ctx) then
+                                local keys = {'Erase', 'Is_trim_ItemEnd', 'Is_trim_StartNextNote', 'Is_trim_EndNote'}
+                                if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                    GUI.copies.Trim = {}
+                                    for k, key in ipairs(keys) do
+                                        GUI.copies.Trim[key] = groups[i].Settings[key] 
+                                    end
+                                end
+
+                                if GUI.copies.Trim and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                    for key, val in pairs(GUI.copies.Trim) do
+                                        groups[i].Settings[key] = val
+                                    end
+                                    GUI.is_save.check = true
+                                end
+                                ImGui.EndPopup(ctx)
+                            end
+                            if opn then
+                                if ImGui.Checkbox(ctx, 'Clean Area Before Paste',groups[i].Settings.Erase) then
+                                    groups[i].Settings.Erase = not groups[i].Settings.Erase
+                                    GUI.is_save.check = true
+                                end
+                                if UserSettings.Tips then ToolTip("Before pasting delete Any Item in the space of the Pasted Items") end
+                
+                                if ImGui.Checkbox(ctx, 'Trim Items Using MIDI Item End',groups[i].Settings.Is_trim_ItemEnd) then
+                                    groups[i].Settings.Is_trim_ItemEnd = not groups[i].Settings.Is_trim_ItemEnd
+                                    GUI.is_save.check = true
+                                end
+                                if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the end of the MIDI item") end
+                
+                                if ImGui.Checkbox(ctx, 'Trim Items Using Start Next MIDI Note',groups[i].Settings.Is_trim_StartNextNote) then
+                                    groups[i].Settings.Is_trim_StartNextNote = not groups[i].Settings.Is_trim_StartNextNote
+                                    GUI.is_save.check = true
+                                end
+                                if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the start of the next MIDI note") end
+                
+                                if ImGui.Checkbox(ctx, 'Trim Items Using End MIDI Note',groups[i].Settings.Is_trim_EndNote) then
+                                    groups[i].Settings.Is_trim_EndNote = not groups[i].Settings.Is_trim_EndNote
+                                    GUI.is_save.check = true
+                                end
+                                if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the end of the MIDI note") end
+
+                                ImGui.TreePop(ctx)
+                            end
+
+                            --Velocity
+                            local opn = ImGui.TreeNode(ctx, 'Velocity', ImGui.TreeNodeFlags_DrawLinesFull)
+                            if ImGui.BeginPopupContextItem(ctx) then
+                                local keys = {'Velocity', 'Vel_OriginalVal', 'Vel_Max', 'Vel_Min'}
+                                if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                    GUI.copies.Velocity = {}
+                                    for k, key in ipairs(keys) do
+                                        GUI.copies.Velocity[key] = groups[i].Settings[key] 
+                                    end
+                                end
+
+                                if GUI.copies.Velocity and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                    for key, val in pairs(GUI.copies.Velocity) do
+                                        groups[i].Settings[key] = val
+                                    end
+                                    GUI.is_save.check = true
+                                end
+                                ImGui.EndPopup(ctx)
+                            end
+                            if opn then
+
+                                if ImGui.Checkbox(ctx, 'Velocity Change Item dB',groups[i].Settings.Velocity) then
+                                    groups[i].Settings.Velocity = not groups[i].Settings.Velocity
+                                    GUI.is_save.check = true
+                                end
+                                
+                                ImGui.PushItemWidth( ctx,  -120)
+
+                                local name = 'Max dB added'
+                                GUI.is_save.check, groups[i].Settings.Vel_Max = ImGui.InputInt(ctx,  name, groups[i].Settings.Vel_Max)
+                                local focus = ImGui.IsItemFocused(ctx)
+                                PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
+
+                                local name = 'Max dB reduce'
+                                GUI.is_save.check, groups[i].Settings.Vel_Min = ImGui.InputInt(ctx,  name, groups[i].Settings.Vel_Min)
+                                local focus = ImGui.IsItemFocused(ctx)
+                                PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
+
+                                ImGui.PopItemWidth(ctx)
+
+                                ImGui.PushItemWidth( ctx,  -120)
+                                GUI.is_save.check, groups[i].Settings.Vel_OriginalVal = ImGui.SliderInt(ctx, 'Velocity to use\noriginal Item dB', groups[i].Settings.Vel_OriginalVal, 0, 127)
+                                ImGui.PopItemWidth(ctx)
+
+                            ImGui.TreePop(ctx)
+                            end
+
+                            --Pitch
+                            local opn = ImGui.TreeNode(ctx, 'Pitch', ImGui.TreeNodeFlags_DrawLinesFull)
+                            if ImGui.BeginPopupContextItem(ctx) then
+                                local keys = {'Pitch', 'Pitch_Original'}
+                                if ImGui.Button(ctx, 'Copy Settings', 125) then
+                                    GUI.copies.Pitch = {}
+                                    for k, key in ipairs(keys) do
+                                        GUI.copies.Pitch[key] = groups[i].Settings[key] 
+                                    end
+                                end
+
+                                if GUI.copies.Pitch and ImGui.Button(ctx, 'Paste Settings', 125) then
+                                    for key, val in pairs(GUI.copies.Pitch) do
+                                        groups[i].Settings[key] = val
+                                    end
+                                    GUI.is_save.check = true
+                                end
+                                ImGui.EndPopup(ctx)
+                            end
+                            if opn then
+
+                                if ImGui.Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',groups[i].Settings.Pitch) then
+                                    groups[i].Settings.Pitch = not groups[i].Settings.Pitch
+                                    GUI.is_save.check = true
+                                end
+                                
+                                ImGui.PushItemWidth( ctx,  -100)
+                                GUI.is_save.check, groups[i].Settings.Pitch_Original = ImGui.SliderInt(ctx, 'Original Pitch\nat MIDI Note', groups[i].Settings.Pitch_Original, 0, 127, NumberToNote(groups[i].Settings.Pitch_Original, true))
+                                ImGui.PopItemWidth(ctx)
+
+                            ImGui.TreePop(ctx)
+                            end
+
+                            --Track Target
+                            local opn = ImGui.TreeNode(ctx, 'Targets', ImGui.TreeNodeFlags_DrawLinesFull)
+                            CopyPasteContext('Target Tracks',  groups[i].Settings)
+                            if opn then
+                                if ImGui.Button(ctx, 'Get Selected Tracks') then
+                                    groups[i].Settings.Targets = ListTracks(0)
+                                    GUI.is_save.check = true
+                                end
+                                if UserSettings.Tips then ToolTip("Select the tracks where the created items will be placed. If multiple tracks are selected, it will randomly choose one per item.") end
+
+                                if ImGui.BeginListBox(ctx,  '###targetlist',-1,150) then
+                                    if groups[i].Settings.Targets and #groups[i].Settings.Targets > 0 then
+                                        local remove = {}
+                                        for k, v in ipairs(groups[i].Settings.Targets) do 
+                                            -- Check if source is deleted
+                                            local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
+                                            if not is_track then
+                                                remove[#remove+1] = k
+                                                goto continue
+                                            end
+                                            -- Name
                                             local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
                                             if t_name == '' then
-                                                local t_name_str = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
-                                                t_name = '#'..string.format('%d', t_name_str)
+                                                local _
+                                                local t_val = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
+                                                t_name = string.format('%d', t_val)
                                             end
-                                            name = 'Track: '..t_name
-                                        end
-                                        if ImGui.Selectable(ctx,  name..'##Source'..idx, false) then
-                                            reaper.Undo_BeginBlock()
-                                            if is_item then
-                                                if not Ctrl then
-                                                    reaper.SelectAllMediaItems(0, false)
-                                                end
-                                                reaper.SetMediaItemSelected(v, true)
-                                            else
+                                            t_name = 'Track: '..t_name
+                                            -- Selectable
+                                            if ImGui.Selectable(ctx, t_name..'##TargetTrack'..k) then
                                                 if not Ctrl then
                                                     reaper.SetOnlyTrackSelected(v)
                                                 else
                                                     reaper.SetTrackSelected(v, true)
                                                 end
                                             end
-                                            reaper.Undo_EndBlock2(0, 'Item Sampler: Select Source', -1)
-                                            reaper.UpdateArrange()
-                                        end
-                                        -- Right Click
-                                        if ImGui.BeginPopupContextItem(ctx, name..'##ContextSource'..idx) then
-                                            if ImGui.Selectable(ctx,  'Remove'..'##Source'..idx, false) then
-                                                remove_list[#remove_list+1] = idx
+                                            -- Right Click
+                                            if ImGui.BeginPopupContextItem(ctx, t_name..'##ContextSource'..k) then
+                                                if ImGui.Selectable(ctx,  'Remove'..'##Source'..k, false) then
+                                                    remove[#remove+1] = k
+                                                end
+                                                ImGui.EndPopup(ctx)
                                             end
-                                            ImGui.EndPopup(ctx)
+                                            ::continue::
                                         end
-                                        ::continue::
-                                    end
-                                    -- Remove Sources
-                                    if #remove_list > 0 then
-                                        for r_idx = #remove_list, 1, -1 do
-                                            local idx = remove_list[r_idx]
-                                            table.remove(groups[i].list_sequence, idx)
-                                        end
-                                        GUI.is_save.check = true
-                                    end
-                                end
-                                
-                                ImGui.EndListBox(ctx)
-                            end
-                            ImGui.TreePop(ctx)
-                        end
-
-                        --Range
-                        local opn = ImGui.TreeNode(ctx, 'Range')
-                        if ImGui.BeginPopupContextItem(ctx) then
-                            if ImGui.Button(ctx, 'Copy Settings', 125) then
-                                GUI.copies.NoteRange = table_copy(groups[i].Settings.NoteRange)
-                                GUI.copies.VelocityRange = table_copy(groups[i].Settings.VelocityRange)
-                            end
-
-                            if GUI.copies.NoteRange and ImGui.Button(ctx, 'Paste Settings', 125) then
-                                groups[i].Settings.NoteRange = GUI.copies.NoteRange
-                                groups[i].Settings.VelocityRange = GUI.copies.VelocityRange
-                                GUI.is_save.check = true
-                            end
-                            ImGui.EndPopup(ctx)
-                        end
-                        if opn then
-                            ImGui.PushItemWidth( ctx,  -15)
-                            ImGui.Text(ctx, 'Note Range')
-                            local min_note, max_note  = NumberToNote(groups[i].Settings.NoteRange.Min), NumberToNote(groups[i].Settings.NoteRange.Max) 
-                            GUI.is_save.check, groups[i].Settings.NoteRange.Min, groups[i].Settings.NoteRange.Max = ImGui.DragIntRange2(ctx, '###a', groups[i].Settings.NoteRange.Min , groups[i].Settings.NoteRange.Max, 0.03, 0, 127,  'Min: '..min_note, "Max: "..max_note)
-
-                            --- Pop Up Open
-                            -- Check if double clicked and open pop up
-                            if ImGui.IsItemHovered(ctx) and ImGui.IsMouseDoubleClicked( ctx, 0) then 
-                                ImGui.OpenPopup(ctx, 'str_id')
-                                PreventPassKeys2 = CheckPreventPassThrough(true, 'setnote', PreventPassKeys2)
-                                local mouse_x = ImGui.GetMousePos( ctx)
-                                GUIIsMaxClicked = mouse_x > (gui_x + (gui_w/2) + 10) 
-                            end
-
-                            -- Pop Up
-                            local popup_setnote
-                            if ImGui.BeginPopup(ctx, 'str_id') then
-                                popup_setnote = true
-                                if ImGui.IsWindowAppearing(ctx) then
-                                    ImGui.SetKeyboardFocusHere(ctx)
-                                end
-                                if GUIIsMaxClicked == true then -------- Max Value
-                                    ImGui.SetNextItemWidth( ctx,  60)      
-                                    local max_text = NumberToNote(groups[i].Settings.NoteRange.Max)
-                                    local bol, max_text = ImGui.InputText(ctx, '###New Notemax', max_text)
-                                    if bol then
-                                        max_text = MakeUpperCaseFirstLetter(max_text)
-                                        if  IsStringNote(max_text) then 
-                                            groups[i].Settings.NoteRange.Max  = NoteToNumber(max_text,4)
-                                        end
-                                        GUI.is_save.check = true
-                                    end
-                                else ----------------------------------  Min Value
-                                    ImGui.SetNextItemWidth( ctx,  60) 
-                                    local min_text = NumberToNote(groups[i].Settings.NoteRange.Min)
-                                    local bol, min_text = ImGui.InputText(ctx, '###New Notemin', min_text)
-                                    if bol then
-                                        min_text = MakeUpperCaseFirstLetter(min_text)
-                                        if  IsStringNote(min_text) then 
-                                            groups[i].Settings.NoteRange.Min  = NoteToNumber(min_text,4)
-                                        end
-                                        GUI.is_save.check = true
-                                    end
-                                end
-                                if  ImGui.IsKeyPressed(ctx, ImGui.Key_Enter) then
-                                    ImGui.CloseCurrentPopup(ctx)
-                                    PreventPassKeys2 = CheckPreventPassThrough(false, 'setnote', PreventPassKeys2)
-                                end
-
-                                --boolean retval, string buf = ImGui.InputText(ImGui_Context ctx, string label, string buf, number flags = nil)
-                                ImGui.EndPopup(ctx)
-                            end
-
-                            if GetSourceKey('setnote', PreventPassKeys2) and not popup_setnote then
-                                PreventPassKeys2 = CheckPreventPassThrough(false, 'setnote', PreventPassKeys2)
-                            end
-
-                            if UserSettings.Tips then ToolTip("Set a Note Range for the Group. Only paste if MIDI note in between these notes(included)") end
-
-                            -----------------
-                            ImGui.Text(ctx, 'Velocity Range')
-                            GUI.is_save.check, groups[i].Settings.VelocityRange.Min, groups[i].Settings.VelocityRange.Max = ImGui.DragIntRange2(ctx, '###b', groups[i].Settings.VelocityRange.Min, groups[i].Settings.VelocityRange.Max, 0.03, 0, 127,  'Min: %d', "Max: %d")
-                            ImGui.PopItemWidth(ctx)
-                            if UserSettings.Tips then ToolTip("Set a Velocity Range for the Group. Only paste if MIDI note velocity is in between these values(included)") end
-
-                            ImGui.TreePop(ctx)
-                        end
-                        
-                        --Trim
-
-
-                        
-                        local opn = ImGui.TreeNode(ctx, 'Trim')
-                        if ImGui.BeginPopupContextItem(ctx) then
-                            local keys = {'Erase', 'Is_trim_ItemEnd', 'Is_trim_StartNextNote', 'Is_trim_EndNote'}
-                            if ImGui.Button(ctx, 'Copy Settings', 125) then
-                                GUI.copies.Trim = {}
-                                for k, key in ipairs(keys) do
-                                    GUI.copies.Trim[key] = groups[i].Settings[key] 
-                                end
-                            end
-
-                            if GUI.copies.Trim and ImGui.Button(ctx, 'Paste Settings', 125) then
-                                for key, val in pairs(GUI.copies.Trim) do
-                                    groups[i].Settings[key] = val
-                                end
-                                GUI.is_save.check = true
-                            end
-                            ImGui.EndPopup(ctx)
-                        end
-                        if opn then
-                            if ImGui.Checkbox(ctx, 'Clean Area Before Paste',groups[i].Settings.Erase) then
-                                groups[i].Settings.Erase = not groups[i].Settings.Erase
-                                GUI.is_save.check = true
-                            end
-                            if UserSettings.Tips then ToolTip("Before pasting delete Any Item in the space of the Pasted Items") end
-            
-                            if ImGui.Checkbox(ctx, 'Trim Items Using MIDI Item End',groups[i].Settings.Is_trim_ItemEnd) then
-                                groups[i].Settings.Is_trim_ItemEnd = not groups[i].Settings.Is_trim_ItemEnd
-                                GUI.is_save.check = true
-                            end
-                            if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the end of the MIDI item") end
-            
-                            if ImGui.Checkbox(ctx, 'Trim Items Using Start Next MIDI Note',groups[i].Settings.Is_trim_StartNextNote) then
-                                groups[i].Settings.Is_trim_StartNextNote = not groups[i].Settings.Is_trim_StartNextNote
-                                GUI.is_save.check = true
-                            end
-                            if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the start of the next MIDI note") end
-            
-                            if ImGui.Checkbox(ctx, 'Trim Items Using End MIDI Note',groups[i].Settings.Is_trim_EndNote) then
-                                groups[i].Settings.Is_trim_EndNote = not groups[i].Settings.Is_trim_EndNote
-                                GUI.is_save.check = true
-                            end
-                            if UserSettings.Tips then ToolTip("The pasted items will be trimmed at the end of the MIDI note") end
-
-                            ImGui.TreePop(ctx)
-                        end
-
-                        --Velocity
-                        local opn = ImGui.TreeNode(ctx, 'Velocity')
-                        if ImGui.BeginPopupContextItem(ctx) then
-                            local keys = {'Velocity', 'Vel_OriginalVal', 'Vel_Max', 'Vel_Min'}
-                            if ImGui.Button(ctx, 'Copy Settings', 125) then
-                                GUI.copies.Velocity = {}
-                                for k, key in ipairs(keys) do
-                                    GUI.copies.Velocity[key] = groups[i].Settings[key] 
-                                end
-                            end
-
-                            if GUI.copies.Velocity and ImGui.Button(ctx, 'Paste Settings', 125) then
-                                for key, val in pairs(GUI.copies.Velocity) do
-                                    groups[i].Settings[key] = val
-                                end
-                                GUI.is_save.check = true
-                            end
-                            ImGui.EndPopup(ctx)
-                        end
-                        if opn then
-
-                            if ImGui.Checkbox(ctx, 'Velocity Change Item dB',groups[i].Settings.Velocity) then
-                                groups[i].Settings.Velocity = not groups[i].Settings.Velocity
-                                GUI.is_save.check = true
-                            end
-                            
-                            ImGui.PushItemWidth( ctx,  -120)
-
-                            local name = 'Max dB added'
-                            GUI.is_save.check, groups[i].Settings.Vel_Max = ImGui.InputInt(ctx,  name, groups[i].Settings.Vel_Max)
-                            local focus = ImGui.IsItemFocused(ctx)
-                            PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
-
-                            local name = 'Max dB reduce'
-                            GUI.is_save.check, groups[i].Settings.Vel_Min = ImGui.InputInt(ctx,  name, groups[i].Settings.Vel_Min)
-                            local focus = ImGui.IsItemFocused(ctx)
-                            PreventPassKeys2 = CheckPreventPassThrough(focus, name,PreventPassKeys2)
-
-                            ImGui.PopItemWidth(ctx)
-
-                            ImGui.PushItemWidth( ctx,  -120)
-                            GUI.is_save.check, groups[i].Settings.Vel_OriginalVal = ImGui.SliderInt(ctx, 'Velocity to use\noriginal Item dB', groups[i].Settings.Vel_OriginalVal, 0, 127)
-                            ImGui.PopItemWidth(ctx)
-
-                        ImGui.TreePop(ctx)
-                        end
-
-                        --Pitch
-                        local opn = ImGui.TreeNode(ctx, 'Pitch')
-                        if ImGui.BeginPopupContextItem(ctx) then
-                            local keys = {'Pitch', 'Pitch_Original'}
-                            if ImGui.Button(ctx, 'Copy Settings', 125) then
-                                GUI.copies.Pitch = {}
-                                for k, key in ipairs(keys) do
-                                    GUI.copies.Pitch[key] = groups[i].Settings[key] 
-                                end
-                            end
-
-                            if GUI.copies.Pitch and ImGui.Button(ctx, 'Paste Settings', 125) then
-                                for key, val in pairs(GUI.copies.Pitch) do
-                                    groups[i].Settings[key] = val
-                                end
-                                GUI.is_save.check = true
-                            end
-                            ImGui.EndPopup(ctx)
-                        end
-                        if opn then
-
-                            if ImGui.Checkbox(ctx, 'MIDI Pitch Note Change Item Pitch',groups[i].Settings.Pitch) then
-                                groups[i].Settings.Pitch = not groups[i].Settings.Pitch
-                                GUI.is_save.check = true
-                            end
-                            
-                            ImGui.PushItemWidth( ctx,  -100)
-                            GUI.is_save.check, groups[i].Settings.Pitch_Original = ImGui.SliderInt(ctx, 'Original Pitch\nat MIDI Note', groups[i].Settings.Pitch_Original, 0, 127, NumberToNote(groups[i].Settings.Pitch_Original, true))
-                            ImGui.PopItemWidth(ctx)
-
-                        ImGui.TreePop(ctx)
-                        end
-
-                        --Track Target
-                        local opn = ImGui.TreeNode(ctx, 'Targets')
-                        CopyPasteContext('Target Tracks',  groups[i].Settings)
-                        if opn then
-                            if ImGui.Button(ctx, 'Get Selected Tracks') then
-                                groups[i].Settings.Targets = ListTracks(0)
-                                GUI.is_save.check = true
-                            end
-                            if UserSettings.Tips then ToolTip("Select the tracks where the created items will be placed. If multiple tracks are selected, it will randomly choose one per item.") end
-
-                            if ImGui.BeginListBox(ctx,  '###targetlist',-1,150) then
-                                if groups[i].Settings.Targets and #groups[i].Settings.Targets > 0 then
-                                    local remove = {}
-                                    for k, v in ipairs(groups[i].Settings.Targets) do 
-                                        -- Check if source is deleted
-                                        local is_track = reaper.ValidatePtr(v, 'MediaTrack*')
-                                        if not is_track then
-                                            remove[#remove+1] = k
-                                            goto continue
-                                        end
-                                        -- Name
-                                        local _, t_name = reaper.GetSetMediaTrackInfo_String(v, 'P_NAME', '', false)
-                                        if t_name == '' then
-                                            local _
-                                            local t_val = reaper.GetMediaTrackInfo_Value(v, 'IP_TRACKNUMBER')
-                                            t_name = string.format('%d', t_val)
-                                        end
-                                        t_name = 'Track: '..t_name
-                                        -- Selectable
-                                        if ImGui.Selectable(ctx, t_name..'##TargetTrack'..k) then
-                                            if not Ctrl then
-                                                reaper.SetOnlyTrackSelected(v)
-                                            else
-                                                reaper.SetTrackSelected(v, true)
+                                        if #remove > 0 then
+                                            for idx = #remove, 1, -1 do
+                                                table.remove(groups[i].Settings.Targets, remove[idx])
                                             end
+                                            GUI.is_save.check = true
                                         end
-                                        -- Right Click
-                                        if ImGui.BeginPopupContextItem(ctx, t_name..'##ContextSource'..k) then
-                                            if ImGui.Selectable(ctx,  'Remove'..'##Source'..k, false) then
-                                                remove[#remove+1] = k
-                                            end
-                                            ImGui.EndPopup(ctx)
-                                        end
-                                        ::continue::
                                     end
-                                    if #remove > 0 then
-                                        for idx = #remove, 1, -1 do
-                                            table.remove(groups[i].Settings.Targets, remove[idx])
-                                        end
-                                        GUI.is_save.check = true
-                                    end
+                                    ImGui.EndListBox(ctx)
                                 end
-                                ImGui.EndListBox(ctx)
+                                ImGui.TreePop(ctx)
                             end
-                            ImGui.TreePop(ctx)
+                            ImGui.EndChild(ctx)
                         end
-
-
                         ImGui.EndTabItem(ctx)
                     end
                     
                     
                     if not keep then -- If Close
-                        table.remove(groups,i) 
-                        --Groups[i] = nil
+                        remove_t[#remove_t+1] = i
                     end
+                end
 
-
+                if #remove_t > 0 then
+                    for k, v in ipairs(remove_t) do
+                        table.remove(groups, v)
+                    end
+                    GUI.is_save.check = true
                 end
 
                 if ImGui.TabItemButton(ctx, '+', ImGui.TabItemFlags_Trailing | ImGui.TabItemFlags_NoTooltip) then
-                    groups[TableLen(groups)+1] = BlankGroup:Create('G'..TableLen(groups)+1)
+                    groups[#groups+1] = BlankGroup:Create('G'..#groups+1)
                     GUI.is_save.check = true
                 end
                 ImGui.EndTabBar(ctx)
@@ -1095,7 +1109,7 @@ function loop()
 
 
             --------Place Button
-            ChangeColor(1,1,0.4,1)
+            ChangeColor(1,0.6,0.4,1)
             ImGui.Button(ctx, 'Place in Sequence', -2)
             if ImGui.IsItemClicked( ctx) then
                 local is_reverse = Ctrl -- is ctrl down? 
@@ -1106,7 +1120,7 @@ function loop()
 
 
             --------Place Random
-            ChangeColor(0.15,1,0.4,1)
+            ChangeColor(0.15,0.6,0.4,1)
             ImGui.Button(ctx, 'Place Random', -2)
             if ImGui.IsItemClicked( ctx) then
                 local is_rand_sequence = Ctrl -- is ctrl down?
@@ -1115,18 +1129,32 @@ function loop()
             if UserSettings.Tips then ToolTip("Click: Paste the items sequence randomly Ctrl+Click: Paste the sequence randomly without repetitions") end
             ImGui.PopStyleColor(ctx, 3);
             -------- List Box
+            
+            if ImGui.TreeNode(ctx, 'Group Editors', ImGui.TreeNodeFlags_DrawLinesFull) then
+                if ImGui.TreeNode(ctx, 'Grid Editor', ImGui.TreeNodeFlags_DrawLinesFull) then
 
-
-            if ImGui.BeginListBox(ctx,  '###label',-1,-1) then
-                for i, v in pairs(groups) do
-                    ImGui.PushID(ctx, i)
-                    if ImGui.Selectable(ctx,  groups[i].name, groups[i].Selected) then
-                        groups[i].Selected = not groups[i].Selected
-                    end
-                    ImGui.PopID(ctx)
+                    ImGui.TreePop(ctx)
                 end
-                ImGui.EndListBox(ctx)
+
+                if ImGui.TreeNode(ctx, 'Activated Groups: ', ImGui.TreeNodeFlags_DrawLinesFull) then
+                    if ImGui.BeginListBox(ctx,  '###label',-1,100) then
+                        for i, v in pairs(groups) do
+                            --ImGui.PushID(ctx, i)
+                            if ImGui.Selectable(ctx,  groups[i].name..'##'..i, groups[i].Selected) then
+                                groups[i].Selected = not groups[i].Selected
+                            end
+                            --ImGui.PopID(ctx)
+                        end
+                        ImGui.EndListBox(ctx)
+                    end
+                    ImGui.TreePop(ctx)
+                end
+                ImGui.TreePop(ctx)
             end
+
+            ImGui.Separator(ctx)
+
+
 
             if GUI.is_save[1] then
                 is.SaveSequencer(sequencer.seq, sequencer, sequencer.is_item)
@@ -1301,6 +1329,7 @@ function loop()
     end
 
     if open then
+        --demo.PopStyle(ctx)
         reaper.defer(loop)
     end
 end
