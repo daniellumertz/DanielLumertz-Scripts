@@ -28,6 +28,13 @@ function configs.Update(s_ct)
         is_change = true
     end
 
+    if not DL.num.CompareVersion(s_ct.version, '1.7.0') then 
+        s_ct.sequencers = configs.default('1.6.0').sequencers
+        s_ct.version = '1.7.0'
+
+        is_change = true
+    end
+
     return s_ct, is_change
 end
 
@@ -37,6 +44,9 @@ function configs.default(version)
         tips = true,
         activate = {
             follow_selection = false,
+        },
+        sequencers = {
+            rename_note_names = false,
         },
         gui = {
             draw = {

@@ -250,4 +250,45 @@ function is.GuidToUserData(proj, seq, st)
     return st
 end
 
+function is.RenameMIDINotes(proj, st)
+    local track = st.is_item and reaper.GetMediaItem_Track(st.seq) or st.seq
+    if track then 
+        local names = {}
+        for note_idx = 0, 127 do
+            names[note_idx] = {}
+        end
+        
+        for gi, group in ipairs(st.groups) do
+            local name = group.name
+            for note_idx = group.Settings.NoteRange.Min, group.Settings.NoteRange.Max do
+                table.insert(names[note_idx], name)
+            end
+        end
+
+        for note_idx, names in ipairs(names) do
+            local name = table.concat(names, '; ')
+            reaper.SetTrackMIDINoteNameEx(proj, track, note_idx, 0, name )
+        end
+    end
+    local me =reaper.MIDIEditor_GetActive() 
+    if me then
+        local tk = reaper.MIDIEditor_GetTake(me)
+        reaper.MIDI_RefreshEditors(tk)
+    end
+end
+
+function is.UnameMIDINotes(proj, st)
+    local track = st.is_item and reaper.GetMediaItem_Track(st.seq) or st.seq
+    if track then 
+        for note_idx = 0, 127 do
+            reaper.SetTrackMIDINoteNameEx(proj, track, note_idx, 0, '' )
+        end
+    end
+    local me =reaper.MIDIEditor_GetActive() 
+    if me then
+        local tk = reaper.MIDIEditor_GetTake(me)
+        reaper.MIDI_RefreshEditors(tk)
+    end
+end
+
 return is

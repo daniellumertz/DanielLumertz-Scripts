@@ -102,14 +102,14 @@ function GetSourceKey(name, preventpasskey)
                 key_used = key
                 break
             end 
-        end
+        end 
     end
     return key_used
 end
 
 
 
-function MenuBar(ctx, UserSettings, GUI, config, version)
+function MenuBar(ctx, UserSettings, GUI, config, version, Pro)
     if ImGui.BeginMenuBar(ctx) then
         if ImGui.BeginMenu(ctx, 'Options') then
             if ImGui.MenuItem(ctx, 'Show Tool Tips', nil, UserSettings.tips) then
@@ -126,6 +126,15 @@ function MenuBar(ctx, UserSettings, GUI, config, version)
                 UserSettings.activate.follow_selection = not UserSettings.activate.follow_selection 
                 GUI.is_save_us.check = true
             end
+
+            if ImGui.MenuItem(ctx, 'MIDI Note Names Follow Group Names', nil, UserSettings.activate.follow_selection) then
+                UserSettings.sequencers.rename_note_names = not UserSettings.sequencers.rename_note_names
+                -- Cleans or update the note names
+                if UserSettings.sequencers.rename_note_names then
+                end
+                GUI.is_save_us.check = true    
+            end
+
 
             ImGui.Separator(ctx)
 
@@ -235,66 +244,68 @@ end
 
 
 function PushStyle(ctx)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Text, 0xFFFFFFFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TextDisabled, 0x808080FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_WindowBg, 0x2C2C2CFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ChildBg, 0x212121FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_PopupBg, 0x232323FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Border, 0x6E6E8080)
-    ImGui.PushStyleColor(ctx, ImGui.Col_BorderShadow, 0x00000000)
-    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBg, 0x6969698A)
-    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBgHovered, 0x87C28E66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBgActive, 0x6DF17D66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBg, 0x383838DC)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBgActive, 0x4E4E4EDC)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBgCollapsed, 0x00000082)
-    ImGui.PushStyleColor(ctx, ImGui.Col_MenuBarBg, 0x242424FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarBg, 0x05050587)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrab, 0x4F4F4FFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrabHovered, 0x696969FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrabActive, 0x828282FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_CheckMark, 0x79BA8BFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_SliderGrab, 0x79BA8BFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_SliderGrabActive, 0x6BDC8AFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Button, 0x6969698A)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, 0x87C28E66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive, 0x6DF17D66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Header, 0x42FA514F)
-    ImGui.PushStyleColor(ctx, ImGui.Col_HeaderHovered, 0x87C28E66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_HeaderActive, 0x6DF17D66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Separator, 0xD8D8D880)
-    ImGui.PushStyleColor(ctx, ImGui.Col_SeparatorHovered, 0xD8D8D880)
-    ImGui.PushStyleColor(ctx, ImGui.Col_SeparatorActive, 0xD8D8D880)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGrip, 0x8EC19466)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGripHovered, 0x6DE67C66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGripActive, 0x47F35A66)
-    ImGui.PushStyleColor(ctx, ImGui.Col_InputTextCursor, 0xFFFFFFFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TabHovered, 0x4296FACC)
-    ImGui.PushStyleColor(ctx, ImGui.Col_Tab, 0x2E5994DC)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TabSelected, 0xFFFFFF40)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TabSelectedOverline, 0x4296FAFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TabDimmed, 0x111A26F8)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TabDimmedSelected, 0x23436CFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Text,                      0xFFFFFFFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TextDisabled,              0x808080FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_WindowBg,                  0x2C2C2CFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ChildBg,                   0x212121FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_PopupBg,                   0x232323FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Border,                    0x6E6E8080)
+    ImGui.PushStyleColor(ctx, ImGui.Col_BorderShadow,              0x00000000)
+    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBg,                   0x6969698A)
+    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBgHovered,            0x87C28E66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_FrameBgActive,             0x6DF17D66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBg,                   0x383838DC)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBgActive,             0x4E4E4EDC)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TitleBgCollapsed,          0x00000082)
+    ImGui.PushStyleColor(ctx, ImGui.Col_MenuBarBg,                 0x242424FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarBg,               0x24242487)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrab,             0x4F4F4FFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrabHovered,      0x696969FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ScrollbarGrabActive,       0x828282FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_CheckMark,                 0x79BA8BFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_SliderGrab,                0x79BA8BFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_SliderGrabActive,          0x6BDC8AFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Button,                    0x6969698A)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered,             0x87C28E66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,              0x6DF17D66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Header,                    0x42FA514F)
+    ImGui.PushStyleColor(ctx, ImGui.Col_HeaderHovered,             0x87C28E66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_HeaderActive,              0x6DF17D66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Separator,                 0xD8D8D880)
+    ImGui.PushStyleColor(ctx, ImGui.Col_SeparatorHovered,          0xD8D8D880)
+    ImGui.PushStyleColor(ctx, ImGui.Col_SeparatorActive,           0xD8D8D880)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGrip,                0x8EC19466)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGripHovered,         0x6DE67C66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ResizeGripActive,          0x47F35A66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_InputTextCursor,           0xFFFFFFFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TabHovered,                0x87C28E66)
+    ImGui.PushStyleColor(ctx, ImGui.Col_Tab,                       0x6969698A)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TabSelected,               0xFFFFFF40)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TabSelectedOverline,       0x4296FAFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TabDimmed,                 0x111A26F8)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TabDimmedSelected,         0x23436CFF)
     ImGui.PushStyleColor(ctx, ImGui.Col_TabDimmedSelectedOverline, 0x80808000)
-    ImGui.PushStyleColor(ctx, ImGui.Col_DockingPreview, 0x42FA68B3)
-    ImGui.PushStyleColor(ctx, ImGui.Col_DockingEmptyBg, 0x333333FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_PlotLines, 0x9C9C9CFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_PlotLinesHovered, 0xFF6E59FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_PlotHistogram, 0xE6B300FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_PlotHistogramHovered, 0xFF9900FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TableHeaderBg, 0x303033FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TableBorderStrong, 0x4F4F59FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TableBorderLight, 0x3B3B40FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TableRowBg, 0x00000000)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TableRowBgAlt, 0xFFFFFF0F)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TextLink, 0x4296FAFF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TextSelectedBg, 0x42FA6859)
-    ImGui.PushStyleColor(ctx, ImGui.Col_TreeLines, 0x6E6E8080)
-    ImGui.PushStyleColor(ctx, ImGui.Col_DragDropTarget, 0xFFFF00E6)
-    ImGui.PushStyleColor(ctx, ImGui.Col_NavCursor, 0x42FA89FF)
-    ImGui.PushStyleColor(ctx, ImGui.Col_NavWindowingHighlight, 0xFFFFFFB3)
-    ImGui.PushStyleColor(ctx, ImGui.Col_NavWindowingDimBg, 0xCCCCCC33)
-    ImGui.PushStyleColor(ctx, ImGui.Col_ModalWindowDimBg, 0xCCCCCC59)
+    ImGui.PushStyleColor(ctx, ImGui.Col_DockingPreview,            0x42FA68B3)
+    ImGui.PushStyleColor(ctx, ImGui.Col_DockingEmptyBg,            0x333333FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_PlotLines,                 0x9C9C9CFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_PlotLinesHovered,          0xFF6E59FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_PlotHistogram,             0xE6B300FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_PlotHistogramHovered,      0xFF9900FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TableHeaderBg,             0x303033FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TableBorderStrong,         0x4F4F59FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TableBorderLight,          0x9F9F9FFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TableRowBg,                0x00000000)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TableRowBgAlt,             0xFFFFFF0F)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TextLink,                  0x4296FAFF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TextSelectedBg,            0x42FA6859)
+    ImGui.PushStyleColor(ctx, ImGui.Col_TreeLines,                 0x6E6E8080)
+    ImGui.PushStyleColor(ctx, ImGui.Col_DragDropTarget,            0xFFFF00E6)
+    ImGui.PushStyleColor(ctx, ImGui.Col_NavCursor,                 0x42FA89FF)
+    ImGui.PushStyleColor(ctx, ImGui.Col_NavWindowingHighlight,     0xFFFFFFB3)
+    ImGui.PushStyleColor(ctx, ImGui.Col_NavWindowingDimBg,         0xCCCCCC33)
+    ImGui.PushStyleColor(ctx, ImGui.Col_ModalWindowDimBg,          0xCCCCCC59)
+
+
 
 
 

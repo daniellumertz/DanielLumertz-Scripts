@@ -1,5 +1,5 @@
 local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascript-docs-0.1.16/debugger/LoadDebug.lua")
--- @version 1.6.0
+-- @version 1.7.0
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -13,16 +13,21 @@ local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascri
 --    [nomain] DL Functions/*.lua
 --    [main] Item Simpler.lua
 -- @changelog
---    + Add option that activated sequencers follow item/track selection
+--    + Add option that activated sequencers follow item/track selection.
+--    + Add Group Grid Editor. Including options to set the range of each group. Clicking sets group to a certain note. Shift-click extends the range up to certain note. Ctrl-click to change the untransposed pitch.  
+--    + Add action to create groups in batches, using selected items/tracks as sources. Action found by right clicking the '+' menu
+--    + Add usersetting to remap MIDI note names using group names.
+--    + Add usersetting "Activated Sequencer Follow Selection"
 --    + Add right click contexts to copy/paste multiple settings (right-clicking an source at the drop-down or an Setting tree  node)
---    + Restylized the UI
+--    + Restylized the UI. Changed colors, font is more compact, removed the older group editor.
 --    + Bug Fix: Fixed renaming/deleting groups. It was not saving and was scrambling the groups after user action
+--    + Bug Fix: Using ipairs to properlly shows groups in the correct order 
 
 
 --TODOs
 -- Update header require
 
-local version = '1.6.0'
+local version = '1.7.0'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -30,7 +35,7 @@ package.path = package.path  .. ';' ..  reaper.ImGui_GetBuiltinPath() .. '/?.lua
 ImGui = require 'imgui' '0.10'
 ctx = ImGui.CreateContext('daniellumertz_Item Sampler')
 
-local demo = require 'ReaImGui_Demo'
+--local demo = require 'ReaImGui_Demo'
 
 -- Main Tables
 local ProjTable = {
@@ -62,6 +67,22 @@ GUI = {
     groups_popup = {
         was_open = false
     },
+    create_popup = {
+        label = 'create_popup',
+        name = 'Create Groups',
+        source = {
+            is_item = 0 -- 0 item, 1 track
+        },
+        groups = {
+            is_one = 1,
+            settings = 0,
+            range = {
+                set_by_key = true,
+                start_pitch = 60
+            },
+            is_replacing = false
+        }
+    },
     copies = {}, -- Where it store something that is copied ex: Gui.copies.targets = targets table 
     is_save = setmetatable({}, save_mt),
     is_save_us = setmetatable({}, save_mt), -- User settings!
@@ -84,6 +105,10 @@ GUI = {
                 ImGui.WindowFlags_NoDecoration      |
                 ImGui.WindowFlags_NoInputs -- mouse clicks pass through
         }
+    },
+    grid_editor = {
+        accidents = {[1]=true, [3]=true, [6]=true, [8]=true, [10]=true},
+        first_run = true
     }
 }
 
@@ -578,11 +603,12 @@ end
  
 
 function loop()
-    --demo.PushStyle(ctx)
-    --demo.ShowDemoWindow(ctx)
+
 
     local proj = CheckProjChange(ProjTable, UserSettings)
     PushStyle(ctx)
+    --demo.PushStyle(ctx)
+    --demo.ShowDemoWindow(ctx)
     if not PreventPassKeys2 then -- Passthrough keys
         DL.imgui.SWSPassKeys(ctx, false)
     end
@@ -591,9 +617,9 @@ function loop()
     local _
     local window_flags = ImGui.WindowFlags_MenuBar | ImGui.WindowFlags_NoNav | ImGui.WindowFlags_TopMost 
 
-    --ImGui.SetNextWindowSize(ctx, 350, 825, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
+    ImGui.SetNextWindowSize(ctx, 425, 925, ImGui.Cond_Once)-- Set the size of the windows.  Use in the 4th argument ImGui.Cond_FirstUseEver() to just apply at the first user run, so ImGUI remembers user resize s2
     
-    ImGui.PushFont(ctx, FONT, 15)
+    ImGui.PushFont(ctx, FONT, 14)
 
     if SetDock then
         ImGui.SetNextWindowDockID(ctx, SetDock)
@@ -612,7 +638,102 @@ function loop()
     --- GUI HERE
 
     if visible then
-        UserSettings = MenuBar(ctx, UserSettings, GUI, config, version)
+        --------- Menu Bar
+        if ImGui.BeginMenuBar(ctx) then
+            if ImGui.BeginMenu(ctx, 'Options') then
+                if ImGui.MenuItem(ctx, 'Show Tool Tips', nil, UserSettings.tips) then
+                    UserSettings.tips = not UserSettings.tips
+                    GUI.is_save_us.check = true
+                end
+
+                if ImGui.MenuItem(ctx, 'Reset Settings') then
+                    UserSettings = config.default(version)
+                    GUI.is_save_us.check = true
+                end
+
+                if ImGui.MenuItem(ctx, 'Activated Sequencer Follows Selection', nil, UserSettings.activate.follow_selection) then
+                    UserSettings.activate.follow_selection = not UserSettings.activate.follow_selection
+                    GUI.is_save_us.check = true
+                end
+
+                if ImGui.MenuItem(ctx, 'MIDI Note Names Follow Group Names', nil, UserSettings.sequencers.rename_note_names) then
+                    UserSettings.sequencers.rename_note_names = not UserSettings.sequencers.rename_note_names
+                    -- Cleans or update the note names
+                    for proj_loop, pt in pairs(ProjTable) do
+                        for si, st in ipairs(pt.Sequencers) do
+                            if UserSettings.sequencers.rename_note_names then 
+                                is.RenameMIDINotes(proj_loop, st)
+                            else
+                                is.UnameMIDINotes(proj, st)
+                            end
+                        end
+                    end
+                    GUI.is_save_us.check = true
+                end
+
+                ImGui.Separator(ctx)
+
+                if ImGui.MenuItem(ctx, 'Draw Over Items/Tracks', "", UserSettings.gui.draw.active.is_draw) then
+                    UserSettings.gui.draw.active.is_draw = not UserSettings.gui.draw.active.is_draw
+                    GUI.is_save_us.check = true
+                end
+                if UserSettings.gui.draw.active.is_draw then
+                    if ImGui.BeginMenu(ctx, 'Draw Options') then
+                        local dmenu = {
+                            {
+                                text = 'Focused Sequencers:',
+                                configs = UserSettings.gui.draw.focused
+                            },
+                            {
+                                text = 'Active Sequencers:',
+                                configs = UserSettings.gui.draw.active
+                            },
+                            {
+                                text = 'Target Tracks:',
+                                configs = UserSettings.gui.draw.target_tracks
+                            },
+                            {
+                                text = 'Sources:',
+                                configs = UserSettings.gui.draw.sources
+                            },
+                        }
+                        for k, menu in ipairs(dmenu) do
+                            ImGui.Text(ctx, menu.text)
+                            local change
+                            if not menu.configs.is_multicolor then
+                                GUI.is_save_us.check, menu.configs.color = ImGui.ColorEdit4(ctx, '##color' .. k,
+                                    menu.configs.color, ImGui.ColorEditFlags_NoInputs)
+                            end
+                            ImGui.SameLine(ctx)
+                            --change, menu.configs.is_multicolor = ImGui.Checkbox(ctx, 'Use Multi-Color##'..k, menu.configs.is_multicolor)
+                            ImGui.SetNextItemWidth(ctx, 150)
+                            GUI.is_save_us.check, menu.configs.thick = ImGui.SliderInt(ctx, '##Thickness##' .. k,
+                                menu.configs.thick, 1, 10)
+                            if k ~= #dmenu then
+                                ImGui.Separator(ctx)
+                            end
+                        end
+                        ImGui.EndMenu(ctx)
+                    end
+                end
+                ImGui.EndMenu(ctx)
+            end
+
+            if UserSettings.Tips then ToolTip("Save/Load Presets Globally. Store Groups and Settings") end
+
+            -- Dock
+            local reval_dock = ImGui.IsWindowDocked(ctx)
+            local dock_text = reval_dock and 'Undock' or 'Dock'
+
+            if ImGui.MenuItem(ctx, dock_text) then
+                if reval_dock then -- Already Docked
+                    SetDock = 0
+                else           -- Not docked
+                    SetDock = -3 -- Dock to the right
+                end
+            end
+            ImGui.EndMenuBar(ctx)
+        end
         --------- Get MIDI button
         ChangeColor(0.4,0.55,0.4,1)
         local label = Alt and 'Get Sequencer Track' or 'Get Sequencer Item'
@@ -622,7 +743,7 @@ function loop()
         end
         
         if UserSettings.Tips then ToolTip("Select the MIDI items with the notes where the items will be placed. Hold Alt to select a tracks instead of items.") end
-        ImGui.PopStyleColor(ctx, 3); 
+        ImGui.PopStyleColor(ctx, 3)
 
         -- Check sequencers
         if ProjTable[proj].Sequencers then
@@ -654,7 +775,7 @@ function loop()
             
             if ImGui.BeginTabBar(ctx, 'Groups', ImGui.TabBarFlags_Reorderable | ImGui.TabBarFlags_AutoSelectNewTabs ) then
                 local remove_t = {}
-                for i,v in pairs(groups) do -- Loop Tabs
+                for i,v in ipairs(groups) do -- Loop Tabs
                     ChangeColorTab((0.05*i),0.55,0.4,1) -- Change Tab Colors
                     local open, keep = ImGui.BeginTabItem(ctx, ('%s###tab%s'):format(groups[i].name, groups[i].Settings.GUID), true) -- Start each tab
 
@@ -830,7 +951,7 @@ function loop()
                                 --- Pop Up Open
                                 -- Check if double clicked and open pop up
                                 if ImGui.IsItemHovered(ctx) and ImGui.IsMouseDoubleClicked( ctx, 0) then 
-                                    ImGui.OpenPopup(ctx, 'str_id')
+                                    ImGui.OpenPopup(ctx, 'rangepopup')
                                     PreventPassKeys2 = CheckPreventPassThrough(true, 'setnote', PreventPassKeys2)
                                     local mouse_x = ImGui.GetMousePos( ctx)
                                     GUIIsMaxClicked = mouse_x > (gui_x + (gui_w/2) + 10) 
@@ -838,7 +959,7 @@ function loop()
 
                                 -- Pop Up
                                 local popup_setnote
-                                if ImGui.BeginPopup(ctx, 'str_id') then
+                                if ImGui.BeginPopup(ctx, 'rangepopup') then
                                     popup_setnote = true
                                     if ImGui.IsWindowAppearing(ctx) then
                                         ImGui.SetKeyboardFocusHere(ctx)
@@ -1021,7 +1142,7 @@ function loop()
                             end
 
                             --Track Target
-                            local opn = ImGui.TreeNode(ctx, 'Targets', ImGui.TreeNodeFlags_DrawLinesFull)
+                            local opn = ImGui.TreeNode(ctx, 'Target Tracks', ImGui.TreeNodeFlags_DrawLinesFull)
                             CopyPasteContext('Target Tracks',  groups[i].Settings)
                             if opn then
                                 if ImGui.Button(ctx, 'Get Selected Tracks') then
@@ -1098,12 +1219,114 @@ function loop()
                     groups[#groups+1] = BlankGroup:Create('G'..#groups+1)
                     GUI.is_save.check = true
                 end
+
+                if ImGui.IsItemClicked(ctx, ImGui.MouseButton_Right) then
+                    GUI.create_popup.push_open = true
+                end
+
                 ImGui.EndTabBar(ctx)
                 
                 ResetStyleCount()
             end
 
+            if GUI.create_popup.push_open then
+                ImGui.OpenPopup(ctx, GUI.create_popup.name)
+                GUI.create_popup.push_open = false
+            end
 
+            ImGui.SetNextWindowSizeConstraints(ctx, 150, 100, math.huge, math.huge)
+            if ImGui.BeginPopup(ctx, GUI.create_popup.name) then
+                if ImGui.IsWindowAppearing(ctx) and not groups[GUI.create_popup.groups.settings] then
+                    GUI.create_popup.groups.settings = 0
+                end
+                ImGui.Text(ctx, 'Using the selected')
+                ImGui.SameLine(ctx)
+                ImGui.Text(ctx, '[')
+                ImGui.SameLine(ctx)
+                _, GUI.create_popup.source.is_item = ImGui.RadioButtonEx(ctx, 'items', GUI.create_popup.source.is_item, 0)
+                ImGui.SameLine(ctx)
+                _, GUI.create_popup.source.is_item = ImGui.RadioButtonEx(ctx, 'tracks', GUI.create_popup.source.is_item, 1)
+                ImGui.SameLine(ctx)
+                ImGui.Text(ctx, ']')
+
+                ImGui.Text(ctx, 'as sources, create ')
+                ImGui.SameLine(ctx)
+                ImGui.Text(ctx, '[')
+                ImGui.SameLine(ctx)
+                _, GUI.create_popup.groups.is_one = ImGui.RadioButtonEx(ctx, 'one', GUI.create_popup.groups.is_one, 0)
+                ImGui.SameLine(ctx)
+                _, GUI.create_popup.groups.is_one = ImGui.RadioButtonEx(ctx, 'multiple', GUI.create_popup.groups.is_one, 1)
+                ImGui.SameLine(ctx)
+                ImGui.Text(ctx, ']')
+                ImGui.SameLine(ctx)
+                ImGui.Text(ctx, GUI.create_popup.groups.is_one == 0 and 'group.' or 'groups.')
+
+                ImGui.Text(ctx, 'Using the settings of the group')
+                ImGui.SameLine(ctx)
+                
+                local default_txt = 'Default Settings'
+                local wa,ha =ImGui.GetContentRegionAvail(ctx)
+                ImGui.SetNextItemWidth(ctx, wa)
+                local combo_name = GUI.create_popup.groups.settings == 0 and default_txt or groups[GUI.create_popup.groups.settings].name
+                if ImGui.BeginCombo(ctx, '##combotoselectsetting', combo_name) then
+                    if ImGui.Selectable(ctx, default_txt) then
+                        GUI.create_popup.groups.settings = 0
+                    end
+                    for gi, group in ipairs(groups) do
+                        local name = group.name
+                        if ImGui.Selectable(ctx, name..'##'..group.Settings.GUID) then
+                            GUI.create_popup.groups.settings = gi
+                        end
+                    end
+                    ImGui.EndCombo(ctx)
+                end
+
+                _, GUI.create_popup.groups.is_replacing = ImGui.Checkbox(ctx, 'Replacing existing groups', GUI.create_popup.groups.is_replacing)
+
+                if GUI.create_popup.groups.is_one == 1 then
+                    ImGui.Separator(ctx)
+                    _, GUI.create_popup.groups.range.set_by_key = ImGui.Checkbox(ctx, 'Assign each group to a different pitch', GUI.create_popup.groups.range.set_by_key)
+                    ImGui.BeginDisabled(ctx, not GUI.create_popup.groups.range.set_by_key)
+                    local label = 'Starting Pitch'
+                    local wa,ha =ImGui.GetContentRegionAvail(ctx)
+                    local tw = ImGui.CalcTextSize(ctx, label)
+                    ImGui.SetNextItemWidth(ctx, wa - tw - 5)
+                    _, GUI.create_popup.groups.range.start_pitch = ImGui.SliderInt(ctx, 'Starting Pitch', GUI.create_popup.groups.range.start_pitch, 0, 127, NumberToNote(GUI.create_popup.groups.range.start_pitch, true))
+                    ImGui.EndDisabled(ctx)
+                end
+
+                ImGui.Separator(ctx)
+                ChangeColor(0.38,0.48,0.4,1)
+                local txt = GUI.create_popup.groups.is_one == 0 and 'Group' or 'Groups'
+                if ImGui.Button(ctx, 'Create '..txt,  450) then
+                    local group_model = (GUI.create_popup.groups.settings == 0 and BlankGroup:Create('G'..#groups+1)) or groups[GUI.create_popup.groups.settings]
+                    local sources = {}
+                    local f_enum = ((GUI.create_popup.source.is_item == 0) and DL.enum.SelectedMediaItem) or DL.enum.SelectedTracks
+                    for source in f_enum(proj) do
+                        sources[#sources+1] = source
+                    end
+                    local new_groups
+                    if #sources > 0 then
+                        new_groups = BlankGroup.Create2(proj, GUI.create_popup.groups, group_model, sources)
+                    else
+                        print('Please select at least one ' .. ((GUI.create_popup.source.is_item == 0 and 'item') or 'track'))
+                    end
+                    if #new_groups > 0 then
+                        if GUI.create_popup.groups.is_replacing then
+                            sequencer.groups = new_groups
+                        else
+                            for gi, group in ipairs(new_groups) do
+                                table.insert(sequencer.groups, group)
+                            end
+                        end
+                        GUI.is_save.check = true
+                    end
+                end
+                ImGui.PopStyleColor(ctx, 3)
+
+                ImGui.EndPopup(ctx)
+            end
+            
             ImGui.Separator(ctx)
             ImGui.Separator(ctx)
 
@@ -1129,35 +1352,89 @@ function loop()
             if UserSettings.Tips then ToolTip("Click: Paste the items sequence randomly Ctrl+Click: Paste the sequence randomly without repetitions") end
             ImGui.PopStyleColor(ctx, 3);
             -------- List Box
-            
-            if ImGui.TreeNode(ctx, 'Group Editors', ImGui.TreeNodeFlags_DrawLinesFull) then
-                if ImGui.TreeNode(ctx, 'Grid Editor', ImGui.TreeNodeFlags_DrawLinesFull) then
 
-                    ImGui.TreePop(ctx)
-                end
-
-                if ImGui.TreeNode(ctx, 'Activated Groups: ', ImGui.TreeNodeFlags_DrawLinesFull) then
-                    if ImGui.BeginListBox(ctx,  '###label',-1,100) then
-                        for i, v in pairs(groups) do
-                            --ImGui.PushID(ctx, i)
-                            if ImGui.Selectable(ctx,  groups[i].name..'##'..i, groups[i].Selected) then
-                                groups[i].Selected = not groups[i].Selected
-                            end
-                            --ImGui.PopID(ctx)
-                        end
-                        ImGui.EndListBox(ctx)
+            if ImGui.TreeNode(ctx, 'Group Editor', ImGui.TreeNodeFlags_NoTreePushOnOpen) then 
+                local text = 'X' -- Text for in range cells
+                local t_w, t_h = ImGui.CalcTextSize(ctx, text)
+                --local cell_height = 
+                if ImGui.BeginTable(ctx, '##Pichgrideditor', 1 + #groups, ImGui.TableFlags_Borders | ImGui.TableFlags_BordersH | ImGui.TableFlags_ScrollY, -1, -1) then
+                    ImGui.TableSetupColumn(ctx, 'Note', ImGui.TableColumnFlags_WidthFixed | ImGui.TableColumnFlags_NoSort, 75)
+                    for gi, group in ipairs(groups) do
+                        ImGui.TableSetupColumn(ctx, group.name..'##'..group.Settings.GUID, ImGui.TableColumnFlags_NoSort)
                     end
-                    ImGui.TreePop(ctx)
+                    ImGui.TableSetupScrollFreeze(ctx, 0, 1)
+                    ImGui.TableHeadersRow(ctx)
+
+                    for note_idx = 127, 0, -1 do
+                        if GUI.grid_editor.first_run and note_idx == 58 then
+                            ImGui.SetScrollHereY(ctx, 1)
+                            GUI.grid_editor.first_run = false
+                        end
+                        ImGui.TableNextRow(ctx)
+                        ImGui.TableSetColumnIndex(ctx, 0)
+                        local color = GUI.grid_editor.accidents[note_idx % 12] and 0x404040FF or 0x727272FF
+                        ImGui.TableSetBgColor(ctx, ImGui.TableBgTarget_RowBg0, color)
+                        ImGui.Text(ctx, NumberToNote(note_idx))
+                        for gi, group in ipairs(groups) do
+                            ImGui.TableNextColumn(ctx)
+                            -- Text
+                            local in_range = false
+                            if (note_idx <= group.Settings.NoteRange.Max) and (note_idx >= group.Settings.NoteRange.Min) then
+                                in_range = true
+                            end
+                            local wa, ha = ImGui.GetContentRegionAvail(ctx)
+                            local x, y = ImGui.GetCursorPos(ctx)
+                            local xs, ys = ImGui.GetCursorScreenPos(ctx)
+                            -- Selectable Button
+                            local label = '##col'..gi..'row'..note_idx
+                            if ImGui.Selectable(ctx, label) then
+                                if Ctrl then
+                                    group.Settings.Pitch_Original = note_idx
+                                elseif not Shift then
+                                    group.Settings.Pitch_Original = note_idx
+                                    group.Settings.NoteRange.Min = note_idx 
+                                    group.Settings.NoteRange.Max = note_idx 
+                                else -- normal click 
+                                    -- Check which is closest 
+                                    local min = math.abs(note_idx - group.Settings.NoteRange.Min)
+                                    local max = math.abs(note_idx - group.Settings.NoteRange.Max)
+                                    if group.Settings.NoteRange.Min == group.Settings.NoteRange.Max then
+                                        if note_idx > group.Settings.NoteRange.Max then
+                                            group.Settings.NoteRange.Max = note_idx
+                                        else
+                                            group.Settings.NoteRange.Min = note_idx
+                                        end
+                                    elseif min > max then
+                                        group.Settings.NoteRange.Max = note_idx
+                                    else
+                                        group.Settings.NoteRange.Min = note_idx
+                                    end
+                                end
+
+                                GUI.is_save.check = true
+                            end
+                            -- Drawing
+                            if note_idx == group.Settings.Pitch_Original then
+                                local dl = ImGui.GetWindowDrawList(ctx)
+                                ImGui.DrawList_AddRect(dl, xs-5, ys-2, xs+wa+5, ys+t_h+3, 0xFFDFF7FF, nil, nil, 1)
+                            end
+                            -- Text
+                            if in_range then
+                                ImGui.SetCursorPos(ctx, x + (wa - t_w)/2, y)
+                                ImGui.Text(ctx, text)
+                            end
+                        end
+                    end
+                    ImGui.EndTable(ctx)
                 end
-                ImGui.TreePop(ctx)
             end
-
-            ImGui.Separator(ctx)
-
 
 
             if GUI.is_save[1] then
                 is.SaveSequencer(sequencer.seq, sequencer, sequencer.is_item)
+                if UserSettings.sequencers.rename_note_names then
+                    is.RenameMIDINotes(proj, sequencer)
+                end
                 GUI.is_save[1] = nil
                 GUI.is_save.check = nil
             end
@@ -1169,13 +1446,14 @@ function loop()
             GUI.is_save_us.check = nil
         end
 
+
         ----
         ImGui.End(ctx)
     end        
 
-    --- Invisible Window
     ImGui.PopFont(ctx)
     PopStyle()
+    --- Invisible Window
 
     local dw = GUI.sequencers.draw_window
     local dw_options = UserSettings.gui.draw
@@ -1212,6 +1490,7 @@ function loop()
         dw.arrange.tpp = dw.arrange.time_len / dw.arrange.width-- time per pixel
 
         ImGui.PushStyleVar(ctx, ImGui.StyleVar_WindowBorderSize, 0)
+        ImGui.PushStyleColor(ctx, ImGui.Col_ModalWindowDimBg, 0x00000000)-- No Modal dimming
         -- Create Window
         if ImGui.Begin(ctx, 'Item Sampler: Draw Window', true, dw.flags) then
             
@@ -1326,6 +1605,7 @@ function loop()
             ImGui.End(ctx)
         end
         ImGui.PopStyleVar(ctx, 1)
+        ImGui.PopStyleColor(ctx, 1)
     end
 
     if open then
