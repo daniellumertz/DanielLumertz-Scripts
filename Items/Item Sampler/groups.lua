@@ -76,12 +76,18 @@ function BlankGroup.Create2(proj, settings, group_model, sources)
         end
         -- GUID
         new_group.Settings.GUID = reaper.genGuid()
-        -- Pitch 
 
         new_groups[#new_groups+1] = new_group
     end
 
     return new_groups
+end
+
+function BlankGroup.Duplicate(group)
+    local new_group = table_copy(group)
+    new_group.Settings.GUID = reaper.genGuid()
+
+    return new_group
 end
 --[[ Groups = {}
 Groups[1] = BlankGroup:Create('G1') ]]
