@@ -231,6 +231,13 @@ function scale(val,min1,max1,min2,max2)
     return (((max2 - min2)*(val - min1))/(max1 - min1))+min2
 end
 
+function scale_log(val, min1, max1, min2, max2)
+    -- val is linear in [min1, max1]
+    -- output is exponential in [min2, max2]
+    local t = (val - min1) / (max1 - min1)  -- normalize to 0..1
+    return min2 * ((max2 / min2) ^ t)
+end
+
 function NumberToNote(number, is_sharp, is_octave, center_c_octave) -- Number, boolean(optional), boolean(optional), number(optional)
     if center_c_octave == nil then
         center_c_octave = 4
