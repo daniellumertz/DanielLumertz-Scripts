@@ -1,5 +1,5 @@
 --local VSDEBUG = dofile("c:/Users/danie/.vscode/extensions/antoinebalaine.reascript-docs-0.1.16/debugger/LoadDebug.lua")
--- @version 1.8.0
+-- @version 1.8.1
 -- @author Daniel Lumertz
 -- @provides
 --    [nomain] General Functions.lua
@@ -27,12 +27,13 @@
 --    + Bug Fix: Using ipairs to properlly shows groups in the correct order 
 --    + Bug Fix: Prevent pasting a group setting if none have been copied.
 --    + Bug Fix: Removed debug line
+--    + Bug Fix: Deleting source items
 
 
 --TODOs
 -- Update header require
 
-local version = '1.8.0'
+local version = '1.8.1'
 local info = debug.getinfo(1, 'S');
 local script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 
@@ -1652,6 +1653,10 @@ function loop()
                                 local options =  dw_options.sources
                                 for k, source in ipairs(group.list_sequence) do
                                     local is_item = reaper.ValidatePtr(source, 'MediaItem*')
+                                    local is_track = reaper.ValidatePtr(source, 'MediaTrack*')
+                                    if (not is_item) and (not is_track) then 
+                                        goto continue
+                                    end
                                     local f = is_item and GetItemImGuiCordinates or GetTrackItemAreaImGuiCordinates 
                                     local bol, x1, y1, x2, y2 = f(source, dw.sequencers.track_info, dw)
                                     if bol then
@@ -1668,6 +1673,7 @@ function loop()
                                         }
                                         is_multicolor = is_multicolor or options.is_multicolor
                                     end
+                                    ::continue::
                                 end
                             end
                         end
