@@ -4,7 +4,7 @@
 -- @provides
 --    [nomain] General Functions.lua
 --    [nomain] presets.lua
---    [nomain] GUI Functions.lua Q
+--    [nomain] GUI Functions.lua
 --    [nomain] groups.lua
 --    [nomain] Item Sampler Settings Management.lua
 --    [nomain] REAPER Functions.lua
