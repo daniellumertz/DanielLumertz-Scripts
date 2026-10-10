@@ -5,6 +5,9 @@ function BlankGroup:Create(name)
     local temp = {
         name = name or "New Group",
         Settings = {
+            seed = {
+                number = 0
+            },
             stretch = {
                 is_stretch = false,
                 min_stretch = 0.5,

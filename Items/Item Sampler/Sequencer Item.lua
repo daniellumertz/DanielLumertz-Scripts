@@ -55,9 +55,15 @@ function is.ReopenSequencers(proj, sequencers, version)
     return sequencers
 end
 
+---Return the sequencer table. If provided a version it will create an sequencer out of the item/track, else will return false if item/track is not a sequencer.
+---@param proj ReaProject
+---@param seq MediaItem
+---@param is_item boolean
+---@param version string?
+---@return table|boolean
 function is.OpenSequencer(proj, seq, is_item, version)
     local st = is.LoadSequencer(proj, seq, is_item)
-    if not st then
+    if not st and version then
         -- Check if item is not an pasted item
         if is_item then
             local _, s_guid = DL.item.GetExtState(seq, ExtStates.ext_name, ExtStates.pasted.seq_key)
@@ -69,9 +75,43 @@ function is.OpenSequencer(proj, seq, is_item, version)
         -- Make it 
         st = is.MakeSequencer(proj, seq, is_item, version)
     end
+    -- Check Version
+    local save
+    UpdateVersion, save = is.UpdateSequencerVersion(st)
+    if save then
+        is.SaveSequencer(seq, st, is_item)
+    end
+    -- Check if has live updated but is not registered at the project (turn off live update). This catches sequencers created by copy paste 
+    if st and st.live_update.on then
+        local live_sequencers = is.GetLiveSequencersTable(proj)
+        local guid_func = (is_item and reaper.GetSetMediaItemInfo_String) or reaper.GetSetMediaTrackInfo_String
+        local _, guid = guid_func(seq, 'GUID', '', false)
+        local is_registered = false
+        for k, live_sequencer in ipairs(live_sequencers) do
+            if live_sequencer.guid == guid then
+                is_registered = true
+                break
+            end
+        end
+        if not is_registered then
+            st.live_update.on = false
+            is.SaveSequencer(seq, st, is_item)
+        end
+    end
 
-    UpdateVersion = is.UpdateSequencerVersion(st)
     return st
+end
+
+local function get_default_config(key)
+    if key == 'live_update' then
+        return {
+            on = true,
+            type = {
+                is_random = false,
+                is_reverse = false -- Paste in reverse order if random is false. Paste uniquelly before repeating if random is true
+            }
+        }
+    end
 end
 
 function is.MakeSequencer(proj, seq, is_item, version)
@@ -81,21 +121,36 @@ function is.MakeSequencer(proj, seq, is_item, version)
         },
         is_item = is_item,
         seq = seq,
-        version = version
+        version = version,
+        live_update = get_default_config('live_update')
     }
     is.SaveSequencer(seq, st, is_item)
     return st
 end
 
 function is.UpdateSequencerVersion(st)
+    local is_save = false
     if not st.version then -- before 1.8.0
         local new_group = BlankGroup:Create('whatever')
         for gi, group in ipairs(st.groups) do -- add stretch configs
             group.Settings.stretch = table_copy(new_group.Settings.stretch)
         end
         st.version = '1.8.0'
+        is_save = true
     end
-   return st 
+
+    if not DL.num.CompareVersion(st.version, '1.9.0') then
+        -- Live Update
+        st.live_update = get_default_config('live_update') -- arguments dont matter here 
+        -- Seed
+        local new_group = BlankGroup:Create('whatever')
+        for gi, group in ipairs(st.groups) do -- add stretch configs
+            group.Settings.seed = table_copy(new_group.Settings.seed)
+        end
+        st.version = '1.9.0'
+        is_save = true
+    end
+   return st, is_save
 end
 
 local ext_name = ExtStates.ext_name
@@ -304,5 +359,106 @@ function is.UnameMIDINotes(proj, st)
         reaper.MIDI_RefreshEditors(tk)
     end
 end
+
+--------
+--- Live Sequencers
+--------
+
+local live_extkey = ExtStates.live_updates.key
+function is.AddSequencerToExtState(proj, seq, is_item, is_add)
+    local live_sequencers = is.GetLiveSequencersTable(proj)
+    local guid_func = (is_item and reaper.GetSetMediaItemInfo_String) or reaper.GetSetMediaTrackInfo_String
+    local _, guid = guid_func(seq, 'GUID', '', false)
+    if is_add then
+        local chunk_func = (is_item and reaper.GetItemStateChunk or reaper.GetTrackStateChunk)
+        local is_chunk, chunk = chunk_func(seq, '')
+        if chunk then
+            live_sequencers[#live_sequencers+1] = {
+                is_item = is_item,
+                chunk = chunk,
+                guid = guid
+            }
+        end
+    else
+        local bol, index = DL.t.HaveValue(live_sequencers, guid)
+        if index then
+            table.remove(live_sequencers, index)
+        end
+    end
+
+    -- Clean the Ext State
+    is.LiveUpdateExtStateClean(proj, live_sequencers)
+
+    -- Save Live Sequencers
+    is.SaveLiveSequencersTable(proj, live_sequencers)
+
+    return live_sequencers
+end
+
+function is.SaveLiveSequencersTable(proj, live_sequencers)
+    -- Save Table
+    local live_sequencers_string = DL.serialize.tableToString(live_sequencers)
+    reaper.SetProjExtState(proj, ext_name, live_extkey, live_sequencers_string)
+end
+
+function is.GetLiveSequencersTable(proj)
+    local _, ext = reaper.GetProjExtState(proj, ext_name, live_extkey)
+    local live_sequencers
+    if ext then
+        live_sequencers = DL.serialize.stringToTable(ext)
+    end
+    live_sequencers = live_sequencers and live_sequencers or {} -- in case it didnt load correctly
+    return live_sequencers
+end
+
+function is.LiveUpdateExtStateClean(proj, t)
+    local remove = {}
+    for k, v in ipairs(t) do
+        -- Try item first, then track
+        local ptr = reaper.BR_GetMediaItemByGUID(proj, v.guid)
+        if not ptr or not reaper.ValidatePtr(ptr, 'MediaItem*') then
+            ptr = reaper.BR_GetMediaTrackByGUID(proj, v.guid)
+        end
+        if not ptr then
+            remove[#remove+1] = k
+        end
+    end
+    for k, v in DL.t.ipairs_reverse(remove) do
+        table.remove(t, k)
+    end
+    return t
+end
+
+local function normalize_chunks(chunk)
+    -- Disconsider Extstates
+    chunk = chunk:gsub("\n%s*<EXTI.-\n%s*>", "")
+    -- Disconsider YPOS
+    chunk = chunk:gsub("\n%s*YPOS.-\n%s*", "")
+    -- Disconsider name
+    chunk = chunk:gsub("\n%s*NAME.-\n%s*", "")
+    -- Disconsider Item Selection
+    chunk = chunk:gsub("\n%s*SEL%s+%d+", "")
+    -- MIDI Events Selection
+    chunk = chunk:gsub("(\n([ \t]*)<SOURCE MIDI.-\n%2>)", function(block)
+        -- notes/CC events
+        block = block:gsub("\n([ \t]*)e", "\n%1E")
+        -- sysex/text events
+        block = block:gsub("\n([ \t]*)<x", "\n%1<X")
+        return block
+    end)
+
+    return chunk
+end
+
+---Return True if equal, false if differs
+---@param chunk1 string
+---@param chunk2 string
+---@return boolean
+function is.AreLiveSequencersChunksEqual(chunk1, chunk2)
+    chunk1 = normalize_chunks(chunk1)
+    chunk2 = normalize_chunks(chunk2)
+    return chunk1 == chunk2
+end
+
 
 return is
